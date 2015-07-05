@@ -1,0 +1,120 @@
+var LOG = true;
+
+/* TYPES */
+
+HORIZONTAL_RECTANGULAR_OUTPUT = 'Horizontal Rect';
+VERTICAL_RECTANGULAR_OUTPUT = 'Vertical Rect';
+SQUARED_OUTPUT = 'Square';
+CIRCULAR_OUTPUT = 'Circle';
+TRIANGULAR_OUTPUT = 'Triangle';
+POLYGONAL_OUTPUT = 'Polygon';
+MINIATURE_OUTPUT = 'Miniature';
+
+IMAGE_PLOTTER = 'ImagePlotter';
+
+
+CIRCULAR_MARK = 'Circle';
+RECTANGULAR_MARK = 'Rectangle';
+SQUARED_MARK = 'Square';
+ELLIPTIC_MARK = 'Ellipse';
+FATFONT_MARK = 'FatFont';
+PATH_MARK = 'Path';
+SVGPATH_MARK = 'SVGPath';
+SVGPATHGROUP_MARK = 'SVG File';
+
+
+CIRCULAR_VIXOR = 'CircleVixor';
+RECTANGULAR_VIXOR = 'RectangleVixor';
+ELLIPTIC_VIXOR = 'EllipseVixor';
+FATFONT_VIXOR = 'FatFontVixor';
+SVGPATH_VIXOR = 'SVGPathVixor';
+SVGPATHGROUP_VIXOR = 'SVGPathGroupVixor';
+SAMPLER_VIXOR = 'SamplerVixor';
+
+
+
+rectangular_output_default_width = 30;
+rectangular_output_default_height = 30;
+
+rectangular_mark_default_width = 65;
+rectangular_mark_default_height = 65;
+
+
+
+widget_fill_opacity = 0.5;
+
+widget_stroke_color = '#3d3000';
+widget_stroke_width = 1.5;
+widget_stroke_dash_array = [7, 7];
+
+widget_selected_stroke_color = '#ffce0a';
+widget_selected_stroke_width = 3;
+widget_selected_stroke_dash_array = [7, 7];
+
+ADDING_NEW_OUTPUT = "ADDING_NEW_OUTPUT";
+REPLACING_EXISTING_OUTPUT = "REPLACING_EXISTING_OUTPUT";
+DELETING_OUTPUT = "DELETING_OUTPUT";
+
+
+timeFormats = null;
+dateFormats = null;
+
+
+metricPrefixes = [
+    {prefix: 'tera', symbol: 'T', factor: 1000000000000, exponent: 12},
+    {prefix: 'giga', symbol: 'G', factor: 1000000000, exponent: 9},
+    {prefix: 'mega', symbol: 'M', factor: 1000000, exponent: 6},
+    {prefix: 'kilo', symbol: 'k', factor: 1000, exponent: 3},
+    {prefix: 'hecto', symbol: 'h', factor: 100, exponent: 2},
+    {prefix: 'deca', symbol: 'da', factor: 10, exponent: 1},
+    {prefix: '', symbol: '(none)', factor: 1, exponent: 0},
+    {prefix: 'deci', symbol: 'd', factor: 0.1, exponent: -1},
+    {prefix: 'centi', symbol: 'c', factor: 0.01, exponent: -2},
+    {prefix: 'milli', symbol: 'm', factor: 0.001, exponent: -3},
+    {prefix: 'micro', symbol: 'μ', factor: 0.000001, exponent: -6},
+    {prefix: 'nano', symbol: 'n', factor: 0.000000001, exponent: -9},
+    {prefix: 'pico', symbol: 'p', factor: 0.000000000001, exponent: -12}
+];
+
+dateAndTimeFormats = [
+    'D/MM/YYYY, HH:mm:ss',
+    'D/MM/YYYY',
+    'HH:mm:ss',
+];
+
+durationFormats = [
+    'milliseconds',
+    'seconds',
+    'minutes',
+    'hours',
+    'days',
+    'months',
+    'years',
+];
+
+months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+];
+
+durationUnits = [
+    'years',
+    'months',
+    'weeks',
+    'days',
+    'hours',
+    'minutes',
+    'seconds',
+    'milliseconds'
+];
+

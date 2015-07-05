@@ -1,0 +1,562 @@
+var NumericData = fabric.util.createClass(fabric.Path, {
+    
+    serializableProperties: ['left', 'top', 'theType', 'value.unscaledValue', 'value.inPrefix', 'value.outPrefix', 'value.units'],
+    deserializer: addVisualValueToCanvas,
+    
+    initialize: function (options) {
+        options || (options = {});
+        var path = paths["number"].rw;
+        this.callSuper('initialize', path, options);
+
+        this.set('dataTypeProposition', 'isNumericData');
+        this.set(this.dataTypeProposition, true);
+
+        this.set('strokeWidth', options.strokeWidth || 2);
+        this.set('originalStrokeWidth', this.strokeWidth);
+
+        this.set('fill', options.fill || rgb(2, 128, 204));
+        this.set('stroke', options.stroke || darkenrgb(2, 128, 204));
+        this.set('colorForStroke', options.stroke || darkenrgb(2, 128, 204));
+
+        var unscaledValue = options.unscaledValue;
+        var inPrefix = options.inPrefix || '';
+        var outPrefix = options.outPrefix || '';
+
+//      if (LOG) console.log("++++++++++++++ inPrefix:");
+//      if (LOG) console.log(inPrefix);
+//
+//      if (LOG) console.log("++++++++++++++ outPrefix:");
+//      if (LOG) console.log(outPrefix);
+
+        var theUnits = options.units || '';
+        var value = createNumericValue(unscaledValue, inPrefix, outPrefix, theUnits);
+        this.set('value', value);
+
+        if (LOG) console.log("value:");
+        if (LOG) console.log(value);
+
+        this.set('inConnectors', new Array());
+        this.set('outConnectors', new Array());
+        this.set('readable', true);
+        this.set('writable', true);
+        this.associateEvents();
+
+        this.set('originX', 'center');
+        this.set('originY', 'center');
+
+
+        this.set({left: options.left, top: options.top});
+        this.setCoords();
+
+    },
+    
+    setValueChangingOutPrefixAndUnits: function (numericValue, refreshCanvas, shouldAnimate) {
+        
+        var theDataType = this;
+        if (numericValue.isNumericData) {
+            
+            theDataType.value = numericValue;
+
+            if (theDataType.collection) {
+                var options = {
+                    visualValue: theDataType,
+                    shouldAnimate: shouldAnimate
+                };
+                theDataType.collection.trigger('valueChanged', options);
+            }
+            
+            if (theDataType.isLimitValue) {
+                var options = {
+                    visualValue: theDataType,
+                    shouldAnimate: shouldAnimate
+                };
+                theDataType.limitOf.trigger('limitChanged', options);
+            }
+
+            theDataType.outConnectors.forEach(function (outConnector) {
+                outConnector.setValue(theDataType.value.clone(), false, shouldAnimate);
+            });
+
+            if (refreshCanvas) {
+                canvas.renderAll();
+            }
+            return true; // Succes
+        } else {
+
+            return false; // error when trying to set the value of this data type. Some other function should deal witht this value in order to provide visual feedback to the user
+        }
+        
+    },
+    setValue: function (numericValue, refreshCanvas, shouldAnimate) {
+        
+        console.log("%c +++ setting value of NUMERICDATA class with refreshCanvas: " + refreshCanvas + ", shouldAnimate: " + shouldAnimate, "background: #008000; color: white;");
+        
+
+        var theDataType = this;
+        if (numericValue.isNumericData) {
+            
+            
+            if (LOG) console.log("BEFORE the conversion to the corresponding units and output prefix: theDataType.value:");
+            if (LOG) console.log(theDataType.value);
+
+            // Here, the units and out prefix of the value are preserved
+            theDataType.value = createNumericValue(numericValue.number, numericValue.inPrefix, theDataType.value.outPrefix, theDataType.value.units);
+            
+            if (LOG) console.log("AFTER the conversion to the corresponding units and output prefix: theDataType.value:");
+            if (LOG) console.log(theDataType.value);
+
+
+            if (theDataType.collection) {
+                var options = {
+                    visualValue: theDataType,
+                    shouldAnimate: shouldAnimate
+                };
+                theDataType.collection.trigger('valueChanged', options);
+            }
+            
+            if (theDataType.isLimitValue) {
+                var options = {
+                    visualValue: theDataType,
+                    shouldAnimate: shouldAnimate
+                };
+                theDataType.limitOf.trigger('limitChanged', options);
+            }
+
+            theDataType.outConnectors.forEach(function (outConnector) {
+                outConnector.setValue(theDataType.value.clone(), false, shouldAnimate);
+            });
+
+            if (refreshCanvas) {
+                canvas.renderAll();
+            }
+            return true; // Succes
+        } else {
+
+            return false; // error when trying to set the value of this data type. Some other function should deal witht this value in order to provide visual feedback to the user
+        }
+    },
+    expand: function () {
+
+        var theDataType = this;
+
+        showNumericValue(theDataType, true);
+       
+
+        /*var mainDiv = $('<div/>', {class: 'icon-large'});
+         
+         if (LOG) console.log("%cconfigurator:", "background:red; color:white;");
+         if (LOG) console.log(mainDiv);
+         
+         var padding = (theDataType.width / 4) * canvas.getZoom();
+         
+         mainDiv.css('padding-right', padding + 'px');
+         mainDiv.css('padding-left', padding + 'px');
+         
+         document.body.appendChild(mainDiv[0]);
+         
+         var labelUnscaledValue = $('<label/>', {text: 'Number' + ": ", style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"});
+         
+         if (LOG) console.log("theDataType.value:");
+         if (LOG) console.log(theDataType.value);
+         
+         //      var unscaledValueTextField = $('<input />', {id: 'unscaledValueTextField', maxlength: 6, type: 'number', style: 'margin-top: 10px; font-size: 18px; width: 80px; margin-right: 10px;', value: theDataType.value.unscaledValue % 1 !== 0 ? theDataType.value.unscaledValue.toFixed(2) : theDataType.value.unscaledValue});
+         var unscaledValueTextField = $('<input />', {id: 'unscaledValueTextField', maxlength: 6, type: 'number', style: 'margin-top: 10px; font-size: 18px; width: 80px; margin-right: 10px;', value: theDataType.value.unscaledValue});
+         
+         var inputUnitsTextField = $('<input />', {id: 'inputUnitsTextField', maxlength: 20, type: 'string', style: 'margin-top: 10px; font-size: 18px; width: 80px; margin-right: 10px;', value: theDataType.value.units});
+         
+         var prefixSelector = buildPrefixSelector(theDataType.value);
+         
+         var outputTypeSelector = buildOutputSelector(theDataType.value);
+         
+         var okButton = $('<button/>', {text: "OK", class: "square", style: "width: 25%; margin-left: 22%; margin-right: 6%; border-color: #000; border-style: solid; border-width: 2px; color: black; "});
+         
+         var cancelButton = $('<button/>', {text: "Cancel", class: "square", style: "width: 25%; border-color: #000; border-style: solid; border-width: 2px; color: black; "});
+         
+         inputUnitsTextField.keyup(function () {
+         updateOutputUnits();
+         });
+         
+         unscaledValueTextField.keyup(function () {
+         updateOutputText();
+         });
+         
+         unscaledValueTextField.change(function () {
+         updateOutputText();
+         });
+         
+         okButton.click(function () {
+         
+         var currentUnscaledValue = Number($("#unscaledValueTextField").val());
+         var selectedInPrefix = $("#prefixSelector option:selected").text();
+         var selectedOutPrefix = $("#outputTypeSelector option:selected").text();
+         var currentUnits = $("#inputUnitsTextField").val();
+         
+         var numberValue = createNumericValue(currentUnscaledValue, selectedInPrefix, selectedOutPrefix, currentUnits);
+         
+         if (!numberValue.equals(theDataType.value)) {
+         if (theDataType.inConnectors.length > 0) {
+         var connector = theDataType.inConnectors.pop();
+         connector.contract();
+         }
+         }
+         
+         theDataType.setValue(numberValue, true);
+         
+         theDataType.outConnectors.forEach(function (outConnector) {
+         outConnector.setValue(numberValue, false, true);
+         });
+         
+         setTimeout(function () {
+         canvas.renderAll();
+         }, 10);
+         
+         mainDiv.tooltipster('hide');
+         });
+         
+         cancelButton.click(function () {
+         mainDiv.tooltipster('hide');
+         });
+         
+         var configurationPanel = $('<div/>', {id: 'theConfigurationPanel'});
+         
+         configurationPanel.append(labelUnscaledValue);
+         
+         configurationPanel.append(unscaledValueTextField);
+         
+         configurationPanel.append(prefixSelector);
+         
+         configurationPanel.append(inputUnitsTextField);
+         
+         configurationPanel.append($('<br /><br />'));
+         
+         configurationPanel.append($('<label/>', {text: 'Output as:', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"}));
+         configurationPanel.append(outputTypeSelector);
+         configurationPanel.append($('<label/>', {text: theDataType.value.units, id: 'outputUnits', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"}));
+         
+         configurationPanel.append($('<label/>', {id: 'outputLabel', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"}));
+         
+         configurationPanel.append($('<br /><br />'));
+         
+         configurationPanel.append($('<hr />'));
+         
+         configurationPanel.append($('<br />'));
+         
+         configurationPanel.append(okButton);
+         
+         configurationPanel.append(cancelButton);
+         
+         mainDiv.tooltipster({
+         content: configurationPanel,
+         animation: 'grow',
+         trigger: 'click',
+         interactive: true,
+         position: 'right',
+         multiple: true
+         });
+         
+         theDataType.configurator = mainDiv;
+         
+         // positioning and showing the configurator        
+         var centerPoint = theDataType.getPointByOrigin('center', 'center');
+         var screenCoords = getScreenCoordinates(centerPoint);
+         mainDiv.css('position', 'absolute');
+         mainDiv.css('top', screenCoords.y + 'px');
+         mainDiv.css('left', screenCoords.x + 'px');
+         mainDiv.tooltipster('reposition');
+         mainDiv.tooltipster('show');
+         
+         updateOutputText();*/
+
+    },
+});
+DataType.call(NumericData.prototype);
+
+function getMultiplicationFactor(aPrefix) {
+    if (!aPrefix || aPrefix == 'none' || aPrefix === '') {
+        return 1;
+    } else {
+        for (var i = 0; i < metricPrefixes.length; i++) {
+            var item = metricPrefixes[i];
+            if (item.prefix === aPrefix) {
+                return item.factor;
+            }
+        }
+    }
+}
+
+function generateScaledValue(unscaledValue, inFactor, outFactor) {
+    var scaledNumber = (unscaledValue * inFactor) / outFactor;
+    return scaledNumber;
+}
+
+function buildOutputSelector(numericValue) {
+
+    var outputTypeSelector = $('<select />', {id: 'outputTypeSelector', style: 'font-size: 18px; margin-right: 10px; margin-top: 10px;'});
+
+    metricPrefixes.forEach(function (item) {
+        var currentOption = $('<option />', {value: item.factor, text: item.prefix, selected: item.factor === numericValue.outMultiplicationFactor});
+        currentOption.appendTo(outputTypeSelector);
+    });
+
+    outputTypeSelector.on('change', function (e) {
+        updateOutputText();
+    });
+
+    return outputTypeSelector;
+
+}
+
+function buildPrefixSelector(numericValue) {
+
+    var prefixSelector = $('<select />', {id: 'prefixSelector', style: 'font-size: 18px; margin-right: 10px; margin-top: 10px;'});
+
+    /*if (LOG) console.log("**************** theDataType.value.inMultiplicationFactor:");
+     if (LOG) console.log(numericValue.inMultiplicationFactor);*/
+
+    metricPrefixes.forEach(function (item) {
+        var currentOption = $('<option />', {value: item.factor, text: item.prefix, selected: item.factor === numericValue.inMultiplicationFactor});
+        currentOption.appendTo(prefixSelector);
+    });
+
+    prefixSelector.on('change', function (e) {
+        updateOutputText();
+    });
+
+    return prefixSelector;
+
+}
+
+function updateOutputText() {
+
+    var currentUnscaledValue = $("#unscaledValueTextField").val();
+    var selectedInPrefix = $("#prefixSelector option:selected").text();
+    var selectedOutPrefix = $("#outputTypeSelector option:selected").text();
+    var inFactor = getMultiplicationFactor(selectedInPrefix);
+    var outFactor = getMultiplicationFactor(selectedOutPrefix);
+
+    /*if (LOG) console.log("++++++++++++ currentUnscaledValue:");
+     if (LOG) console.log(currentUnscaledValue);
+     if (LOG) console.log("++++++++++++ inFactor:");
+     if (LOG) console.log(inFactor);
+     if (LOG) console.log("++++++++++++ outFactor:");
+     if (LOG) console.log(outFactor);*/
+
+    var scaledNumber = generateScaledValue(currentUnscaledValue, inFactor, outFactor);
+    var outputLabel = $('#outputLabel');
+//   var valueToShow = scaledNumber % 1 === 0 ? scaledNumber : scaledNumber.toFixed(3);
+    var valueToShow = scaledNumber;
+    outputLabel.text('( ' + valueToShow + ' )');
+
+}
+
+function updateOutputUnits() {
+    var inputUnits = $("#inputUnitsTextField").val();
+    $("#outputUnits").text(inputUnits);
+}
+
+function createNumericValue(unscaledValue, inPrefix, outPrefix, units) {
+//   if (LOG) console.log("Here");
+    var inMultiplicationFactor = getMultiplicationFactor(inPrefix);
+    var outMultiplicationFactor = getMultiplicationFactor(outPrefix);
+    var scaledValue = generateScaledValue(unscaledValue, inMultiplicationFactor, outMultiplicationFactor);
+    if (!units) {
+        units = '';
+    }
+    return new Value({isNumericData: true, number: scaledValue, unscaledValue: unscaledValue, inPrefix: inPrefix, outPrefix: outPrefix, units: units, inMultiplicationFactor: inMultiplicationFactor, outMultiplicationFactor: outMultiplicationFactor});
+}
+
+
+function showNumericValue(holderElement, allowEdition) {
+
+    var mainDiv = $('<div/>', {class: 'icon-large'});
+
+    if (LOG) console.log("%cconfigurator:", "background:red; color:white;");
+    if (LOG) console.log(mainDiv);
+
+    var padding = (holderElement.width / 4) * canvas.getZoom();
+
+    mainDiv.css('padding-right', padding + 'px');
+    mainDiv.css('padding-left', padding + 'px');
+
+    document.body.appendChild(mainDiv[0]);
+
+    var label = holderElement.attribute || 'number';
+    var labelUnscaledValue = $('<label/>', {text: capitalizeFirstLetter(label) + ": ", style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"});
+
+    if (LOG) console.log("theDataType.value:");
+    if (LOG) console.log(holderElement.value);
+
+    var unscaledValueTextField = $('<input />', {id: 'unscaledValueTextField', maxlength: 6, type: 'number', style: 'margin-top: 10px; font-size: 18px; width: 80px; margin-right: 10px;', value: holderElement.value.unscaledValue});
+    unscaledValueTextField.prop('disabled', !allowEdition);
+
+    var inputUnitsTextField = $('<input />', {id: 'inputUnitsTextField', maxlength: 20, type: 'string', style: 'margin-top: 10px; font-size: 18px; width: 80px; margin-right: 10px;', value: holderElement.value.units});
+//   inputUnitsTextField.prop('disabled', !allowEdition);
+
+    var prefixSelector = buildPrefixSelector(holderElement.value);
+    prefixSelector.prop('disabled', !allowEdition);
+
+    var outputTypeSelector = buildOutputSelector(holderElement.value);
+
+    var okButton = $('<button/>', {text: "OK", class: "square", style: "width: 25%; margin-left: 22%; margin-right: 6%;  border-color: #000; border-style: solid; border-width: 2px; color: black; "});
+
+    var cancelButton = $('<button/>', {text: "Cancel", class: "square", style: "width: 25%; border-color: #000; border-style: solid; border-width: 2px; color: black; "});
+
+    associateEnterEvent(unscaledValueTextField, okButton);
+    associateEnterEvent(inputUnitsTextField, okButton);
+
+    inputUnitsTextField.keyup(function () {
+        updateOutputUnits();
+    });
+
+    unscaledValueTextField.keyup(function () {
+        updateOutputText();
+    });
+
+    unscaledValueTextField.change(function () {
+        updateOutputText();
+    });
+
+    okButton.click(function () {
+
+        var currentUnscaledValue = Number($("#unscaledValueTextField").val());
+        var selectedInPrefix = $("#prefixSelector option:selected").text();
+        var selectedOutPrefix = $("#outputTypeSelector option:selected").text();
+        var selectedUnits = $("#inputUnitsTextField").val();
+        
+        
+
+        var unitsChanged = holderElement.value.units !== selectedUnits;
+
+        var numberValue = createNumericValue(currentUnscaledValue, selectedInPrefix, selectedOutPrefix, selectedUnits);
+
+
+
+        // The incoming connection(s) of this element are only removed if the ABSOLUTE VALUE of this numeric value has changed (1000 meters are the same thing than 1kilometers)
+        if (!numberValue.equals(holderElement.value)) {
+            if (holderElement.inConnectors.length > 0) {
+                var connector = holderElement.inConnectors.pop();
+                connector.contract();
+            }
+        }
+
+        /*if (unitsChanged) {
+
+            holderElement.value = numberValue;
+            holderElement.value.units = selectedUnits; // Changing the units to the new one
+            
+            
+            
+            holderElement.outConnectors.forEach(function (outConnector) {
+                outConnector.setValue(holderElement.value, false, true);
+            });
+
+        } else {
+            
+            
+        }*/
+        
+        var refreshCanvas = false;
+        var shouldAnimate = true;
+        
+        if (holderElement.isVisualProperty) {
+            
+            holderElement.setValue(numberValue, refreshCanvas, shouldAnimate);
+            
+        } else {
+            
+            // if I call the normal setValue method, it will respect the units that the object already has. That is, the units selected by the user in this 
+            // pop up will not be taken into account. Thus, I have to choose another method
+            holderElement.setValueChangingOutPrefixAndUnits(numberValue, refreshCanvas, shouldAnimate);
+            
+        }
+        
+        
+            
+            
+            
+            
+            
+
+        // This is NOW done by the holderElement, as that is the responsible to update its parent
+        /*if (holderElement.parentObject) {
+         holderElement.parentObject.setProperty(holderElement.attribute, numberValue, holderElement, true);
+         }*/
+
+        
+
+        //      holderVisualElement.value = numberValue;
+
+
+        /*holderVisualElement.outConnectors.forEach(function (outConnector) {
+         outConnector.setValue(numberValue, refreshCanvas, shouldAnimate);
+         });*/
+        
+        
+        if (LOG) console.log("holderElement.value");
+        if (LOG) console.log(holderElement.value);
+
+        setTimeout(function () {
+            canvas.renderAll();
+        }, 10);
+
+        mainDiv.tooltipster('hide');
+    });
+
+
+    cancelButton.click(function () {
+        mainDiv.tooltipster('hide');
+    });
+
+    var configurationPanel = $('<div/>', {id: 'theConfigurationPanel'});
+
+    configurationPanel.append(labelUnscaledValue);
+
+    configurationPanel.append(unscaledValueTextField);
+
+    configurationPanel.append(prefixSelector);
+
+    configurationPanel.append(inputUnitsTextField);
+
+    configurationPanel.append($('<br /><br />'));
+
+    configurationPanel.append($('<label/>', {text: 'Output as:', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"}));
+    configurationPanel.append(outputTypeSelector);
+    configurationPanel.append($('<label/>', {text: holderElement.value.units, id: 'outputUnits', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"}));
+
+    configurationPanel.append($('<label/>', {id: 'outputLabel', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"}));
+
+    configurationPanel.append($('<br /><br />'));
+
+    configurationPanel.append($('<hr />'));
+
+    configurationPanel.append($('<br />'));
+
+    configurationPanel.append(okButton);
+
+    configurationPanel.append(cancelButton);
+
+    mainDiv.tooltipster({
+        content: configurationPanel,
+        animation: 'grow',
+        trigger: 'click',
+        interactive: true,
+        position: 'right',
+        multiple: true
+    });
+
+    holderElement.configurator = mainDiv;
+
+    // positioning and showing the configurator        
+    var centerPoint = holderElement.getPointByOrigin('center', 'center');
+    var screenCoords = getScreenCoordinates(centerPoint);
+    mainDiv.css('position', 'absolute');
+    mainDiv.css('top', screenCoords.y + 'px');
+    mainDiv.css('left', screenCoords.x + 'px');
+    mainDiv.tooltipster('reposition');
+    mainDiv.tooltipster('show');
+
+    updateOutputText();
+
+
+
+}

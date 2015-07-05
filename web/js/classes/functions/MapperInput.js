@@ -1,0 +1,291 @@
+var MapperInput = fabric.util.createClass(fabric.Path, {
+    initialize: function (path, options) {
+        options || (options = {});
+        this.callSuper('initialize', path, options);
+        this.set('strokeWidth', options.strokeWidth || 2);
+        this.set('lockMovementX', options.lockMovementX || true);
+        this.set('lockMovementY', options.lockMovementY || true);
+        this.set('lockScalingX', options.lockScalingX || true);
+        this.set('lockScalingY', options.lockScalingY || true);
+        this.set('hasRotatingPoint', options.hasRotatingPoint || false);
+        this.set('hasBorders', options.hasBorders || false);
+        this.set('hasControls', options.hasControls || false);
+        this.set('fill', options.fill || rgb(255, 255, 255));
+        this.set('stroke', options.stroke || rgb(45, 45, 45));
+        this.set('inConnectors', new Array());
+        this.set('outConnectors', new Array());
+        this.set('isMapperInput', true);
+        this.set('isCompressed', true);
+        this.set('dataTypeProposition', null);
+        this.originX = 'center';
+        this.originY = 'center';
+        this.set({left: options.left, top: options.top});
+        this.setCoords();
+        this.associateEvents();
+    },
+    updateConnectorsPositions: function () {
+        updateConnectorsPositions(this);
+    },
+    inValueUpdated: function (options) {
+        
+        
+
+        var theMapperInput = this;
+
+        var inConnection = options.inConnection;
+        var markAsSelected = options.markAsSelected;
+        var shouldAnimate = options.shouldAnimate;
+
+        var updatedValue = inConnection.value;
+        var theMapper = theMapperInput.mapper;
+        
+        console.log("Updating value of the input of a mapper. shouldAnimate: " + shouldAnimate);
+
+        if (LOG)
+            console.log("updatedValue:");
+        if (LOG)
+            console.log(updatedValue);
+
+        theMapper.evaluate(updatedValue, shouldAnimate);
+
+        theMapperInput.outConnectors.forEach(function (outConnector) {
+            outConnector.setValue(updatedValue, false, shouldAnimate);
+        });
+
+        theMapperInput.set('value', updatedValue);
+
+    },
+    associateEvents: function () {
+
+        var theMapperInput = this;
+
+        theMapperInput.on({
+            'mouseup': function (options) {
+                var theMapperInput = this;
+                var theMapper = theMapperInput.mapper;
+                var inCollection = theMapper.getInCollection();
+                var outCollection = theMapper.getOutCollection();
+                /*inCollection.matchingY = null;
+                 outCollection.matchingY = null;*/
+            },
+            'mousedown': function (options) {
+                var theMapperInput = this;
+                theMapperInput.bringToFront();
+            },
+            'moving': function (options) {
+                var theMapperInput = this;
+                var event = options.e;
+                var canvasCoords = getCanvasCoordinates(event);
+                var pointer = canvas.getPointer(event);
+                var mapperInputCenter = theMapperInput.getCenterPoint();
+                var pointerRelativeToCenter = {x: pointer.x - mapperInputCenter.x, y: pointer.y - mapperInputCenter.y};
+
+                var theMapper = theMapperInput.mapper;
+                if (theMapper) {
+
+                    if (theMapper.isCompressed) {
+                        return;
+                    }
+
+                    var theMapperOutput = theMapper.outputPoint;
+
+                    theMapperInput.inConnectors.forEach(function (inConnector) {
+                        inConnector.contract();
+                    });
+
+                    var inCollection = theMapper.getInCollection();
+                    var outCollection = theMapper.getOutCollection();
+                    var theCollectionLeftTop = inCollection.getPointByOrigin('left', 'top');
+                    var theCollectionRightBottom = inCollection.getPointByOrigin('right', 'bottom');
+
+                    var diff = 0;
+                    var theFirstElement = inCollection.getVisualValueAt(0);
+                    if (theFirstElement) {
+                        diff = (theMapperInput.getHeight() - theFirstElement.getHeight()) / 2 + (theMapperInput.strokeWidth + theFirstElement.strokeWidth) / 2;
+                    }
+
+                    var startingY = inCollection.compressedHeight + theCollectionLeftTop.y + inCollection.strokeWidth + 1 - diff;
+                    var endingY = theCollectionRightBottom.y;
+
+                    var top = canvasCoords.y - ((theMapperInput.height * theMapperInput.scaleY / 2) + pointerRelativeToCenter.y);
+                    var bottom = canvasCoords.y + ((theMapperInput.height * theMapperInput.scaleY / 2) - pointerRelativeToCenter.y);
+
+                    if (top < startingY) {
+
+                        theMapperInput.lockMovementY = true;
+                        theMapperInput.setPositionByOrigin(new fabric.Point(theMapperInput.left, startingY), 'center', 'top');
+
+                    } else if (bottom > endingY) {
+
+                        theMapperInput.lockMovementY = true;
+                        theMapperInput.setPositionByOrigin(new fabric.Point(theMapperInput.left, endingY), 'center', 'bottom');
+
+                    } else {
+
+                        theMapperInput.lockMovementY = false;
+
+                    }
+
+                    theMapperInput.relativeY = theMapperInput.top - theMapper.getPointByOrigin('center', 'top').y;
+
+                    theMapperOutput.top = theMapperInput.top;
+                    theMapperOutput.relativeY = theMapperOutput.top - theMapper.getPointByOrigin('center', 'top').y;
+
+                    theMapperOutput.updateConnectorsPositions();
+
+                    inCollection.matchingY = theMapperInput.top - inCollection.getPointByOrigin('center', 'top').y;
+                    outCollection.matchingY = theMapperOutput.top - outCollection.getPointByOrigin('center', 'top').y;
+
+                    theMapperInput.setCoords();
+
+                    var outputValue = theMapper.computeOutput();
+                    theMapper.outputPoint.setValue(outputValue, false);
+
+
+                }
+
+
+            },
+//            'inValueUpdated': function (options) {
+//
+//                var inConnection = options.inConnection;
+//                var markAsSelected = options.markAsSelected;
+//                var shouldAnimate = options.shouldAnimate;
+//
+//                var updatedValue = inConnection.value;
+//                var theMapper = theMapperInput.mapper;
+//
+//                if (LOG) console.log("updatedValue:");
+//                if (LOG) console.log(updatedValue);
+//
+//                theMapper.evaluate(updatedValue);
+//
+//                theMapperInput.outConnectors.forEach(function (outConnector) {
+//                    outConnector.setValue(updatedValue, false, shouldAnimate);
+//                });
+//
+//                theMapperInput.set('value', updatedValue);
+//
+//            },
+            'newInConnection': function (options) {
+
+                var newInConnection = options.newInConnection;
+                var shouldAnimate = options.shouldAnimate;
+                var incomingValue = newInConnection.value;
+
+                if (LOG)
+                    console.log("incommingValue:");
+                if (LOG)
+                    console.log(incomingValue);
+
+                if (LOG)
+                    console.log("theMapperInput.dataTypeProposition:");
+                if (LOG)
+                    console.log(theMapperInput.dataTypeProposition);
+
+
+                // When the incoming value is an array, we have to check that it is not empty
+                if ($.isArray(incomingValue)) {
+
+                    if (!incomingValue.length) {
+
+                        alertify.error("The given array is empty.", "", 2000);
+                        newInConnection.contract();
+                        return;
+
+                    } else {
+
+                        var homogeneousType = getHomogeneousType(incomingValue);
+
+                        if (!homogeneousType) {
+
+                            alertify.error("The array should contain elements of a single type.", "", 2000);
+                            newInConnection.contract();
+                            return;
+
+                        } else {
+
+                            var iconType = getIconNameByDataTypeProposition(theMapperInput.dataTypeProposition);
+
+                            /*alert("iconType: " + iconType + " - homogeneousType: " + homogeneousType);*/
+
+
+                            if (homogeneousType !== iconType) {
+
+                                alertify.error("The given array doest not contain elements of the required type.", "", 2000);
+                                newInConnection.contract();
+                                return;
+
+                            }
+
+                        }
+
+                    }
+
+                } else {
+
+                    if (!theMapperInput.dataTypeProposition) {
+
+                        alertify.error("Empty domain collection!", "", 2000);
+                        newInConnection.contract();
+                        return;
+
+                    } else if (!incomingValue[theMapperInput.dataTypeProposition]) {
+
+                        alertify.error("The type of the input value does not match the type of the associated collection", "", 2000);
+                        newInConnection.contract();
+                        return;
+
+                    }
+
+                }
+
+
+                var theMapper = theMapperInput.mapper;
+                if (!theMapper) {
+
+                    alertify.error("This input point exists without a mapper!!! Seriously???", "", 2000);
+                    newInConnection.contract();
+                    return;
+
+                }
+
+                if (LOG)
+                    console.log("Going to evaluate this value:");
+                if (LOG)
+                    console.log(incomingValue);
+
+                theMapper.evaluate(incomingValue, true);
+
+                if (theMapperInput.inConnectors.length > 0) {
+                    var connector = theMapperInput.inConnectors.pop();
+                    connector.contract();
+                }
+
+                theMapperInput.outConnectors.forEach(function (outConnector) {
+                    outConnector.setValue(incomingValue, false, shouldAnimate);
+                });
+
+                theMapperInput.inConnectors.push(newInConnection);
+                blink(theMapperInput, true, 0.3);
+
+                theMapperInput.set('value', incomingValue);
+
+
+            },
+            'inConnectionRemoved': standarInConnectionRemovedHandler,
+            'outConnectionRemoved': standarOutConnectionRemovedHandler,
+        });
+
+    },
+    _render: function (ctx) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.fillStyle = 'white';
+        ctx.arc(0, 0, this.width / 2, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.closePath();
+        ctx.restore();
+        this.callSuper('_render', ctx);
+    },
+});

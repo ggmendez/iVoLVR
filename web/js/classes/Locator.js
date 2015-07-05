@@ -1,0 +1,1612 @@
+var Locator = fabric.util.createClass(fabric.Circle, {
+    type: 'Locator',
+    isLocator: true,
+    initialize: function (options) {
+        options || (options = {});
+        this.callSuper('initialize', options);
+
+        this.set('fill', rgb(153, 153, 153));
+        this.set('colorForStroke', rgb(86, 86, 86));
+        this.set('stroke', rgb(86, 86, 86));
+        this.set('isLocator', true);
+        this.set('inConnectors', new Array());
+        this.set('outConnectors', new Array());
+        this.set('strokeWidth', 3);
+        this.set('radius', 30);
+        this.set('lockRotation', true);
+        this.set('lockScalingX', true);
+        this.set('lockScalingY', true);
+        this.set('transparentCorners', false);
+        this.set('hasRotatingPoint', false);
+        this.set('hasControls', false);
+        this.set('hasBorders', false);
+        this.set('originX', 'center');
+        this.set('originY', 'center');
+
+        this.set('perPixelTargetFind', true);
+        this.set('isCompressed', true);
+
+
+
+
+        this.set('widgets', new Array());
+
+
+
+
+
+
+
+        var xProperty = {attribute: "xCollection", readable: true, writable: true, types: ['number', 'object'], updatesTo: []};
+        var xVisualProperty = CreateVisualProperty(xProperty, this, 0, 0);
+        xVisualProperty.setCoords();
+        xVisualProperty.parentObject = this;
+        xVisualProperty.untransformedX = 0;
+        xVisualProperty.untransformedY = 0;
+        xVisualProperty.untransformedScaleX = 1;
+        xVisualProperty.untransformedScaleY = 1;
+        xVisualProperty.untransformedAngle = 0;
+        xVisualProperty.scaleX = 1;
+        xVisualProperty.scaleY = 1;
+        xVisualProperty.opacity = 1;
+        xVisualProperty.isLocatorValuesCollection = true;
+        xVisualProperty.isXValues = true;
+        this.set('xAxisArrow', xVisualProperty);
+
+        var yProperty = {attribute: "yCollection", readable: true, writable: true, types: ['number', 'object'], updatesTo: []};
+        var yVisualProperty = CreateVisualProperty(yProperty, this, 0, 0);
+        yVisualProperty.setCoords();
+        yVisualProperty.parentObject = this;
+        yVisualProperty.untransformedX = 0;
+        yVisualProperty.untransformedY = 0;
+        yVisualProperty.untransformedScaleX = 1;
+        yVisualProperty.untransformedScaleY = 1;
+        yVisualProperty.untransformedAngle = 0;
+        yVisualProperty.scaleX = 1;
+        yVisualProperty.scaleY = 1;
+        yVisualProperty.opacity = 1;
+        yVisualProperty.isLocatorValuesCollection = true;
+        yVisualProperty.isYValues = true;
+        this.set('yAxisArrow', yVisualProperty);
+
+
+        var theLocator = this;
+
+        onNewInConnection = function (options, theVisualProperty) {
+
+
+
+            var newInConnection = options.newInConnection;
+            var shouldAnimate = options.shouldAnimate;
+
+            var source = newInConnection.source;
+            source.typeIcon.bringToFront();
+
+            var targetAttribute = newInConnection.destination.attribute;
+            var incommingValue = newInConnection.value;
+
+            if (theVisualProperty.inConnectors.length > 0) {
+                var connector = theVisualProperty.inConnectors.pop();
+                connector.contract();
+            }
+
+            if (LOG)
+                console.log("FFF incommingValue:");
+            if (LOG)
+                console.log(incommingValue);
+
+            var property = "y";
+            if (theVisualProperty.isXValues) {
+                property = "x";
+            }
+
+            theLocator.setProperty(property, incommingValue, null, shouldAnimate);
+
+            theVisualProperty.inConnectors.push(newInConnection);
+
+            theVisualProperty.blink();
+
+            theVisualProperty.set('value', incommingValue);
+
+        };
+
+        xVisualProperty.off('newInConnection');
+        yVisualProperty.off('newInConnection');
+
+        xVisualProperty.on({
+            'newInConnection': function (options) {
+                onNewInConnection(options, xVisualProperty);
+            },
+        });
+        yVisualProperty.on({
+            'newInConnection': function (options) {
+                onNewInConnection(options, yVisualProperty);
+            },
+        });
+
+
+
+        this.widgets.push(this.xAxisArrow);
+        this.widgets.push(this.yAxisArrow);
+
+
+
+        this.associateEvents();
+
+        this.set({left: options.left, top: options.top});
+        this.setCoords();
+    },
+    applySelectedStyle: function (selectConnectorsToo) {
+
+        if (LOG)
+            console.log("this.selectedMark:");
+        if (LOG)
+            console.log(this.selectedMark);
+
+//        var theLocator = this;
+//        if (!theLocator.isCompressed && theLocator.selectedMark) {
+//            if (theLocator.selectedMark && theLocator.selectedMark.xVisualProperty) {
+//                canvas.add(theLocator.selectedMark.xVisualProperty);
+//            }
+//            if (theLocator.selectedMark && theLocator.selectedMark.yVisualProperty) {
+//                canvas.add(theLocator.selectedMark.yVisualProperty);
+//            }
+//        }
+
+        this.stroke = widget_selected_stroke_color;
+        this.strokeDashArray = widget_selected_stroke_dash_array;
+        if (selectConnectorsToo) {
+            this.inConnectors.forEach(function (inConnector) {
+                if (!inConnector.source.isLocator) {
+                    inConnector.applySelectedStyle(true, false);
+                } else {
+                    inConnector.source.applySelectedStyle(false);
+                    inConnector.applySelectedStyle(false, false);
+                }
+            });
+            this.outConnectors.forEach(function (outConnector) {
+                if (outConnector.destination && !outConnector.destination.isLocator) {
+                    outConnector.applySelectedStyle(false, true);
+                } else {
+                    outConnector.applySelectedStyle(false, false);
+                    outConnector.destination.applySelectedStyle(false);
+                }
+            });
+        }
+
+
+    },
+    applyUnselectedStyle: function () {
+
+//        var theLocator = this;
+//        if (theLocator.selectedMark) {
+//            if (theLocator.selectedMark.xVisualProperty && theLocator.selectedMark.xVisualProperty.canvas) {
+//                theLocator.selectedMark.xVisualProperty.remove();
+//            }
+//            if (theLocator.selectedMark.yVisualProperty && theLocator.selectedMark.yVisualProperty.canvas) {
+//                theLocator.selectedMark.yVisualProperty.remove();
+//            }
+//        }
+
+        this.stroke = this.colorForStroke;
+        this.strokeDashArray = [];
+        this.inConnectors.forEach(function (inConnector) {
+
+            if (!inConnector.source.isLocator) {
+                inConnector.applyUnselectedStyle(true, false);
+            } else {
+                inConnector.applyUnselectedStyle(false, false);
+            }
+        });
+        this.outConnectors.forEach(function (outConnector) {
+            if (outConnector.destinatio && !outConnector.destination.isLocator) {
+                outConnector.applyUnselectedStyle(false, true);
+            } else {
+                outConnector.applyUnselectedStyle(false, false);
+            }
+        });
+    },
+    toObject: function () {
+        return fabric.util.object.extend(this.callSuper('toObject'), {
+            locator: this.get('locator'),
+            isLocator: this.get('isLocator'),
+            inputs: this.get('inputs')
+        });
+    },
+    blink: function () {
+        var increment = 0.45;
+        var duration = 100;
+        var easing = fabric.util.ease['easeInCubic'];
+
+        this.animate('scaleX', '+=' + increment, {
+            duration: duration,
+            onChange: canvas.renderAll.bind(canvas),
+            easing: easing,
+            locator: this,
+            onComplete: function () {
+                if (LOG)
+                    console.log(this);
+                if (LOG)
+                    console.log(self);
+                this.locator.animate('scaleX', '-=' + increment, {
+                    duration: 1100,
+                    onChange: canvas.renderAll.bind(canvas),
+                    easing: fabric.util.ease['easeOutElastic']
+                });
+            }
+        });
+        this.animate('scaleY', '+=' + increment, {
+            duration: duration,
+            onChange: canvas.renderAll.bind(canvas),
+            easing: easing,
+            locator: this,
+            onComplete: function () {
+                this.locator.animate('scaleY', '-=' + increment, {
+                    duration: 1100,
+                    onChange: canvas.renderAll.bind(canvas),
+                    easing: fabric.util.ease['easeOutElastic']
+                });
+            }
+        });
+    },
+    positionChild: function (property, value, theChild, shouldAnimate) {
+
+        if (shouldAnimate) {
+            if (LOG)
+                console.log("%cGoing to position child WITH ANIMATION", "background: red; color: white;");
+        } else {
+            if (LOG)
+                console.log("%cGoing to position child with NO ANIMATION", "background: green; color: white;");
+        }
+
+        var theNumber = value.number;
+
+        var theLocator = this;
+        var theMark = theChild;
+
+        theMark.setCoords();
+
+        theLocator.xAxisArrow.inConnectors.forEach(function (inConnector) {
+            inConnector.contract();
+        });
+        theLocator.yAxisArrow.inConnectors.forEach(function (inConnector) {
+            inConnector.contract();
+        });
+
+        if (LOG)
+            console.log("theMark:");
+        if (LOG)
+            console.log(theMark);
+
+        var theLocator = this;
+        var duration = 500;
+        var easing = fabric.util.ease['easeOutBack'];
+        var untransformedProperty = null;
+
+        if (property === 'x') {
+            untransformedProperty = 'untransformedX';
+        } else if (property === 'y') {
+            untransformedProperty = 'untransformedY';
+        }
+
+        var newCoordinateValue = null;
+        var theCoordinate = theNumber;
+
+        if (theCoordinate == null) {
+            var boundingRect = theMark.getBoundingRect();
+            if (untransformedProperty === 'untransformedX') {
+                theCoordinate = boundingRect.width / 2 + 30;
+            } else if (untransformedProperty === 'untransformedY') {
+                theCoordinate = boundingRect.height / 2 + 60;
+            }
+        }
+
+        if (untransformedProperty === 'untransformedX') {
+
+            newCoordinateValue = theCoordinate + theLocator.radius - theMark.width / 2;
+
+        } else if (untransformedProperty === 'untransformedY') {
+
+            newCoordinateValue = -theCoordinate + theLocator.radius - theMark.height / 2;
+
+        }
+
+        if (shouldAnimate) {
+
+            fabric.util.animate({
+                startValue: theMark[untransformedProperty],
+                endValue: newCoordinateValue,
+                duration: duration,
+                easing: easing,
+                onChange: function (value) {
+
+                    theMark[untransformedProperty] = value;
+
+                    repositionWidget(theLocator, theMark);
+
+                    theLocator.positionCoordinateVisualProperties();
+
+                    theMark.configurePositionVisualProperties();
+                    repositionWidget(theLocator, theMark.xVisualProperty);
+                    repositionWidget(theLocator, theMark.yVisualProperty);
+
+                    theMark.positionElements();
+
+                    if (!theLocator.isCompressed) {
+                        theLocator.computeUntransformedBoundaries();
+                        theLocator.positionCoordinateVisualProperties();
+                    }
+
+                },
+            });
+
+        } else {
+
+            theMark[untransformedProperty] = newCoordinateValue;
+
+            repositionWidget(theLocator, theMark);
+
+            theLocator.positionCoordinateVisualProperties();
+
+            theMark.configurePositionVisualProperties();
+            repositionWidget(theLocator, theMark.xVisualProperty);
+            repositionWidget(theLocator, theMark.yVisualProperty);
+
+            theMark.positionElements();
+
+            if (!theLocator.isCompressed) {
+                theLocator.computeUntransformedBoundaries();
+                theLocator.positionCoordinateVisualProperties();
+            }
+
+        }
+
+
+
+
+
+    },
+    setProperty: function (property, array, theVisualProperty, shouldAnimate) {
+
+        var theLocator = this;
+        var duration = 500;
+        var easing = fabric.util.ease['easeOutBack'];
+        var untransformedProperty = null;
+
+        if (property === 'x') {
+
+            untransformedProperty = 'untransformedX';
+
+
+        } else if (property === 'y') {
+
+            untransformedProperty = 'untransformedY';
+
+        }
+
+
+        var i = 0;
+
+        theLocator.widgets.forEach(function (widget) {
+            if (widget.isMark) {
+
+                if (LOG)
+                    console.log("widget.label");
+                if (LOG)
+                    console.log(widget.label);
+
+                var theMark = widget;
+
+
+
+                theMark.xVisualProperty.inConnectors.forEach(function (inConnector) {
+                    inConnector.contract();
+                });
+                theMark.yVisualProperty.inConnectors.forEach(function (inConnector) {
+                    inConnector.contract();
+                });
+
+
+                var newCoordinateValue = null;
+
+                var theCoordinate = array[i].number;
+
+                if (!theCoordinate) {
+
+                    var boundingRect = widget.getBoundingRect();
+
+                    if (untransformedProperty == 'untransformedX') {
+
+                        theCoordinate = boundingRect.width / 2 + 30;
+
+                    } else if (untransformedProperty == 'untransformedY') {
+
+                        theCoordinate = boundingRect.height / 2 + 60;
+
+                    }
+
+                }
+
+                if (untransformedProperty == 'untransformedX') {
+
+                    newCoordinateValue = theCoordinate + theLocator.radius - theMark.width / 2;
+
+                } else if (untransformedProperty == 'untransformedY') {
+
+                    newCoordinateValue = -theCoordinate + theLocator.radius - theMark.height / 2;
+
+                }
+
+                fabric.util.animate({
+                    startValue: theMark[untransformedProperty],
+                    endValue: newCoordinateValue,
+                    duration: duration,
+                    easing: easing,
+                    onChange: function (value) {
+
+                        theMark[untransformedProperty] = value;
+
+                        repositionWidget(theLocator, theMark);
+
+                        theLocator.positionCoordinateVisualProperties();
+
+                        theMark.configurePositionVisualProperties();
+                        repositionWidget(theLocator, theMark.xVisualProperty);
+                        repositionWidget(theLocator, theMark.yVisualProperty);
+
+                        theMark.positionElements();
+
+                        if (!theLocator.isCompressed) {
+                            theLocator.computeUntransformedBoundaries();
+                            theLocator.positionCoordinateVisualProperties();
+                        }
+
+                    },
+                });
+
+                i++;
+
+            }
+        });
+
+
+
+
+    },
+    _render: function (ctx) {
+
+        var theLocator = this;
+
+        ctx.save();
+        this.callSuper('_render', ctx);
+
+        ctx.beginPath();
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 6;
+
+        var d = 6;
+
+        // Left horizontal line
+        ctx.moveTo(-(theLocator.radius + d + theLocator.strokeWidth), 0);
+        ctx.lineTo(-(theLocator.radius - d), 0);
+
+        // Right horizontal line
+        ctx.moveTo(+(theLocator.radius - d), 0);
+        ctx.lineTo(+(theLocator.radius + d + theLocator.strokeWidth), 0);
+
+        // Top vertical line
+        ctx.moveTo(0, -(theLocator.radius + d + theLocator.strokeWidth));
+        ctx.lineTo(0, -(theLocator.radius - d));
+
+        // Bottom vertical line
+        ctx.moveTo(0, +(theLocator.radius - d));
+        ctx.lineTo(0, +(theLocator.radius + d + theLocator.strokeWidth));
+
+        ctx.stroke();
+        ctx.closePath();
+
+        // Drawing the lines that cover the axes. They are only drawn if there are marks in the corresponding quadrants                
+
+        ctx.beginPath();
+
+        // positive x axis
+        if (theLocator.maxUntransformedX > theLocator.radius) {
+            ctx.moveTo(+(theLocator.radius + d + theLocator.strokeWidth), 0);
+            var x = theLocator.maxUntransformedX;
+            ctx.lineTo(x, 0); // axis line
+
+            // drawig the small arrow tip of the axis
+            ctx.lineTo(x, -5);
+            ctx.lineTo(x + 8, 0);
+            ctx.lineTo(x, 5);
+            ctx.lineTo(x, 0);
+
+        }
+
+        // negative x axis
+        if (theLocator.minUntransformedX < -theLocator.radius) {
+            ctx.moveTo(-(theLocator.radius + d + theLocator.strokeWidth), 0);
+
+            var x = theLocator.minUntransformedX;
+            ctx.lineTo(x, 0); // axis line
+
+            // drawig the small arrow tip of the axis
+            ctx.lineTo(x, -5);
+            ctx.lineTo(x - 8, 0);
+            ctx.lineTo(x, 5);
+            ctx.lineTo(x, 0);
+
+        }
+
+        // positive y axis
+        if (theLocator.minUntransformedY < -theLocator.radius) {
+            ctx.moveTo(0, -(theLocator.radius + d + theLocator.strokeWidth));
+
+            var y = theLocator.minUntransformedY;
+            ctx.lineTo(0, y); // axis line
+
+            // drawig the small arrow tip of the axis
+            ctx.lineTo(-5, y);
+            ctx.lineTo(0, y - 8);
+            ctx.lineTo(5, y);
+            ctx.lineTo(0, y);
+
+        }
+
+        // negative y axis
+        if (theLocator.maxUntransformedY > theLocator.radius) {
+            ctx.moveTo(0, +(theLocator.radius + d + theLocator.strokeWidth));
+
+            var y = theLocator.maxUntransformedY;
+            ctx.lineTo(0, y);
+
+            // drawig the small arrow tip of the axis
+            ctx.lineTo(-5, y);
+            ctx.lineTo(0, y + 8);
+            ctx.lineTo(5, y);
+            ctx.lineTo(0, y);
+        }
+
+        ctx.stroke();
+        ctx.closePath();
+
+//        if (!theLocator.isCompressed && theLocator.selectedMark && (canvas.getActiveObject() == theLocator.selectedMark || canvas.getActiveObject() == theLocator)) {
+        if (!theLocator.isCompressed && theLocator.selectedMark) {
+
+            var selectedMark = theLocator.selectedMark;
+
+            ctx.beginPath();
+            ctx.strokeStyle = selectedMark.colorForStroke || selectedMark.stroke;
+            ctx.lineWidth = 1;
+            ctx.setLineDash([6, 2]);
+
+//            var x = selectedMark.untransformedX - theLocator.radius + selectedMark.width / 2;
+            var x = selectedMark.untransformedX - theLocator.radius + selectedMark.getWidth() / 2;
+            var y = selectedMark.untransformedY - theLocator.radius + selectedMark.height / 2;
+
+            ctx.fillStyle = "black";
+//            ctx.font = "20px Georgia";
+            ctx.font = "16px sans-serif";
+
+//            ctx.moveTo(0, y);
+//            ctx.lineTo(x, y);
+
+//            if (x > 0) {
+//                ctx.textAlign = "right";
+//                ctx.fillText(-y.toFixed(2), -30, y + 2);
+//            } else {
+//                ctx.textAlign = "left";
+//                ctx.fillText(-y.toFixed(2), 30, y + 2);
+//            }
+
+//            ctx.moveTo(x, 0);
+//            ctx.lineTo(x, y);
+
+//            ctx.textAlign = "center";
+//            if (y > 0) {
+//                ctx.fillText(x.toFixed(2), x, -40);
+//            } else {
+//                ctx.fillText(x.toFixed(2), x, 40);
+//            }
+
+            ctx.stroke();
+            ctx.closePath();
+
+
+        }
+
+        ctx.restore();
+    },
+    computeUntransformedBoundaries: function () {
+
+        var theLocator = this;
+
+        theLocator.maxUntransformedX = 0;
+        theLocator.maxUntransformedY = 0;
+        theLocator.minUntransformedX = 0;
+        theLocator.minUntransformedY = 0;
+
+        var untransformedXs = new Array();
+        var untransformedYs = new Array();
+
+        // TODO: This is true because there are two default elements in the widget list: the arrows of each positive axis
+        if (theLocator.widgets.length > 2) {
+
+            theLocator.widgets.forEach(function (widget) {
+                if (widget.isMark) {
+
+                    // Getting the mark bounding rect; this will be used to cover the marks up to their boudaries
+                    var boundingRect = widget.getBoundingRect();
+                    // TODO: Possibly, this will have to be removed, as I expect that the bounding rect compensation process is solved in new versions of fabric.js
+                    compensateBoundingRect(boundingRect);
+
+
+
+                    // Up to this point, x is located exactly at the center p
+//               var x = widget.untransformedX < 0 ? widget.untransformedX - theLocator.radius : widget.untransformedX + theLocator.radius + widget.width / 2;
+
+                    var x = widget.untransformedX < 0 ? widget.untransformedX - theLocator.radius + widget.width / 2 : widget.untransformedX + theLocator.radius;
+                    if (widget.untransformedX < 0) {
+                        x -= boundingRect.width / 2;
+                    } else {
+                        x += boundingRect.width / 2;
+                    }
+
+                    untransformedXs.push(x);
+
+//                    if (LOG) console.log("mark.untransformedX:");
+//                    if (LOG) console.log(widget.untransformedX);
+//                    
+//                    if (LOG) console.log("mark.untransformedY:");
+//                    if (LOG) console.log(widget.untransformedY);
+
+//                    if (LOG) console.log("(mark.untransformedX, mark.untransformedY):");
+//                    if (LOG) console.log("(" + widget.untransformedX + "," + widget.untransformedY + ")");
+
+
+                    // Up to this point, y is located exactly at the center p
+                    var y = widget.untransformedY < 0 ? widget.untransformedY + widget.height / 2 - theLocator.radius : widget.untransformedY - theLocator.radius + widget.height / 2;
+
+                    // ************************************************************************************
+                    // Modifying the variable y to cover the objects including their widths and heights
+
+
+                    if (widget.untransformedY < 0) {
+                        y -= boundingRect.height / 2;
+                    } else {
+                        y += boundingRect.height / 2;
+                    }
+                    // ************************************************************************************
+
+
+//                  var y = widget.untransformedY < 0 ? widget.untransformedY - theLocator.radius : widget.untransformedY - theLocator.radius + widget.height;
+
+
+                    untransformedYs.push(y);
+                }
+            });
+
+            theLocator.maxUntransformedX = Math.max.apply(Math, untransformedXs);
+            theLocator.maxUntransformedY = Math.max.apply(Math, untransformedYs);
+            theLocator.minUntransformedX = Math.min.apply(Math, untransformedXs);
+            theLocator.minUntransformedY = Math.min.apply(Math, untransformedYs);
+
+        } else {
+
+            theLocator.maxUntransformedX = 300;
+            theLocator.minUntransformedY = -200;
+
+        }
+
+//        if (LOG) console.log("theLocator.maxUntransformedX:");
+//        if (LOG) console.log(theLocator.maxUntransformedX);
+//
+//        if (LOG) console.log("theLocator.maxUntransformedY:");
+//        if (LOG) console.log(theLocator.maxUntransformedY);
+//
+//        if (LOG) console.log("theLocator.minUntransformedX:");
+//        if (LOG) console.log(theLocator.minUntransformedX);
+//
+//        if (LOG) console.log("theLocator.minUntransformedY:");
+//        if (LOG) console.log(theLocator.minUntransformedY);
+
+    },
+    showLocationProperties: function (easing, duration) {
+
+        var theLocator = this;
+        var gap = 17;
+
+        var xAxisArrow = theLocator.xAxisArrow;
+        xAxisArrow.untransformedY = 0;
+
+
+        var yAxisArrow = theLocator.yAxisArrow;
+        yAxisArrow.untransformedX = 0;
+
+
+        xAxisArrow.opacity = 0;
+        yAxisArrow.opacity = 0;
+
+        canvas.add(xAxisArrow);
+        canvas.add(yAxisArrow);
+
+        var defaultEasing = fabric.util.ease['easeInQuad'];
+        var defaultDuration = 500;
+
+        fabric.util.animate({
+            startValue: 0,
+            endValue: 1,
+            duration: duration || defaultDuration,
+            easing: easing || defaultEasing,
+            onChange: function (value) {
+                xAxisArrow.opacity = value;
+                xAxisArrow.untransformedX = value * (theLocator.maxUntransformedX + xAxisArrow.width / 2 + gap);
+                repositionWidget(theLocator, xAxisArrow);
+
+                yAxisArrow.opacity = value;
+                yAxisArrow.untransformedY = value * (theLocator.minUntransformedY - yAxisArrow.height / 2 - gap);
+                repositionWidget(theLocator, yAxisArrow);
+
+            },
+            onComplete: function () {
+                xAxisArrow.opacity = 1;
+                xAxisArrow.untransformedX = theLocator.maxUntransformedX + xAxisArrow.width / 2 + gap;
+                repositionWidget(theLocator, xAxisArrow);
+
+                yAxisArrow.opacity = 1;
+                yAxisArrow.untransformedY = theLocator.minUntransformedY - yAxisArrow.height / 2 - gap;
+                repositionWidget(theLocator, yAxisArrow);
+
+                canvas.renderAll();
+            }
+        });
+    },
+    hideLocationProperties: function (duration) {
+
+        var theLocator = this;
+
+        var xAxisArrow = theLocator.xAxisArrow;
+        var yAxisArrow = theLocator.yAxisArrow;
+        xAxisArrow.opacity = 1;
+        yAxisArrow.opacity = 1;
+
+        var easing = fabric.util.ease['easeInQuad'];
+
+        fabric.util.animate({
+            startValue: 1,
+            endValue: 0,
+            duration: duration || 500,
+            easing: easing,
+            onChange: function (value) {
+                xAxisArrow.opacity = value;
+                yAxisArrow.opacity = value;
+            },
+            onComplete: function () {
+                xAxisArrow.remove();
+                yAxisArrow.remove();
+            }
+        });
+    },
+    expand: function (refreshCanvas) {
+
+        var theLocator = this;
+
+        if (!theLocator.isCompressed)
+            return;
+
+        var easing = fabric.util.ease['easeInQuad'];
+        var duration = 500;
+
+        theLocator.computeUntransformedBoundaries();
+
+//      theLocator.showLocationProperties(easing, duration);
+
+        var xAxisArrow = theLocator.xAxisArrow;
+        xAxisArrow.untransformedY = 0;
+        xAxisArrow.untransformedX = 0;
+        xAxisArrow.opacity = 0;
+        repositionWidget(theLocator, xAxisArrow);
+        canvas.add(xAxisArrow);
+
+        var yAxisArrow = theLocator.yAxisArrow;
+        yAxisArrow.untransformedY = 0;
+        yAxisArrow.untransformedX = 0;
+        yAxisArrow.opacity = 0;
+        repositionWidget(theLocator, yAxisArrow);
+        canvas.add(yAxisArrow);
+
+//      var gap = 17;
+
+        var endValueMaxUntransformedX = theLocator.maxUntransformedX;
+        fabric.util.animate({
+            startValue: 0,
+            endValue: endValueMaxUntransformedX,
+            duration: duration,
+            easing: easing,
+            onChange: function (value) {
+                theLocator.maxUntransformedX = value;
+
+                xAxisArrow.opacity = value / endValueMaxUntransformedX;
+//            xAxisArrow.untransformedX = theLocator.maxUntransformedX + xAxisArrow.width / 2 + gap;
+//            repositionWidget(theLocator, xAxisArrow);
+            },
+        });
+
+        fabric.util.animate({
+            startValue: 0,
+            endValue: theLocator.minUntransformedX,
+            duration: duration,
+            easing: easing,
+            onChange: function (value) {
+                theLocator.minUntransformedX = value;
+            },
+        });
+
+        fabric.util.animate({
+            startValue: 0,
+            endValue: theLocator.maxUntransformedY,
+            duration: duration,
+            easing: easing,
+            onChange: function (value) {
+                theLocator.maxUntransformedY = value;
+            },
+        });
+
+        var endValueMinUntransformedY = theLocator.minUntransformedY;
+        fabric.util.animate({
+            startValue: 0,
+            endValue: theLocator.minUntransformedY,
+            duration: duration,
+            easing: easing,
+            onChange: function (value) {
+                theLocator.minUntransformedY = value;
+
+                yAxisArrow.opacity = value / endValueMinUntransformedY;
+//            yAxisArrow.untransformedY = theLocator.minUntransformedY - yAxisArrow.height / 2 - gap;
+//            repositionWidget(theLocator, yAxisArrow);
+            },
+        });
+
+
+        fabric.util.animate({
+            startValue: 1,
+            endValue: 0,
+            duration: duration,
+            easing: easing,
+            onChange: function (value) {
+                theLocator.outConnectors.forEach(function (outConnector) {
+                    outConnector.opacity = value;
+                });
+            },
+        });
+
+
+        // This is done to guarantee that the canvas will be refreshed
+        fabric.util.animate({
+            duration: duration,
+            onChange: function (value) {
+                if (refreshCanvas) {
+                    theLocator.positionCoordinateVisualProperties();
+                    canvas.renderAll();
+                }
+            },
+            onComplete: function () {
+                theLocator.isCompressed = false;
+                if (theLocator.selectedMark) {
+                    canvas.add(theLocator.selectedMark.xVisualProperty);
+                    canvas.add(theLocator.selectedMark.yVisualProperty);
+                    theLocator.positionCoordinateVisualProperties();
+                }
+                if (refreshCanvas) {
+                    canvas.renderAll();
+                }
+            }
+        });
+
+
+
+
+
+        return;
+
+        // TODO: The arrows are not being animated as I don't know at the moment if they are going to be useful or not
+        var xAxisArrow = theLocator.xAxisArrow;
+        xAxisArrow.set({left: this.left, top: this.top});
+        xAxisArrow.setCoords();
+
+        canvas.add(xAxisArrow);
+
+
+
+        xAxisArrow.animate('opacity', 1, {
+            easing: easing,
+            duration: duration,
+        });
+        xAxisArrow.animate('left', theLocator.left + theLocator.maxUntransformedX, {
+            easing: easing,
+            duration: duration,
+        });
+
+
+        var yAxisArrow = theLocator.yAxisArrow;
+        yAxisArrow.set({left: this.left, top: this.top});
+        yAxisArrow.setCoords();
+
+        canvas.add(yAxisArrow);
+
+
+
+        yAxisArrow.animate('opacity', 1, {
+            easing: easing,
+            duration: duration,
+        });
+        yAxisArrow.animate('top', theLocator.top + theLocator.minUntransformedY, {
+            easing: easing,
+            duration: duration,
+            onChange: refreshCanvas ? canvas.renderAll.bind(canvas) : '',
+            onComplete: function () {
+                computeUntransformedProperties(xAxisArrow);
+                computeUntransformedProperties(yAxisArrow);
+                canvas.renderAll();
+            }
+        });
+
+    },
+    compress: function (refreshCanvas) {
+
+        var theLocator = this;
+
+        if (theLocator.isCompressed)
+            return;
+
+        theLocator.selectedMark = null;
+
+//      theLocator.hideLocationProperties();
+
+        // removing all the location visual properties associated to the marks of the plot
+        theLocator.widgets.forEach(function (widget) {
+            if (widget.isMark) {
+                if (widget.xVisualProperty.canvas) {
+
+                    widget.xVisualProperty.inConnectors.forEach(function (inConnector) {
+                        inConnector.opacity = 0;
+                    });
+                    widget.xVisualProperty.outConnectors.forEach(function (outConnector) {
+                        outConnector.opacity = 0;
+                    });
+
+                    widget.xVisualProperty.remove();
+
+                }
+                if (widget.yVisualProperty.canvas) {
+
+                    widget.yVisualProperty.inConnectors.forEach(function (inConnector) {
+                        inConnector.opacity = 0;
+                    });
+                    widget.yVisualProperty.outConnectors.forEach(function (outConnector) {
+                        outConnector.opacity = 0;
+                    });
+
+                    widget.yVisualProperty.remove();
+                }
+            }
+        });
+
+        var xAxisArrow = theLocator.xAxisArrow;
+        var yAxisArrow = theLocator.yAxisArrow;
+
+        var easing = fabric.util.ease['easeOutQuad'];
+        var duration = 500;
+
+        var gap = 17;
+
+        var startValueMaxUntransformedX = theLocator.maxUntransformedX;
+
+        fabric.util.animate({
+            startValue: startValueMaxUntransformedX,
+            endValue: 0,
+            duration: duration,
+            easing: easing,
+            onChange: function (value) {
+                theLocator.maxUntransformedX = value;
+                xAxisArrow.opacity = value / startValueMaxUntransformedX;
+            },
+            onComplete: function () {
+                xAxisArrow.remove();
+            }
+        });
+
+        fabric.util.animate({
+            startValue: theLocator.minUntransformedX,
+            endValue: 0,
+            duration: duration,
+            easing: easing,
+            onChange: function (value) {
+                theLocator.minUntransformedX = value;
+            },
+        });
+
+        fabric.util.animate({
+            startValue: theLocator.maxUntransformedY,
+            endValue: 0,
+            duration: duration,
+            easing: easing,
+            onChange: function (value) {
+                theLocator.maxUntransformedY = value;
+            },
+        });
+
+        var startValueMinUntransformedY = theLocator.minUntransformedY;
+        fabric.util.animate({
+            startValue: startValueMinUntransformedY,
+            endValue: 0,
+            duration: duration,
+            easing: easing,
+            onChange: function (value) {
+                theLocator.minUntransformedY = value;
+                yAxisArrow.opacity = value / startValueMinUntransformedY;
+            },
+            onComplete: function () {
+                yAxisArrow.remove();
+            }
+        });
+
+        // setting the opacity of the connectors to 1
+        fabric.util.animate({
+            startValue: 0,
+            endValue: 1,
+            duration: duration,
+            easing: easing,
+            onChange: function (value) {
+                theLocator.outConnectors.forEach(function (outConnector) {
+                    outConnector.opacity = value;
+                });
+            },
+        });
+
+
+        fabric.util.animate({
+            duration: duration,
+            onChange: function (value) {
+                theLocator.positionCoordinateVisualProperties();
+                if (refreshCanvas) {
+                    canvas.renderAll();
+                }
+            },
+            onComplete: function () {
+                theLocator.isCompressed = true;
+                theLocator.positionCoordinateVisualProperties();
+
+                theLocator.positionVisualPropertiesConnectorsAtTheOrigin();
+
+                if (refreshCanvas) {
+                    canvas.renderAll();
+                }
+            }
+        });
+
+
+    },
+    positionCoordinateVisualProperties: function () {
+
+        /*console.log("positionCoordinateVisualProperties FUNCTION");*/
+
+        var theLocator = this;
+        var gap = 17;
+
+        var xAxisArrow = theLocator.xAxisArrow;
+        var yAxisArrow = theLocator.yAxisArrow;
+
+        if (theLocator.maxUntransformedX > 0) {
+            xAxisArrow.untransformedX = theLocator.maxUntransformedX + xAxisArrow.width / 2 + gap;
+        } else {
+            xAxisArrow.untransformedX = theLocator.radius + xAxisArrow.width / 2 + gap;
+        }
+        repositionWidget(theLocator, xAxisArrow);
+
+        if (theLocator.minUntransformedY < 0) {
+            yAxisArrow.untransformedY = theLocator.minUntransformedY - yAxisArrow.height / 2 - gap;
+        } else {
+            yAxisArrow.untransformedY = -theLocator.radius - yAxisArrow.height / 2 - gap;
+        }
+        repositionWidget(theLocator, yAxisArrow);
+
+        theLocator.positionVisualPropertiesConnectors();
+
+
+    },
+    positionVisualPropertiesConnectorsAtTheOrigin: function () {
+
+        var theLocator = this;
+
+        theLocator.xAxisArrow.inConnectors.forEach(function (inConnector) {
+            inConnector.set({x2: theLocator.left, y2: theLocator.top});
+        });
+
+        theLocator.xAxisArrow.outConnectors.forEach(function (outConnector) {
+            outConnector.set({x1: theLocator.left, y1: theLocator.top});
+        });
+
+        theLocator.yAxisArrow.inConnectors.forEach(function (inConnector) {
+            inConnector.set({x2: theLocator.left, y2: theLocator.top});
+        });
+
+        theLocator.yAxisArrow.outConnectors.forEach(function (outConnector) {
+            outConnector.set({x1: theLocator.left, y1: theLocator.top});
+        });
+
+
+        theLocator.widgets.forEach(function (widget) {
+
+            if (widget.isMark) {
+
+                widget.xVisualProperty.inConnectors.forEach(function (inConnector) {
+                    inConnector.set({x2: theLocator.left, y2: theLocator.top});
+                });
+
+                widget.xVisualProperty.outConnectors.forEach(function (outConnector) {
+                    outConnector.set({x1: theLocator.left, y1: theLocator.top});
+                });
+
+                widget.yVisualProperty.inConnectors.forEach(function (inConnector) {
+                    inConnector.set({x2: theLocator.left, y2: theLocator.top});
+                });
+
+                widget.yVisualProperty.outConnectors.forEach(function (outConnector) {
+                    outConnector.set({x1: theLocator.left, y1: theLocator.top});
+                });
+
+            }
+
+        });
+
+
+    },
+    positionVisualPropertiesConnectors: function () {
+
+        var theLocator = this;
+
+        theLocator.xAxisArrow.inConnectors.forEach(function (inConnector) {
+            inConnector.set({x2: theLocator.xAxisArrow.left, y2: theLocator.xAxisArrow.top});
+        });
+
+        theLocator.xAxisArrow.outConnectors.forEach(function (outConnector) {
+            outConnector.set({x1: theLocator.xAxisArrow.left, y1: theLocator.xAxisArrow.top});
+        });
+
+        theLocator.yAxisArrow.inConnectors.forEach(function (inConnector) {
+            inConnector.set({x2: theLocator.yAxisArrow.left, y2: theLocator.yAxisArrow.top});
+        });
+
+        theLocator.yAxisArrow.outConnectors.forEach(function (outConnector) {
+            outConnector.set({x1: theLocator.yAxisArrow.left, y1: theLocator.yAxisArrow.top});
+        });
+
+        theLocator.widgets.forEach(function (widget) {
+
+            if (widget.isMark) {
+
+                widget.xVisualProperty.inConnectors.forEach(function (inConnector) {
+                    inConnector.set({x2: widget.xVisualProperty.left, y2: widget.xVisualProperty.top});
+                });
+
+                widget.xVisualProperty.outConnectors.forEach(function (outConnector) {
+                    outConnector.set({x1: widget.xVisualProperty.left, y1: widget.xVisualProperty.top});
+                });
+
+                widget.yVisualProperty.inConnectors.forEach(function (inConnector) {
+                    inConnector.set({x2: widget.yVisualProperty.left, y2: widget.yVisualProperty.top});
+                });
+
+                widget.yVisualProperty.outConnectors.forEach(function (outConnector) {
+                    outConnector.set({x1: widget.yVisualProperty.left, y1: widget.yVisualProperty.top});
+                });
+
+            }
+
+        });
+
+    },
+    associateEvents: function () {
+        var theLocator = this;
+        theLocator.on({
+            'moving': function (option) {
+
+                this.moving = true;
+
+                if (this.lockMovementX && this.lockMovementY) {
+                    if (LOG)
+                        console.log("Output being created from locator");
+
+                    var theEvent = option['e'];
+
+                    if (theEvent) {
+                        var canvasCoords = getCanvasCoordinates(theEvent);
+                        var lastAddedConnector = getLastElementOfArray(this.outConnectors);
+                        lastAddedConnector.set({x2: canvasCoords.x, y2: canvasCoords.y});
+                        canvas.renderAll();
+                    }
+
+
+                } else {
+
+//               if (LOG) console.log("objectMoving");
+                    objectMoving(option, theLocator);
+
+                    if (theLocator.isCompressed) {
+                        theLocator.positionVisualPropertiesConnectorsAtTheOrigin();
+                    } else {
+                        theLocator.positionVisualPropertiesConnectors();
+                    }
+
+
+
+
+                }
+
+            },
+            'doubleTap': function (option) {
+                if (LOG)
+                    console.log("doubleTap over a LOCATOR");
+                if (this.isCompressed) {
+                    this.expand(true);
+                } else {
+                    this.compress(true);
+                }
+            },
+            'mouseup': function (option) {
+
+                if (LOG)
+                    console.log("Mouse UP over an locator ");
+
+                if (theLocator.moving || theLocator.scaling) {
+
+                    var theEvent = option['e'];
+                    var canvasCoords = getCanvasCoordinates(theEvent);
+                    var coordX = canvasCoords.x;
+                    var coordY = canvasCoords.y;
+
+                    var targetObject = findVisualPropertyPotentialDestination(canvasCoords);
+
+                    if (targetObject && targetObject !== theLocator) {
+
+                        if (targetObject.isMark) {
+
+                            var connector = getLastElementOfArray(theLocator.outConnectors);
+                            connector.setDestination(targetObject, true);
+
+                            theLocator.widgets.push(targetObject);
+                            targetObject.parentObject = theLocator;
+                            targetObject.untransformedScaleX = 1;
+                            targetObject.untransformedScaleY = 1;
+                            computeUntransformedProperties(targetObject);
+
+                            targetObject.configurePositionVisualProperties();
+
+                            var xVisualProperty = targetObject.xVisualProperty;
+                            theLocator.widgets.push(xVisualProperty);
+                            xVisualProperty.opacity = 1;
+                            xVisualProperty.selectable = true;
+                            xVisualProperty.evented = true;
+                            repositionWidget(theLocator, xVisualProperty);
+                            xVisualProperty.setCoords();
+
+                            var yVisualProperty = targetObject.yVisualProperty;
+                            theLocator.widgets.push(yVisualProperty);
+                            yVisualProperty.opacity = 1;
+                            yVisualProperty.selectable = true;
+                            yVisualProperty.evented = true;
+                            repositionWidget(theLocator, yVisualProperty);
+                            yVisualProperty.setCoords();
+
+                            targetObject.blink();
+
+
+                            if (!theLocator.isCompressed) {
+                                theLocator.computeUntransformedBoundaries();
+
+                                // the boundaries of the axes have changed, so the x and y visual properties of the locator should be located properly
+                                theLocator.positionCoordinateVisualProperties();
+
+                                // Since the locator is extended, we have to set the visibility of the created connector to zero
+                                var easing = fabric.util.ease['easeOutQuad'];
+                                var duration = 500;
+                                fabric.util.animate({
+                                    startValue: 1,
+                                    endValue: 0,
+                                    duration: duration,
+                                    easing: easing,
+                                    onChange: function (value) {
+                                        connector.opacity = value;
+                                    },
+                                });
+                            }
+
+                            connector.sendToBack();
+                            targetObject.bringToFront();
+
+                            theLocator.selectedMark = targetObject;
+
+                            canvas.setActiveObject(targetObject);
+
+
+                        }
+
+                    } else {
+
+                        if (theLocator.lockMovementX && theLocator.lockMovementY) {
+
+                            // The mouse up event is done over a blank section of the canvas
+                            var lastAddedConnector = getLastElementOfArray(theLocator.outConnectors);
+                            lastAddedConnector.remove();
+
+                            theLocator.lockMovementX = false;
+                            theLocator.lockMovementY = false;
+
+                        }
+                    }
+
+                    // In case this locator belongs to a selection
+                    if (this.parentObject) {
+                        computeUntransformedProperties(this);
+                    }
+
+
+                } else {
+
+                    if (this.lockMovementX && this.lockMovementY) {
+                        var connector = this.outConnectors.pop();
+                        connector.remove();
+                    }
+
+                }
+
+                this.lockMovementX = false;
+                this.lockMovementY = false;
+                this.moving = false;
+                this.scaling = false;
+            },
+            'mousedown': function (option) {
+                if (LOG)
+                    console.log("Mouse DOWN over an locator ");
+            },
+            'pressed': function (theEvent) {
+
+                this.blink();
+
+//                if (LOG) console.log("Locator PRESSED !!!!");
+//                if (LOG) console.log(theEvent);
+                theLocator.lockMovementX = true;
+                theLocator.lockMovementY = true;
+
+                theLocator.set('value', {x: theLocator.left, y: theLocator.top});
+
+                var newConnector = new Connector({source: theLocator, x2: theLocator.left, y2: theLocator.top, arrowColor: theLocator.colorForStroke, filledArrow: true, strokeWidth: 1});
+                this.outConnectors.push(newConnector);
+                canvas.add(newConnector);
+
+            },
+            'scaling': function (options) {
+                this.scaling = true;
+                if (LOG)
+                    console.log("Locator being scaled");
+            },
+            'inConnectionRemoved': function (options) {
+                var removedConnection = options.connector;
+                if (LOG)
+                    console.log("%cAn IN connection has been removed from this locator", "background: DarkSeaGreen");
+                fabric.util.removeFromArray(this.inConnectors, removedConnection);
+
+
+            },
+            'outConnectionRemoved': function (options) {
+
+                var removedConnection = options.connector;
+
+                // the corresponding widget should be removed from the list of children of this locator
+                var theMark = removedConnection.destination;
+                fabric.util.removeFromArray(this.widgets, theMark);
+
+                if (LOG)
+                    console.log("%cAn OUT connection has been removed from this locator", "background: DarkSeaGreen");
+                fabric.util.removeFromArray(this.outConnectors, removedConnection);
+
+
+
+            },
+            'newInConnection': function (options) {
+
+
+                // TODO: This method should check the type of locator, as some of them do not allow more than 2 inputs
+
+
+                var newInConnection = options.newInConnection;
+                var shouldAnimate = options.shouldAnimate;
+
+
+
+
+
+
+                if (LOG)
+                    console.log("newInConnection:");
+                if (LOG)
+                    console.log(newInConnection);
+
+                if (LOG)
+                    console.log("%c newInConnection " + shouldAnimate, "background:pink; color: black;");
+
+
+                this.inConnectors.push(newInConnection);
+
+                this.blink();
+
+                if (LOG)
+                    console.log("%cNew IN connection detected in this locator", "background:green");
+                if (LOG)
+                    console.log("%cThe input value is " + newInConnection.value, "background:yellow");
+                if (LOG)
+                    console.log("newInConnection:");
+                if (LOG)
+                    console.log(newInConnection);
+
+            },
+//            'inValueUpdated': function (options) {
+//                var inConnection = options.inConnection;
+//                var markAsSelected = options.markAsSelected;
+//                var shouldAnimate = options.shouldAnimate;
+//                this.computeOutputValue(shouldAnimate);
+//            },
+            'markMoving': function (theMark) {
+
+                theLocator.xAxisArrow.inConnectors.forEach(function (inConnector) {
+                    inConnector.contract();
+                });
+                theLocator.yAxisArrow.inConnectors.forEach(function (inConnector) {
+                    inConnector.contract();
+                });
+
+                theMark.xVisualProperty.inConnectors.forEach(function (inConnector) {
+                    inConnector.contract();
+                });
+                theMark.yVisualProperty.inConnectors.forEach(function (inConnector) {
+                    inConnector.contract();
+                });
+
+
+
+//                if (LOG) console.log("theMark.untransformedY:");
+//                if (LOG) console.log(theMark.untransformedY);
+
+//                if (LOG) console.log("A mark of mine is being moved");
+
+
+                theMark.configurePositionVisualProperties();
+                repositionWidget(theLocator, theMark.xVisualProperty);
+                repositionWidget(theLocator, theMark.yVisualProperty);
+
+                if (!theLocator.isCompressed) {
+                    theLocator.computeUntransformedBoundaries();
+                    theLocator.positionCoordinateVisualProperties();
+                }
+
+//                drawRectAt(theMark.getCenterPoint(), generateRandomColor());
+//                drawRectAt(theMark.getCenterPoint(), theMark.fill);
+
+
+
+
+            },
+            'markSelected': function (theMark) {
+
+                if (LOG)
+                    console.log("MARK SELECTED!!!!");
+
+                theLocator.widgets.forEach(function (widget) {
+                    if (widget.isMark) {
+                        if (widget.xVisualProperty.canvas) {
+
+                            widget.xVisualProperty.inConnectors.forEach(function (inConnector) {
+                                inConnector.opacity = 0;
+                            });
+                            widget.xVisualProperty.outConnectors.forEach(function (outConnector) {
+                                outConnector.opacity = 0;
+                            });
+
+                            widget.xVisualProperty.remove();
+                        }
+                        if (widget.yVisualProperty.canvas) {
+
+                            widget.yVisualProperty.inConnectors.forEach(function (inConnector) {
+                                inConnector.opacity = 0;
+                            });
+                            widget.yVisualProperty.outConnectors.forEach(function (outConnector) {
+                                outConnector.opacity = 0;
+                            });
+
+                            widget.yVisualProperty.remove();
+                        }
+                    }
+                });
+
+                theLocator.selectedMark = theMark;
+                if (!theLocator.isCompressed) {
+
+                    canvas.add(theMark.xVisualProperty);
+                    canvas.add(theMark.yVisualProperty);
+
+                    theMark.xVisualProperty.inConnectors.forEach(function (inConnector) {
+                        inConnector.opacity = 1;
+                    });
+                    theMark.xVisualProperty.outConnectors.forEach(function (outConnector) {
+                        outConnector.opacity = 1;
+                    });
+                    theMark.yVisualProperty.inConnectors.forEach(function (inConnector) {
+                        inConnector.opacity = 1;
+                    });
+                    theMark.yVisualProperty.outConnectors.forEach(function (outConnector) {
+                        outConnector.opacity = 1;
+                    });
+
+                }
+
+            }
+        });
+    },
+    inValueUpdated: function (options) {
+        var theLocator = this;
+        var inConnection = options.inConnection;
+        var markAsSelected = options.markAsSelected;
+        var shouldAnimate = options.shouldAnimate;
+        theLocator.computeOutputValue(shouldAnimate);
+    },
+});
+
+
+function addLocator(x, y) {
+
+    var locator = new Locator({
+        left: x,
+        top: y,
+        scaleX: 0.05,
+        scaleY: 0.05
+    });
+
+    var easing = fabric.util.ease.easeOutElastic;
+    var duration = 1000;
+
+    locator.animate('scaleX', 1, {
+        duration: duration,
+        easing: easing
+    });
+    locator.animate('scaleY', 1, {
+        onChange: canvas.renderAll.bind(canvas),
+        duration: duration,
+        easing: easing
+    });
+
+
+
+    locator.applySelectedStyle();
+
+    canvas.add(locator);
+
+    locator.set('originX', 'center');
+    locator.set('originY', 'center');
+    locator.set('left', x);
+    locator.set('top', y);
+    locator.setCoords();
+
+    canvas.setActiveObject(locator);
+
+//    drawRectAt(new fabric.Point(x, y), 'red');
+
+    canvas.renderAll();
+
+
+
+
+}
+
+
+
