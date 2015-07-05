@@ -32,7 +32,7 @@ function createObjectFromXMLString(XMLNode) {
             console.log("deserializerFunction:");
             console.log(deserializerFunction);
 
-        } else {
+        } else {            
 
             var type = child.attr('type');
 

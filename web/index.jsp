@@ -154,9 +154,9 @@
         <script type="text/javascript" src="./js/h5utils.js"></script>
 
         <script type="text/javascript" src="./js/jquery.xdomainajax.js"></script>
-        
+
         <script type="text/javascript" src="./js/resizeEvents/jquery.resize.js"></script>
-        
+
         <script type="text/javascript" src="./js/jquery.drag.resize.js"></script>
 
 
@@ -452,7 +452,7 @@
 
                         <li style="visibility:hidden;position:absolute;top:0;left:0"> <input type="file" id="svgimageFileInput" name="someSVGFile" onchange="handleSVGFiles(this.files)"/></li>
 
-                        <li id="filePrototype" unselectable='on' onselectstart='return false;' onmousedown='return false;' draggable="false" class="buttonInHorizontalList" style="height: 50px; margin-top: 3px; margin-bottom: 0px;"><a onclick="loadSVGFile();"><i class="mark-svg" style="margin-left: -100px; margin-right: 10px;"> </i> <span style="margin-top: 4px; position: absolute;">Import from file</span> </a></li>
+                        <li id="filePrototype" unselectable='on' onselectstart='return false;' onmousedown='return false;' draggable="false" class="buttonInHorizontalList" style="height: 50px; margin-top: 3px; margin-bottom: 0px;"><a onclick="loadSVGFile();"><i class="mark-svg" style="margin-left: -100px; margin-right: 10px;"> </i> <span style="margin-top: 4px; position: absolute;">Create from SVG</span> </a></li>
                         <li id="drawPathMark" unselectable='on' onselectstart='return false;' onmousedown='drawPathMarkButtonClicked();' draggable="false" class="buttonInHorizontalList" style="height: 50px; margin-bottom: 0px;"><a><i class="mark-path" style="margin-left: -70px; margin-right: 10px;"> </i> <span style="margin-top: 4px; position: absolute;">Draw path</span> </a></li>
                         <li id="drawFilledMark" unselectable='on' onselectstart='return false;' onmousedown='drawFilledMarkButtonClicked();' draggable="false" class="buttonInHorizontalList" style="height: 50px; margin-bottom: 0px;"><a><i class="mark-filled" style="margin-left: -110px; margin-right: 10px;"> </i> <span style="margin-top: 4px; position: absolute;">Draw filled mark</span> </a></li>
                     </ul>
@@ -2260,11 +2260,11 @@
                     console.log(htmlElement);
 
                     if (elementType === "TABLE") {
-                        
+
                         console.log("ES UNA TABLA!!!");
                         console.log(htmlElement);
-                        
-                        
+
+
                     } else if (elementType === "IMG") {
 
                         console.log(htmlElement.src);
@@ -2283,9 +2283,9 @@
                                 left: x,
                                 top: y
                             };
-                            
+
                             if (theText.endsWith('%')) {
-                                theText = theText.substring(0, theText.length-1);
+                                theText = theText.substring(0, theText.length - 1);
                             }
 
                             if ($.isNumeric(theText)) {
@@ -2341,7 +2341,7 @@
 
 
                             }
-                            
+
                             console.log("options:");
                             console.log(options);
 
@@ -2419,7 +2419,6 @@
              
              console.log("canBeCurrency ('1,831,00')");
              console.log(canBeCurrency ('1,831,00'));*/
-
 
 
 

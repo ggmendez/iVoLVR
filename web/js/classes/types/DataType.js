@@ -738,11 +738,75 @@ function addVisualValueToCanvas(options) {
     print("options:", "#a73746", "white");
     console.log(options);
 
-    var visualValue = CreateDataType(options);
-    canvas.add(visualValue);
-    
-    console.log("visualValue:");
-    console.log(visualValue);
-    
-    visualValue.animateBirth(false, null, null, false);
+    if (options.svgPathGroupMark) {
+
+        console.log("options.svgPathGroupMark:");
+        console.log(options.svgPathGroupMark);
+
+        var SVGString = options.svgPathGroupMark;
+
+
+
+
+
+
+
+        fabric.loadSVGFromString(SVGString, function (objects, options2) {
+
+            /*var obj = fabric.util.groupSVGElements(objects, options2);
+             
+             options.svgPathGroupMark = obj;
+             
+             console.log(options.svgPathGroupMark);
+             
+             options = $.extend(true, {}, options, options2);
+             
+             var visualValue = CreateDataType(options);
+             canvas.add(visualValue);
+             
+             console.log("visualValue:");
+             console.log(visualValue);
+             
+             visualValue.animateBirth(false, null, null, false);*/
+            
+            options.thePaths = objects;
+            options.shape = CIRCULAR_MARK;
+            
+
+            options = $.extend(true, {}, options, options2);
+
+            var svgPathGroupMark = new SVGPathGroupMark(objects, options);
+
+            var shapeValue = createShapeValue(SVGPATHGROUP_MARK, svgPathGroupMark);
+
+            var visualValue = new ShapeData(options);
+
+            visualValue.setValue(shapeValue, true);
+
+            visualValue.value.SVGString = SVGString;
+
+            canvas.add(visualValue);
+
+            console.log("visualValue:");
+            console.log(visualValue);
+
+            visualValue.animateBirth(false, null, null, false);
+
+
+        });
+
+
+    } else {
+
+        var visualValue = CreateDataType(options);
+        canvas.add(visualValue);
+
+        console.log("visualValue:");
+        console.log(visualValue);
+
+        visualValue.animateBirth(false, null, null, false);
+
+    }
+
+
 }

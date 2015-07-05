@@ -1431,18 +1431,12 @@ function showWebPage() {
 
     console.log("showWebPage");
 
-    var block = $('<div/>', {id: 'block', class: 'block'});
-    
+    var block = $('<div/>', {id: 'block', class: 'block'}); // TODO: This is the handle that allows the user to resize the div and, in consequence, the iFrame
+
     var webPagePanel = $('<div/>', {id: 'webPagePanel'});
-    
-    
-    
-    var handle = $('<div class="resize">Drag</div>', {style: 'cursor:move;'});
-    
 
-    var inputsContainer = $('<div />', {id: 'inputsContainer', style: 'width: 100%;'});
+//    var handle = $('<div class="resize">Drag</div>', {style: 'cursor:move;'}); // TODO: This is the handle that allows the user to resize the div and, in consequence, the iFrame
 
-    var urlLabel = $('<label/>', {text: "URL:", style: "margin-right: 5px; font-size: 18px; width: 10%;"});
 //    var defaultURL = 'http://www.bbc.co.uk/news';
 //    var defaultURL = 'pepe.html';
 //    var defaultURL = '5_28_115_1_5_40_188.html';
@@ -1450,10 +1444,23 @@ function showWebPage() {
 //    var defaultURL = 'http://www.wikipedia.com';
 //    var defaultURL = 'http://www.st-andrews.ac.uk';
     var defaultURL = 'https://en.wikipedia.org/wiki/List_of_countries_by_oil_production';
-    var urlInputField = $('<input />', {id: 'urlInputField', type: 'text', value: defaultURL, style: 'margin-top: 2px; font-size: 18px; width: 85%; margin-right: 10px;'});
 
+    var inputsContainer = $('<div />', {id: 'inputsContainer', style: 'width: 100%; overflow: hidden;'});
+
+    var urlLabel = $('<label/>', {text: "URL:", style: "float: left; margin-top: 18px; font-size: 18px;"});
+    var aSpan = $('<span/>', {style: 'display: block; overflow: hidden; padding: 0 5px'});
+
+    var urlInputField = $('<input/>', {id: 'urlInputField', type: 'text', value: defaultURL, style: 'margin-top: 8px; font-size: 18px; width: 100%; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box'});    
+
+    var closeButton = $('<button/>', {style: "margin-top: 2px; float:right; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; border-color: #000; border-style: solid; border-width: 2px; color: black;"});
+    var closeLi = $('<li/>', {class: "fa fa-close fa-2x", style: "margin-left: -22px; margin-top: -12px; height: 0px; width: 20px;"});
+    closeButton.append(closeLi);
+
+    aSpan.append(urlInputField);
+
+    inputsContainer.append(closeButton);
     inputsContainer.append(urlLabel);
-    inputsContainer.append(urlInputField);
+    inputsContainer.append(aSpan);
 
     var inputKeyUp = function (e) {
         if (e.keyCode === 13) {
@@ -1469,11 +1476,6 @@ function showWebPage() {
 
     var webPageDisplayer = $('<iframe />', {id: 'webPageDisplayer', style: 'resize:both; overflow:auto; margin-top: 8px; min-width:600px; min-height: 500px; max-height:' + idealHeight + 'px; background-color: #fff; border-color: #000; border-style: solid; border-width: 1px;'});
 
-    var buttonsDiv = $('<div />', {id: 'preTakeButtons', style: 'width: 100%;'});
-    var closeButton = $('<button/>', {text: "Close", class: "square", style: "margin-top: 5px; width: 30%; margin-left: 35%; float: left; border-color: #000; border-style: solid; border-width: 2px; color: black; "});
-    buttonsDiv.append(closeButton);
-    
-
     closeButton.click(function () {
         $("#openWebPageButton").tooltipster('hide', function () {
             $("#openWebPageButton").on('click', showWebPage);
@@ -1482,12 +1484,11 @@ function showWebPage() {
 
     webPagePanel.append(inputsContainer);
     webPagePanel.append(webPageDisplayer);
-    webPagePanel.append(buttonsDiv);
-    
-    webPagePanel.append(handle);
-    
+
+//    webPagePanel.append(handle); // TODO: This is the handle that allows the user to resize the div and, in consequence, the iFrame
+
     block.append(webPagePanel);
-    
+
 
     $("#openWebPageButton").tooltipster({
 //        content: webPagePanel,
@@ -1498,7 +1499,7 @@ function showWebPage() {
         position: 'bottom',
         multiple: true,
         autoClose: false,
-        updateAnimation: true        
+        updateAnimation: true
     });
     $("#openWebPageButton").tooltipster('show');
     $("#openWebPageButton").off('click');
@@ -1507,30 +1508,30 @@ function showWebPage() {
 
 
     var onIFrameResizeFunction = function (e) {
-        
+
         console.log("The iFrame is being resized");
-        
+
         var iFrameWidth = $("#webPageDisplayer").width();
         var iFrameHeight = $("#webPageDisplayer").height();
-        
+
         if (iFrameHeight > idealHeight) {
             console.log("%c" + "ALERT!!!!! Forcing height if the iFrame, as it is being extended beyond its maximun, ideal height", "background: red; color: white;");
             $("#webPageDisplayer").height(idealHeight);
         }
-        
+
         console.log("iFrameWidth: " + iFrameWidth);
         console.log("iFrameHeight: " + iFrameHeight);
-        
+
         $("#openWebPageButton").tooltipster('reposition');
         $("#openWebPageButton").tooltipster('show');
     };
 
     $("#webPagePanel").resize(onIFrameResizeFunction);
-    
-    
-    
-     $('#block').dragResize({grid:20});    
-        
+
+
+
+//    $('#block').dragResize({grid: 20}); / This call is conflicting with the edition of the url input text
+
 
 }
 
@@ -4937,6 +4938,30 @@ function appendElementWithValue(root, elementName, value) {
                 value = value.duration.asMilliseconds();
 
 
+
+            } else if (value.isShapeData) {
+                                
+                console.log("value.svgPathGroupMark:");
+                console.log(value.svgPathGroupMark);
+                
+                if (value.svgPathGroupMark) {
+                    
+                    var SVGString = value.SVGString;
+                    
+                    console.log("SVGString:");
+                    console.log(SVGString);
+                    
+                    
+                    root.append('<svgPathGroupMark type="svgString">' + '<![CDATA[' + SVGString + ']]>' + '</svgPathGroupMark>');
+
+                    
+                }
+                
+                console.log("value.shape:");
+                console.log(value.shape);
+                
+                elementName = "shape";
+                value = value.shape;
 
             }
 
