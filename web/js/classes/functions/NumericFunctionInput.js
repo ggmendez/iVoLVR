@@ -194,7 +194,7 @@ var NumericFunctionInput = fabric.util.createClass(fabric.Path, {
 
                             if (homogeneousType !== iconType) {
 
-                                alertify.error("The given array doest not contain numbers.", "", 2000);
+                                alertify.error("The given array does not contain numbers.", "", 2000);
                                 newInConnection.contract();
                                 return;
 

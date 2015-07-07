@@ -69,15 +69,15 @@ var MapperOutput = fabric.util.createClass(fabric.Path, {
 
                 var coordX = canvasCoords.x;
                 var coordY = canvasCoords.y;
-                
+
                 var potentialTypes = ['isVisualProperty', 'isOperator', 'isFunctionInput', 'isAggregator', 'isPlayer', 'isDataType', 'isVerticalCollection', 'isMapperInput', 'isMapperOutput'];
                 if ($.isArray(theMapperOutput.value)) {
                     potentialTypes.push('isFunctionValuesCollection');
                 }
 
                 var targetObject = findPotentialDestination(canvasCoords, potentialTypes);
-                
-                
+
+
 
                 if (targetObject) {
 
@@ -126,8 +126,19 @@ var MapperOutput = fabric.util.createClass(fabric.Path, {
                     if ($.isArray(theMapperOutput.value)) {
 
                         // TODO: Implement a collection here with the correspongin values
+
+                        var createdCollection = addVerticalCollection(coordX, coordY, theMapperOutput.value);
+
+
+                        console.log("BEFORE: createdCollection.inConnectors:");
+                        console.log(createdCollection.inConnectors);
+
+                        connector.setDestination(createdCollection, true);
                         
-                        addVerticalCollection(coordX, coordY, theMapperOutput.value);
+                        console.log("AFTER: createdCollection.inConnectors:");
+                        console.log(createdCollection.inConnectors);
+
+
 
                     } else {
 

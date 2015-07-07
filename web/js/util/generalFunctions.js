@@ -4333,6 +4333,24 @@ function getAllTypes(array) {
     return types;
 }
 
+function getDataTypePropositionByIconName (iconName) {
+    if (iconName === "color") {
+        return "isColorData";
+    } else if (iconName === "dateAndTime") {
+        return "isDateAndTimeData";
+    } else if (iconName === "duration") {
+        return "isDurationData";
+    } else if (iconName === "number") {
+        return "isNumericData";
+    } else if (iconName === "shape") {
+        return "isShapeData";
+    } else if (iconName === "string") {
+        return "isStringData";
+    } else {
+        return null;
+    }
+}
+
 function getIconNameByDataTypeProposition(dataTypeProposition) {
     if (dataTypeProposition === "isColorData") {
         return "color";
@@ -4379,7 +4397,8 @@ function computeDeltaE2000(fabricColor1, fabricColor2) {
 
 
 
-function updateConnectorsPositions(object) {
+function updateConnectorsPositions(object) {        
+    
     object.setCoords();
     var connectionPoint = null;
     if (object.getCompressedMassPoint) {
@@ -4391,18 +4410,14 @@ function updateConnectorsPositions(object) {
         object.inConnectors.forEach(function (inConnector) {
             inConnector.set({'x2': connectionPoint.x, 'y2': connectionPoint.y});
             inConnector.setCoords();
-//            inConnector.positionTriangles();
         });
     }
-
     if (object.outConnectors) {
         object.outConnectors.forEach(function (outConnector) {
             outConnector.set({'x1': connectionPoint.x, 'y1': connectionPoint.y});
             outConnector.setCoords();
-//            outConnector.positionTriangles();
         });
     }
-
 }
 
 function bringConnectorsToFront(object) {

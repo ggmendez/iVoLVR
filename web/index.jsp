@@ -165,7 +165,7 @@
 
     </head>
 
-    <body onresize="adjustCanvasDimensions()">
+    <body oncontextmenu="return false;" onresize="adjustCanvasDimensions()" onload="noBack();" onpageshow="if (event.persisted) noBack();" onunload="">
 
 
         <!--<object id="wtPlugin" style="visibility: hidden;" type="application/x-wacomtabletplugin"></object>-->
@@ -2419,6 +2419,14 @@
              
              console.log("canBeCurrency ('1,831,00')");
              console.log(canBeCurrency ('1,831,00'));*/
+
+
+            window.history.forward(); // Disabling the back button 
+            function noBack() {
+                window.history.forward();
+            }
+            
+//            window.onbeforeunload = function() { return "Are you sure you want to exit?"; };
 
 
 

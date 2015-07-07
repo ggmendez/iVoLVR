@@ -71,6 +71,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
             movingOpacity: 1
         });
         theCollection.iconName = iconName;
+        theCollection.dataTypeProposition = getDataTypePropositionByIconName(iconName);
 
         if (!blinkingFactor) {
             blinkingFactor = 0.3;
@@ -83,11 +84,16 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
         blink(icon, false, 0.30); // the canvas will be refreshed at some point below this, so no need to refresh it here
 
         var theMapper = theCollection.mapper;
+
         if (theMapper) {
+
+            console.log("%c" + "This vertical collection is part of a MAPPER", "background: #56c796; color: black;");
+
             theMapper.updateInputOutputDataTypePropositions();
             theMapper.updateInputPointMovementPermit();
             theMapper.updateInputOutputVisibilityStatus();
             blink(theCollection, theMapper.isCompressed, blinkingFactor);
+
             if (!theMapper.isCompressed) {
 
                 var totalInValues = theMapper.inCollection.getTotalValues();
@@ -118,6 +124,9 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
                 } else {
                     var dataTypeProposition = theCollection.getVisualValueAt(0).value.getTypeProposition();
                     theCollection.dataTypeProposition = dataTypeProposition;
+
+                    console.log("%c" + "dataTypeProposition: " + dataTypeProposition, "background: #255573; color: white;");
+
                 }
             }
 
@@ -208,7 +217,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
 
             /*if (LOG)
-                console.log("%c Positioning : " + intendedNumberOfElements, "background: pink; color: black;");*/
+             console.log("%c Positioning : " + intendedNumberOfElements, "background: pink; color: black;");*/
 
             var valueUnscaledHeight = theCollection.visualValues[0].height;
 
@@ -222,7 +231,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
             }
 
             /*if (LOG)
-                console.log("%c space : " + space, "background: pink; color: black;");*/
+             console.log("%c space : " + space, "background: pink; color: black;");*/
 
             var j = 0;
             var x = theCollection.left;
@@ -259,7 +268,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
                 if (visualValue.relativeY == null) {
                     visualValue.relativeY = visualValue.getPointByOrigin('center', 'top').y - theCollection.getPointByOrigin('center', 'top').y;
                     /*if (LOG)
-                        console.log("%c visualValue.relativeY : " + visualValue.relativeY, "background: pink; color: black;");*/
+                     console.log("%c visualValue.relativeY : " + visualValue.relativeY, "background: pink; color: black;");*/
                 }
 
                 j++;
@@ -1292,7 +1301,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
         theCollection.inConnectors.push(inConnection);
         theCollection.set('value', updatedValue);
-   },
+    },
     // Checks if the given value is allowed to be added to the current collection based on the fact that collections should be honogeneous
     isValueAllowed: function (value) {
 
@@ -1330,8 +1339,10 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
             theCollection.visualValues.push(visualValue);
 
             if (theCollection.isCompressed) {
+
                 blink(theCollection.typeIcon, false, 0.30);
                 blink(theCollection, true, 0.30);
+
             } else {
 
 
@@ -1393,7 +1404,9 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
             theCollection.values.push(visualValue.value);
             theCollection.visualValues.push(visualValue);
 
-            // The collection has no icon type, it should be added
+            console.log("%c" + "The collection has no icon type, it should be added.", "background: #46c0c2; color: black;");
+            console.log("%c" + "valueIconName: " + valueIconName, "background: #46c0c2; color: black;");
+
             theCollection.addTypeIcon(valueIconName, 0.05);
 
         }

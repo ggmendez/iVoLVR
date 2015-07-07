@@ -196,6 +196,9 @@ var MapperInput = fabric.util.createClass(fabric.Path, {
                     } else {
 
                         var homogeneousType = getHomogeneousType(incomingValue);
+                        
+                        console.log("%c" + "homogeneousType: " + homogeneousType, "background: #a13566; color: white;");
+                        console.log("%c" + "theMapperInput.dataTypeProposition: " + theMapperInput.dataTypeProposition, "background: #56c796; color: black;");
 
                         if (!homogeneousType) {
 
@@ -212,7 +215,7 @@ var MapperInput = fabric.util.createClass(fabric.Path, {
 
                             if (homogeneousType !== iconType) {
 
-                                alertify.error("The given array doest not contain elements of the required type.", "", 2000);
+                                alertify.error("The given array does not contain elements of the required type.", "", 2000);
                                 newInConnection.contract();
                                 return;
 

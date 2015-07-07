@@ -1211,6 +1211,12 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
 
 
+            } else {
+                
+                console.log("The evaluated value is NOT within the given range. A default value is returned.");
+                
+                return createDefaultValueByTypeProposition(theMapper.outCollection.dataTypeProposition);
+                
             }
 
 
