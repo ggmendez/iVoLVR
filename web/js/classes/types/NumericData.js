@@ -289,12 +289,40 @@ function generateScaledValue(unscaledValue, inFactor, outFactor) {
     return scaledNumber;
 }
 
+function getSuperscriptString (exponent) {
+    
+    console.log("exponent: " + exponent);
+    
+    if (exponent < 0) {
+        
+        return '&#8315;' + getSuperscriptString (Math.abs(exponent));
+        
+    } else if (exponent > 0) {
+        
+        if (exponent < 10) {
+            return superScriptsCodes[exponent];
+        } else {
+            return getSuperscriptString (parseInt('' + exponent/10)) + getSuperscriptString (exponent%10);
+        }
+        
+    } else {
+        return ''; // exponent is equal to zero
+    }
+        
+}
+
 function buildOutputSelector(numericValue) {
 
     var outputTypeSelector = $('<select />', {id: 'outputTypeSelector', style: 'font-size: 18px; margin-right: 10px; margin-top: 10px;'});
 
     metricPrefixes.forEach(function (item) {
-        var currentOption = $('<option />', {value: item.factor, text: item.prefix, selected: item.factor === numericValue.outMultiplicationFactor});
+        var text = '';
+        if (item.exponent !== 0) {
+            text = item.prefix + ' (&#215; 10' + getSuperscriptString (item.exponent) + ')';
+        }
+        var currentOption = $('<option />', {value: item.factor, selected: item.factor === numericValue.outMultiplicationFactor});
+        currentOption.append('<span>' + text + '<span>');        
+        
         currentOption.appendTo(outputTypeSelector);
     });
 
@@ -328,25 +356,13 @@ function buildPrefixSelector(numericValue) {
 
 function updateOutputText() {
 
-    var currentUnscaledValue = $("#unscaledValueTextField").val();
-    var selectedInPrefix = $("#prefixSelector option:selected").text();
-    var selectedOutPrefix = $("#outputTypeSelector option:selected").text();
-    var inFactor = getMultiplicationFactor(selectedInPrefix);
-    var outFactor = getMultiplicationFactor(selectedOutPrefix);
-
-    /*if (LOG) console.log("++++++++++++ currentUnscaledValue:");
-     if (LOG) console.log(currentUnscaledValue);
-     if (LOG) console.log("++++++++++++ inFactor:");
-     if (LOG) console.log(inFactor);
-     if (LOG) console.log("++++++++++++ outFactor:");
-     if (LOG) console.log(outFactor);*/
-
+    var currentUnscaledValue = $("#unscaledValueTextField").val();    
+    var outFactor = $("#outputTypeSelector option:selected").val();
+    var inFactor = $("#prefixSelector option:selected").val();
     var scaledNumber = generateScaledValue(currentUnscaledValue, inFactor, outFactor);
     var outputLabel = $('#outputLabel');
-//   var valueToShow = scaledNumber % 1 === 0 ? scaledNumber : scaledNumber.toFixed(3);
     var valueToShow = scaledNumber;
     outputLabel.text('( ' + valueToShow + ' )');
-
 }
 
 function updateOutputUnits() {

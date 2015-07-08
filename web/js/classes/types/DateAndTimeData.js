@@ -49,18 +49,6 @@ var DateAndTimeData = fabric.util.createClass(fabric.Path, {
         this.setCoords();
 
     },
-    computeMultiplicationFactor: function (aPrefix) {
-        if (aPrefix || aPrefix === '') {
-            return 1;
-        } else {
-            for (var i = 0; i < metricPrefixes.length; i++) {
-                var item = metricPrefixes[i];
-                if (item.prefix === aPrefix) {
-                    return item.factor;
-                }
-            }
-        }
-    },
     buildFormatSelector: function () {
 
         var theDataType = this;

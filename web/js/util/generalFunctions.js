@@ -1450,7 +1450,7 @@ function showWebPage() {
     var urlLabel = $('<label/>', {text: "URL:", style: "float: left; margin-top: 18px; font-size: 18px;"});
     var aSpan = $('<span/>', {style: 'display: block; overflow: hidden; padding: 0 5px'});
 
-    var urlInputField = $('<input/>', {id: 'urlInputField', type: 'text', value: defaultURL, style: 'margin-top: 8px; font-size: 18px; width: 100%; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box'});    
+    var urlInputField = $('<input/>', {id: 'urlInputField', type: 'text', value: defaultURL, style: 'margin-top: 8px; font-size: 18px; width: 100%; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box'});
 
     var closeButton = $('<button/>', {style: "margin-top: 2px; float:right; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; border-color: #000; border-style: solid; border-width: 2px; color: black;"});
     var closeLi = $('<li/>', {class: "fa fa-close fa-2x", style: "margin-left: -22px; margin-top: -12px; height: 0px; width: 20px;"});
@@ -2926,6 +2926,22 @@ function getCanvasCoordinates(fabricEvent) {
 
 }
 
+function getCanvasCoordinatesFromTouch(touch) {
+
+    var xCanvas, yCanvas, xPage, yPage;
+    var viewportLeft = canvas.viewportTransform[4];
+    var viewportTop = canvas.viewportTransform[5];
+
+    xPage = touch.pageX;
+    yPage = touch.pageY;
+
+    xCanvas = (xPage - viewportLeft - $('#theCanvas').offset().left) / canvas.getZoom();
+    yCanvas = (yPage - viewportTop - $('#theCanvas').offset().top) / canvas.getZoom();
+
+    return new fabric.Point(xCanvas, yCanvas);
+
+}
+
 function gestureSetEnabled(hammerManager, gestureName, status) {
     hammerManager.get(gestureName).set({enable: status});
 }
@@ -4333,7 +4349,7 @@ function getAllTypes(array) {
     return types;
 }
 
-function getDataTypePropositionByIconName (iconName) {
+function getDataTypePropositionByIconName(iconName) {
     if (iconName === "color") {
         return "isColorData";
     } else if (iconName === "dateAndTime") {
@@ -4397,8 +4413,8 @@ function computeDeltaE2000(fabricColor1, fabricColor2) {
 
 
 
-function updateConnectorsPositions(object) {        
-    
+function updateConnectorsPositions(object) {
+
     object.setCoords();
     var connectionPoint = null;
     if (object.getCompressedMassPoint) {
@@ -4955,26 +4971,26 @@ function appendElementWithValue(root, elementName, value) {
 
 
             } else if (value.isShapeData) {
-                                
+
                 console.log("value.svgPathGroupMark:");
                 console.log(value.svgPathGroupMark);
-                
+
                 if (value.svgPathGroupMark) {
-                    
+
                     var SVGString = value.SVGString;
-                    
+
                     console.log("SVGString:");
                     console.log(SVGString);
-                    
-                    
+
+
                     root.append('<svgPathGroupMark type="svgString">' + '<![CDATA[' + SVGString + ']]>' + '</svgPathGroupMark>');
 
-                    
+
                 }
-                
+
                 console.log("value.shape:");
                 console.log(value.shape);
-                
+
                 elementName = "shape";
                 value = value.shape;
 

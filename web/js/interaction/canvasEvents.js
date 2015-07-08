@@ -1505,6 +1505,11 @@ function bindCanvasDefaultEvents() {
         'path:created': function (option) {
             canvasPathCreated(option);
         },
+        'object:scaled': function (option) {
+            console.log("ñsdiyugfeiuaagfñilu");
+        },
+        
+        
 //        'mouse:over': function (option) {
 //            canvasMouseOver(option);
 //        }

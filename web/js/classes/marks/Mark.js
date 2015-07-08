@@ -1066,7 +1066,26 @@ var Mark = function () {
         yVisualProperty.scaleY = 1;
         yVisualProperty.opacity = 1;
 
-    }
+    };
+
+    this.activateCopyingMode = function () {
+        // enter copying mode
+        blink(this, true);
+        this.copyingMode = true;
+        this.lockMovementX = true;
+        this.lockMovementY = true;
+
+    };
+
+    this.deactivateCopyingMode = function () {
+        this.copyingMode = false;
+        this.lockMovementX = false;
+        this.lockMovementY = false;
+        if (this.currentCopy) {
+            this.currentCopy.evented = true;
+            this.currentCopy = null;
+        }
+    };
 
     this.associateEvents = function () {
         var theMark = this;
@@ -1077,6 +1096,8 @@ var Mark = function () {
             },
             'mouseout': function (options) {
                 console.log("Mouse out of a mark!");
+
+                this.deactivateCopyingMode(); // TODO: Should this be here? 
             },
             // This event is triggered when the mark is associated by a locator element
             'newInConnection': function (options) {
@@ -1109,20 +1130,91 @@ var Mark = function () {
                 if (LOG)
                     console.log("This mark has been pressed");
                 theMark.positionElements();
+
+
+                this.activateCopyingMode();
+
+
             },
             'moving': function (options) {
-                /*if (LOG) console.log("options:");
-                 if (LOG) console.log(options);
-                 if (LOG) console.log("moving event");*/
-                this.positionElements();
 
-                if (this.parentObject && this.parentObject.isLocator) {
+                if (this.copyingMode) {
 
-                    if (LOG)
-                        console.log("This mark has a parent object");
+                    console.log("%c" + "MARK MOVING in COPYING mode. Someone is trying to duplicate this mark.", "background: #2d287a; color: white;");
 
-                    computeUntransformedProperties(this);
-                    this.parentObject.trigger('markMoving', this);
+                    if (options.e.touches.length === 2) {
+
+
+
+                        var touch1 = options.e.touches['0'];
+
+                        if (touch1) {
+
+                            console.log("touch1:");
+                            console.log(touch1);
+
+                            var p1 = getCanvasCoordinatesFromTouch(touch1);
+
+//                        drawRectAt(p1, "red");
+
+                        }
+
+                        var touch2 = options.e.touches['1'];
+
+                        if (touch2) {
+
+                            console.log("touch2:");
+                            console.log(touch2);
+
+
+                            var p2 = getCanvasCoordinatesFromTouch(touch2);
+
+
+//                        drawRectAt(p2, "green");
+
+                            if (!this.currentCopy) {
+                                this.currentCopy = this.clone();
+                                this.currentCopy.evented = false;
+                                canvas.add(this.currentCopy);
+                                console.log("%c" + "Clone added to canvas!", "background: #6dce8d; color: black;");
+                            }
+
+                            if (this.currentCopy) {
+                                this.currentCopy.setPositionByOrigin(p2, 'center', 'center');
+                                this.currentCopy.setCoords();
+                            }
+
+
+
+
+
+                        }
+
+
+                    } else {
+
+
+
+                    }
+
+
+
+
+
+
+                } else {
+
+                    this.positionElements();
+
+                    if (this.parentObject && this.parentObject.isLocator) {
+
+                        if (LOG)
+                            console.log("This mark has a parent object");
+
+                        computeUntransformedProperties(this);
+                        this.parentObject.trigger('markMoving', this);
+                    }
+
                 }
 
             },
@@ -1158,28 +1250,63 @@ var Mark = function () {
                 }
 
             },
-            'mousedown': function (options) {
-                if (!theMark.isCompressed) {
-                    theMark.backgroundRect.bringToFront();
-                    theMark.visualProperties.forEach(function (visualProperty) {
-                        if (visualProperty.canvas) {
-                            visualProperty.bringToFront();
-                            
-                            
-                            visualProperty.inConnectors.forEach(function (inConnection) {
-                                inConnection.bringToFront();
-                            });
-                            visualProperty.outConnectors.forEach(function (outConnection) {
-                                outConnection.bringToFront();
-                            });
-                            
-                        }
-                    });
-                    if (theMark.iText) {
-                        theMark.iText.bringToFront();
+            'mouseup': function (options) {
+
+                if (this.copyingMode) {
+
+                    console.log("%c" + "MOUSE UP over a mark!", "background: #914b30; color: white;");
+                    if (this.currentCopy) {
+                        this.currentCopy.evented = true;
+                        this.currentCopy.deactivateCopyingMode();
                     }
+
                 }
-                theMark.bringToFront();
+
+            },
+            'mousedown': function (options) {
+
+                console.log("%c" + "MOUSE DOWN over a mark!", "background: #572a82; color: white;");
+                console.log("%c" + "this.copyingMode: " + this.copyingMode, "background: #572a82; color: white;");
+
+
+                if (this.copyingMode) {
+
+                    this.currentCopy = this.clone();
+                    this.currentCopy.evented = false;
+                    canvas.add(this.currentCopy);
+
+                    console.log("%c" + "Clone added to canvas!", "background: #6dce8d; color: black;");
+
+
+
+
+
+                } else {
+
+                    if (!theMark.isCompressed) {
+                        theMark.backgroundRect.bringToFront();
+                        theMark.visualProperties.forEach(function (visualProperty) {
+                            if (visualProperty.canvas) {
+                                visualProperty.bringToFront();
+
+
+                                visualProperty.inConnectors.forEach(function (inConnection) {
+                                    inConnection.bringToFront();
+                                });
+                                visualProperty.outConnectors.forEach(function (outConnection) {
+                                    outConnection.bringToFront();
+                                });
+
+                            }
+                        });
+                        if (theMark.iText) {
+                            theMark.iText.bringToFront();
+                        }
+                    }
+                    theMark.bringToFront();
+
+                }
+
             },
             'selected': function (options) {
                 if (theMark.parentObject && theMark.parentObject.isLocator) {
@@ -1319,9 +1446,9 @@ function addMarkToCanvas(markType, options) {
 
 /* Function to add outputs to Canvas*/
 function addMarkToCanvasFromXML(markType, $markNode) {
-    
+
     console.log(markType);
-    
+
     if (markType === CIRCULAR_MARK) {
         return addCircularMarkToCanvasFromXML($markNode);
     } else if (markType == SQUARED_MARK) {

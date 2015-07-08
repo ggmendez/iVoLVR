@@ -45,22 +45,6 @@ var ColorData = fabric.util.createClass(fabric.Path, {
         this.setCoords();
 
     },
-    
-    computeMultiplicationFactor: function (aPrefix) {
-        if (aPrefix || aPrefix === '') {
-            return 1;
-        } else {
-            for (var i = 0; i < metricPrefixes.length; i++) {
-                var item = metricPrefixes[i];
-                if (item.prefix === aPrefix) {
-                    return item.factor;
-                }
-            }
-        }
-    },
-    /*createValue: function (fabricColor) {
-     return new Value({isColorData: true, color: fabricColor});
-     },*/
     setValue: function (colorValue, refreshCanvas, shouldAnimate) {
         var theDataType = this;
         if (colorValue.isColorData) {

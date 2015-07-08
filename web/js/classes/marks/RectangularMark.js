@@ -41,6 +41,11 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
 
         this.createVisualProperties();
         this.createPositionProperties();
+        
+        
+        this.on('scaling', function (option) {
+            console.log("Nahgs");
+        });
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {

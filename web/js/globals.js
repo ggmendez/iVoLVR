@@ -59,12 +59,29 @@ DELETING_OUTPUT = "DELETING_OUTPUT";
 timeFormats = null;
 dateFormats = null;
 
+superScriptsCodes = [
+    '&#8304;', // 0
+    '&#185;', // 1
+    '&#178;', // 2
+    '&#179;', // 3
+    '&#8308;', // 4
+    '&#8309;', // 5
+    '&#8310;', // 6
+    '&#8311;', // 7
+    '&#8312;', // 8
+    '&#8313;', // 9
+];
 
 metricPrefixes = [
     {prefix: 'tera', symbol: 'T', factor: 1000000000000, exponent: 12},
     {prefix: 'giga', symbol: 'G', factor: 1000000000, exponent: 9},
     {prefix: 'mega', symbol: 'M', factor: 1000000, exponent: 6},
+    
+    {prefix: '100-kilo', symbol: 'ck', factor: 100000, exponent: 5},
+    {prefix: '10-kilo', symbol: 'dk', factor: 10000, exponent: 4},
+    
     {prefix: 'kilo', symbol: 'k', factor: 1000, exponent: 3},
+    
     {prefix: 'hecto', symbol: 'h', factor: 100, exponent: 2},
     {prefix: 'deca', symbol: 'da', factor: 10, exponent: 1},
     {prefix: '', symbol: '(none)', factor: 1, exponent: 0},
