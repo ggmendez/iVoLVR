@@ -943,7 +943,7 @@ var Mark = function () {
     this.getVisualPropertyByAttributeName = function (attributeName) {
         var theMark = this;
         for (var i = 0; i < theMark.visualProperties.length; i++) {
-            if (theMark.visualProperties[i].attribute == attributeName) {
+            if (theMark.visualProperties[i].attribute === attributeName) {
                 return theMark.visualProperties[i];
             }
         }
@@ -1099,6 +1099,7 @@ var Mark = function () {
 
                 this.deactivateCopyingMode(); // TODO: Should this be here? 
             },
+            
             // This event is triggered when the mark is associated by a locator element
             'newInConnection': function (options) {
                 var newInConnection = options.newInConnection;
@@ -1174,14 +1175,16 @@ var Mark = function () {
 
                             if (!this.currentCopy) {
                                 this.currentCopy = this.clone();
+                                this.currentCopy.applyUnselectedStyle(false);
+                                this.currentCopy.opacity = 0.6;
                                 this.currentCopy.evented = false;
                                 canvas.add(this.currentCopy);
                                 console.log("%c" + "Clone added to canvas!", "background: #6dce8d; color: black;");
                             }
 
                             if (this.currentCopy) {
-                                this.currentCopy.setPositionByOrigin(p2, 'center', 'center');
-                                this.currentCopy.setCoords();
+                                this.currentCopy.setPositionByOrigin(p2, 'center', 'center');                                
+                                this.currentCopy.positionElements();
                             }
 
 
@@ -1256,8 +1259,11 @@ var Mark = function () {
 
                     console.log("%c" + "MOUSE UP over a mark!", "background: #914b30; color: white;");
                     if (this.currentCopy) {
-                        this.currentCopy.evented = true;
+                        this.currentCopy.opacity = 1;
+                        this.currentCopy.evented = true;                        
+                        this.currentCopy.positionElements();
                         this.currentCopy.deactivateCopyingMode();
+                        canvas.renderAll();
                     }
 
                 }
@@ -1272,6 +1278,8 @@ var Mark = function () {
                 if (this.copyingMode) {
 
                     this.currentCopy = this.clone();
+                    this.currentCopy.applyUnselectedStyle(false);
+                    this.currentCopy.opacity = 0.6;
                     this.currentCopy.evented = false;
                     canvas.add(this.currentCopy);
 

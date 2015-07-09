@@ -372,6 +372,8 @@ var VisualProperty = function () {
 
 
                         } else if (targetObject.isMark) {
+                            
+                            blink(targetObject, true);
 
                             if (targetObject !== this.parentObject) {
 
@@ -381,16 +383,16 @@ var VisualProperty = function () {
                                 var theDestination = connector.destination;
 
                                 var attribute = theSource.attribute;
-                                if (attribute == "text") {
+                                if (attribute === "text") {
                                     attribute = "label";
                                 }
 
                                 if (targetObject.isEllipticMark) {
 
-                                    if (attribute == "width") {
+                                    if (attribute === "width") {
                                         attribute = "rx";
 //                                        connector.value = connector.value / 2;
-                                    } else if (attribute == "height") {
+                                    } else if (attribute === "height") {
                                         attribute = "ry";
 //                                        connector.value = connector.value / 2;
                                     }

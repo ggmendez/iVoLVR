@@ -206,20 +206,24 @@
             <!--<li class=""><a href="javascript:onLoad();"><i class="icon-picture icon-large"></i> Image</a></li>-->
             <li> <input type="file" id="imageFileInput" name="someFile" onchange="handleImageFiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
 
+            <!--<li class="verticalLeftDivider verticalRightDivider"><a href="javascript:takePicture();"><i class="fa-camera icon-large"></i> Photo</a></li>-->
 
+            <!--<li class="verticalLeftDivider verticalRightDivider"><a href="javascript:void(0);" onclick="showCameraSignal();"><i id="openCameraButton" class="fa-camera icon-large"></i> Photo</a></li>-->
+            <li class="verticalLeftDivider"><a href="javascript:void(0);" onclick="showCameraSignal();"><i id="openCameraButton" class="fa fa-camera fa-2x"></i></a></li>
+            
+            
+            <li class="verticalLeftDivider"><a href="javascript:readSVGFileAsData();"><i class="fa fa-file-code-o fa-2x"></i></a></li>
+            <li> <input type="file" id="dataSVGFileInput" name="someSVGDataFile" onchange="handleSVGFiles(this.files, false)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
+            
 
             <!--<li class="verticalLeftDivider"><a href="javascript:loadDatafile();"><i class="icon-table icon-large"></i> Data</a></li>-->
             <li class="verticalLeftDivider"><a href="javascript:loadDatafile();"><i class="icon-table fa-2x"></i></a></li>
             <li> <input type="file" id="dataimageFileInput" name="someDatafile" onchange="handleDatafiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
 
-
-            <!--<li class="verticalLeftDivider verticalRightDivider"><a href="javascript:takePicture();"><i class="fa-camera icon-large"></i> Photo</a></li>-->
-
-            <!--<li class="verticalLeftDivider verticalRightDivider"><a href="javascript:void(0);" onclick="showCameraSignal();"><i id="openCameraButton" class="fa-camera icon-large"></i> Photo</a></li>-->
-            <li class="verticalLeftDivider"><a href="javascript:void(0);" onclick="showCameraSignal();"><i id="openCameraButton" class="fa fa-camera fa-2x"></i></a></li>
-
             <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a href="javascript:void(0);" onclick="showWebPage();"><i id="openWebPageButton" class="fa fa-globe fa-2x"></i></a></li>
 
+            
+            
 
             <!---------->
             <!-- ZOOM -->
@@ -450,7 +454,7 @@
                         <li id="fatFontPrototype" draggable="true" class="dragElement boxDivider"><a><i class="mark-fatfont"></i></a></li>
                         <li id="ellipsePrototype" draggable="true" class="dragElement boxDivider"><a><i class="mark-ellipse"></i></a></li>
 
-                        <li style="visibility:hidden;position:absolute;top:0;left:0"> <input type="file" id="svgimageFileInput" name="someSVGFile" onchange="handleSVGFiles(this.files)"/></li>
+                        <li style="visibility:hidden;position:absolute;top:0;left:0"> <input type="file" id="svgimageFileInput" name="someSVGFile" onchange="handleSVGFiles(this.files, true)"/></li>
 
                         <li id="filePrototype" unselectable='on' onselectstart='return false;' onmousedown='return false;' draggable="false" class="buttonInHorizontalList" style="height: 50px; margin-top: 3px; margin-bottom: 0px;"><a onclick="loadSVGFile();"><i class="mark-svg" style="margin-left: -100px; margin-right: 10px;"> </i> <span style="margin-top: 4px; position: absolute;">Create from SVG</span> </a></li>
                         <li id="drawPathMark" unselectable='on' onselectstart='return false;' onmousedown='drawPathMarkButtonClicked();' draggable="false" class="buttonInHorizontalList" style="height: 50px; margin-bottom: 0px;"><a><i class="mark-path" style="margin-left: -70px; margin-right: 10px;"> </i> <span style="margin-top: 4px; position: absolute;">Draw path</span> </a></li>
@@ -2425,7 +2429,7 @@
             function noBack() {
                 window.history.forward();
             }
-            
+
 //            window.onbeforeunload = function() { return "Are you sure you want to exit?"; };
 
 

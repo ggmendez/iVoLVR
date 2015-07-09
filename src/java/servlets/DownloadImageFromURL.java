@@ -6,6 +6,7 @@
 package servlets;
 
 import classes.ImageDownloader;
+import classes.ImageUtils;
 import classes.URLPageGenerator;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -37,7 +38,9 @@ public class DownloadImageFromURL extends HttpServlet {
             String url = request.getParameter("url");
             String outFileName = request.getParameter("outFileName");
             
-            ImageDownloader downloader = new ImageDownloader(url, outFileName);
+            String imageSavingDirectory = ImageUtils.getImageSavingDirectory(request);
+            
+            ImageDownloader downloader = new ImageDownloader(url, outFileName, imageSavingDirectory);
             downloader.download();
             
         }

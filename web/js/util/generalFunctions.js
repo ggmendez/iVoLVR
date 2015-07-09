@@ -1682,6 +1682,15 @@ function displaywheel(e) {
     //            canvas.zoomToPoint(point, canvas.getZoom() * dd);
 }
 
+
+
+function readSVGFileAsData() {
+    var dataSVGFileInput = document.getElementById('dataSVGFileInput');
+    dataSVGFileInput.click();
+}
+
+
+
 function loadDatafile() {
     var dataimageFileInput = document.getElementById('dataimageFileInput');
     dataimageFileInput.click();
@@ -1764,12 +1773,12 @@ function onDataFileReadComplete(event, file) {
 
 }
 
-function handleSVGFiles(files) {
+function handleSVGFiles(files, asSingleMark) {
     var file = files[0];
     var reader = new FileReader();
     reader.onload = (function (file) {
         return function (evt) {
-            onSVGFileReadComplete(evt, file)
+            onSVGFileReadComplete(evt, file, asSingleMark)
         };
     })(file);
     if (file) {
@@ -1777,36 +1786,56 @@ function handleSVGFiles(files) {
     }
 }
 
-function onSVGFileReadComplete(event, file) {
+function addMarkFromSVGString (file, SVGString) {
+    
+    fabric.loadSVGFromString(SVGString, function (objects, options) {
+
+            //                   if (LOG) console.log("options:");
+            //                   if (LOG) console.log(options);
+
+            /*var canvasCenter = canvas.getCenter();*/
+
+            var canvasActualCenter = getActualCanvasCenter();
+            var defaultOptions = {
+                label: file.name,
+                markAsSelected: true,
+                thePaths: objects,
+                left: canvasActualCenter.x,
+                top: canvasActualCenter.y,
+                /*left: canvasCenter.left,
+                 top: canvasCenter.top,*/
+                animateAtBirth: true
+            };
+            options = $.extend(true, {}, defaultOptions, options);
+            if (LOG)
+                console.log(options);
+            addMarkToCanvas(SVGPATHGROUP_MARK, options);
+        });
+    
+}
+
+function onSVGFileReadComplete(event, file, asSingleMark) {
 
     // if (LOG) console.log("File name");
     // if (LOG) console.log(file.name);
-    // if (LOG) console.log(event);
+    // if (LOG) console.log(event);        
 
     var SVGString = event.target.result;
-    fabric.loadSVGFromString(SVGString, function (objects, options) {
 
-        //                   if (LOG) console.log("options:");
-        //                   if (LOG) console.log(options);
+    if (asSingleMark) {
+        
+        addMarkFromSVGString (file, SVGString);
 
-        /*var canvasCenter = canvas.getCenter();*/
+    } else {
+        
+        alert(SVGString);
 
-        var canvasActualCenter = getActualCanvasCenter();
-        var defaultOptions = {
-            label: file.name,
-            markAsSelected: true,
-            thePaths: objects,
-            left: canvasActualCenter.x,
-            top: canvasActualCenter.y,
-            /*left: canvasCenter.left,
-             top: canvasCenter.top,*/
-            animateAtBirth: true
-        };
-        options = $.extend(true, {}, defaultOptions, options);
-        if (LOG)
-            console.log(options);
-        addMarkToCanvas(SVGPATHGROUP_MARK, options);
-    });
+        
+
+    }
+
+
+
 }
 
 function handleImageFiles(files) {

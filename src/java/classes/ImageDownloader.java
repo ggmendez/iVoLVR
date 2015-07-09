@@ -20,21 +20,14 @@ import java.net.URL;
 public class ImageDownloader {
 
     private final String address;
-    private final String outFileName;
-
-    public static String savingFolder = "uploads";
-    public static String savingDirectory = "C:/Users/Gonzalo/Documents/NetBeansProjects/iVoLVR/" + ImageDownloader.savingFolder;
-    private static final String operatingSystem = System.getProperty("os.name");
-
-    static {
-        if (ImageDownloader.operatingSystem.contains("Mac OS")) {
-            savingDirectory = "/Users/ggm/Development/iVoLVR/" + ImageDownloader.savingFolder;
-        }
-    }
-
-    public ImageDownloader(String address, String outFileName) {
+    private final String outFileName;   
+    private final String savingDirectory;   
+    
+    
+    public ImageDownloader(String address, String outFileName, String savingDirectory) {
         this.address = address;
         this.outFileName = outFileName;
+        this.savingDirectory = savingDirectory;
     }    
 
     public void download() throws MalformedURLException, IOException {
@@ -53,19 +46,12 @@ public class ImageDownloader {
         inputStream.close();
         byte[] response = out.toByteArray();
         
-        String fileName = ImageDownloader.savingDirectory + "/" + this.outFileName + ".png";
+        String fileName = this.savingDirectory + "/" + this.outFileName + ".png";
         System.out.println("fileName: " + fileName);
 
         FileOutputStream fos = new FileOutputStream(fileName);
         fos.write(response);
         fos.close();
-    }
-
-    public static void main(String[] args) throws MalformedURLException, IOException {
-        
-        ImageDownloader imageDownloader = new ImageDownloader("https://upload.wikimedia.org/wikipedia/meta/6/6d/Wikipedia_wordmark_1x.png", "TheNameOfTheImage");
-        imageDownloader.download();
-
     }
 
 }
