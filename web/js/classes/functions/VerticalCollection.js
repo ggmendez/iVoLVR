@@ -1558,3 +1558,16 @@ function addVerticalCollection(x, y, values) {
     return aCollection;
 
 }
+
+function addVerticalCollectionWithVisualValues(x, y, visualValues) {
+    
+    if (visualValues) {
+        var values = new Array();
+        visualValues.forEach(function (visualValue) {
+            values.push(visualValue.value);
+        });
+
+        return addVerticalCollection(x, y, values);
+    }
+
+}

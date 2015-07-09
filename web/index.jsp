@@ -210,11 +210,11 @@
 
             <!--<li class="verticalLeftDivider verticalRightDivider"><a href="javascript:void(0);" onclick="showCameraSignal();"><i id="openCameraButton" class="fa-camera icon-large"></i> Photo</a></li>-->
             <li class="verticalLeftDivider"><a href="javascript:void(0);" onclick="showCameraSignal();"><i id="openCameraButton" class="fa fa-camera fa-2x"></i></a></li>
-            
-            
+
+
             <li class="verticalLeftDivider"><a href="javascript:readSVGFileAsData();"><i class="fa fa-file-code-o fa-2x"></i></a></li>
             <li> <input type="file" id="dataSVGFileInput" name="someSVGDataFile" onchange="handleSVGFiles(this.files, false)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
-            
+
 
             <!--<li class="verticalLeftDivider"><a href="javascript:loadDatafile();"><i class="icon-table icon-large"></i> Data</a></li>-->
             <li class="verticalLeftDivider"><a href="javascript:loadDatafile();"><i class="icon-table fa-2x"></i></a></li>
@@ -222,8 +222,8 @@
 
             <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a href="javascript:void(0);" onclick="showWebPage();"><i id="openWebPageButton" class="fa fa-globe fa-2x"></i></a></li>
 
-            
-            
+
+
 
             <!---------->
             <!-- ZOOM -->
@@ -2206,7 +2206,7 @@
 
                             print("***" + dataString, 'red', 'white');
 
-                            createVisualElementFromHTML(parsedHTML, x, y);
+                            createVisualElementFromHTML(parsedHTML, x, y, true);
 
 
 
@@ -2228,27 +2228,35 @@
 
             function removeUselessTags(parsedHTML) {
 
-                var filterNodes = [];
+                var filteredNodes = [];
 
                 $.each(parsedHTML, function (i, el) {
-                    if (el.nodeName !== "META") {
-                        filterNodes.push(el);
-                    } else {
-                        console.log("META tag found!");
+                    if (el) {
+                        var nodeName = el.nodeName;
+                        if (nodeName) {
+                            if (el.nodeName !== "META") {
+                                filteredNodes.push(el);
+                            } else {
+                                console.log("META tag found!");
+                            }
+                        }
                     }
                 });
 
-                return filterNodes;
+                console.log("filteredNodes: ");
+                console.log(filteredNodes);
+
+                return filteredNodes;
 
             }
 
-            function createVisualElementFromHTML(parsedHTML, x, y) {
+            function createVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
 
                 print("addVisualElementFromHTML FUNCTION. x: " + x + " y: " + y);
+                console.log("Received parsedHTML:");
+                console.log(parsedHTML);
 
                 parsedHTML = removeUselessTags(parsedHTML);
-
-
 
                 var totalElements = parsedHTML.length;
                 console.log("totalElements:" + totalElements);
@@ -2256,6 +2264,7 @@
                 if (totalElements === 1) {
 
                     var htmlElement = parsedHTML[0];
+                    var jQueryElement = $(htmlElement);
                     var elementType = htmlElement.nodeName.toUpperCase();
 
                     console.log("elementType: " + elementType);
@@ -2263,11 +2272,79 @@
                     console.log("htmlElement:");
                     console.log(htmlElement);
 
+                    console.log("jQueryElement: ");
+                    console.log(jQueryElement);
+
                     if (elementType === "TABLE") {
 
-                        console.log("ES UNA TABLA!!!");
-                        console.log(htmlElement);
+                        console.log(jQueryElement);
+                        console.log(jQueryElement[0]);
+                        console.log(jQueryElement['0']);
 
+
+
+                        var totalRows = htmlElement.getElementsByTagName("tr").length;
+                        var allRows = htmlElement.getElementsByTagName("tr");
+
+                        if (totalRows > 0) {
+                            if (totalRows > 1) {
+
+
+
+                                // This should be a data widget
+
+//                                alert("This should be a data widget");
+
+                            } else {
+
+                                // This should be a collection
+
+//                                alert("This should be a collection");
+
+                                var theOnlyRow = allRows[0];
+                                var colsHeader = theOnlyRow.getElementsByTagName("th");
+                                var colsData = theOnlyRow.getElementsByTagName("td");
+
+                                var theCols = colsHeader.length ? colsHeader : colsData;
+                                var totalCols = theCols.length;
+
+//                                alert(totalCols + " elements in the collection!");
+//
+//                                console.log("theOnlyRow");
+//                                console.log(theOnlyRow);
+
+                                var visualValues = [];
+
+                                for (var i = 0; i < theCols.length; i++) {
+                                    var element = $(theCols[i]);
+
+                                    console.log("***************** element:");
+                                    console.log(element);
+
+                                    var visualValue = createVisualElementFromHTML(element, x, y, false);
+                                    visualValues.push(visualValue);
+                                    
+                                }
+
+
+                                addVerticalCollectionWithVisualValues(x, y, visualValues);
+
+
+
+
+
+
+
+                            }
+                        }
+
+
+
+
+
+//                    } else if (elementType === "TH" || elementType === "TR") {
+//                        
+//                        alert("TH or TR !!!");
 
                     } else if (elementType === "IMG") {
 
@@ -2278,7 +2355,7 @@
 //                    } else if (elementType === "A" || elementType === "SPAN" || elementType === "H2") {
                     } else {
 
-                        var jQueryElement = $(htmlElement);
+
                         var theText = jQueryElement.text().trim();
 
                         if (theText) {
@@ -2352,8 +2429,12 @@
 
                             var theVisualVariable = CreateDataType(options);
 
-                            canvas.add(theVisualVariable);
-                            theVisualVariable.animateBirth(false, null, null, false);
+                            if (addToCanvas) {
+                                canvas.add(theVisualVariable);
+                                theVisualVariable.animateBirth(false, null, null, false);
+                            }
+
+                            return theVisualVariable;
 
                         }
 
@@ -2431,6 +2512,8 @@
             }
 
 //            window.onbeforeunload = function() { return "Are you sure you want to exit?"; };
+
+            showWebPage();
 
 
 

@@ -1443,7 +1443,8 @@ function showWebPage() {
 //    var defaultURL = 'http://www.google.com';
 //    var defaultURL = 'http://www.wikipedia.com';
 //    var defaultURL = 'http://www.st-andrews.ac.uk';
-    var defaultURL = 'https://en.wikipedia.org/wiki/List_of_countries_by_oil_production';
+//    var defaultURL = 'https://en.wikipedia.org/wiki/List_of_countries_by_oil_production';
+    var defaultURL = 'http://www.w3schools.com/html/html_tables.asp';
 
     var inputsContainer = $('<div />', {id: 'inputsContainer', style: 'width: 100%; overflow: hidden;'});
 
