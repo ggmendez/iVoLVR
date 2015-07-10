@@ -1830,6 +1830,20 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
     } else {
         
         alert(SVGString);
+        
+        
+        console.log(SVGString);
+        
+        fabric.loadSVGFromString(SVGString, function (objects, options) {
+
+            
+            
+            
+            var obj = fabric.util.groupSVGElements(objects, options);
+            canvas.add(obj).renderAll();
+            
+            
+        });
 
         
 
