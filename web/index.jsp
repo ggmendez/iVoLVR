@@ -13,7 +13,7 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
 
-        <meta name="description" content="" />
+
 
 
         <link rel="stylesheet" type="text/css" href="./css/main.css" />
@@ -2313,21 +2313,19 @@
 //                                console.log("theOnlyRow");
 //                                console.log(theOnlyRow);
 
-                                var visualValues = [];
+//                                var visualValues = [];
 
-                                for (var i = 0; i < theCols.length; i++) {
+                                var texts = new Array();
+
+                                for (var i = 0; i < totalCols; i++) {
                                     var element = $(theCols[i]);
-
-                                    console.log("***************** element:");
-                                    console.log(element);
-
-                                    var visualValue = createVisualElementFromHTML(element, x, y, false);
-                                    visualValues.push(visualValue);
-                                    
+                                    texts.push(element.text().trim());
                                 }
-
-
+                                var visualValues = createVisualValuesFromArray(texts);
                                 addVerticalCollectionWithVisualValues(x, y, visualValues);
+
+
+//                                addVerticalCollectionWithVisualValues(x, y, visualValues);
 
 
 
@@ -2399,7 +2397,7 @@
 
                                     if (dateAndTime.isValid()) {
 
-                                        console.log(theText + " was a VALID TIME!!!)");
+                                        console.log(theText + " was a VALID DATE!!!)");
 
                                         options.theType = "dateAndTime";
                                         options.theMoment = dateAndTime;
@@ -2514,6 +2512,43 @@
 //            window.onbeforeunload = function() { return "Are you sure you want to exit?"; };
 
 //            showWebPage();
+
+//            function mouseEventPreventDefault(evt) {
+//                console.log("hshshshshs");
+//                console.log(evt);
+//            }
+
+
+//            var texts = [
+//                '84,951,200',
+//                '10,194',
+//                '100%',
+//                '2014 est.',
+//                'Peak Production',
+//                '10,107,000 (3/2015)',
+//                'Saudi Arabia',
+//                '1,946,000 (1/2008)',
+//                '0.00%',
+//                '1,000',
+//                '10.9 million',
+//                '(4 %)',
+//                '4 %',
+//                'Wednesday 09 July 2015',
+//                'Wednesday 08 July 2015',
+//                '-1',
+//                '-10.2',
+//                '- 25',
+//                'Wednesday 01 July',
+//            ];
+//            texts.forEach(function (text){
+//                var type = guessMostSpecificType(text);
+//                console.log(text + " : " + type);
+//            });            
+//            var visualValues = createVisualValuesFromArray(texts);
+//            addVerticalCollectionWithVisualValues(800, 300, visualValues);
+
+
+
 
 
 

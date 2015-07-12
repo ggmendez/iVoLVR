@@ -1,6 +1,11 @@
-var dataWidgetStrokeWidth = 2;
-var dataWidgetStrokeColor = darkenrgb(111, 131, 133);
-var dataWidgetFillColor = rgb(149, 165, 166);
+var dataWidgetStrokeWidth = 3;
+var dataWidgetStrokeColor = 'black';
+var dataWidgetFillColor = rgb(226, 227, 227);
+
+var childrenFillColor = rgb(2, 128, 204);
+var childrenStrokeColor = darkenrgb(2, 128, 204);
+//var variableLabelColor = rgb(255,255,255);
+var variableLabelColor = rgb(0,0,0);
 
 var DataWidget = fabric.util.createClass(fabric.Object, {
     type: 'aggregator',
@@ -17,12 +22,12 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
 
         this.hasControls = false;
 
-        this.variableHeight = 40;
-        this.variableWidth = 120;
+        this.variableHeight = 45;
+        this.variableWidth = 140;
 
         this.childrenRadius = 70;
         this.verticalSeparation = 10;
-        this.childrenStrokeWidth = 1;
+        this.childrenStrokeWidth = 3;
         this.additionalWidth = 2 * this.childrenRadius + 10;
         this.verticalSpace = 4;
         
@@ -39,15 +44,10 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
         this.set('transitionWidth', this.compressedWidth);
 
 
+        this.set('childrenFillColor', options.childrenFillColor || childrenFillColor);
+        this.set('childrenStrokeColor', options.childrenStrokeColor || childrenStrokeColor);
 
-
-//        this.set('childrenFillColor', options.childrenFillColor || rgb(59, 91, 119));
-//        this.set('childrenStrokeColor', options.childrenFillColor || darkenrgb(59, 91, 119));
-        this.set('childrenFillColor', options.childrenFillColor || rgb(59, 84, 108));
-        this.set('childrenStrokeColor', options.childrenFillColor || darkenrgb(52, 73, 94));
-
-        this.set('variableLabelColor', options.variableLabelColor || rgb(255, 255, 255));
-//        this.set('variableLabelColor', options.variableLabelColor || rgb(0,0,0));
+        this.set('variableLabelColor', options.variableLabelColor || variableLabelColor);
 
 
 //        this.childrenFillColor = rgb(147, 196, 193);
@@ -93,6 +93,7 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
             top: this.top,
             fontSize: 20,
             textAlign: 'center',
+            fontWeight : 'bold',
             fontFamily: 'calibri',
             hasControls: false,
             hasBorders: false,
@@ -191,6 +192,9 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
         });
 
         var fields = parsingResults.meta.fields;
+        
+        console.log("fields: ");
+        console.log(fields);
         
         var data = {};
         
@@ -379,12 +383,16 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
     },
     addVariable: function (canvasCoords, variableName) {
 
-        var theDataWidget = this;
+        var theDataWidget = this;        
+        var valuesArray = theDataWidget.data[variableName];        
+        var typeProposition = valuesArray[0].getTypeProposition();
+        var iconName = getIconNameByDataTypeProposition(typeProposition);
+        
         var options = {
             left: canvasCoords.x,
             top: canvasCoords.y,
-            fill: theDataWidget.childrenFillColor,
-            stroke: theDataWidget.childrenStrokeColor,
+            fill: icons[iconName].fill,
+            stroke: icons[iconName].stroke,
             height: theDataWidget.variableHeight,
             width: theDataWidget.variableWidth,
             strokeWidth: theDataWidget.childrenStrokeWidth,
@@ -406,10 +414,16 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
             ry: 10,
             labelColor: theDataWidget.variableLabelColor
         };
+        
+        
+        
+        
 
         var visualVariable = new LabeledRect(options);
+                
         
-        visualVariable.set('value', theDataWidget.data[visualVariable.label]);
+        
+        visualVariable.set('value', valuesArray);
 
         theDataWidget.visualVariables.push(visualVariable);
 
@@ -454,7 +468,8 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
 
                     if (targetObject !== this) {
 
-                        if (targetObject.isVisualProperty || targetObject.isOperator || targetObject.isFunctionValuesCollection) {
+//                        if (targetObject.isVisualProperty || targetObject.isOperator || targetObject.isFunctionValuesCollection) {
+                        if (targetObject.isFunctionValuesCollection) {
 
                             var connector = getLastElementOfArray(visualVariable.outConnectors);
                             connector.setDestination(targetObject, true);
@@ -481,31 +496,19 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
                     }
 
                 } else {
-
-//                    // The mouse up event is done over a blank section of the canvas
-//                    var lastAddedConnector = getLastElementOfArray(this.outConnectors);
-//
-//
-//                    var options = {
-//                        left: coordX,
-//                        top: coordY,
-//                        fill: this.parentObject.fill,
-//                        stroke: this.colorForStroke,
-//                        area: 1000,
-//                        label: '' + lastAddedConnector.value
-//                    };
-//
-//                    addOutputToCanvas(lastAddedConnector, CIRCULAR_OUTPUT, options);
-//                    if (LOG) console.log("%c The output of this operator is: " + lastAddedConnector.value, "background: gray");
-//
-//                    setTimeout(function () {
-//                        lastAddedConnector.source.bringToFront();
-//                        lastAddedConnector.destination.bringToFront();
-//                    }, 50);
+                    
+                    var destination = null;
+                    var theValue = this.value;
+                    destination = addVerticalCollection(coordX, coordY, theValue);
 
 
-                    var connector = this.outConnectors.pop();
-                    connector.contract();
+                    var lastAddedConnector = getLastElementOfArray(this.outConnectors);
+
+                    lastAddedConnector.setDestination(destination, true);
+
+                    if (destination.animateBirth) {
+                        destination.animateBirth(false, null, null, false);
+                    }
 
 
                 }
@@ -527,7 +530,7 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
                 if (LOG) console.log(this.attribute);
                 if (LOG) console.log(this.parentObject.get(this.attribute));
                
-                var newConnector = new Connector({source: this, x2: this.left, y2: this.top, filledArrow: true, strokeWidth: 3});
+                var newConnector = new Connector({source: this, x2: this.left, y2: this.top, arrowColor: visualVariable.colorForStroke, filledArrow: true, strokeWidth: 3});
 
                 if (LOG) console.log("newConnector.value: ");
                 if (LOG) console.log(newConnector.value);
@@ -945,8 +948,6 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
         });
     },
     _render: function (ctx, noTransform) {
-
-
 
         var rx = this.rx ? Math.min(this.rx, this.width / 2) : 0,
                 ry = this.ry ? Math.min(this.ry, this.height / 2) : 0,

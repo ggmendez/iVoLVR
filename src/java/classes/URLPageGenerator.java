@@ -31,21 +31,18 @@ public class URLPageGenerator {
     private String urlPrefix;
     private String urlSufix;
     private HttpServletRequest request = null;
-    
+
 //    public static String savingDirectory = "C:/Users/Gonzalo/Documents/NetBeansProjects/iVoLVR/" + OpenCVLoader.webPagesFolder;    
 
     /*public static void main(String[] args) throws IOException {
-//        URLPageGenerator urlPageGenerator = new URLPageGenerator("www.google.com", "google", "\"http://ova.arg-tech.org/analyse.php?=\"");
-//        URLPageGenerator urlPageGenerator = new URLPageGenerator("http://www.bbc.co.uk/news", "bbcNews", "\"http://ova.arg-tech.org/analyse.php?=\"");
-//        URLPageGenerator urlPageGenerator = new URLPageGenerator("https://www.facebook.com/", "facebook", "\"http://ova.arg-tech.org/analyse.php?=\"");
-//        URLPageGenerator urlPageGenerator = new URLPageGenerator("https://www.twitter.com/", "twitter", "\"http://ova.arg-tech.org/analyse.php?=\"");
-//        URLPageGenerator urlPageGenerator = new URLPageGenerator("http://ova.arg-tech.org/", "ova", "\"http://ova.arg-tech.org/analyse.php?=\"");
-        URLPageGenerator urlPageGenerator = new URLPageGenerator("https://www.st-andrews.ac.uk", "StAndrews");
-        urlPageGenerator.generatePage();
-    }*/
-    
-    
-    
+     //        URLPageGenerator urlPageGenerator = new URLPageGenerator("www.google.com", "google", "\"http://ova.arg-tech.org/analyse.php?=\"");
+     //        URLPageGenerator urlPageGenerator = new URLPageGenerator("http://www.bbc.co.uk/news", "bbcNews", "\"http://ova.arg-tech.org/analyse.php?=\"");
+     //        URLPageGenerator urlPageGenerator = new URLPageGenerator("https://www.facebook.com/", "facebook", "\"http://ova.arg-tech.org/analyse.php?=\"");
+     //        URLPageGenerator urlPageGenerator = new URLPageGenerator("https://www.twitter.com/", "twitter", "\"http://ova.arg-tech.org/analyse.php?=\"");
+     //        URLPageGenerator urlPageGenerator = new URLPageGenerator("http://ova.arg-tech.org/", "ova", "\"http://ova.arg-tech.org/analyse.php?=\"");
+     URLPageGenerator urlPageGenerator = new URLPageGenerator("https://www.st-andrews.ac.uk", "StAndrews");
+     urlPageGenerator.generatePage();
+     }*/
     public static String getWebPagesSavingDirectory(HttpServletRequest request) {
         String contextPath = request.getContextPath();
         String projectFolderPath = getProjectFolderPath(contextPath);
@@ -79,13 +76,12 @@ public class URLPageGenerator {
     private Document fixLinks(Document document) {
 
         System.out.println("fixing Links");
-        
+
         Elements links = document.select("link[href]");
 //        print("\nLinks: (%d)", links.size());
         for (Element link : links) {
             link.attr("href", link.absUrl("href"));
         }
-        
 
         Elements as = document.select("a[href]");
 //        print("\nLinks: (%d)", links.size());
@@ -169,6 +165,23 @@ public class URLPageGenerator {
         Connection connection = Jsoup.connect(this.address).userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36");
         Document document = connection.get();
 
+        Elements selector = document.select("meta");        
+        for (Element element : selector) {
+            element.remove();
+        }
+
+        Element first = document.head().firstElementSibling();
+        first.prepend("<meta name=\"apple-mobile-web-app-capable\" content=\"yes\" />");
+        first.prepend("<meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black\" />");
+        first.prepend("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">");
+        first.prepend("<meta name=\"viewport\" content=\"minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, initial-scale=1.0\"/>");                                
+                
+        /*document.body().attr("onmousedown", "parent.mouseEventPreventDefault(this)");
+        document.body().attr("onmousemove", "parent.mouseEventPreventDefault(this)");
+        document.body().attr("onmouseout", "parent.mouseEventPreventDefault(this)");
+        document.body().attr("onmouseover", "parent.mouseEventPreventDefault(this)");
+        document.body().attr("onmouseup", "parent.mouseEventPreventDefault(this)");*/
+                
         document = this.fixStyleURLs(document);
         document = this.fixLinks(document);
         document = this.fixSrcAttributes(document);

@@ -99,7 +99,13 @@ function Value(options) {
             var valueToShow = this.number % 1 === 0 ? this.number : this.number.toFixed(2);
 //         return valueToShow + ' ' + this.outPrefix + this.units;
 //         return this.number + ' ' + (this.outPrefix || '') + this.units;
-            return this.number.toFixed(2) + ' ' + (this.outPrefix || '') + (this.units || '');
+            
+            var theString = this.number.toFixed(2) + " " + (this.outPrefix || "") + (this.units || "");
+
+            return theString.trim();
+            
+            
+            
         } else if (this.isStringData) {
             return this.string;
         } else if (this.isDurationData) {
@@ -152,7 +158,7 @@ function Value(options) {
 
             if (newDataTypeProposition === 'isStringData') {
 
-                return  new Value({isStringData: true, string: '' + this.number + ' ' + this.outPrefix + this.units});
+                return  new Value({isStringData: true, string: this.getDisplayableString()});
 
             }
 

@@ -28,10 +28,6 @@ var ShapeData = fabric.util.createClass(fabric.Path, {
         this.set('stroke', options.stroke || darkenrgb(255, 139, 30));
         this.set('colorForStroke', options.stroke || darkenrgb(255, 139, 30));
 
-        this.set('prefix', options.prefix || 'none');
-        this.set('multiplicationFactor', this.computeMultiplicationFactor(this.prefix));
-        this.set('units', options.units || '');
-
         this.set('inConnectors', new Array());
         this.set('outConnectors', new Array());
         this.set('readable', true);

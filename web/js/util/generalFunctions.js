@@ -1477,6 +1477,9 @@ function showWebPage() {
 
     var webPageDisplayer = $('<iframe />', {id: 'webPageDisplayer', style: 'resize:both; overflow:auto; margin-top: 8px; min-width:600px; min-height: 500px; max-height:' + idealHeight + 'px; background-color: #fff; border-color: #000; border-style: solid; border-width: 1px;'});
 
+
+
+
     closeButton.click(function () {
         $("#openWebPageButton").tooltipster('hide', function () {
             $("#openWebPageButton").on('click', showWebPage);
@@ -1490,6 +1493,17 @@ function showWebPage() {
 
     block.append(webPagePanel);
 
+//    webPagePanel.mousedown(function (e) {
+//        alert("1 Handler for .mousedown() called.");
+//    });
+//    webPageDisplayer.mousedown(function (e) {
+//        alert("2 Handler for .mousedown() called.");
+//    });
+//    block.mousedown(function (e) {
+//        alert("3 Handler for .mousedown() called.");
+//    });
+
+
 
     $("#openWebPageButton").tooltipster({
 //        content: webPagePanel,
@@ -1500,12 +1514,62 @@ function showWebPage() {
         position: 'bottom',
         multiple: true,
         autoClose: false,
-        updateAnimation: true
+        updateAnimation: true,
+        contentCloning: false
     });
     $("#openWebPageButton").tooltipster('show');
     $("#openWebPageButton").off('click');
 
     loadWebPage("webPageDisplayer");
+
+
+
+    console.log("iFrame: ");
+    console.log(webPageDisplayer);
+
+    var ifrm = document.getElementById('webPageDisplayer');
+    console.log("ifrm: ");
+    console.log(ifrm);
+
+    // reference to document in iframe
+    var doc = ifrm.contentDocument ? ifrm.contentDocument : ifrm.contentWindow.document;
+    console.log("doc: ");
+    console.log(doc);
+
+    $(ifrm).mousemove(function (cursor) {
+        console.log("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
+        console.log(cursor.pageX + ":" + cursor.pageY);
+    });
+
+    block.mousemove(function (cursor) {
+        console.log("DDDDDDDDDDD");
+        console.log(cursor.pageX + ":" + cursor.pageY);
+    });
+
+
+    $(doc).mousemove(function (event) {
+        console.log("BBBBBBBB");
+        var pageCoords = "( " + event.pageX + ", " + event.pageY + " )";
+        var clientCoords = "( " + event.clientX + ", " + event.clientY + " )";
+        console.log("( event.pageX, event.pageY ) : " + pageCoords);
+        console.log("( event.clientX, event.clientY ) : " + clientCoords);
+    });
+
+    var documentElement = $(doc.documentElement);
+    var body = $(doc.body);
+
+    console.log("documentElement:");
+    console.log(documentElement);
+
+    console.log("body: ");
+    console.log(body);
+
+    $(documentElement).mousemove(function (event) {
+        var msg = "Handler for .mousemove() called at ";
+        msg += event.pageX + ", " + event.pageY;
+        console.log(msg);
+    });
+
 
 
     var onIFrameResizeFunction = function (e) {
@@ -1531,8 +1595,34 @@ function showWebPage() {
 
 
 
-//    $('#block').dragResize({grid: 20}); / This call is conflicting with the edition of the url input text
 
+
+    var pancho = function (event) {
+        var msg = "Handler for .mousemove() called at ";
+        msg += event.pageX + ", " + event.pageY;
+        console.log(msg);
+    };
+//    webPageDisplayer.mousemove(pancho);
+
+
+    console.log("$('#webPageDisplayer'):");
+    console.log($('#webPageDisplayer'));
+
+    console.log("$('#webPageDisplayer').contents():");
+    console.log($('#webPageDisplayer').contents());
+
+    console.log("$('#webPageDisplayer').contents().find('body'):");
+    console.log($('#webPageDisplayer').contents().find('body'));
+
+
+    $('#webPageDisplayer').contents().find('body').bind('mousemove', pancho);
+
+
+
+
+
+
+//    $('#block').dragResize({grid: 20}); / This call is conflicting with the edition of the url input text
 
 }
 
@@ -1787,32 +1877,32 @@ function handleSVGFiles(files, asSingleMark) {
     }
 }
 
-function addMarkFromSVGString (file, SVGString) {
-    
+function addMarkFromSVGString(file, SVGString) {
+
     fabric.loadSVGFromString(SVGString, function (objects, options) {
 
-            //                   if (LOG) console.log("options:");
-            //                   if (LOG) console.log(options);
+        //                   if (LOG) console.log("options:");
+        //                   if (LOG) console.log(options);
 
-            /*var canvasCenter = canvas.getCenter();*/
+        /*var canvasCenter = canvas.getCenter();*/
 
-            var canvasActualCenter = getActualCanvasCenter();
-            var defaultOptions = {
-                label: file.name,
-                markAsSelected: true,
-                thePaths: objects,
-                left: canvasActualCenter.x,
-                top: canvasActualCenter.y,
-                /*left: canvasCenter.left,
-                 top: canvasCenter.top,*/
-                animateAtBirth: true
-            };
-            options = $.extend(true, {}, defaultOptions, options);
-            if (LOG)
-                console.log(options);
-            addMarkToCanvas(SVGPATHGROUP_MARK, options);
-        });
-    
+        var canvasActualCenter = getActualCanvasCenter();
+        var defaultOptions = {
+            label: file.name,
+            markAsSelected: true,
+            thePaths: objects,
+            left: canvasActualCenter.x,
+            top: canvasActualCenter.y,
+            /*left: canvasCenter.left,
+             top: canvasCenter.top,*/
+            animateAtBirth: true
+        };
+        options = $.extend(true, {}, defaultOptions, options);
+        if (LOG)
+            console.log(options);
+        addMarkToCanvas(SVGPATHGROUP_MARK, options);
+    });
+
 }
 
 function onSVGFileReadComplete(event, file, asSingleMark) {
@@ -1824,28 +1914,28 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
     var SVGString = event.target.result;
 
     if (asSingleMark) {
-        
-        addMarkFromSVGString (file, SVGString);
+
+        addMarkFromSVGString(file, SVGString);
 
     } else {
-        
+
         alert(SVGString);
-        
-        
+
+
         console.log(SVGString);
-        
+
         fabric.loadSVGFromString(SVGString, function (objects, options) {
 
-            
-            
-            
+
+
+
             var obj = fabric.util.groupSVGElements(objects, options);
             canvas.add(obj).renderAll();
-            
-            
+
+
         });
 
-        
+
 
     }
 
@@ -4152,6 +4242,10 @@ function getDateFormats() {
     if (!dateFormats) {
         dateFormats = new Array();
 
+        dateFormats.push('DD MMMM');
+        dateFormats.push('dddd DD MMMM');
+
+        dateFormats.push('DD MMMM YYYY');
         dateFormats.push('dddd DD MMMM YYYY');
         dateFormats.push('dddd D MMMM YYYY');
 
@@ -5050,4 +5144,154 @@ function appendElementWithValue(root, elementName, value) {
 
 
     }
+}
+
+function createVisualValueOfType(homogeneityGuess, x, y) {
+
+    var desiredType = homogeneityGuess.type;
+
+    var options = {
+        left: x,
+        top: y
+    };
+
+    if (desiredType === "number") {
+
+        options.theType = "number";
+        options.unscaledValue = homogeneityGuess.valueForOptions;
+
+        console.log(options.unscaledValue);
+
+    } else if (desiredType === "dateAndTime") {
+
+        options.theType = "dateAndTime";
+        options.theMoment = homogeneityGuess.valueForOptions;
+
+    } else if (desiredType === "string") {
+
+        options.theType = "string";
+        options.string = homogeneityGuess.valueForOptions;
+
+    }
+
+    return CreateDataType(options);
+
+}
+
+function guessMostSpecificType(theText) {
+
+    var theType = "string";
+    var valueForOptions = null;
+    var originalString = theText;
+
+    if (theText.includes('%') || theText.includes('$') || theText.includes('€') || theText.includes('£') || theText.includes('₤')) {
+        theText = theText.replace(/%/g, '').trim();
+        theText = theText.replace(/$/g, '').trim();
+        theText = theText.replace(/€/g, '').trim();
+        theText = theText.replace(/£/g, '').trim();
+        theText = theText.replace(/₤/g, '').trim();
+        // there is a chanche that this string is a number
+
+        if ($.isNumeric(theText)) {
+            theType = "number";
+            valueForOptions = Number(theText);
+        } else if (canBeCurrency(theText)) {
+
+            var find = ',';
+            var re = new RegExp(find, 'g');
+            theText = theText.replace(re, '');
+            theType = "number";
+            valueForOptions = Number(theText);
+
+        } else {
+            theType = "string";
+            valueForOptions = theText;
+        }
+
+    } else {
+
+        if ($.isNumeric(theText)) {
+            theType = "number";
+            valueForOptions = Number(theText);
+        } else if (canBeCurrency(theText)) {
+
+            var find = ',';
+            var re = new RegExp(find, 'g');
+            theText = theText.replace(re, '');
+            theType = "number";
+            valueForOptions = Number(theText);
+
+        } else {
+
+            var dateAndTime = moment(theText, getDateAndTimeFormats(), true);
+            if (dateAndTime.isValid()) {
+                theType = "dateAndTime";
+                valueForOptions = dateAndTime;
+            } else {
+
+//            if () { // Could this be a duration?
+//                
+//            } else {
+                theType = "string";
+                valueForOptions = theText;
+
+//            }
+
+
+            }
+
+        }
+
+    }
+
+    var homogeneityGuess = {type: theType, valueForOptions: valueForOptions, originalString: originalString};
+
+    console.log(homogeneityGuess);
+
+    return homogeneityGuess;
+
+}
+
+// verifies if all the elements of the given array can be represented with the same single data type (e.g. are all of them numbers?, are all of them dates stamps?)
+function checkHomogeneity(strings) {
+
+    var homogeneityCheckingResults = new Array();
+    var isHomogeneous = true;
+
+    var firstType = guessMostSpecificType(strings[0]).type;
+    for (var i = 0; i < strings.length; i++) {
+        var homogeneityGuess = guessMostSpecificType(strings[i]);
+        homogeneityCheckingResults.push(homogeneityGuess);
+
+        if (homogeneityGuess.type !== firstType) {
+            isHomogeneous = false;
+        }
+    }
+
+    return {homogeneityGuesses: homogeneityCheckingResults, isHomogeneous: isHomogeneous};
+}
+
+function createVisualValuesFromArray(strings) {
+
+    var createdValues = new Array();
+
+    var homogeneityCheckingResults = checkHomogeneity(strings);
+
+    var homogeneityGuesses = homogeneityCheckingResults.homogeneityGuesses;
+    var collectionIsHomogeneous = homogeneityCheckingResults.isHomogeneous;
+
+    console.log("collectionIsHomogeneous: " + collectionIsHomogeneous);
+
+    homogeneityGuesses.forEach(function (homogeneityGuess) {
+        if (!collectionIsHomogeneous) {
+            homogeneityGuess.type = "string";
+            homogeneityGuess.valueForOptions = homogeneityGuess.originalString;
+        }
+        var visualValue = createVisualValueOfType(homogeneityGuess);
+        createdValues.push(visualValue);
+
+    });
+
+    return createdValues;
+
 }
