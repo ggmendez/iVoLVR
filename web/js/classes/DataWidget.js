@@ -73,8 +73,8 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
         this.set('strokeWidth', dataWidgetStrokeWidth || 3);
 
         this.set('isCompressed', true);
-        this.set('rx', 33);
-        this.set('ry', 33);
+        this.set('rx', 20);
+        this.set('ry', 20);
 
         this.set('originX', 'center');
         this.set('originY', 'center');
@@ -83,7 +83,6 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
         this.set('variables', new Array());
         this.set('visualVariables', new Array());
 
-
         this.set('gap', 20);
 
         var iText = new fabric.IText(this.fileName, {
@@ -91,7 +90,7 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
             originY: 'center',
             left: this.left,
             top: this.top,
-            fontSize: 20,
+            fontSize: 22,
             textAlign: 'center',
             fontWeight : 'bold',
             fontFamily: 'calibri',
@@ -157,7 +156,11 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
 
 
 
-        this.compressedHeight = 2 * this.gap + this.iText.height;
+//        this.compressedHeight = 2 * this.gap + this.iText.height;
+        
+        this.compressedHeight = 70;
+        
+        
         this.set('height', options.height || this.compressedHeight);
 
 //        this.on('mouseup', function (option) {
@@ -181,6 +184,11 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
         canvas.renderAll();
     },
     parseCSVString: function () {
+        
+        
+        console.log("this.CSVString:");
+        console.log(this.CSVString);
+        
         var theDataWidget = this;
 
 

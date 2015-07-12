@@ -5146,6 +5146,32 @@ function appendElementWithValue(root, elementName, value) {
     }
 }
 
+
+function createValueOfType(homogeneityGuess) {
+
+    var desiredType = homogeneityGuess.type;
+
+    if (desiredType === "number") {                
+        
+        var unscaledValue = homogeneityGuess.valueForOptions;
+        var inPrefix = '';
+        var outPrefix = '';
+        var theUnits = '';
+        
+        return createNumericValue(unscaledValue, inPrefix, outPrefix, theUnits);
+
+    } else if (desiredType === "dateAndTime") {
+
+        return createDateAndTimeValue(homogeneityGuess.valueForOptions);
+
+    } else if (desiredType === "string") {
+        
+        return createStringValue(homogeneityGuess.valueForOptions);
+
+    }
+
+}
+
 function createVisualValueOfType(homogeneityGuess, x, y) {
 
     var desiredType = homogeneityGuess.type;
@@ -5289,6 +5315,31 @@ function createVisualValuesFromArray(strings) {
         }
         var visualValue = createVisualValueOfType(homogeneityGuess);
         createdValues.push(visualValue);
+
+    });
+
+    return createdValues;
+
+}
+
+function createValuesFromArray(strings) {
+
+    var createdValues = new Array();
+
+    var homogeneityCheckingResults = checkHomogeneity(strings);
+
+    var homogeneityGuesses = homogeneityCheckingResults.homogeneityGuesses;
+    var collectionIsHomogeneous = homogeneityCheckingResults.isHomogeneous;
+
+    console.log("collectionIsHomogeneous: " + collectionIsHomogeneous);
+
+    homogeneityGuesses.forEach(function (homogeneityGuess) {
+        if (!collectionIsHomogeneous) {
+            homogeneityGuess.type = "string";
+            homogeneityGuess.valueForOptions = homogeneityGuess.originalString;
+        }
+        var value = createValueOfType(homogeneityGuess);
+        createdValues.push(value);
 
     });
 

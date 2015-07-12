@@ -2067,24 +2067,24 @@
 //        var fColor = new fabric.Color('');
 //        console.log(color1.toHsl(););
 
-            console.log("*************************************************************************************************");
-
-            var regular_joe = 'I am here to save the day!';
-
-            console.log(regular_joe);
-
-            function supermax() {
-//                    var regular_joe = 'regular_joe is assigned';
-
-                console.log(regular_joe);
-
-                function prison() {
-//                        var regular_joe;
-                    console.log(regular_joe);
-                }
-
-                prison();
-            }
+            /*console.log("*************************************************************************************************");
+             
+             var regular_joe = 'I am here to save the day!';
+             
+             console.log(regular_joe);
+             
+             function supermax() {
+             //                    var regular_joe = 'regular_joe is assigned';
+             
+             console.log(regular_joe);
+             
+             function prison() {
+             //                        var regular_joe;
+             console.log(regular_joe);
+             }
+             
+             prison();
+             }*/
 
 //            supermax();
 
@@ -2283,23 +2283,104 @@
 
 
 
-                        var totalRows = htmlElement.getElementsByTagName("tr").length;
+
                         var allRows = htmlElement.getElementsByTagName("tr");
+                        var totalRows = allRows.length;
 
                         if (totalRows > 0) {
-                            if (totalRows > 1) {
+                            if (totalRows > 1) { // This should be a DATA WIDGET
+
+                                var firstRow = allRows[0];
+                                var tableHeader = firstRow.getElementsByTagName("th");
+                                var totalVariables = tableHeader.length;
+                                var start = 0;
+                                var colNames = new Array();
+
+                                var csvString = "";
+
+                                if (totalVariables > 0) {
+
+                                    for (var i = 0; i < totalVariables; i++) {
+                                        var element = $(tableHeader[i]);
+                                        var variableName = element.text().trim();
+                                        colNames.push(variableName);
+                                        csvString += variableName + ",";
+                                    }
+
+                                    start = 1;
+
+                                    console.log("The selected table DOES CONTAIN a headers row.");
+
+                                } else {
+
+                                    console.log("The selected table DOES *NOT* CONTAIN a headers row");
+
+                                    totalVariables = firstRow.getElementsByTagName("td").length;
+
+                                    console.log("totalColumns: " + totalVariables);
+
+                                    for (var i = 0; i < totalVariables; i++) {
+                                        var variableName = "VAR_" + (i + 1);
+                                        csvString += variableName + ",";
+                                    }
+
+                                }
+
+                                csvString = csvString.substring(0, csvString.length - 1) + "\n";
+
+                                console.log("The variables are:");
+                                console.log(colNames);
+
+                                console.log("The CSV string is:");
+                                console.log(csvString);
+
+                                for (var i = start; i < totalRows; i++) {
+
+                                    var currentRow = allRows[i];
+                                    var currentCols = currentRow.getElementsByTagName("td");
+
+                                    for (var j = 0; j < totalVariables; j++) {
+
+                                        var element = $(currentCols[j]);
+                                        var data = element.text().trim();
+
+                                        csvString += data + ",";
+
+                                    }
+
+                                    csvString = csvString.substring(0, csvString.length - 1) + "\n";
+
+
+                                }
+
+                                csvString = csvString.substring(0, csvString.length - 1);
+
+                                console.log("Final CSV string: ");
+                                console.log(csvString);
+
+
+                                if (!canvas.totalTables) {
+                                    canvas.totalTables = 1;
+                                }
+
+                                var aDataWidget = new DataWidget({
+                                    fileName: "TABLE_" + (canvas.totalTables++),
+                                    CSVString: csvString,
+                                });
+                                canvas.add(aDataWidget);
+
+                                
+                                aDataWidget.left = x;
+                                aDataWidget.top = y;
+
+                                aDataWidget.setCoords();
+                                aDataWidget.parseCSVString();
 
 
 
-                                // This should be a data widget
 
-//                                alert("This should be a data widget");
 
-                            } else {
-
-                                // This should be a collection
-
-//                                alert("This should be a collection");
+                            } else { // This should be a COLLECTION
 
                                 var theOnlyRow = allRows[0];
                                 var colsHeader = theOnlyRow.getElementsByTagName("th");
@@ -2308,30 +2389,15 @@
                                 var theCols = colsHeader.length ? colsHeader : colsData;
                                 var totalCols = theCols.length;
 
-//                                alert(totalCols + " elements in the collection!");
-//
-//                                console.log("theOnlyRow");
-//                                console.log(theOnlyRow);
-
-//                                var visualValues = [];
-
                                 var texts = new Array();
 
                                 for (var i = 0; i < totalCols; i++) {
                                     var element = $(theCols[i]);
                                     texts.push(element.text().trim());
                                 }
-                                var visualValues = createVisualValuesFromArray(texts);
-                                addVerticalCollectionWithVisualValues(x, y, visualValues);
 
-
-//                                addVerticalCollectionWithVisualValues(x, y, visualValues);
-
-
-
-
-
-
+                                var values = createValuesFromArray(texts);
+                                addVerticalCollection(x, y, values);
 
                             }
                         }
@@ -2511,7 +2577,7 @@
 
 //            window.onbeforeunload = function() { return "Are you sure you want to exit?"; };
 
-//            showWebPage();
+            showWebPage();
 
 //            function mouseEventPreventDefault(evt) {
 //                console.log("hshshshshs");
