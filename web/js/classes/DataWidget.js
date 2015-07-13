@@ -477,10 +477,17 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
                     if (targetObject !== this) {
 
 //                        if (targetObject.isVisualProperty || targetObject.isOperator || targetObject.isFunctionValuesCollection) {
-                        if (targetObject.isFunctionValuesCollection) {
+                        if (targetObject.isVerticalCollection) {
+                            
+                            var connector = getLastElementOfArray(visualVariable.outConnectors);
+                            connector.setDestination(targetObject, true);
+                            
+                        } else if (targetObject.isFunctionValuesCollection) {
 
                             var connector = getLastElementOfArray(visualVariable.outConnectors);
                             connector.setDestination(targetObject, true);
+                            
+                            
 
                             setTimeout(function () {
                                 connector.source.bringToFront();

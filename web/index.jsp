@@ -123,6 +123,8 @@
 
         <script type="text/javascript" src="./js/js-quantities/src/quantities.js"></script>
 
+        <script type="text/javascript" src="./js/classes/functions/CollectionGetter.js"></script>
+        
         <script type="text/javascript" src="./js/classes/functions/Mapper.js"></script>
         <script type="text/javascript" src="./js/classes/functions/VerticalCollection.js"></script>
         <script type="text/javascript" src="./js/classes/functions/NumericCollectionGenerator.js"></script>
@@ -499,6 +501,8 @@
                         <!--<li id="playerWidget" draggable="true" class="dragElement boxDivider"><a><i class="fa-caret-square-o-right icon-large"></i></a></li>-->
                         <!--<li id="aggregatorWidget" draggable="true" class="dragElement boxDivider"><a><i class="fa-ellipsis-h icon-large"></i></a></li>-->
 
+                        <li id="collectionGetterWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-angellist"></i></a></li>
+                        
                         <li id="mapperWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="collections-mapper"></i></a></li>
                         <!--<li id="numericFunctionWidget" draggable="true" class="dragElement boxDivider"><a><i class="fa-child icon-large"></i></a></li>-->
 
@@ -1380,6 +1384,13 @@
                     return $("<div style='z-index: 100;'><li><i class='collections-mapper'></i></li></div>");
                 }
             });
+            $("#collectionGetterWidget").draggable({
+                cursorAt: {top: 18.5, left: 60},
+                cursor: 'none',
+                helper: function (event) {
+                    return $("<div style='z-index: 100;'><li><i class='fa fa-angellist'></i></li></div>");
+                }
+            });
             $("#numericFunctionWidget").draggable({
                 cursorAt: {top: 18.5, left: 60},
                 cursor: 'none',
@@ -1594,7 +1605,7 @@
                 }
             });
             $("#theCanvas").droppable({
-                accept: "#horizontal-grower, #vertical-grower, #square-grower, #addition-operator, #subtraction-operator, #multiplication-operator, #division-operator, #xFunction, #emptyFunction, #x2Function, #x3Function, #sinXFunction, #cosXFunction, #logXFunction, #sqrtXFunction, #playerWidget, #aggregatorWidget, #locatorWidget, #mapperWidget, #numericFunctionWidget, #verticalCollection, #collectionGenerator, #numberGenerator, #rectPrototype, #squarePrototype, #pathMarkPrototype, #circlePrototype, #fatFontPrototype, #ellipsePrototype, #isColorData, #isStringData, #isNumericData, #collectionValue, #isDurationData, #isDateAndTimeData, #isShapeData",
+                accept: "#horizontal-grower, #vertical-grower, #square-grower, #addition-operator, #subtraction-operator, #multiplication-operator, #division-operator, #xFunction, #emptyFunction, #x2Function, #x3Function, #sinXFunction, #cosXFunction, #logXFunction, #sqrtXFunction, #playerWidget, #aggregatorWidget, #locatorWidget, #mapperWidget, #collectionGetterWidget, #numericFunctionWidget, #verticalCollection, #collectionGenerator, #numberGenerator, #rectPrototype, #squarePrototype, #pathMarkPrototype, #circlePrototype, #fatFontPrototype, #ellipsePrototype, #isColorData, #isStringData, #isNumericData, #collectionValue, #isDurationData, #isDateAndTimeData, #isShapeData",
                 drop: function (ev, ui) {
 
                     var canvasCoords = getCanvasCoordinates(ev);
@@ -1691,6 +1702,11 @@
                         } else if (id === "mapperWidget") {
 
                             addMapper(x, y);
+                            
+                        } else if (id === "collectionGetterWidget") {
+
+                            addCollectionGetter(x, y);
+                            
                         } else if (id === "numericFunctionWidget") {
 
                             addNumericFunction(x, y);
@@ -2577,7 +2593,7 @@
 
 //            window.onbeforeunload = function() { return "Are you sure you want to exit?"; };
 
-            showWebPage();
+//            showWebPage();
 
 //            function mouseEventPreventDefault(evt) {
 //                console.log("hshshshshs");
@@ -2612,6 +2628,8 @@
 //            });            
 //            var visualValues = createVisualValuesFromArray(texts);
 //            addVerticalCollectionWithVisualValues(800, 300, visualValues);
+
+            addCollectionGetter(800, 300);
 
 
 

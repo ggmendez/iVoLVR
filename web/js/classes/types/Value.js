@@ -93,14 +93,19 @@ function Value(options) {
 
     };
 
-    this.getDisplayableString = function () {
+    this.getDisplayableString = function (options) {
 
         if (this.isNumericData) {
             var valueToShow = this.number % 1 === 0 ? this.number : this.number.toFixed(2);
 //         return valueToShow + ' ' + this.outPrefix + this.units;
 //         return this.number + ' ' + (this.outPrefix || '') + this.units;
+
+            var decimalPositions = 2;
+            if (options.showAsInteger) {
+                decimalPositions = 0;
+            }
             
-            var theString = this.number.toFixed(2) + " " + (this.outPrefix || "") + (this.units || "");
+            var theString = this.number.toFixed(decimalPositions) + " " + (this.outPrefix || "") + (this.units || "");
 
             return theString.trim();
             

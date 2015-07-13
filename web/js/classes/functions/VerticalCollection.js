@@ -84,6 +84,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
         blink(icon, false, 0.30); // the canvas will be refreshed at some point below this, so no need to refresh it here
 
         var theMapper = theCollection.mapper;
+        var theGetter = theCollection.getter;
 
         if (theMapper) {
 
@@ -129,6 +130,23 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
                 }
             }
+
+        } else if (theGetter) {
+
+            console.log("%c" + "This vertical collection is part of a MAPPER", "background: #56c796; color: black;");
+
+            theGetter.updateOutputDataTypePropositions();
+            theGetter.updateOutputVisibilityStatus();
+            blink(theCollection, theGetter.isCompressed, blinkingFactor);
+
+            if (!theGetter.outputPoint.value && !theCollection.isEmpty()) {
+                var dataTypeProposition = theCollection.getVisualValueAt(0).value.getTypeProposition();
+                theCollection.dataTypeProposition = dataTypeProposition;
+                console.log("%c" + "dataTypeProposition: " + dataTypeProposition, "background: #255573; color: white;");
+            }
+
+            var outputValue = theGetter.computeOutput();
+            theGetter.outputPoint.setValue(outputValue, false);
 
         } else {
 
@@ -1560,7 +1578,7 @@ function addVerticalCollection(x, y, values) {
 }
 
 function addVerticalCollectionWithVisualValues(x, y, visualValues) {
-    
+
     if (visualValues) {
         var values = new Array();
         visualValues.forEach(function (visualValue) {

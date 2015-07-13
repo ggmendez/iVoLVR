@@ -456,7 +456,7 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 
         var value = propertyValue.number;
 
-        if (LOG) console.log("value:");
+        if (LOG) console.log("%c" + "value:", "background: red; color: white;");
         if (LOG) console.log(value);
 
         if (property === 'samplingDistance' || property === 'totalSamplingPoints') {
@@ -473,9 +473,18 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
                 theVixor.samplingDistance = value;
 
             } else if (property === 'totalSamplingPoints') {
+                
+                
 
-                theVixor.totalSamplingPoints = Number(value.toFixed(0)) + 1; // of this is not cast to Number, the result is a concatenation (if value is 10, the concatenation would return 101)
-                theVixor.samplingDistance = theVixor.length / theVixor.totalSamplingPoints;
+                theVixor.totalSamplingPoints = Number(value.toFixed(0)); // of this is not cast to Number, the result is a concatenation (if value is 10, the concatenation would return 101)
+                
+                console.log("%c" + "theVixor.totalSamplingPoints: ", "background: green; color: black;");
+                console.log(theVixor.totalSamplingPoints);
+                
+                theVixor.samplingDistance = Number((theVixor.length / (theVixor.totalSamplingPoints - 1)).toFixed(2)) ;
+                
+                console.log("%c" + "theVixor.samplingDistance: ", "background: green; color: black;");
+                console.log(theVixor.samplingDistance);
 
             }
 

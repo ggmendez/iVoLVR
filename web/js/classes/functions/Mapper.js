@@ -131,7 +131,6 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
     },
     addArrow: function () {
         var arrowPath = 'm 60.725416,36.977166 25.012177,0 0,-7.29522 14.590437,12.692281 -14.590437,12.692156 0,-7.295219 -25.012177,0 z';
-//        var arrowPath = 'm 21.118491,-15.015709 -2.590439,6.5611935 C 12.909498,-10.702067 6.6163824,-11.453023 0.22198615,-10.288512 -6.3041125,-9.1000151 -12.03361,-6.0870971 -16.546024,-1.8695282 l 7.9879727,8.617534 C -5.6333242,4.0031102 -1.9179575,2.0167506 2.3223194,1.2445355 6.4743854,0.48838472 10.551692,1.0075118 14.1981,2.4721208 L 11.416611,9.4301817 30.319812,2.7947977 21.118491,-15.015709 z';
         var arrow = new fabric.Path(arrowPath, {
             originX: 'center',
             originY: 'center',
@@ -679,6 +678,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         var easing = fabric.util.ease['easeOutCubic'];
 
         var theInCollection = theMapper.getInCollection();
+        var theOutCollection = theMapper.getOutCollection();
         var theInputPoint = theMapper.getInputPoint();
         var theOutputPoint = theMapper.getOutputPoint();
 
@@ -707,6 +707,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
                     theOutputPoint.relativeY = yCoordinate - theMapper.getPointByOrigin('center', 'top').y;
                     
                     theInCollection.matchingY = theInputPoint.top - theInCollection.getPointByOrigin('center', 'top').y;
+                    theOutCollection.matchingY = theInCollection.matchingY;
 
                     var outputValue = theMapper.computeOutput();
                     theMapper.outputPoint.setValue(outputValue, false);
@@ -727,6 +728,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
             theInputPoint.relativeY = yCoordinate - theMapper.getPointByOrigin('center', 'top').y;
             theInCollection.matchingY = theInputPoint.top - theInCollection.getPointByOrigin('center', 'top').y;
+            theOutCollection.matchingY = theInCollection.matchingY;
 
             var outputValue = theMapper.computeOutput();
             theMapper.outputPoint.setValue(outputValue, false);

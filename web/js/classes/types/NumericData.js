@@ -10,6 +10,9 @@ var NumericData = fabric.util.createClass(fabric.Path, {
 
         this.set('dataTypeProposition', 'isNumericData');
         this.set(this.dataTypeProposition, true);
+        
+        this.set('optionsToDisplay', new Array);
+        this.optionsToDisplay.showAsInteger = options.showAsInteger || false;                
 
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', this.strokeWidth);
@@ -57,6 +60,14 @@ var NumericData = fabric.util.createClass(fabric.Path, {
             
             theDataType.value = numericValue;
 
+            if (theDataType.observer) {
+                var options = {
+                    visualValue: theDataType,
+                    shouldAnimate: shouldAnimate
+                };
+                theDataType.observer.trigger('valueChanged', options);
+            }
+            
             if (theDataType.collection) {
                 var options = {
                     visualValue: theDataType,
@@ -104,6 +115,14 @@ var NumericData = fabric.util.createClass(fabric.Path, {
             
             if (LOG) console.log("AFTER the conversion to the corresponding units and output prefix: theDataType.value:");
             if (LOG) console.log(theDataType.value);
+            
+            if (theDataType.observer) {
+                var options = {
+                    visualValue: theDataType,
+                    shouldAnimate: shouldAnimate
+                };
+                theDataType.observer.trigger('valueChanged', options);
+            }
 
 
             if (theDataType.collection) {
@@ -291,7 +310,7 @@ function generateScaledValue(unscaledValue, inFactor, outFactor) {
 
 function getSuperscriptString (exponent) {
     
-    console.log("exponent: " + exponent);
+//    console.log("exponent: " + exponent);
     
     if (exponent < 0) {
         

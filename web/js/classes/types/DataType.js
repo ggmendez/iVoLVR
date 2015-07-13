@@ -157,7 +157,7 @@ var DataType = function () {
                 ctx.fillStyle = 'black';
                 ctx.textAlign = "center";
                 ctx.moveTo(0, 0);
-                ctx.fillText(this.value.getDisplayableString(), 0, this.height / 2 + 20);
+                ctx.fillText(this.value.getDisplayableString(this.optionsToDisplay), 0, this.height / 2 + 20);
                 ctx.closePath();
                 ctx.restore();
             }
