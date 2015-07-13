@@ -32,7 +32,7 @@ function createObjectFromXMLString(XMLNode) {
             console.log("deserializerFunction:");
             console.log(deserializerFunction);
 
-        } else {            
+        } else {
 
             var type = child.attr('type');
 
@@ -41,7 +41,30 @@ function createObjectFromXMLString(XMLNode) {
             } else if (type === "boolean") {
                 value = value === "true";
             } else if (type === "array") {
-                value = [7, 9, 1985]; // TODO: Deal with this value, as it should be an array in the options parameter
+                
+                value = new Array();
+
+                console.log("%c" + "An array has been found as child of a saved object!", "background: #9cf6f6; color: black;");
+//                console.log("this:");
+//                console.log(this);
+
+                var elements = child.children('element');
+                elements.each(function () {
+                    var xmlElement = $(this);
+                    var elementType = xmlElement.attr('type');                    
+                    if (elementType === "number") {
+                        value.push(Number(xmlElement.text()));
+                    }
+                    
+                    
+                });
+
+
+
+
+//                console.log("elements:");
+//                console.log(elements);
+
             }
 
             options[property] = value;

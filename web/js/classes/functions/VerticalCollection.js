@@ -594,6 +594,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
         var theCollection = this;
         var theMapper = theCollection.mapper;
+        var theGetter = theCollection.getter;
 
         // desabling all the default events associated to a DataType object, as we need other behaviours when they are included in a collection that belongs to a mapper
         visualValue.off('moving');
@@ -734,13 +735,28 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
                 } else {
 
                     if (theMapper) {
+                        
+                        // sorting the visual values of the collection according to their y coordinate so that, when iterating over then, they 
+                        // appear ordered
+                        theCollection.visualValues.sort(compareByTop);
 
                         var eventOptions = {collection: theCollection, manipulatedElement: theVisualValue};
                         theMapper.trigger('collectionElementManipulationStopped', eventOptions);
 
+                        
+
+                    }
+                    
+                    if (theGetter) {
+                        
+                        theCollection.visualValues.sort(compareByTop);
+
+                        var eventOptions = {collection: theCollection, manipulatedElement: theVisualValue};
+                        theGetter.trigger('collectionElementManipulationStopped', eventOptions);
+
                         // sorting the visual values of the collection according to their y coordinate so that, when iterating over then, they 
                         // appear ordered
-                        theCollection.visualValues.sort(compareByTop);
+                        
 
                     }
 

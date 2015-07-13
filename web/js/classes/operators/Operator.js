@@ -19,6 +19,11 @@ var DivisionOperatorStrokeColor = darkenrgb(0, 0, 0);
 
 var Operator = fabric.util.createClass(fabric.Circle, {
     type: 'operator',
+    
+    xmlNodeName: 'operator',
+    serializableProperties: ['type', 'top', 'left'],
+    deserializer: addOperatorWithOptions,
+    
     initialize: function (options) {
         options || (options = {});
         this.callSuper('initialize', options);
@@ -474,26 +479,28 @@ var Operator = fabric.util.createClass(fabric.Circle, {
 
 
 
-
+function addOperatorWithOptions (options) {
+    return addOperator(options.type, options.left, options.top);
+}
 
 
 function addOperator(type, x, y) {
 
     var operatorConstructor = null;
 
-    if (type == 'addition') {
+    if (type === 'addition') {
 
         operatorConstructor = AdditionOperator;
 
-    } else if (type == 'subtraction') {
+    } else if (type === 'subtraction') {
 
         operatorConstructor = SubtractionOperator;
 
-    } else if (type == 'multiplication') {
+    } else if (type === 'multiplication') {
 
         operatorConstructor = MultiplicationOperator;
 
-    } else if (type == 'division') {
+    } else if (type === 'division') {
 
         operatorConstructor = DivisionOperator;
 
@@ -503,7 +510,8 @@ function addOperator(type, x, y) {
         left: x,
         top: y,
         scaleX: 0.05,
-        scaleY: 0.05
+        scaleY: 0.05,
+        type: type
     });
 
     var easing = fabric.util.ease.easeOutElastic;

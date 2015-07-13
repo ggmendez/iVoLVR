@@ -651,7 +651,7 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
                         var coordX = canvasCoords.x;
                         var coordY = canvasCoords.y;
 
-                        var targetObject = findPotentialDestination(canvasCoords, ['isOperator', 'isFunctionInput', 'isAggregator', 'isMapperInput', 'isNumericCollectionGenerator', 'isFunctionValuesCollection', 'isLocatorValuesCollection', 'isNumericFunctionInput', 'isVisualProperty']);
+                        var targetObject = findPotentialDestination(canvasCoords, ['isOperator', 'isFunctionInput', 'isAggregator', 'isMapperInput', 'isNumericCollectionGenerator', 'isFunctionValuesCollection', 'isLocatorValuesCollection', 'isNumericFunctionInput', 'isVisualProperty', 'isVerticalCollection']);
 
                         var connector = getLastElementOfArray(theGenerator.outConnectors);
 
@@ -663,6 +663,10 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
 
                                     connector.setDestination(targetObject, true);
 
+                                } else if (targetObject.isVerticalCollection) {
+                                    
+                                    connector.setDestination(targetObject, true);
+                                    
                                 } else if (targetObject.isNumericCollectionGenerator) {
 
                                     connector.setDestination(targetObject, true);
@@ -677,7 +681,6 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
                                             connector.destination.bringToFront();
                                         }, 50);
                                     }
-
 
 
                                 } else if (targetObject.isAggregator) {

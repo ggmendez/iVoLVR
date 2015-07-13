@@ -5052,13 +5052,32 @@ function appendElementWithValue(root, elementName, value) {
 
     if ($.isArray(value)) {
 
-        var arrayElement = createXMLElement("array");
-        elementName = "element";
+
+        console.log("The given value is an array here!!!! " + elementName + ": ");
+        console.log(value);
+
+//        var arrayElement = createXMLElement(elementName);
+
+
+        var xml = '<' + elementName + ' type="array"></' + elementName + '>';
+        var xmlDoc = $.parseXML(xml);
+        var $xml = $(xmlDoc);
+        var arrayElement = $xml.find(elementName);
+
+
 
         value.forEach(function (element) {
 
+            var serializableValue = null;
+            var serializableValueName = null;
 
-            arrayElement.append('<' + elementName + ' type= "' + typeof element + '">' + element + '</' + elementName + '>');
+            serializableValueName = 'element';
+
+            if (element.isNumericData) {
+                serializableValue = element.number;
+            }
+
+            arrayElement.append('<' + serializableValueName + ' type= "' + typeof serializableValue + '">' + serializableValue + '</' + serializableValueName + '>');
 
 
             console.log("element:");
@@ -5151,13 +5170,13 @@ function createValueOfType(homogeneityGuess) {
 
     var desiredType = homogeneityGuess.type;
 
-    if (desiredType === "number") {                
-        
+    if (desiredType === "number") {
+
         var unscaledValue = homogeneityGuess.valueForOptions;
         var inPrefix = '';
         var outPrefix = '';
         var theUnits = '';
-        
+
         return createNumericValue(unscaledValue, inPrefix, outPrefix, theUnits);
 
     } else if (desiredType === "dateAndTime") {
@@ -5165,7 +5184,7 @@ function createValueOfType(homogeneityGuess) {
         return createDateAndTimeValue(homogeneityGuess.valueForOptions);
 
     } else if (desiredType === "string") {
-        
+
         return createStringValue(homogeneityGuess.valueForOptions);
 
     }

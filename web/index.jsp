@@ -2629,7 +2629,7 @@
 //            var visualValues = createVisualValuesFromArray(texts);
 //            addVerticalCollectionWithVisualValues(800, 300, visualValues);
 
-            addCollectionGetter(800, 300);
+//            addCollectionGetter(800, 300);
 
 
 

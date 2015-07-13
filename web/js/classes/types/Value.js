@@ -101,7 +101,7 @@ function Value(options) {
 //         return this.number + ' ' + (this.outPrefix || '') + this.units;
 
             var decimalPositions = 2;
-            if (options.showAsInteger) {
+            if (options && options.showAsInteger) {
                 decimalPositions = 0;
             }
             

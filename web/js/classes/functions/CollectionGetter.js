@@ -518,21 +518,21 @@ var CollectionGetter = fabric.util.createClass(fabric.Rect, {
 
             },
             'collectionElementManipulationStopped': function (options) {
+                
+                var theCollectionGetter = this;
 
                 var shouldAnimate = false;
 
-                var theCollection = options.collection;
                 var movedElement = options.movedElement;
-
-                var theOtherCollection = null;
-                if (theCollection.isCollectionGetterInCollection) {
-                    theOtherCollection = theCollection.mapper.outCollection;
-                } else {
-                    theOtherCollection = theCollection.mapper.theCollection;
-                }
-
+                                                                
                 var outputValue = theCollectionGetter.computeOutput();
-                theCollectionGetter.outputPoint.setValue(outputValue, false);
+                
+                console.log("outputValue: ");
+                console.log(outputValue);
+                
+                theCollectionGetter.outputPoint.setValue(outputValue, true);
+                
+                canvas.renderAll();
 
             },
             'collectionValueChanged': function (options) {
@@ -541,7 +541,8 @@ var CollectionGetter = fabric.util.createClass(fabric.Rect, {
 
                 var theCollectionGetter = this;
 
-                var theCollection = options.collection;
+                var theCollection = theCollectionGetter.theCollection;
+                
                 var changedVisualValue = options.visualValue;
 
                 var outputValue = theCollectionGetter.computeOutput();
@@ -553,9 +554,9 @@ var CollectionGetter = fabric.util.createClass(fabric.Rect, {
                 var shouldAnimate = false;
 
                 var theCollectionGetter = this;
-
-                var theCollection = options.collection;
-
+                
+                var theCollection = theCollectionGetter.theCollection;
+                theCollection.visualValues.sort(compareByTop);
                 var outputValue = theCollectionGetter.computeOutput();
                 theCollectionGetter.outputPoint.setValue(outputValue, false);
 
@@ -986,8 +987,6 @@ var CollectionGetter = fabric.util.createClass(fabric.Rect, {
 
             console.log("************** position: ");
             console.log(index);
-
-            theCollection.visualValues.sort(compareByTop);
 
             var outputValue = theCollection.getValueAt(index);
 

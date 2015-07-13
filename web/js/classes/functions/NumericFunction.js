@@ -2,7 +2,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
     isNumericFunction: true,
     
     xmlNodeName: 'numericFunction',
-    serializableProperties: ['left', 'top', 'coordinatesX', 'coordinatesY'],
+    serializableProperties: ['left', 'top', 'width', 'height', 'coordinatesX', 'coordinatesY'],
     deserializer: addNumericFunctionWithOptions,
         
     initialize: function (options) {
@@ -1300,7 +1300,17 @@ function addNumericFunctionWithOptions(functionOptions) {
     var shouldAnimate = false;
 
     if (functionOptions.coordinatesX && functionOptions.coordinatesY) {
-        theFunction.setBothCoordinates(functionOptions.coordinatesX, functionOptions.coordinatesY, shouldAnimate);
+        
+        if (typeof functionOptions.coordinatesX[0] === "number") {            
+            
+            var functionCoordinates = createFunctionCoordinatesFromValues(functionOptions.coordinatesX, functionOptions.coordinatesY);
+            theFunction.setBothCoordinates(functionCoordinates.XCoordinates, functionCoordinates.YCoordinates, shouldAnimate);
+            
+        } else {
+            theFunction.setBothCoordinates(functionOptions.coordinatesX, functionOptions.coordinatesY, shouldAnimate);
+        }
+        
+        
     }
     
     theFunction.bringTopElementsToFront();
