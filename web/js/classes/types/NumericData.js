@@ -158,133 +158,7 @@ var NumericData = fabric.util.createClass(fabric.Path, {
 
         var theDataType = this;
 
-        showNumericValue(theDataType, true);
-       
-
-        /*var mainDiv = $('<div/>', {class: 'icon-large'});
-         
-         if (LOG) console.log("%cconfigurator:", "background:red; color:white;");
-         if (LOG) console.log(mainDiv);
-         
-         var padding = (theDataType.width / 4) * canvas.getZoom();
-         
-         mainDiv.css('padding-right', padding + 'px');
-         mainDiv.css('padding-left', padding + 'px');
-         
-         document.body.appendChild(mainDiv[0]);
-         
-         var labelUnscaledValue = $('<label/>', {text: 'Number' + ": ", style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"});
-         
-         if (LOG) console.log("theDataType.value:");
-         if (LOG) console.log(theDataType.value);
-         
-         //      var unscaledValueTextField = $('<input />', {id: 'unscaledValueTextField', maxlength: 6, type: 'number', style: 'margin-top: 10px; font-size: 18px; width: 80px; margin-right: 10px;', value: theDataType.value.unscaledValue % 1 !== 0 ? theDataType.value.unscaledValue.toFixed(2) : theDataType.value.unscaledValue});
-         var unscaledValueTextField = $('<input />', {id: 'unscaledValueTextField', maxlength: 6, type: 'number', style: 'margin-top: 10px; font-size: 18px; width: 80px; margin-right: 10px;', value: theDataType.value.unscaledValue});
-         
-         var inputUnitsTextField = $('<input />', {id: 'inputUnitsTextField', maxlength: 20, type: 'string', style: 'margin-top: 10px; font-size: 18px; width: 80px; margin-right: 10px;', value: theDataType.value.units});
-         
-         var prefixSelector = buildPrefixSelector(theDataType.value);
-         
-         var outputTypeSelector = buildOutputSelector(theDataType.value);
-         
-         var okButton = $('<button/>', {text: "OK", class: "square", style: "width: 25%; margin-left: 22%; margin-right: 6%; border-color: #000; border-style: solid; border-width: 2px; color: black; "});
-         
-         var cancelButton = $('<button/>', {text: "Cancel", class: "square", style: "width: 25%; border-color: #000; border-style: solid; border-width: 2px; color: black; "});
-         
-         inputUnitsTextField.keyup(function () {
-         updateOutputUnits();
-         });
-         
-         unscaledValueTextField.keyup(function () {
-         updateOutputText();
-         });
-         
-         unscaledValueTextField.change(function () {
-         updateOutputText();
-         });
-         
-         okButton.click(function () {
-         
-         var currentUnscaledValue = Number($("#unscaledValueTextField").val());
-         var selectedInPrefix = $("#prefixSelector option:selected").text();
-         var selectedOutPrefix = $("#outputTypeSelector option:selected").text();
-         var currentUnits = $("#inputUnitsTextField").val();
-         
-         var numberValue = createNumericValue(currentUnscaledValue, selectedInPrefix, selectedOutPrefix, currentUnits);
-         
-         if (!numberValue.equals(theDataType.value)) {
-         if (theDataType.inConnectors.length > 0) {
-         var connector = theDataType.inConnectors.pop();
-         connector.contract();
-         }
-         }
-         
-         theDataType.setValue(numberValue, true);
-         
-         theDataType.outConnectors.forEach(function (outConnector) {
-         outConnector.setValue(numberValue, false, true);
-         });
-         
-         setTimeout(function () {
-         canvas.renderAll();
-         }, 10);
-         
-         mainDiv.tooltipster('hide');
-         });
-         
-         cancelButton.click(function () {
-         mainDiv.tooltipster('hide');
-         });
-         
-         var configurationPanel = $('<div/>', {id: 'theConfigurationPanel'});
-         
-         configurationPanel.append(labelUnscaledValue);
-         
-         configurationPanel.append(unscaledValueTextField);
-         
-         configurationPanel.append(prefixSelector);
-         
-         configurationPanel.append(inputUnitsTextField);
-         
-         configurationPanel.append($('<br /><br />'));
-         
-         configurationPanel.append($('<label/>', {text: 'Output as:', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"}));
-         configurationPanel.append(outputTypeSelector);
-         configurationPanel.append($('<label/>', {text: theDataType.value.units, id: 'outputUnits', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"}));
-         
-         configurationPanel.append($('<label/>', {id: 'outputLabel', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"}));
-         
-         configurationPanel.append($('<br /><br />'));
-         
-         configurationPanel.append($('<hr />'));
-         
-         configurationPanel.append($('<br />'));
-         
-         configurationPanel.append(okButton);
-         
-         configurationPanel.append(cancelButton);
-         
-         mainDiv.tooltipster({
-         content: configurationPanel,
-         animation: 'grow',
-         trigger: 'click',
-         interactive: true,
-         position: 'right',
-         multiple: true
-         });
-         
-         theDataType.configurator = mainDiv;
-         
-         // positioning and showing the configurator        
-         var centerPoint = theDataType.getPointByOrigin('center', 'center');
-         var screenCoords = getScreenCoordinates(centerPoint);
-         mainDiv.css('position', 'absolute');
-         mainDiv.css('top', screenCoords.y + 'px');
-         mainDiv.css('left', screenCoords.x + 'px');
-         mainDiv.tooltipster('reposition');
-         mainDiv.tooltipster('show');
-         
-         updateOutputText();*/
+        showNumericValue(theDataType, true);       
 
     },
 });
@@ -373,7 +247,7 @@ function buildPrefixSelector(numericValue) {
 
 }
 
-function updateOutputText() {
+function updateOutputText() {        
 
     var currentUnscaledValue = $("#unscaledValueTextField").val();    
     var outFactor = $("#outputTypeSelector option:selected").val();
