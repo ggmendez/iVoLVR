@@ -17,7 +17,7 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
         this.set('hasControls', false);
         this.set('transparentCorners', false);
         this.set('perPixelTargetFind', true);
-        this.set('width', options.width || 230);
+        this.set('width', options.width || 240);
         this.set('height', options.height || 100);
         this.set('fill', options.fill || rgb(204, 204, 204));
         this.set('stroke', options.stroke || rgb(45, 45, 45));
@@ -25,8 +25,8 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
 
         this.set('inputPosition', -1);
 
-        this.set('attribute', 'size');
-        this.set('defaultFontSize', 30);
+        this.set('attribute', 'Size');
+        this.set('defaultFontSize', 25);
 
         this.set('isCompressed', true);
         this.set('rx', 5);
@@ -115,23 +115,26 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
             'Max'
         ];
 
-        var selector = $('<select />', {id: 'prefixSelector', style: 'border: none; background: transparent; padding: 0; -webkit-appearance: none; -moz-appearance: none;'});
+        var selector = $('<select />', {id: 'attributeSelector', style: 'font-family: Calibri; border: none; background: transparent; padding: 0; -webkit-appearance: none; -moz-appearance: none;'});
         attributes.forEach(function (item) {
             var currentOption = $('<option />', {value: item, text: item, selected: item.factor === theAttributeSelector.attribute});
             currentOption.appendTo(selector);
         });
 
         selector.on('change', function (e) {
+            theAttributeSelector.attribute = $("#attributeSelector option:selected").val();
             var outputValue = theAttributeSelector.computeOutput();
             theAttributeSelector.outputPoint.setValue(outputValue, false);
+            canvas.renderAll();
         });
 
         selector.focus(function () {
-            selector.css("border", "none");
-            selector.css("outline", "none");
-            selector.css("outline-width", "0px");
-            selector.css("outline-color", "transparent");
-            selector.css("outline-style", "none");
+            selector.blur();
+//            selector.css("border", "none");
+//            selector.css("outline", "none");
+//            selector.css("outline-width", "0px");
+//            selector.css("outline-color", "transparent");
+//            selector.css("outline-style", "none");
         });
 
         return selector;
@@ -143,8 +146,11 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
         var attributesList = theAttributeSelector.attributesList;
 
         var centerPoint = theAttributeSelector.getCenterPoint();
+        var topLeft = theAttributeSelector.getPointByOrigin('left', 'top');
 
-        var canvasPoint = new fabric.Point(centerPoint.x - 20, centerPoint.y - (attributesList.height() / 2) / canvas.getZoom() + 3);
+//        var canvasPoint = new fabric.Point(centerPoint.x - 20, centerPoint.y - (attributesList.height() / 2) / canvas.getZoom() + 3);
+//        
+        var canvasPoint = new fabric.Point(topLeft.x + 15, centerPoint.y - (attributesList.height() / 2) / canvas.getZoom() + 3);
 
 
 //        centerPoint.x -= (22 / canvas.getZoom());        
@@ -184,26 +190,34 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
         var attributesList = theAttributeSelector.attributesList;
 
         var gap = 8;
-        var arrowSide = 20;
+        var arrowSide = 15;
         var arrowSpace = arrowSide + 10;
 //        var x = -20 - theAttributeSelector.strokeWidth*canvas.getZoom() / 2;
 //        var y = -(attributesList.height() / 2) / canvas.getZoom() + theAttributeSelector.strokeWidth*canvas.getZoom() / 2;        
-        var x = -20 - theAttributeSelector.strokeWidth;
+        var x = -theAttributeSelector.width / 2 + 15 - theAttributeSelector.strokeWidth;
         var y = -(attributesList.height() / 2) / canvas.getZoom() + theAttributeSelector.strokeWidth;
         var width = attributesList.width() / canvas.getZoom() + 30;
         var height = attributesList.height() / canvas.getZoom();
 
         ctx.fillRect(x, y, width, height);
+
+
+        ctx.save();
+        ctx.strokeStyle = rgb(45, 45, 45);
+        ctx.lineWidth = 2;
+        ctx.rect(x, y + 1, width, height);
         ctx.stroke();
+        ctx.restore();
 
         ctx.fillStyle = "black";
+
 
 
         var firstX = x + width - arrowSpace + gap / 2;
         var secondX = firstX + arrowSide;
         var thirdX = firstX + arrowSide / 2;
 
-        var firstY = -6;
+        var firstY = -3;
 
         var path = new Path2D();
         path.moveTo(firstX, firstY);
@@ -211,7 +225,8 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
         path.lineTo(thirdX, firstY + arrowSide);
         ctx.fill(path);
 
-
+        ctx.font = "25px Calibri";
+        ctx.fillText("of", secondX + 18, 10);
 
         ctx.restore();
 
@@ -253,7 +268,7 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
             hasRotatingPoint: false,
             hasBorders: false,
             hasControls: false,
-            getter: theCollectionAttributeSelector,
+            attributeSelector: theCollectionAttributeSelector,
         });
 
         theCollectionAttributeSelector.theCollection = theCollection;
@@ -284,7 +299,7 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
         var gap = 15; // vertical space between the top border of the mapper and the top border of its collections       
 
         if (theCollectionAttributeSelector.theCollection) {
-            theCollectionAttributeSelector.theCollection.setPositionByOrigin(new fabric.Point(centerPoint.x - 65, topLeft.y + gap), 'center', 'top');
+            theCollectionAttributeSelector.theCollection.setPositionByOrigin(new fabric.Point(topLeft.x + 170, topLeft.y + gap), 'center', 'top');
             theCollectionAttributeSelector.theCollection.setCoords();
         }
 
@@ -375,6 +390,21 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
 
                 var outputValue = theCollectionAttributeSelector.computeOutput();
                 theCollectionAttributeSelector.outputPoint.setValue(outputValue, false);
+
+            },
+            
+            
+            'visualValueAdded': function (options) { // TODO IMPORTANT: At the moment, this event is not being controlled by mappers or getters, which also should be notified when a collection changes because of a new value
+
+                var shouldAnimate = false;
+
+                var theCollectionAttributeSelector = this;
+
+                var theCollection = theCollectionAttributeSelector.theCollection;
+                theCollection.visualValues.sort(compareByTop);
+                var outputValue = theCollectionAttributeSelector.computeOutput();
+                theCollectionAttributeSelector.outputPoint.setValue(outputValue, false);
+
 
             },
             'collectionChanged': function (options) {
@@ -803,27 +833,48 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
 
     },
     computeOutput: function () {
+        
+        console.log("%c" + "COMPUTING OUTPUT FOR A COLLECTION ATTRIBUTE SELECTION!!!", "background: #640b7e; color: white;");
 
         var theCollectionAttributeSelector = this;
         var theCollection = theCollectionAttributeSelector.theCollection;
-        var theNumber = theCollectionAttributeSelector.theNumber;
 
         if (theCollection && !theCollection.isEmpty()) {
 
-            // check the attribute and generate a value to represent it
+            var attribute = theCollectionAttributeSelector.attribute;
+            var index = -1;
+            var outputValue = null;
 
-//            var index = theNumber.value.number - 1;
-//            index = Number(index.toFixed(0));
-//
-//            console.log("************** position: ");
-//            console.log(index);
-//
-//            var outputValue = theCollection.getValueAt(index);
-//
-//            console.log("---- outputValue:");
-//            console.log(outputValue);
-//
-//            return outputValue;
+            if (attribute === "Size") {
+
+                outputValue = createNumericValue(theCollection.getSize());
+
+            } else if (attribute === "First") {
+
+                index = 0;
+
+            } else if (attribute === "Last") {
+
+                index = theCollection.getSize() - 1;
+
+            } else if (attribute === "Min") {
+                
+                index = theCollection.getIndexOfMin();
+
+            } else if (attribute === "Max") {
+                
+                index = theCollection.getIndexOfMax();
+
+            }
+
+            if (!outputValue || !outputValue.isNumericData) {
+                outputValue = theCollection.getValueAt(index);
+            }
+
+            console.log("***** ---- outputValue:");
+            console.log(outputValue);
+
+            return outputValue;
 
         }
 

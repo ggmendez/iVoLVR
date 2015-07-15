@@ -85,6 +85,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
         var theMapper = theCollection.mapper;
         var theGetter = theCollection.getter;
+        var theAttributeSelector = theCollection.attributeSelector;
 
         if (theMapper) {
 
@@ -148,6 +149,23 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
             var outputValue = theGetter.computeOutput();
             theGetter.outputPoint.setValue(outputValue, false);
 
+        } else if (theAttributeSelector) {
+
+            console.log("%c" + "This vertical collection is part of an ATTRIBUTE SELECTOR", "background: #56c796; color: black;");
+
+            theAttributeSelector.updateOutputDataTypePropositions();
+            theAttributeSelector.updateOutputVisibilityStatus();
+            blink(theCollection, theAttributeSelector.isCompressed, blinkingFactor);
+
+            if (!theAttributeSelector.outputPoint.value && !theCollection.isEmpty()) {
+                var dataTypeProposition = theCollection.getVisualValueAt(0).value.getTypeProposition();
+                theCollection.dataTypeProposition = dataTypeProposition;
+                console.log("%c" + "dataTypeProposition: " + dataTypeProposition, "background: #255573; color: white;");
+            }
+
+            var outputValue = theAttributeSelector.computeOutput();
+            theAttributeSelector.outputPoint.setValue(outputValue, false);
+
         } else {
 
             blink(theCollection, theCollection.isCompressed, 0.30);
@@ -162,6 +180,12 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
     },
     isEmpty: function () {
         return (!this.values || !this.values.length);
+    },
+    getIndexOfMin: function () {
+        return 0;
+    },
+    getIndexOfMax: function () {
+        return 0;
     },
     getSize: function () {
         if (this.isEmpty()) {
@@ -735,7 +759,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
                 } else {
 
                     if (theMapper) {
-                        
+
                         // sorting the visual values of the collection according to their y coordinate so that, when iterating over then, they 
                         // appear ordered
                         theCollection.visualValues.sort(compareByTop);
@@ -743,12 +767,12 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
                         var eventOptions = {collection: theCollection, manipulatedElement: theVisualValue};
                         theMapper.trigger('collectionElementManipulationStopped', eventOptions);
 
-                        
+
 
                     }
-                    
+
                     if (theGetter) {
-                        
+
                         theCollection.visualValues.sort(compareByTop);
 
                         var eventOptions = {collection: theCollection, manipulatedElement: theVisualValue};
@@ -756,7 +780,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
                         // sorting the visual values of the collection according to their y coordinate so that, when iterating over then, they 
                         // appear ordered
-                        
+
 
                     }
 
@@ -1359,6 +1383,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
         var theCollection = this;
         var theMapper = theCollection.mapper;
+        var theAttributeSelector = theCollection.attributeSelector;
 
         visualValue.lockMovementX = true;
         visualValue.lockMovementY = true;
@@ -1415,10 +1440,22 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
                     }
 
 
+                } else if (theAttributeSelector) {
 
+                    var intendedNumberOfElements = theAttributeSelector.theCollection.getTotalValues();
 
+                    if (!theCollection.isCompressed) {
+                        theCollection.isCompressed = true;
+                        theCollection.expand(true, null, intendedNumberOfElements);
+                    } else {
 
+                        if (LOG)
+                            console.log("%cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "background: blue; color: white;");
 
+                        visualValue.relativeY = null;
+                        theCollection.positionElements(theCollection.valueScale, intendedNumberOfElements);
+                        blink(visualValue, true, 0.3);
+                    }
 
                 } else {
 
@@ -1444,6 +1481,16 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
             theCollection.addTypeIcon(valueIconName, 0.05);
 
         }
+
+        if (theAttributeSelector) {
+
+            var options = {};
+            theAttributeSelector.trigger('visualValueAdded', options); // TODO IMPORTANT: Should this also be done for getters and mappers?
+
+        }
+
+
+
 
         theCollection.associateInCollectionEvents(visualValue);
 
