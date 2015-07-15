@@ -1,4 +1,4 @@
-var LOG = true;
+var LOG = false;
 
 /* TYPES */
 

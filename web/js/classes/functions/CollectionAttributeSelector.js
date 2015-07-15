@@ -86,6 +86,12 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
         if (!theCollectionAttributeSelector.theCollection.isEmpty() && theCollectionAttributeSelector.theCollection.iconName) {
             theCollectionAttributeSelector.outputPoint.fill = icons[theCollectionAttributeSelector.theCollection.iconName].fill;
             theCollectionAttributeSelector.outputPoint.stroke = icons[theCollectionAttributeSelector.theCollection.iconName].stroke;
+            
+            // any connector going out of this output point should also be 
+            theCollectionAttributeSelector.outputPoint.outConnectors.forEach(function (connector) {
+                connector.changeColor(theCollectionAttributeSelector.outputPoint.stroke);
+            });
+            
             if (!theCollectionAttributeSelector.outputPoint.opacity) {
                 theCollectionAttributeSelector.outputPoint.opacity = 1;
                 theCollectionAttributeSelector.outputPoint.permanentOpacity = 1;
@@ -115,14 +121,14 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
             'Max'
         ];
 
-        var selector = $('<select />', {id: 'attributeSelector', style: 'font-family: Calibri; border: none; background: transparent; padding: 0; -webkit-appearance: none; -moz-appearance: none;'});
+        var selector = $('<select />', {style: 'font-family: Calibri; border: none; background: transparent; padding: 0; -webkit-appearance: none; -moz-appearance: none;'});
         attributes.forEach(function (item) {
             var currentOption = $('<option />', {value: item, text: item, selected: item.factor === theAttributeSelector.attribute});
             currentOption.appendTo(selector);
         });
 
         selector.on('change', function (e) {
-            theAttributeSelector.attribute = $("#attributeSelector option:selected").val();
+            theAttributeSelector.attribute = selector.val();
             var outputValue = theAttributeSelector.computeOutput();
             theAttributeSelector.outputPoint.setValue(outputValue, false);
             canvas.renderAll();
@@ -392,8 +398,6 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
                 theCollectionAttributeSelector.outputPoint.setValue(outputValue, false);
 
             },
-            
-            
             'visualValueAdded': function (options) { // TODO IMPORTANT: At the moment, this event is not being controlled by mappers or getters, which also should be notified when a collection changes because of a new value
 
                 var shouldAnimate = false;
@@ -833,7 +837,7 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
 
     },
     computeOutput: function () {
-        
+
         console.log("%c" + "COMPUTING OUTPUT FOR A COLLECTION ATTRIBUTE SELECTION!!!", "background: #640b7e; color: white;");
 
         var theCollectionAttributeSelector = this;
@@ -858,12 +862,14 @@ var CollectionAttributeSelector = fabric.util.createClass(fabric.Rect, {
                 index = theCollection.getSize() - 1;
 
             } else if (attribute === "Min") {
-                
-                index = theCollection.getIndexOfMin();
+
+//                index = theCollection.getIndexOfMin();
+                outputValue = theCollection.getMinValue();
 
             } else if (attribute === "Max") {
-                
-                index = theCollection.getIndexOfMax();
+
+//                index = theCollection.getIndexOfMax();
+                outputValue = theCollection.getMaxValue();
 
             }
 

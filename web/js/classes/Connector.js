@@ -2,7 +2,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
     type: 'connector',
     toXML: function () {
         var theConnector = this;
-        
+
         console.log("==============================");
         console.log("theConnector:");
         console.log(theConnector);
@@ -14,15 +14,15 @@ var Connector = fabric.util.createClass(fabric.Line, {
 
         var theSource = theConnector.source;
         var theDestination = theConnector.destination;
-        
+
         console.log("************************");
-        
+
         console.log("theSource:");
         console.log(theSource);
-        
+
         console.log("theDestination:");
         console.log(theDestination);
-        
+
         console.log("++++++++++++++++++++++++");
 
         var sourceID = null;
@@ -302,10 +302,12 @@ var Connector = fabric.util.createClass(fabric.Line, {
     },
     setValue: function (value, markDestinationAsSelected, shouldAnimate) {
 
-        console.log("%c setValue function CONNECTOR class. shouldAnimate: " + shouldAnimate, "background: green; color: white;");
+        if (LOG) {
+            console.log("%c setValue function CONNECTOR class. shouldAnimate: " + shouldAnimate, "background: green; color: white;");
 
-        console.log("%c value:", "background: blue; color: white;");
-        console.log(value);
+            console.log("%c value:", "background: blue; color: white;");
+            console.log(value);
+        }
 
         this.value = value;
         if (this.destination) {

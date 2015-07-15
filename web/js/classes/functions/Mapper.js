@@ -111,7 +111,8 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
         if (!theMapper.outCollection.isEmpty() && theMapper.outCollection.iconName) {
             theMapper.outputPoint.fill = icons[theMapper.outCollection.iconName].fill;
-            theMapper.outputPoint.stroke = icons[theMapper.outCollection.iconName].stroke;
+            theMapper.outputPoint.stroke = icons[theMapper.outCollection.iconName].stroke;                        
+            
             if (!theMapper.outputPoint.opacity) {
                 theMapper.outputPoint.opacity = 1;
                 theMapper.outputPoint.permanentOpacity = 1;

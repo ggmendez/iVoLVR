@@ -181,6 +181,77 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
     isEmpty: function () {
         return (!this.values || !this.values.length);
     },
+    getMinValue: function () {
+        
+        
+
+        console.log("%c" + "++++++++ getMinValue FUNCTION", "background: black; color: green;");
+
+        var theCollection = this;
+        var array = theCollection.visualValues;
+//        
+//        var f = function (currentValue) {
+//            return currentValue.value.number;
+//        };
+//        
+//        var mappedArray = array.map(f);
+//        
+//        var minNumber = Math.min.apply(Math, mappedArray);
+//        var indexOfMin = ;
+        
+//        console.log("MMMMMMMIIIIIIIINNNNNNNN " + minNumber);
+
+        var indexOfMinValue = array.reduce(function (indexOfMin, currentValue, index, theArray) {
+
+            /*console.log("currentValue:");
+            console.log(currentValue);
+
+            console.log("index:");
+            console.log(index);
+
+            console.log("indexOfMin:");
+            console.log(indexOfMin);
+
+            console.log("theArray: ");
+            console.log(theArray);*/
+
+            return currentValue.value.number < theArray[indexOfMin].value.number ? index : indexOfMin;
+        }, 0);
+
+
+        console.log("************************ indexOfMaxValue: ");
+        console.log(indexOfMinValue);
+
+        return theCollection.getValueAt(indexOfMinValue);
+
+
+
+
+
+
+    },
+    getMaxValue: function () {
+        
+        console.log("%c" + "++++++++ getMaxValue FUNCTION", "background: black; color: red;");
+        
+        var theCollection = this;
+        var array = theCollection.visualValues;
+//
+//        var f = function (visualValue) {
+//            return visualValue.value.number;
+//        };
+//        var maxNumber = Math.max.apply(Math, array.map(f));
+//        console.log("MMMMMMMAAAAAAAAXXXXXXX " + maxNumber);
+        
+        
+        
+
+        
+        var indexOfMaxValue = array.reduce(function (indexOfMax, currentValue, index, theArray) {
+            return currentValue.value.number > theArray[indexOfMax].value.number ? index : indexOfMax;
+        }, 0);
+        return theCollection.getValueAt(indexOfMaxValue);
+    },
     getIndexOfMin: function () {
         return 0;
     },
@@ -619,6 +690,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
         var theCollection = this;
         var theMapper = theCollection.mapper;
         var theGetter = theCollection.getter;
+        var theAttributeSelector = theCollection.attributeSelector;
 
         // desabling all the default events associated to a DataType object, as we need other behaviours when they are included in a collection that belongs to a mapper
         visualValue.off('moving');
@@ -781,6 +853,14 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
                         // sorting the visual values of the collection according to their y coordinate so that, when iterating over then, they 
                         // appear ordered
 
+
+                    }
+
+                    if (theAttributeSelector) {
+
+                        theCollection.visualValues.sort(compareByTop);
+                        var eventOptions = {collection: theCollection, manipulatedElement: theVisualValue};
+                        theAttributeSelector.trigger('collectionElementManipulationStopped', eventOptions);
 
                     }
 
