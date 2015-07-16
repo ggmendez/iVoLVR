@@ -51,9 +51,9 @@ public class OpenCVLoader {
 
         return projectFolderPath;
     }
-
-    public OpenCVLoader() {
-
-    }
+//
+//    public OpenCVLoader() {
+//
+//    }
 
 }

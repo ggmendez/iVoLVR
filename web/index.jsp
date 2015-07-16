@@ -341,7 +341,7 @@
 
 
             <li class="verticalRightDivider"><a href="javascript:void(0);" onclick="duplicateObject();"><i class="fa fa-copy fa-2x"></i></a></li>
-            <li class="verticalRightDivider verticalRightDivider verticalRightDivider2"><a href="javascript:void(0);" onclick="deleteObject();"><i class="fa fa-remove fa-2x"></i></a></li>
+            
 
             <!--<li class="verticalRightDivider"><a href="javascript:void(0);" onclick="duplicateObject();"><i class="fa-copy icon-large"></i> Duplicate mark</a></li>-->
 
@@ -373,8 +373,9 @@
                 </a>
                 <ul>
 
-
                     <li><a id="toggleConnectorsVisibilityActivatorLink" href="javascript:toggleConnectorsVisibility();"><i id="checkConnectorsVisibility" class="icon-check"></i> Show connectors</a></li>
+                    
+                    <li class="verticalRightDivider verticalRightDivider verticalRightDivider2"><a href="javascript:void(0);" onclick="deleteObject();"><i class="fa fa-remove fa-2x"></i></a></li>
 
                     <li><a href="javascript:void(0);" onclick="deleteAllObjects();"><i class="fa fa-trash-o fa-2x"></i></a></li>
 
@@ -2639,7 +2640,7 @@
 
 //            addCollectionGetter(800, 300);
 
-                addCollectionAttributeSelector(800, 300);
+//                addCollectionAttributeSelector(800, 300);
 
 
 

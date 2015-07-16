@@ -31,7 +31,8 @@ public interface TessAPI extends Library {
      * Native library name.
      */
     public static final String LIB_NAME = "libtesseract302";
-    public static final String LIB_NAME_NON_WIN = "tesseract";
+//    public static final String LIB_NAME_NON_WIN = "libtesseract302";
+    public static final String LIB_NAME_NON_WIN = "/opt/apache-tomcat-8.0.23/webapps/iVoLVR/WEB-INF/classes/libtesseract302.so";
     /**
      * An instance of the class library.
      */

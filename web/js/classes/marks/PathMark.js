@@ -510,35 +510,44 @@ PathMark = fabric.util.createClass(fabric.Path, {
     generateOptionsForShape: function (newShapeType) {
 
         var theMark = this;
+        var shapeVisualProperty = theMark.getVisualPropertyByAttributeName("shape");
+        var fill = shapeVisualProperty.fill;
+        var stroke = shapeVisualProperty.stroke;
 
         var options = {
             left: theMark.left,
             top: theMark.top,
-            fill: theMark.fill,
-            stroke: theMark.colorForStroke || theMark.stroke,
-            colorForStroke: theMark.colorForStroke || theMark.stroke,
+            fill: fill,
+            stroke: stroke,
+            colorForStroke: stroke,
+            visualPropertyFill: fill,
+            visualPropertyStroke: stroke,
             label: theMark.label,
             angle: theMark.angle,
             markAsSelected: true,
             animateAtBirth: false
         };
 
-        if (newShapeType == RECTANGULAR_MARK) {
+        if (newShapeType === RECTANGULAR_MARK) {
 
             // "the_" used for SVG paths and files, where the width and height properties do not take into account the scaling
             options.width = theMark.the_width || theMark.width;
             options.height = theMark.the_height || theMark.height;
 
-        } else if (newShapeType == ELLIPTIC_MARK) {
+        } else if (newShapeType === SQUARED_MARK) {
+            
+            options.area = (theMark.the_width || theMark.width) * (theMark.the_height || theMark.height);
+            
+        } else if (newShapeType === ELLIPTIC_MARK) {
 
             options.rx = (theMark.the_width || theMark.width) / 2;
             options.ry = (theMark.the_height || theMark.height) / 2;
 
-        } else if (newShapeType == CIRCULAR_MARK) {
+        } else if (newShapeType === CIRCULAR_MARK) {
 
             options.radius = ((theMark.the_width || theMark.width) + (theMark.the_height || theMark.height)) / 4;
 
-        } else if (newShapeType == FATFONT_MARK) {
+        } else if (newShapeType === FATFONT_MARK) {
 
             options.fontFamily = 'Miguta';
             options.number = Math.round(((theMark.the_width || theMark.width) * (theMark.the_height || theMark.height)) / 100);
@@ -546,7 +555,7 @@ PathMark = fabric.util.createClass(fabric.Path, {
             options.stroke = '';
             options.markAsSelected = false;
 
-        } else if (newShapeType == SVGPATH_MARK || newShapeType == SVGPATHGROUP_MARK) {
+        } else if (newShapeType === SVGPATH_MARK || newShapeType === SVGPATHGROUP_MARK) {
 
             options.targetWidth = theMark.the_width;
             options.targetHeight = theMark.the_height;

@@ -268,23 +268,23 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
             angle: theMark.angle,
         };
 
-        if (newShapeType == ELLIPTIC_MARK) {
+        if (newShapeType === ELLIPTIC_MARK) {
 
             options.rx = theMark.width / 2;
             options.ry = theMark.height / 2;
-
-        } else if (newShapeType == CIRCULAR_MARK || newShapeType == ELLIPTIC_MARK || newShapeType == RECTANGULAR_MARK) {
+            
+        } else if (newShapeType === CIRCULAR_MARK || newShapeType === ELLIPTIC_MARK || newShapeType === RECTANGULAR_MARK || newShapeType === SQUARED_MARK) {
 
             options.area = theMark.area;
 
-        } else if (newShapeType == FATFONT_MARK) {
+        } else if (newShapeType === FATFONT_MARK) {
 
             options.fontFamily = 'Miguta';
             options.number = Math.round(theMark.area / 100);
             options.fontSize = Math.round((theMark.width + theMark.height) / 2);
             options.stroke = '';
 
-        } else if (newShapeType == SVGPATH_MARK || newShapeType == SVGPATHGROUP_MARK) {
+        } else if (newShapeType === SVGPATH_MARK || newShapeType === SVGPATHGROUP_MARK) {
 
             options.targetWidth = theMark.width;
             options.targetHeight = theMark.height;

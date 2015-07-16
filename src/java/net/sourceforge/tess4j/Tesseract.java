@@ -275,6 +275,7 @@ public class Tesseract implements ITesseract {
      */
     private void init() {
         pageNum = 0;
+        
         api = TessAPI.INSTANCE;
         handle = api.TessBaseAPICreate();
         api.TessBaseAPIInit2(handle, datapath, language, ocrEngineMode);

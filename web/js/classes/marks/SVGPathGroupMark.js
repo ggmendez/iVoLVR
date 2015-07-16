@@ -219,17 +219,21 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
          animateAtBirth: false
       };
 
-      if (newShapeType == CIRCULAR_MARK) {
+      if (newShapeType === CIRCULAR_MARK) {
 
          // "the_" used for SVG paths and files, where the width and height properties do not take into account the scaling
          options.radius = ((theMark.the_width || theMark.width) + (theMark.the_height || theMark.height)) / 4;
 
-      } else if (newShapeType == RECTANGULAR_MARK) {
+      } else if (newShapeType === RECTANGULAR_MARK) {
 
          options.width = theMark.the_width || theMark.width;
          options.height = theMark.the_height || theMark.height;
+         
+      } else if (newShapeType === SQUARED_MARK) {
 
-      } else if (newShapeType == ELLIPTIC_MARK) {
+         options.area = (theMark.the_width || theMark.width) * (theMark.the_height || theMark.height);         
+
+      } else if (newShapeType === ELLIPTIC_MARK) {
 
          options.rx = (theMark.the_width || theMark.width) / 2;
          options.ry = (theMark.the_height || theMark.height) / 2;
@@ -237,7 +241,7 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
          if (LOG) console.log("%coptions.rx: " + options.rx, "background: black; color:pink;");
          if (LOG) console.log("%coptions.ry: " + options.ry, "background: black; color:pink;");
 
-      } else if (newShapeType == FATFONT_MARK) {
+      } else if (newShapeType === FATFONT_MARK) {
 
          options.fontFamily = 'Miguta';
          options.number = Math.round(((theMark.the_width || theMark.width) * (theMark.the_width || theMark.width)) / 100);
@@ -245,11 +249,11 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
          options.stroke = '';
          options.markAsSelected = false;
 
-      } else if (newShapeType == SVGPATH_MARK) {
+      } else if (newShapeType === SVGPATH_MARK) {
 
 
 
-      } else if (newShapeType == SVGPATHGROUP_MARK) {
+      } else if (newShapeType === SVGPATHGROUP_MARK) {
          options.targetWidth = theMark.the_width;
          options.targetHeight = theMark.the_height;
       }

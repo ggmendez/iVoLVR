@@ -10,9 +10,12 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
         this.callSuper('initialize', options);
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', options.strokeWidth || 2);
+        
+        
 
         if (options.area) {
             var side = Math.sqrt(options.area);
+           
             this.set('side', Math.abs(side));
             this.set('width', this.side);
             this.set('height', this.side);

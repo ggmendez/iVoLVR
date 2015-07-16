@@ -313,7 +313,7 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
             angle: theMark.angle,
         };
 
-        if (newShapeType == CIRCULAR_MARK) {
+        if (newShapeType == CIRCULAR_MARK || newShapeType === SQUARED_MARK) {
 
             options.area = theMark.width * theMark.height;
 

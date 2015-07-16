@@ -276,7 +276,7 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
             animateAtBirth: false
         };
 
-        if (newShapeType == CIRCULAR_MARK || newShapeType == ELLIPTIC_MARK) {
+        if (newShapeType == CIRCULAR_MARK || newShapeType == ELLIPTIC_MARK || newShapeType === SQUARED_MARK) {
 
             options.area = theMark.area;
 

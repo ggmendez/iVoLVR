@@ -240,27 +240,27 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
             angle: theMark.angle,
         };
 
-        if (newShapeType == CIRCULAR_MARK) {
+        if (newShapeType === CIRCULAR_MARK) {
 
             options.area = theMark.area;
 
-        } else if (newShapeType == RECTANGULAR_MARK) {
+        } else if (newShapeType === RECTANGULAR_MARK) {
 
             options.width = rectangular_mark_default_width;
             options.height = theMark.area / options.width;
 
-        } else if (newShapeType == ELLIPTIC_MARK) {
+        } else if (newShapeType === ELLIPTIC_MARK || newShapeType === SQUARED_MARK) {
 
             options.area = theMark.area;
 
-        } else if (newShapeType == FATFONT_MARK) {
+        } else if (newShapeType === FATFONT_MARK) {
 
             options.fontFamily = 'Miguta';
             options.number = Math.round(theMark.area / 100);
             options.fontSize = Math.round(theMark.radius * 2);
             options.stroke = '';
 
-        } else if (newShapeType == SVGPATH_MARK || newShapeType == SVGPATHGROUP_MARK) {
+        } else if (newShapeType === SVGPATH_MARK || newShapeType === SVGPATHGROUP_MARK) {
 
             options.targetWidth = theMark.radius * 2;
             options.targetHeight = theMark.radius * 2;
