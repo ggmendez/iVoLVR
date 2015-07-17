@@ -1,6 +1,10 @@
-var LOG = false;
+var LOG = true;
 
 /* TYPES */
+
+PANNING_OPERATION = 'Panning';
+DISCONNECTION_OPERATION = 'Disconnecting';
+
 
 HORIZONTAL_RECTANGULAR_OUTPUT = 'Horizontal Rect';
 VERTICAL_RECTANGULAR_OUTPUT = 'Vertical Rect';

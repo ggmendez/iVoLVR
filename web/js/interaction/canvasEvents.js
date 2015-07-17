@@ -88,7 +88,6 @@ function canvasPathCreated(options) {
         var points = drawnPath.path;
         var center = drawnPath.getCenterPoint();
 
-
         var options = {
             left: center.x,
             top: center.y,
@@ -111,7 +110,6 @@ function canvasPathCreated(options) {
         var points = drawnPath.path;
         var center = drawnPath.getCenterPoint();
 
-
         var options = {
             left: center.x,
             top: center.y,
@@ -131,35 +129,6 @@ function canvasPathCreated(options) {
     } else if (canvas.isFunctionDrawingMode) {
 
         var drawnPath = options.path;
-
-        /*var points = drawnPath.path;
-
-        var polyline = pathToPolyline(points);
-        // simplifying the user-trced polyline
-        var tolerance = 0.5;
-        var highQuality = true;
-        var simplifiedPolyline = simplify(polyline, tolerance, highQuality);
-
-        var x = new Array();
-        var y = new Array();
-        simplifiedPolyline.forEach(function (point) {
-            x.push(point.x);
-            y.push(point.y);
-        });
-
-        var XValues = new Array();
-        var YValues = new Array();
-
-        var minX = getArrayMin(x);
-        x.forEach(function (xValue) {
-            XValues.push(xValue - minX);
-        });
-
-        var maxY = getArrayMax(y);
-        y.forEach(function (yValue) {
-            YValues.push(maxY - yValue);
-        });*/
-        
         var center = drawnPath.getCenterPoint();
         
         drawnPath.remove();
@@ -168,45 +137,11 @@ function canvasPathCreated(options) {
         
         var coordinates = createFunctionCoordinatesFromValues(XYValues.xValues, XYValues.yValues);
 
-        addNumericFunction(center.x, center.y, coordinates.XCoordinates, coordinates.YCoordinates, {width: drawnPath.getWidth(), height: drawnPath.getHeight()});
-
-
-
-
-
-
-
-
-        /*
-         
-         var aFunction = new ContinuousFunction(points, {
-         left: center.x,
-         top: center.y,
-         animateOnCreation: true
-         });
-         canvas.add(aFunction);
-         
-         aFunction.set('originX', 'center');
-         aFunction.set('originY', 'center');
-         
-         canvas.renderAll();*/
-
+        addNumericFunction(center.x, center.y, coordinates.XCoordinates, coordinates.YCoordinates, {pathWidth: drawnPath.getWidth(), pathHeight: drawnPath.getHeight()});
 
         deActivateFunctionDrawingMode();
 
-
-
-
-
-
-
-
-
     } else if (canvas.isFreeSelectionMode) {
-
-
-
-
 
         var drawnPath = options.path;
         var points = drawnPath.path;
@@ -218,7 +153,6 @@ function canvasPathCreated(options) {
         });
         stringPath += "Z";
 
-
         if (LOG) console.log("stringPath:");
         if (LOG) console.log(stringPath);
 
@@ -229,26 +163,18 @@ function canvasPathCreated(options) {
         var selection = new FreeSelection(stringPath, {
             left: centerPoint.x,
             top: centerPoint.y,
-//         left: drawnPath.left,
-//         top: drawnPath.top,
             animateOnCreation: true
         });
         canvas.add(selection);
 
         canvas.sendToBack(selection);
 
-
-
         selection.set('originX', 'center');
         selection.set('originY', 'center');
 
-
         canvas.renderAll();
 
-
         deActivateFreeSelectionMode();
-
-
 
     } else if (canvas.isSamplingMode) {
 
@@ -257,148 +183,6 @@ function canvasPathCreated(options) {
         createSampleVixorFromPath(drawnPath, false);
 
         drawnPath.remove();
-
-
-//        var points = drawnPath.path;
-//        var center = drawnPath.getCenterPoint();
-//
-//        // converting the user-traced path to a polyline representation
-//        var polyline = pathToPolyline(points);
-//        /*if (LOG) console.log("%cpolyline:", "color: #000000; background: #7FFF00;");
-//         if (LOG) console.log(polyline);*/
-//
-//        // simplifying the user-trced polyline
-//        var tolerance = 1;
-//        var highQuality = true;
-//        var simplifiedPolyline = simplify(polyline, tolerance, highQuality);
-//        if (LOG) console.log("%csimplifiedPolyline:", "color: #000000; background: #ADD8E6;");
-//        if (LOG) console.log(simplifiedPolyline);
-//
-//        // The variable translatedPoints contains the information of the approximation polyline relative to its first point (which, relative to itself, is located at the poit (0,0) )
-//        // this points are used to resample the approximation polyline traced by the user and they are needed because, after manipulation (translation, rotation and scaling), the original points traced by the user
-//        // are not part of the path anymore
-//        var translatedPoints = new Array();
-//        simplifiedPolyline.forEach(function (point) {
-//            translatedPoints.push({x: point.x - simplifiedPolyline[0].x, y: point.y - simplifiedPolyline[0].y});
-//        });
-//        if (LOG) console.log("%ctranslatedPoints:", "color: #000000; background: #ADD8E6;");
-//        if (LOG) console.log(translatedPoints);
-//
-//        // computing the sampling positions over the simplified path
-//        var samplingDistance = 30;
-//        var samplingPoints = samplePolyline(simplifiedPolyline, samplingDistance);
-//        var totalLength = computePolylineLength(simplifiedPolyline);
-//        var trajectory = computePolylineTrajectory(simplifiedPolyline);
-//        /*if (LOG) console.log("samplingPoints:");
-//         if (LOG) console.log(samplingPoints);
-//         samplingPoints.forEach(function (point){
-//         drawRectAt(point, 'red');
-//         });*/
-//
-//
-//        // generating the offset polygon of the SIMPLIFIED polyline
-//        var offsetDistance = 30;
-//        var offsetPolygonPoints = generateOffsetPolygon(simplifiedPolyline, offsetDistance);
-//        /*if (LOG) console.log("%coffsetPolygon:", "color: #000000; background: #E6E6FA;");
-//         if (LOG) console.log("%c" + offsetPolygonPoints, "color: #000000; background: #E6E6FA;");
-//         if (LOG) console.log(offsetPolygonPoints.length + " points in the offset polygon.");*/
-//
-//
-//        var offsetJSTSPolygon = buildJSTSPolygon(offsetPolygonPoints);
-//        /*if (LOG) console.log("%coffsetJSTSPolygon:", "color: #000000; background: #FAFAD2;");
-//         if (LOG) console.log("%c" + offsetJSTSPolygon, "color: #000000; background: #FAFAD2;");*/
-//
-//
-//        // removing self intersections that can be found in the offset polygon
-//        var cleanedPolygon = removeSelfIntersections(offsetJSTSPolygon);
-//        /*if (LOG) console.log("%ccleanedPolygon", "background: #FF0000; color: #FFFFFF");
-//         if (LOG) console.log("%c" + cleanedPolygon, "background: #FF0000; color: #FFFFFF");
-//         if (LOG) console.log(cleanedPolygon.getCoordinates());*/
-//
-//        var svgPathString = JSTSPolygonToSVGPath(cleanedPolygon);
-//        /*if (LOG) console.log("svgPathString:");
-//         if (LOG) console.log(svgPathString);*/
-//
-//        if (!svgPathString) {
-//            drawnPath.remove();
-//            canvas.renderAll();
-//            return;
-//        }
-//
-//        var userDefinedPath = getSVGPathString(drawnPath);
-//
-//
-//
-//
-//
-//        var simplifiedSVGPathString = polylineToSVGPathString(simplifiedPolyline);
-//        /*if (LOG) console.log("simplifiedSVGPathString:");
-//         if (LOG) console.log(simplifiedSVGPathString);*/
-//        var simplifiedPath = new fabric.Path(simplifiedSVGPathString, {fill: '', stroke: 'red', strokeWidth: 3});
-//
-//
-//
-//        var offsetPath = new fabric.Path(svgPathString, {fill: rgb(198, 198, 198), stroke: '#000000', colorForStroke: '#000000', opacity: 0.75, strokeWidth: 1, originalStrokeWidth: 1});
-//        var userPath = new fabric.Path(userDefinedPath, {fill: '', stroke: 'black', strokeWidth: 3});
-//
-//        var objects = [offsetPath, userPath];
-////        var objects = [offsetPath, simplifiedPath];
-//
-//        var firstPoint = new fabric.Point(samplingPoints[0].x, samplingPoints[0].y);
-//        var parentObject = getImportedImageContaining(firstPoint);
-//
-//        var samplerOptions = {
-//            originX: 'center',
-//            originY: 'center',
-//            hasBorders: false,
-//            hasControls: false,
-//            hasRotatingPoint: false,
-//            lockScalingX: true,
-//            lockScalingY: true,
-//            lockRotation: true,
-//            perPixelTargetFind: true,
-//            samplingFrequency: 5,
-//            samplingPoints: samplingPoints,
-//            length: parentObject ? totalLength / parentObject.scaleX : totalLength,
-//            trajectory: parentObject ? trajectory / parentObject.scaleX : trajectory,
-//            simplifiedPolyline: simplifiedPolyline,
-//            translatedPoints: translatedPoints,
-//            samplingDistance: samplingDistance,
-//            totalSamplingPoints: samplingPoints.length,
-//            fill: rgb(153, 153, 153),
-//            parentObject: parentObject,
-//            untransformedX: 0,
-//            untransformedY: 0,
-//            untransformedScaleX: 1,
-//            untransformedScaleY: 1,
-//            untransformedAngle: parentObject ? 360 - parentObject.getAngle() : 0,
-//        };
-//
-//        var samplerVixor = addSamplerVixorToCanvas(objects, samplerOptions);
-//        if (parentObject) {
-//            parentObject.widgets.push(samplerVixor);
-//            computeUntransformedProperties(samplerVixor);
-//
-//            samplerVixor.untransformedScaleX = 1 / parentObject.getScaleX();
-//            samplerVixor.untransformedScaleY = 1 / parentObject.getScaleY();
-//
-//            samplerVixor.sampleColors(true);
-//        }
-//
-//        drawnPath.remove();
-//
-//        deActivateSamplingMode();
-//
-//
-//
-//        /*if (LOG) console.log("samplerVixor.length");
-//         if (LOG) console.log("%c" + samplerVixor.length, "color: white; background: red;");
-//         if (LOG) console.log("samplerVixor.parentObject.scaleX");
-//         if (LOG) console.log("%c" + samplerVixor.parentObject.scaleX, "color: white; background: red;");
-//         if (LOG) console.log("samplerVixor.parentObject.scaleY");
-//         if (LOG) console.log("%c" + samplerVixor.parentObject.scaleY, "color: white; background: red;");*/
-
-
 
     } else if (canvas.isTransmogrificationMode) {
 
@@ -415,10 +199,6 @@ function canvasPathCreated(options) {
 
         if (LOG) console.log("points:");
         if (LOG) console.log(points);
-
-
-
-
 
         var curvePoints = new Array();
         var x, y, i;
@@ -438,7 +218,6 @@ function canvasPathCreated(options) {
         if (curvePoints[0].x > curvePoints[totalPoints - 1].x) {
             curvePoints = curvePoints.reverse();
         }
-
 
         var lineString = "";
         var curveString = "M ";

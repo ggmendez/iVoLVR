@@ -19,20 +19,37 @@ h1,h2,h3,h4,h5,h6{
 }
 
 hr {
-   border: 0;
+    border: 0;
     height: 1px;
     background: #000;
     margin-bottom: 4px;
 }
 
-h6{
-   letter-spacing: 2px;
-   /*font-weight: bold;*/
-   font-size: 18px;
-   color: #000000;
-   margin-left: 2px;
-   font-family: sans-serif;
-   /*font-weight: bold;*/
+.sectionHeader {
+    background: -webkit-linear-gradient(rgb(213,213,213), rgb(208,208,208), rgb(213,213,213)); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(rgb(213,213,213), rgb(208,208,208), rgb(213,213,213)); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(rgb(213,213,213), rgb(208,208,208), rgb(213,213,213)); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(rgb(213,213,213), rgb(208,208,208), rgb(213,213,213)); /* Standard syntax (must be last) */
+    
+}
+
+.nonSelection {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+h6{    
+    letter-spacing: 1.25px;
+    font-weight: bold;
+    font-size: 20px;
+    color: #000000;
+    margin-left: 3px;
+    margin-right: 15px;
+    font-family: Calibri;
 }
 
 thead th,

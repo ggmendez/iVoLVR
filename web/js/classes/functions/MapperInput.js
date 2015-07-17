@@ -26,9 +26,7 @@ var MapperInput = fabric.util.createClass(fabric.Path, {
     updateConnectorsPositions: function () {
         updateConnectorsPositions(this);
     },
-    inValueUpdated: function (options) {
-        
-        
+    inValueUpdated: function (options) {       
 
         var theMapperInput = this;
 

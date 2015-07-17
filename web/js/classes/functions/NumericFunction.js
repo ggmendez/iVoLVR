@@ -29,14 +29,14 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         this.set('perPixelTargetFind', true);
 
         var d = 4;
-        var realWith = this.defaultWidth;
-        if (options.width) {
-            realWith = 2 * this.smallIndent + this.largeIndent + options.width + 2 * this.smallIndent - d - this.strokeWidth;
+        var realWith = options.width || this.defaultWidth;
+        if (options.pathWidth) {
+            realWith = 2 * this.smallIndent + this.largeIndent + options.pathWidth + 2 * this.smallIndent - d - this.strokeWidth;
         }
 
-        var realHeight = this.defaultWidth;
-        if (options.height) {
-            realHeight = this.height = 2 * this.smallIndent + this.largeIndent + options.height + 2 * this.smallIndent - d - this.strokeWidth;
+        var realHeight = options.height || this.defaultWidth;
+        if (options.pathHeight) {
+            realHeight = this.height = 2 * this.smallIndent + this.largeIndent + options.pathHeight + 2 * this.smallIndent - d - this.strokeWidth;
         }
 
         this.set('width', realWith);
@@ -149,6 +149,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         numericVisualValue.scaleY = theFunction.valueScale;
         numericVisualValue.isLimitValue = true;
         numericVisualValue.limitOf = theFunction;
+        numericVisualValue.nonSerializable = true;
 
         canvas.add(numericVisualValue);
         theFunction.set(limitName, numericVisualValue);

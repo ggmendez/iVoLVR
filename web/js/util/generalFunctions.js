@@ -466,7 +466,6 @@ function draw(figureType) {
         }
 
         var canvasCoords = getCanvasCoordinates(event);
-        //                    drawRectAt(canvasCoords, "purple");
 
         canvas.off();
         canvas.discardActiveObject();
@@ -506,203 +505,10 @@ function draw(figureType) {
                     },
                     'mouseup': function (option) {
 
-                        //                           canvas.discardActiveObject();
-                        //                           widget.applyUnselectedStyle();
-                        //                           widget.stroke = "white";
-                        //                           widget.fill = "transparent";
-                        //                           canvas.renderAll();
-                        //
-                        //                           var boundingRect = widget.getBoundingRect();
-                        //
-                        //
-                        //                           var dataURL = canvas.toDataURL({
-                        //                              left: boundingRect.left,
-                        //                              top: boundingRect.top,
-                        //                              width: boundingRect.width,
-                        //                              height: boundingRect.height
-                        //                           });
-                        //
-                        //                           if (LOG) console.log(dataURL);
-                        //
-                        //                           canvas.setActiveObject(widget);
-                        //
-                        //                           var img = new Image();
-                        //
-                        //                           img.onload = function () {
-                        //                              
-                        //                              var ctx = canvas.getContext('2d');
-                        //                              var data = ctx.getImageData(boundingRect.left, boundingRect.top, boundingRect.width, boundingRect.height);
-                        //                              if (LOG) console.log(data);
-                        //
-                        //
-                        //                              var string = OCRAD(data);
-                        //                              if (LOG) console.log("%c" + string, "background:blue; color:white;");
-                        //
-                        //                           }
-                        //
-                        //                           img.src = dataURL;
-
-
-
-//                                                   extractTextFromImageObject(widget);
+                        
                     },
                 });
-                //
-                //
-                //                            var angleInDegrees = 360 - parentObject.getAngle();
-                //                            var angleInRadians = fabric.util.degreesToRadians(angleInDegrees);
-                //                            var topLeft = parentObject.getPointByOrigin('left', 'top');
-                //                            var rotatedWidgetCenter = fabric.util.rotatePoint(widget.getCenterPoint(), topLeft, angleInRadians);
-                ////
-                //                            if (figureType == "Rectangle") {
-                //                                widget.untransformedX = (rotatedWidgetCenter.x - topLeft.x - widget.getWidth()) / parentObject.getScaleX();
-                //                                widget.untransformedY = (rotatedWidgetCenter.y - topLeft.y - widget.getHeight()) / parentObject.getScaleY();
-                //
-                //                            } else {
-                //                                widget.untransformedX = (rotatedWidgetCenter.x - topLeft.x - widget.getWidth() / 2) / parentObject.getScaleX();
-                //                                widget.untransformedY = (rotatedWidgetCenter.y - topLeft.y - widget.getHeight() / 2) / parentObject.getScaleY();
-                //                            }
-                //
-                //                            widget.untransformedAngle = widget.getAngle() - parentObject.getAngle();
-                //                            canvas.add(new fabric.Rect({
-                //                                left: topLeft.x,
-                //                                top: topLeft.y,
-                //                                fill: '',
-                //                                stroke: 'blue',
-                //                                perPixelTargetFind: true,
-                //                                width: parentObject.getWidth(),
-                //                                height: parentObject.getHeight()
-                //                            }));
-                //
-                //                            canvas.add(new fabric.Rect({
-                //                                left: rotatedWidgetCenter.x,
-                //                                top: rotatedWidgetCenter.y,
-                //                                originX: 'center',
-                //                                originY: 'center',
-                //                                fill: '',
-                //                                stroke: 'red',
-                //                                perPixelTargetFind: true,
-                //                                width: widget.getWidth(),
-                //                                height: widget.getHeight(),
-                //                                angle: widget.getAngle() - parentObject.getAngle()
-                //                            }));
-                //
-
-                /*var clonedImage = fabric.util.object.clone(parentObject);
-                 clonedImage.originY = 'top';
-                 clonedImage.originX = 'left';
-                 clonedImage.left = 10;
-                 clonedImage.top = 10;
-                 clonedImage.width = parentObject.width;
-                 clonedImage.height = parentObject.height;
-                 clonedImage.angle = 0;
-                 clonedImage.scaleX = 1;
-                 clonedImage.scaleY = 1;
-                 canvas.add(clonedImage);
-                 var rotatedRect = new fabric.Rect({
-                 left: clonedImage.left + widget.untransformedX + widget.width / 2,
-                 top: clonedImage.top + widget.untransformedY + widget.height / 2,
-                 originX: 'center',
-                 originY: 'center',
-                 fill: 'purple',
-                 opacity: 0.35,
-                 stroke: 'black',
-                 perPixelTargetFind: true,
-                 width: widget.width,
-                 height: widget.height,
-                 angle: widget.getAngle() - parentObject.getAngle()
-                 })
-                 canvas.add(rotatedRect);*/
-
-
-
-
-
-
-
-
-
-
-
-
-                //
-                //                            
-                //                            if (LOG) console.log("the roi");
-                //                            if (LOG) console.log(widget.roi);
-                //
-
-
-
-
-
-
-
-                //                            var parentTopLeft = clonedImage.getPointByOrigin('left', 'top');
-                //                            drawRectAt(parentTopLeft, "red");
-
-                //                            var widgetTopLeft = rotatedRect.getPointByOrigin('left', 'top');
-                //                            drawRectAt(widgetTopLeft, "green");
-                //                            
-
-                //                            drawRectAt(new fabric.Point(clonedImage.left + widget.roi.x, clonedImage.top + widget.roi.y), "red");
-
-                //                            if (LOG) console.log("widgetTopLeft: ");
-                //                            if (LOG) console.log(widgetTopLeft);
-                //                            if (LOG) console.log("parentTopLeft.x: " + parentTopLeft.x);
-                //                            if (LOG) console.log("parentTopLeft.y: " + parentTopLeft.y);
-
-
-
-
-
-
-
-                //                            widget.on({
-                //                                
-                //                                'scaling': function(option) {
-                //                                    if (LOG) console.log("scaling");
-                ////                                    widget.strokeWidth = 1 / ((widget.getScaleX() + widget.getScaleY()) / 2);
-                //
-                //
-                //
-                //
-                //                                    
-                //
-                //
-                //                                    if (LOG) console.log(widget.getWidth());
-                //                                    if (LOG) console.log(widget.getHeight());
-                //                                    if (LOG) console.log(widget.getScaleX());
-                //                                    if (LOG) console.log(widget.getScaleY());
-                //                                    
-                //
-                ////                                    widget.width = widget.getWidth();
-                ////                                    widget.height = widget.getHeight();
-                ////                                    widget.scaleX = widget.getScaleX();
-                ////                                    widget.scaleY = widget.getScaleY();
-                //
-                //
-                //
-                ////                                    widget.left = widget.getCenterPoint().x;
-                ////                                    widget.top = widget.getCenterPoint().y;
-                //
-                //                                    canvas.renderAll();
-                //                                    widget.setCoords();
-                //                                    computeUntransformedProperties(widget);
-                //                                }
-                //                            });
-
-
-
-
-
-
-
-                //                            drawRectAt(new fabric.Point(10 + widget.untransformedX + widget.getWidth() / 2, 10 + widget.untransformedY + widget.getHeight() / 2), "blue");
-                //                            drawRectAt(new fabric.Point(10 + widget.untransformedX, 10 + widget.untransformedY), "red");
-
-                //                            drawRectAt(parentObject.getCenterPoint(), "pink"); //                            drawRectAt(topLeft, "red");
-                //                            drawRectAt(rotatedWidgetCenter, "blue");
-                //                            drawRectAt(widget.getCenterPoint(), "green");
+                
             }
 
             var d = new Date();
@@ -753,7 +559,6 @@ function disableMarksExpansion() {
     compressMarks();
 }
 
-
 function disableDrawingMode() {
     $('#drawingModeActivatorLink').html('<i id="checkDrawingMode" class="icon-check-empty"></i> Activate');
     canvas.isDrawingMode = false;
@@ -769,316 +574,7 @@ function setLineWidth(width) {
     $(drawingMenu).mouseout();
 }
 
-
-
-function getTransverseHorizontalAxisPoints(object, objectWidth) {
-
-    var theta = 360 - object.getAngle();
-    var h = (objectWidth * object.scaleX / 2) * Math.sin(fabric.util.degreesToRadians(theta));
-    var b = (objectWidth * object.scaleX / 2) * Math.cos(fabric.util.degreesToRadians(theta));
-    var x1 = object.getCenterPoint().x + b;
-    var y1 = object.getCenterPoint().y - h;
-    var x2 = object.getCenterPoint().x - b;
-    var y2 = object.getCenterPoint().y + h;
-    var point1 = new fabric.Point(x1, y1);
-    var point2 = new fabric.Point(x2, y2);
-    return [point1, point2];
-}
-
-function getTransverseVerticalAxisPoints(object, objectHeight) {
-
-    var theta = 360 - object.getAngle() + 90;
-    var h = (objectHeight * object.scaleY / 2) * Math.sin(fabric.util.degreesToRadians(theta));
-    var b = (objectHeight * object.scaleY / 2) * Math.cos(fabric.util.degreesToRadians(theta));
-    var x1 = object.getCenterPoint().x + b;
-    var y1 = object.getCenterPoint().y - h;
-    var x2 = object.getCenterPoint().x - b;
-    var y2 = object.getCenterPoint().y + h;
-    var point1 = new fabric.Point(x1, y1);
-    var point2 = new fabric.Point(x2, y2);
-    return [point1, point2];
-}
-
-function computeLocationOfVerticalWidget(object, widget, widgetHeight) {
-    var horizontalTraverseAxisPoints = getTransverseHorizontalAxisPoints(object, object.width);
-    var p1 = horizontalTraverseAxisPoints[0];
-    var p2 = horizontalTraverseAxisPoints[1];
-    //                drawRectAt(p1, 'red');
-    //                drawRectAt(p2, 'red');
-
-    var verticalTraverseAxisPoints = getTransverseVerticalAxisPoints(widget, widgetHeight);
-    var p3 = verticalTraverseAxisPoints[0];
-    var p4 = verticalTraverseAxisPoints[1]; //                drawRectAt(p3, 'green');
-    //                drawRectAt(p4, 'green');
-
-    //                makeLine([p1.x, p1.y, p2.x, p2.y]);
-    //                makeLine([p3.x, p3.y, p4.x, p4.y]);
-
-    // return getIntersectionPoint(x1, y1, x2, y2, u1, v1, u2, v2);
-    var results = checkLineIntersection(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
-    //                drawRectAt(new fabric.Point(results.x, results.y), 'blue');
-
-    return [results.x, results.y];
-}
-
-
-function computeLocationOfHorizontalWidget(object, widget, widgetWidth) {
-
-    var horizontalTraverseAxisPoints = getTransverseVerticalAxisPoints(object, object.height);
-    var p1 = horizontalTraverseAxisPoints[0];
-    var p2 = horizontalTraverseAxisPoints[1];
-    var verticalTraverseAxisPoints = getTransverseHorizontalAxisPoints(widget, widgetWidth);
-    var p3 = verticalTraverseAxisPoints[0];
-    var p4 = verticalTraverseAxisPoints[1];
-    var results = checkLineIntersection(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
-    return [results.x, results.y];
-}
-
-
-
-
-
-function createSlider(x, y, w, h) {
-    return new fabric.Rect({
-        originX: 'center',
-        originY: 'center',
-        left: x,
-        top: y,
-        fill: generateRandomColor(),
-        width: w,
-        height: h,
-        movingOpacity: 0.45,
-        permanentOpacity: 0.6,
-        opacity: 0.6,
-        stroke: '#CC3333',
-        borderColor: '#CC3333',
-        cornerColor: '#FFCC00',
-        transparentCorners: false,
-        cornerSize: 10
-    });
-}
-
-function animateSlider(slider, top, left, width, height, duration, sendToBack) {
-
-    var easing = fabric.util.ease['easeOutBounce'];
-    slider.animate('top', top, {
-        duration: duration,
-        onChange: canvas.renderAll.bind(canvas),
-        easing: easing
-    });
-    slider.animate('left', left, {
-        duration: duration, onChange: canvas.renderAll.bind(canvas),
-        easing: easing
-    });
-    slider.animate('width', width, {
-        duration: duration,
-        onChange: canvas.renderAll.bind(canvas),
-        easing: easing
-    });
-    slider.animate('height', height, {
-        duration: duration,
-        onChange: canvas.renderAll.bind(canvas),
-        onComplete: function () {
-            if (sendToBack) {
-                canvas.sendToBack(slider);
-            }
-            slider.scaleX = 1;
-            slider.scaleY = 1;
-        },
-        easing: easing
-    });
-}
-
-function addVerticalSlider(x, y, targetObject) {
-
-    var initialWidth = 40;
-    var finalWidth = initialWidth;
-    var initialHeight = 10;
-    var finalHeight = 300;
-    var duration = 500;
-    var angle = 0;
-    var finalTop = y;
-    var finalLeft = x;
-    var slider = createSlider(x, y, initialWidth, initialHeight);
-    slider.type = "verticalSlider";
-    canvas.add(slider);
-    canvas.setActiveObject(slider);
-    if (targetObject && targetObject.type && targetObject.type == "importedImage") {
-
-        finalHeight = targetObject.height * targetObject.getScaleY() + 30;
-        angle = targetObject.getAngle();
-        slider.setAngle(angle);
-        targetObject.widgets.push(slider);
-        slider.parentObject = targetObject;
-        slider.originalWidth = finalWidth;
-        slider.originalHeight = finalHeight;
-        var finalWidgetLocation = computeLocationOfVerticalWidget(targetObject, slider, finalHeight);
-        finalLeft = finalWidgetLocation[0];
-        finalTop = finalWidgetLocation[1];
-        //                    if (LOG) console.log("finalLeft: ", finalLeft);
-        //                    if (LOG) console.log("finalTop ", finalTop);
-        //
-        //                    var dx = finalLeft - targetObject.getCenterPoint().x;
-        //                    var dy = targetObject.getCenterPoint().y - finalTop;
-        //
-        //                    if (LOG) console.log("dx ", dx);
-        //                    if (LOG) console.log("dy ", dy);
-        //
-        //                    var theta = Math.atan(dy / dx);
-        //                    var alpha = fabric.util.degreesToRadians(360 - slider.angle);
-        //                    var phi = alpha - theta;
-        //
-        //                    if (LOG) console.log("theta ", theta);
-        //                    if (LOG) console.log("alpha ", alpha);
-        //                    if (LOG) console.log("phi ", phi);
-        //
-        //                    var h = Math.sqrt(dx * dx + dy * dy);
-        //                    if (LOG) console.log("h ", h);
-        //
-        //                    var fx = h * Math.cos(phi);
-        //                    var fy = h * Math.sin(phi);
-        //
-        //                    if (LOG) console.log("fx ", fx);
-        //                    if (LOG) console.log("fy ", fy);
-        //
-        //                    slider.posRelX = fx / (targetObject.width / 2);
-        //                    slider.posRelY = fy / (targetObject.height / 2);
-        //
-        //                    if (LOG) console.log("slider.posRelX ", slider.posRelX);
-        //                    if (LOG) console.log("slider.posRelY ", slider.posRelY);
-
-        relPos = computeRelativeLocation(targetObject, slider, finalLeft, finalTop);
-        slider.posRelX = relPos[0];
-        slider.posRelY = relPos[1];
-        if (LOG)
-            console.log("slider.posRelX: " + slider.posRelX);
-        if (LOG)
-            console.log("slider.posRelY: " + slider.posRelY);
-    }
-
-    animateSlider(slider, finalTop, finalLeft, finalWidth, finalHeight, duration, false);
-    slider.setCoords();
-    canvas.renderAll();
-}
-
-function computeRelativeLocation(parent, child, x, y) {
-
-    var dx = x - parent.getCenterPoint().x;
-    var dy = y - parent.getCenterPoint().y;
-    var multX = x - parent.getCenterPoint().x > 1 ? 1 : -1;
-    var theta = Math.atan2(dy, dx);
-    var alpha = fabric.util.degreesToRadians(child.angle);
-    var phi = alpha - theta;
-    if (LOG)
-        console.log("theta ", theta);
-    if (LOG)
-        console.log("alpha ", alpha);
-    if (LOG)
-        console.log("phi ", phi);
-    var multY = fabric.util.radiansToDegrees(theta) >= 90 && fabric.util.radiansToDegrees(theta) <= 270 ? 1 : -1;
-    var h = Math.sqrt(dx * dx + dy * dy);
-    var fx = h * Math.cos(phi);
-    var fy = h * Math.sin(phi);
-    var posRelX = fx / (parent.width / 2);
-    var posRelY = fy / (parent.height / 2);
-    if (LOG)
-        console.log("posRelX: ", posRelX);
-    if (LOG)
-        console.log("posRelY: ", posRelY);
-    return [posRelX, posRelY];
-}
-
-function addHorizontalSlider(x, y, targetObject) {
-
-    var initialWidth = 10;
-    var finalWidth = 300;
-    var initialHeight = 40;
-    var finalHeight = initialHeight;
-    var duration = 500;
-    var angle = 0;
-    var finalTop = y;
-    var finalLeft = x;
-    var slider = createSlider(x, y, initialWidth, initialHeight);
-    slider.type = "verticalSlider";
-    canvas.add(slider);
-    canvas.setActiveObject(slider);
-    if (targetObject && targetObject.type && targetObject.type == "importedImage") {
-
-        finalWidth = targetObject.width * targetObject.getScaleX() + 30;
-        angle = targetObject.getAngle();
-        slider.angle = angle;
-        targetObject.widgets.push(slider);
-        slider.parentObject = targetObject;
-        var finalWidgetLocation = computeLocationOfHorizontalWidget(targetObject, slider, finalHeight);
-        finalLeft = finalWidgetLocation[0];
-        finalTop = finalWidgetLocation[1];
-    }
-
-    animateSlider(slider, finalTop, finalLeft, finalWidth, finalHeight, duration, false);
-    slider.setCoords();
-    canvas.renderAll();
-}
-function addSquareSlider(x, y, targetObject) {
-
-    var initialWidth = 10;
-    var initialHeight = 10;
-    var finalHeight = 300;
-    var finalWidth = 300;
-    var duration = 500;
-    var centerPoint = new fabric.Point(x, y);
-    var angle = 0;
-    var slider = createSlider(x, y, initialWidth, initialHeight);
-    slider.lockRotation = true;
-    slider.lockScalingX = true;
-    slider.lockScalingY = true;
-    slider.lockMovementX = true;
-    slider.lockMovementY = true;
-    slider.connectors = new Array();
-    slider.isWidget = true;
-    slider.selectable = true;
-    slider.isBlobCounter = true;
-    slider.trueColor = slider.fill;
-    if (targetObject && targetObject.isImage) {
-        finalWidth = targetObject.width * targetObject.getScaleX() + 60;
-        finalHeight = targetObject.height * targetObject.getScaleY() + 60;
-        centerPoint = targetObject.getCenterPoint();
-        angle = targetObject.angle;
-        targetObject.widgets.push(slider);
-        slider.parentObject = targetObject;
-    }
-
-    slider.angle = angle;
-    canvas.add(slider);
-    canvas.setActiveObject(slider);
-    var finalTop = centerPoint.y;
-    var finalLeft = centerPoint.x;
-    var parentTopLeft = targetObject.getPointByOrigin('left', 'top');
-    //                drawRectAt(parentTopLeft, "red");
-
-
-    slider.untransformedScaleX = slider.getScaleX() / targetObject.getScaleX();
-    slider.untransformedScaleY = slider.getScaleY() / targetObject.getScaleY();
-    slider.untransformedAngle = 0;
-    //                drawRectAt(centerPoint, "yellow");
-
-
-    var unrotatedSliderPosition = fabric.util.rotatePoint(centerPoint, parentTopLeft, -fabric.util.degreesToRadians(angle));
-    //                drawRectAt(unrotatedSliderPosition, "blue");
-
-
-
-    slider.untransformedX = (unrotatedSliderPosition.x - parentTopLeft.x) / targetObject.getScaleX();
-    slider.untransformedY = (unrotatedSliderPosition.y - parentTopLeft.y) / targetObject.getScaleY();
-    if (LOG)
-        console.log("slider.untransformedX: " + slider.untransformedX);
-    if (LOG)
-        console.log("slider.untransformedY: " + slider.untransformedX);
-    animateSlider(slider, finalTop, finalLeft, finalWidth, finalHeight, duration, true);
-    targetObject != null ? canvas.setActiveObject(targetObject) : canvas.setActiveObject(slider);
-    countBlobs(slider);
-    blobsCounterAssociateMouseEvents(slider);
-}
-function activeObjectMode() {
+function activateObjectMode() {
     canvas.selection = true;
 }
 
@@ -1180,6 +676,11 @@ function adjustCanvasDimensions() {
 }
 
 function hidePanel(id, adjustCanvasSize) {
+
+    var h6 = $(id + "H6");
+    var span = $(h6.find("span")[0]);
+    span.attr('class', 'fa fa-angle-right');
+
     var duration = 400;
     var easing = 'easeOutSine';
     $(id).hide({
@@ -1199,6 +700,11 @@ function hidePanel(id, adjustCanvasSize) {
 }
 
 function showPanel(id, adjustCanvasSize) {
+
+    var h6 = $(id + "H6");
+    var span = $(h6.find("span")[0]);
+    span.attr('class', 'fa fa-angle-down');
+
     var duration = 400;
     var easing = 'easeOutSine';
     $(id).show({
@@ -1218,12 +724,12 @@ function showPanel(id, adjustCanvasSize) {
 }
 
 function hideRightPanel(adjustCanvasSize) {
-    $('#toggleAdditionalToolsVisibility').html('<i class="icon-chevron-left fa-2x"></i> More');
+    $('#toggleAdditionalToolsVisibility').html('<i class="fa fa-chevron-left fa-2x"></i>');
     hidePanel("#rightPanel", adjustCanvasSize);
 }
 
 function showRightPanel(adjustCanvasSize) {
-    $('#toggleAdditionalToolsVisibility').html('Less <i class="icon-chevron-right icon-large"></i>');
+    $('#toggleAdditionalToolsVisibility').html('<i class="fa fa-chevron-right fa-2x"></i>');
     showPanel("#rightPanel", adjustCanvasSize);
 }
 
@@ -1237,13 +743,13 @@ function togglePanningMode() {
 
 function togglePanelVisibility(id) {
     if ($(id).is(":visible")) {
-        if (id == "#rightPanel") {
+        if (id === "#rightPanel") {
             hideRightPanel(true);
         } else {
             hidePanel(id, true);
         }
     } else {
-        if (id == "#rightPanel") {
+        if (id === "#rightPanel") {
             showRightPanel(true);
         } else {
             showPanel(id, true);
@@ -1655,7 +1161,7 @@ function deleteAllObjects() {
         alertify.confirm("Are you sure you want to remove all the objects?", function (e) {
             if (e) {
                 canvas.clear().renderAll();
-                alertify.log("All objects removed", "", 3000);
+//                alertify.log("All objects removed", "", 3000);
             }
         });
     }
@@ -3281,14 +2787,8 @@ function deActivateFilledMarkDrawingMode() {
     $("#drawFilledMark").css("border-color", "#AAA");
 }
 
-
-
-
-
-
-
-
 function activatePanningMode() {
+    canvas.currentPan1FingerendOperation = PANNING_OPERATION;
     canvas.activePanningMode = true;
     canvas.defaultCursor = "pointer";
     $("#panningModeActivatorLink").css("background-color", "#fefefe");
@@ -3300,6 +2800,7 @@ function activatePanningMode() {
 }
 
 function deActivatePanningMode() {
+    canvas.currentPan1FingerendOperation = DISCONNECTION_OPERATION;
     canvas.activePanningMode = false;
     canvas.defaultCursor = "default";
     $("#panningModeActivatorLink").css("background-color", "");
@@ -3308,11 +2809,6 @@ function deActivatePanningMode() {
     $("#panningModeDeActivatorLink").css("background-color", "#fefefe");
     $("#panningModeDeActivatorLink").css("border-color", "#000");
 }
-
-
-
-
-
 
 function activateTransmogrificationMode() {
 
@@ -3323,6 +2819,7 @@ function activateTransmogrificationMode() {
     canvas.isTransmogrificationMode = true;
     $("#transmogrifyButton").css("background", "#D6D6D6 none repeat scroll 0% 0% / auto padding-box border-box");
 }
+
 function deActivateTransmogrificationMode() {
     canvas.isDrawingMode = false;
     canvas.isTransmogrificationMode = false;
@@ -3341,6 +2838,7 @@ function activateSamplingMode() {
     canvas.freeDrawingBrush.color = rgb(219, 75, 0);
     canvas.freeDrawingBrush.width = 2;
 }
+
 function deActivateSamplingMode() {
     canvas.isDrawingMode = false;
     canvas.isSamplingMode = false;
@@ -3348,9 +2846,9 @@ function deActivateSamplingMode() {
     $("#samplerButton").css("border", "0px none rgb(0, 0, 0)");
 }
 
-
-
 function activateLineSamplingMode() {
+    
+    canvas.currentPan1FingerendOperation = canvas.activePanningMode ? PANNING_OPERATION : DISCONNECTION_OPERATION;
 
     canvas.forEachObject(function (object) {
         object.previousSelectableState = object.selectable;
@@ -3361,11 +2859,15 @@ function activateLineSamplingMode() {
 
     deActivateTransmogrificationMode();
     deActivateSamplingMode();
-    deActivatePanningMode();
+    
+    canvas.activePanningMode = false;
+    canvas.defaultCursor = "default";
+    
     $("#samplerLineButton").css("background", "#D6D6D6 none repeat scroll 0% 0% / auto padding-box border-box");
     canvas.isSamplingLineMode = true;
 
     canvas.defaultCursor = 'crosshair';
+    
 }
 
 function deActivateLineSamplingMode() {
@@ -3380,14 +2882,15 @@ function deActivateLineSamplingMode() {
     canvas.isSamplingLineMode = false;
     $("#samplerLineButton").css("background-color", "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box");
     $("#samplerLineButton").css("border", "0px none rgb(0, 0, 0)");
-    activatePanningMode();
 
     canvas.defaultCursor = 'default';
+    
+    if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
+        activatePanningMode();
+    } else {
+        deActivatePanningMode();
+    }
 }
-
-
-
-
 
 function activateFreeSelectionMode() {
     canvas.isDrawingMode = true;
@@ -3432,20 +2935,7 @@ function applyInactiveMenuButtonStyle(button) {
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 function animateObjectProperty(object, prop, endValue, duration, easing, refreshCanvas, removeAfterCompletion, computeGeometryProperties) {
-    var thePlotter = this;
     fabric.util.animate({
         startValue: object[prop],
         endValue: endValue,
@@ -3493,7 +2983,6 @@ function animateObjectProperty(object, prop, endValue, duration, easing, refresh
         }
     });
 }
-;
 
 
 
@@ -4113,6 +3602,7 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
 
 
     deActivateSamplingMode();
+    deActivateLineSamplingMode();
 
 
 
@@ -5363,5 +4853,509 @@ function createValuesFromArray(strings) {
     });
 
     return createdValues;
+
+}
+
+function removeUselessTags(parsedHTML) {
+
+    var filteredNodes = [];
+
+    $.each(parsedHTML, function (i, el) {
+        if (el) {
+            var nodeName = el.nodeName;
+            if (nodeName) {
+                if (el.nodeName !== "META") {
+                    filteredNodes.push(el);
+                } else {
+                    console.log("META tag found!");
+                }
+            }
+        }
+    });
+
+    console.log("filteredNodes: ");
+    console.log(filteredNodes);
+
+    return filteredNodes;
+
+}
+
+function createVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
+
+    print("addVisualElementFromHTML FUNCTION. x: " + x + " y: " + y);
+    console.log("Received parsedHTML:");
+    console.log(parsedHTML);
+
+    parsedHTML = removeUselessTags(parsedHTML);
+
+    var totalElements = parsedHTML.length;
+    console.log("totalElements:" + totalElements);
+
+    if (totalElements === 1) {
+
+        var htmlElement = parsedHTML[0];
+        var jQueryElement = $(htmlElement);
+        var elementType = htmlElement.nodeName.toUpperCase();
+
+        console.log("elementType: " + elementType);
+
+        console.log("htmlElement:");
+        console.log(htmlElement);
+
+        console.log("jQueryElement: ");
+        console.log(jQueryElement);
+
+        if (elementType === "TABLE") {
+
+            console.log(jQueryElement);
+            console.log(jQueryElement[0]);
+            console.log(jQueryElement['0']);
+
+
+
+
+            var allRows = htmlElement.getElementsByTagName("tr");
+            var totalRows = allRows.length;
+
+            if (totalRows > 0) {
+                if (totalRows > 1) { // This should be a DATA WIDGET
+
+                    var firstRow = allRows[0];
+                    var tableHeader = firstRow.getElementsByTagName("th");
+                    var totalVariables = tableHeader.length;
+                    var start = 0;
+                    var colNames = new Array();
+
+                    var csvString = "";
+
+                    if (totalVariables > 0) {
+
+                        for (var i = 0; i < totalVariables; i++) {
+                            var element = $(tableHeader[i]);
+                            var variableName = element.text().trim();
+                            colNames.push(variableName);
+                            csvString += variableName + ",";
+                        }
+
+                        start = 1;
+
+                        console.log("The selected table DOES CONTAIN a headers row.");
+
+                    } else {
+
+                        console.log("The selected table DOES *NOT* CONTAIN a headers row");
+
+                        totalVariables = firstRow.getElementsByTagName("td").length;
+
+                        console.log("totalColumns: " + totalVariables);
+
+                        for (var i = 0; i < totalVariables; i++) {
+                            var variableName = "VAR_" + (i + 1);
+                            csvString += variableName + ",";
+                        }
+
+                    }
+
+                    csvString = csvString.substring(0, csvString.length - 1) + "\n";
+
+                    console.log("The variables are:");
+                    console.log(colNames);
+
+                    console.log("The CSV string is:");
+                    console.log(csvString);
+
+                    for (var i = start; i < totalRows; i++) {
+
+                        var currentRow = allRows[i];
+                        var currentCols = currentRow.getElementsByTagName("td");
+
+                        for (var j = 0; j < totalVariables; j++) {
+
+                            var element = $(currentCols[j]);
+                            var data = element.text().trim();
+
+                            csvString += data + ",";
+
+                        }
+
+                        csvString = csvString.substring(0, csvString.length - 1) + "\n";
+
+
+                    }
+
+                    csvString = csvString.substring(0, csvString.length - 1);
+
+                    console.log("Final CSV string: ");
+                    console.log(csvString);
+
+
+                    if (!canvas.totalTables) {
+                        canvas.totalTables = 1;
+                    }
+
+                    var aDataWidget = new DataWidget({
+                        fileName: "TABLE_" + (canvas.totalTables++),
+                        CSVString: csvString,
+                    });
+                    canvas.add(aDataWidget);
+
+
+                    aDataWidget.left = x;
+                    aDataWidget.top = y;
+
+                    aDataWidget.setCoords();
+                    aDataWidget.parseCSVString();
+
+
+
+
+
+                } else { // This should be a COLLECTION
+
+                    var theOnlyRow = allRows[0];
+                    var colsHeader = theOnlyRow.getElementsByTagName("th");
+                    var colsData = theOnlyRow.getElementsByTagName("td");
+
+                    var theCols = colsHeader.length ? colsHeader : colsData;
+                    var totalCols = theCols.length;
+
+                    var texts = new Array();
+
+                    for (var i = 0; i < totalCols; i++) {
+                        var element = $(theCols[i]);
+                        texts.push(element.text().trim());
+                    }
+
+                    var values = createValuesFromArray(texts);
+                    addVerticalCollection(x, y, values);
+
+                }
+            }
+
+
+
+
+
+//                    } else if (elementType === "TH" || elementType === "TR") {
+//                        
+//                        alert("TH or TR !!!");
+
+        } else if (elementType === "IMG") {
+
+            console.log(htmlElement.src);
+
+            importImageToCanvas(htmlElement.src, x, y);
+
+//                    } else if (elementType === "A" || elementType === "SPAN" || elementType === "H2") {
+        } else {
+
+
+            var theText = jQueryElement.text().trim();
+
+            if (theText) {
+
+                var options = {
+                    left: x,
+                    top: y
+                };
+
+                if (theText.endsWith('%')) {
+                    theText = theText.substring(0, theText.length - 1);
+                }
+
+                if ($.isNumeric(theText)) {
+
+                    // is it a NUMBER
+
+                    options.theType = "number";
+                    options.unscaledValue = Number(theText);
+
+                } else {
+
+                    if (canBeCurrency(theText)) {
+
+                        // are you sure? It may be a string representing MONEY
+
+                        var find = ',';
+                        var re = new RegExp(find, 'g');
+                        theText = theText.replace(re, '');
+
+                        print(theText, "blue", "white");
+
+                        options.theType = "number";
+                        options.unscaledValue = Number(theText);
+
+
+                    } else {
+
+                        // Is it a DATE?
+                        var dateAndTime = moment(theText, getDateAndTimeFormats(), true);
+
+                        if (dateAndTime.isValid()) {
+
+                            console.log(theText + " was a VALID DATE!!!)");
+
+                            options.theType = "dateAndTime";
+                            options.theMoment = dateAndTime;
+
+                        } else {
+
+                            // ok, it's just TEXT
+
+                            options.theType = "string";
+                            options.string = theText;
+
+                        }
+
+                    }
+
+
+
+
+
+
+
+                }
+
+                console.log("options:");
+                console.log(options);
+
+
+                var theVisualVariable = CreateDataType(options);
+
+                if (addToCanvas) {
+                    canvas.add(theVisualVariable);
+                    theVisualVariable.animateBirth(false, null, null, false);
+                }
+
+                return theVisualVariable;
+
+            }
+
+
+
+
+
+
+        }
+
+    } else {
+
+        $.each(parsedHTML, function (i, currentElement) {
+
+            var htmlElementType = currentElement.nodeName.toUpperCase();
+
+            console.log("htmlElementType: " + htmlElementType);
+
+        });
+
+    }
+
+
+
+}
+
+
+function canvasDropFunction(ev, ui) {
+
+    var canvasCoords = getCanvasCoordinates(ev);
+    var x = canvasCoords.x;
+    var y = canvasCoords.y;
+    var dropedElement = ui.draggable;
+    var id = $(dropedElement).attr("id");
+    var targetObject = null;
+    var theCollection = findPotentialDestination(canvasCoords, ['isVerticalCollection']);
+    if (theCollection) {
+        if (id === "isColorData" || id === "isStringData" || id === "isNumericData" || id === "isDurationData" || id === "isDateAndTimeData" || id === "isShapeData") {
+            var theVisualVariable = createDefaultVisualValueByTypeProposition(id);
+            addVisualVariableToCollection(theVisualVariable, theCollection);
+            return;
+        }
+    }
+
+    if (id) {
+        targetObject = getImportedImageContaining(x, y);
+        if (id === "addition-operator") {
+            addOperator('addition', x, y);
+        } else if (id === "subtraction-operator") {
+            addOperator('subtraction', x, y);
+        } else if (id === "multiplication-operator") {
+            addOperator('multiplication', x, y);
+        } else if (id === "division-operator") {
+            addOperator('division', x, y);
+        } else if (id === "emptyFunction") {
+
+            addNumericFunction(x, y);
+
+        } else if (id === "xFunction") {
+
+            var coordinates = getLinealFunctionCoordinates();
+            addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
+
+        } else if (id === "x2Function") {
+
+            var coordinates = getQuadraticFunctionCoordinates();
+            addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
+
+        } else if (id === "x3Function") {
+
+            var coordinates = getCubicFunctionCoordinates();
+            addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
+
+        } else if (id === "sinXFunction") {
+
+            var coordinates = getSinFunctionCoordinates();
+            addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
+
+        } else if (id === "cosXFunction") {
+
+            var coordinates = getCosFunctionCoordinates();
+            addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
+
+        } else if (id === "logXFunction") {
+
+            var coordinates = getLogFunctionCoordinates();
+            addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
+
+        } else if (id === "sqrtXFunction") {
+
+            var coordinates = getSqrtFunctionCoordinates();
+            addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
+
+        } else if (id === "locatorWidget") {
+
+            addLocator(x, y);
+        } else if (id === "mapperWidget") {
+
+            addMapper(x, y);
+
+        } else if (id === "collectionGetterWidget") {
+
+            addCollectionGetter(x, y);
+
+        } else if (id === "collectionAttributeSelectorWidget") {
+
+            addCollectionAttributeSelector(x, y);
+
+        } else if (id === "numericFunctionWidget") {
+
+            addNumericFunction(x, y);
+
+        } else if (id === "verticalCollection") {
+
+            addEmptyVerticalCollection(x, y);
+
+        } else if (id === "collectionGenerator") {
+
+            addNumericCollectionGenerator(x, y);
+
+        } else if (id === "numberGenerator") {
+
+            addNumberGenerator(x, y, 0, 100, {});
+
+        } else if (id === "squarePrototype") {
+
+            var options = {
+                left: x,
+                top: y,
+                fill: rgb(225, 153, 75),
+                stroke: darkenrgb(225, 153, 75),
+                side: 60,
+                label: '',
+                markAsSelected: false,
+                animateAtBirth: true
+            };
+            var rectPrototype = addMarkToCanvas(SQUARED_MARK, options);
+
+        } else if (id === "pathMarkPrototype") {
+
+            var options = {
+                left: x,
+                top: y,
+                fill: rgb(0, 153, 255),
+                stroke: darkenrgb(0, 153, 255),
+                side: 60,
+                label: '',
+                markAsSelected: false,
+                animateAtBirth: true,
+                thePath: 'M 0 0 L 50 0 L 75 50 L 100 -50 L 125 0 L 175 0',
+            };
+            var pathMarkPrototype = addMarkToCanvas(PATH_MARK, options);
+
+        } else if (id === "rectPrototype") {
+
+            var options = {
+                left: x,
+                top: y,
+                fill: rgb(225, 79, 75),
+                stroke: darkenrgb(225, 79, 75),
+                width: 90,
+                height: 50,
+                label: '',
+                markAsSelected: false,
+                animateAtBirth: true
+            };
+            var rectPrototype = addMarkToCanvas(RECTANGULAR_MARK, options);
+        } else if (id == "circlePrototype") {
+            var options = {
+                left: x,
+                top: y,
+                fill: rgb(115, 157, 108),
+                stroke: darkenrgb(115, 157, 108),
+                radius: 30,
+                label: '',
+                markAsSelected: false,
+                animateAtBirth: true
+            };
+            var circleMark = addMarkToCanvas(CIRCULAR_MARK, options);
+
+        } else if (id == "fatFontPrototype") {
+
+            var options3 = {
+                left: x,
+                top: y,
+                fill: rgb(180, 115, 168),
+                colorForStroke: darkenrgb(180, 115, 168),
+                fontFamily: 'Miguta',
+                number: 58,
+                fontSize: 60,
+                label: '',
+                markAsSelected: false,
+                animateAtBirth: true
+            };
+            addMarkToCanvas(FATFONT_MARK, options3);
+
+        } else if (id == "ellipsePrototype") {
+
+            var options5 = {
+                left: x,
+                top: y,
+                fill: rgb(222, 201, 58),
+                stroke: darkenrgb(222, 201, 58),
+                rx: 45,
+                ry: 25,
+                label: '',
+                markAsSelected: false,
+                animateAtBirth: true
+            };
+            addMarkToCanvas(ELLIPTIC_MARK, options5);
+
+        } else if (id === "isColorData" || id === "isStringData" || id === "isNumericData" || id === "isDurationData" || id === "isDateAndTimeData" || id === "isShapeData") {
+
+            var visualValue = createDefaultVisualValueByTypeProposition(id, x, y);
+            canvas.add(visualValue);
+            visualValue.animateBirth(false, null, null, false);
+
+        } else if (id === "collectionValue") {
+
+            var anAggregator = new Aggregator({
+                left: x,
+                top: y
+            });
+            canvas.add(anAggregator);
+        }
+
+        disableDrawingMode();
+    }
 
 }

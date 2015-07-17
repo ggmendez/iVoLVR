@@ -84,6 +84,8 @@ function createObjectFromXMLString(XMLNode) {
 }
 
 function generateXMLNodeString(object) {
+        
+    
     var serializableProperties = object.serializableProperties;
     var XMLNode = createXMLElement(object.xmlNodeName);
     appendElementWithValue(XMLNode, 'deserializer', object.deserializer.name);
@@ -139,7 +141,7 @@ function generateProjectXML() {
     var root = createXMLElement('project');
     canvas.forEachObject(function (object) {
 
-        if (object.serializableProperties && object.deserializer) {
+        if (!object.nonSerializable && object.serializableProperties && object.deserializer) {
             root.append(generateXMLNodeString(object));
         }
 
