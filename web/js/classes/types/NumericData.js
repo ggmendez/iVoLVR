@@ -1,8 +1,6 @@
 var NumericData = fabric.util.createClass(fabric.Path, {
-    
     serializableProperties: ['left', 'top', 'theType', 'value.unscaledValue', 'value.inPrefix', 'value.outPrefix', 'value.units'],
     deserializer: addVisualValueToCanvas,
-    
     initialize: function (options) {
         options || (options = {});
         var path = paths["number"].rw;
@@ -10,9 +8,9 @@ var NumericData = fabric.util.createClass(fabric.Path, {
 
         this.set('dataTypeProposition', 'isNumericData');
         this.set(this.dataTypeProposition, true);
-        
+
         this.set('optionsToDisplay', new Array);
-        this.optionsToDisplay.showAsInteger = options.showAsInteger || false;                
+        this.optionsToDisplay.showAsInteger = options.showAsInteger || false;
 
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', this.strokeWidth);
@@ -35,8 +33,10 @@ var NumericData = fabric.util.createClass(fabric.Path, {
         var value = createNumericValue(unscaledValue, inPrefix, outPrefix, theUnits);
         this.set('value', value);
 
-        if (LOG) console.log("value:");
-        if (LOG) console.log(value);
+        if (LOG)
+            console.log("value:");
+        if (LOG)
+            console.log(value);
 
         this.set('inConnectors', new Array());
         this.set('outConnectors', new Array());
@@ -52,12 +52,11 @@ var NumericData = fabric.util.createClass(fabric.Path, {
         this.setCoords();
 
     },
-    
     setValueChangingOutPrefixAndUnits: function (numericValue, refreshCanvas, shouldAnimate) {
-        
+
         var theDataType = this;
         if (numericValue.isNumericData) {
-            
+
             theDataType.value = numericValue;
 
             if (theDataType.observer) {
@@ -67,7 +66,7 @@ var NumericData = fabric.util.createClass(fabric.Path, {
                 };
                 theDataType.observer.trigger('valueChanged', options);
             }
-            
+
             if (theDataType.collection) {
                 var options = {
                     visualValue: theDataType,
@@ -75,7 +74,7 @@ var NumericData = fabric.util.createClass(fabric.Path, {
                 };
                 theDataType.collection.trigger('valueChanged', options);
             }
-            
+
             if (theDataType.isLimitValue) {
                 var options = {
                     visualValue: theDataType,
@@ -96,26 +95,30 @@ var NumericData = fabric.util.createClass(fabric.Path, {
 
             return false; // error when trying to set the value of this data type. Some other function should deal witht this value in order to provide visual feedback to the user
         }
-        
+
     },
     setValue: function (numericValue, refreshCanvas, shouldAnimate) {
-        
+
         console.log("%c +++ setting value of NUMERICDATA class with refreshCanvas: " + refreshCanvas + ", shouldAnimate: " + shouldAnimate, "background: #008000; color: white;");
-        
+
 
         var theDataType = this;
         if (numericValue.isNumericData) {
-            
-            
-            if (LOG) console.log("BEFORE the conversion to the corresponding units and output prefix: theDataType.value:");
-            if (LOG) console.log(theDataType.value);
+
+
+            if (LOG)
+                console.log("BEFORE the conversion to the corresponding units and output prefix: theDataType.value:");
+            if (LOG)
+                console.log(theDataType.value);
 
             // Here, the units and out prefix of the value are preserved
             theDataType.value = createNumericValue(numericValue.number, numericValue.inPrefix, theDataType.value.outPrefix, theDataType.value.units);
-            
-            if (LOG) console.log("AFTER the conversion to the corresponding units and output prefix: theDataType.value:");
-            if (LOG) console.log(theDataType.value);
-            
+
+            if (LOG)
+                console.log("AFTER the conversion to the corresponding units and output prefix: theDataType.value:");
+            if (LOG)
+                console.log(theDataType.value);
+
             if (theDataType.observer) {
                 var options = {
                     visualValue: theDataType,
@@ -132,7 +135,7 @@ var NumericData = fabric.util.createClass(fabric.Path, {
                 };
                 theDataType.collection.trigger('valueChanged', options);
             }
-            
+
             if (theDataType.isLimitValue) {
                 var options = {
                     visualValue: theDataType,
@@ -158,7 +161,7 @@ var NumericData = fabric.util.createClass(fabric.Path, {
 
         var theDataType = this;
 
-        showNumericValue(theDataType, true);       
+        showNumericValue(theDataType, true);
 
     },
 });
@@ -182,26 +185,26 @@ function generateScaledValue(unscaledValue, inFactor, outFactor) {
     return scaledNumber;
 }
 
-function getSuperscriptString (exponent) {
-    
+function getSuperscriptString(exponent) {
+
 //    console.log("exponent: " + exponent);
-    
+
     if (exponent < 0) {
-        
-        return '&#8315;' + getSuperscriptString (Math.abs(exponent));
-        
+
+        return '&#8315;' + getSuperscriptString(Math.abs(exponent));
+
     } else if (exponent > 0) {
-        
+
         if (exponent < 10) {
             return superScriptsCodes[exponent];
         } else {
-            return getSuperscriptString (parseInt('' + exponent/10)) + getSuperscriptString (exponent%10);
+            return getSuperscriptString(parseInt('' + exponent / 10)) + getSuperscriptString(exponent % 10);
         }
-        
+
     } else {
         return ''; // exponent is equal to zero
     }
-        
+
 }
 
 function buildOutputSelector(numericValue) {
@@ -211,11 +214,11 @@ function buildOutputSelector(numericValue) {
     metricPrefixes.forEach(function (item) {
         var text = '';
         if (item.exponent !== 0) {
-            text = item.prefix + ' (&#215; 10' + getSuperscriptString (item.exponent) + ')';
+            text = item.prefix + ' (&#215; 10' + getSuperscriptString(item.exponent) + ')';
         }
         var currentOption = $('<option />', {value: item.factor, selected: item.factor === numericValue.outMultiplicationFactor});
-        currentOption.append('<span>' + text + '<span>');        
-        
+        currentOption.append('<span>' + text + '<span>');
+
         currentOption.appendTo(outputTypeSelector);
     });
 
@@ -247,9 +250,9 @@ function buildPrefixSelector(numericValue) {
 
 }
 
-function updateOutputText() {        
+function updateOutputText() {
 
-    var currentUnscaledValue = $("#unscaledValueTextField").val();    
+    var currentUnscaledValue = $("#unscaledValueTextField").val();
     var outFactor = $("#outputTypeSelector option:selected").val();
     var inFactor = $("#prefixSelector option:selected").val();
     var scaledNumber = generateScaledValue(currentUnscaledValue, inFactor, outFactor);
@@ -264,13 +267,27 @@ function updateOutputUnits() {
 }
 
 function createNumericValue(unscaledValue, inPrefix, outPrefix, units) {
-//   if (LOG) console.log("Here");
-    var inMultiplicationFactor = getMultiplicationFactor(inPrefix);
-    var outMultiplicationFactor = getMultiplicationFactor(outPrefix);
-    var scaledValue = generateScaledValue(unscaledValue, inMultiplicationFactor, outMultiplicationFactor);
-    if (!units) {
+
+    var theUnscaledValue = unscaledValue;
+    var type = typeof unscaledValue;
+    if (type !== "number") {
+        theUnscaledValue = Number(unscaledValue); // if the provided unscaledValue is not a number, the given value has to be converted to a number
+    }
+
+    if (typeof inPrefix === 'undefined') {
+        inPrefix = '';
+    }
+    if (typeof outPrefix === 'undefined') {
+        outPrefix = '';
+    }
+    if (typeof units === 'undefined') {
         units = '';
     }
+
+    var inMultiplicationFactor = getMultiplicationFactor(inPrefix);
+    var outMultiplicationFactor = getMultiplicationFactor(outPrefix);
+    var scaledValue = generateScaledValue(theUnscaledValue, inMultiplicationFactor, outMultiplicationFactor);
+
     return new Value({isNumericData: true, number: scaledValue, unscaledValue: unscaledValue, inPrefix: inPrefix, outPrefix: outPrefix, units: units, inMultiplicationFactor: inMultiplicationFactor, outMultiplicationFactor: outMultiplicationFactor});
 }
 
@@ -279,8 +296,10 @@ function showNumericValue(holderElement, allowEdition) {
 
     var mainDiv = $('<div/>', {class: 'icon-large'});
 
-    if (LOG) console.log("%cconfigurator:", "background:red; color:white;");
-    if (LOG) console.log(mainDiv);
+    if (LOG)
+        console.log("%cconfigurator:", "background:red; color:white;");
+    if (LOG)
+        console.log(mainDiv);
 
     var padding = (holderElement.width / 4) * canvas.getZoom();
 
@@ -292,8 +311,10 @@ function showNumericValue(holderElement, allowEdition) {
     var label = holderElement.attribute || 'number';
     var labelUnscaledValue = $('<label/>', {text: capitalizeFirstLetter(label) + ": ", style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"});
 
-    if (LOG) console.log("theDataType.value:");
-    if (LOG) console.log(holderElement.value);
+    if (LOG)
+        console.log("theDataType.value:");
+    if (LOG)
+        console.log(holderElement.value);
 
     var unscaledValueTextField = $('<input />', {id: 'unscaledValueTextField', maxlength: 6, type: 'number', style: 'margin-top: 10px; font-size: 18px; width: 80px; margin-right: 10px;', value: holderElement.value.unscaledValue});
     unscaledValueTextField.prop('disabled', !allowEdition);
@@ -331,8 +352,8 @@ function showNumericValue(holderElement, allowEdition) {
         var selectedInPrefix = $("#prefixSelector option:selected").text();
         var selectedOutPrefix = $("#outputTypeSelector option:selected").text();
         var selectedUnits = $("#inputUnitsTextField").val();
-        
-        
+
+
 
         var unitsChanged = holderElement.value.units !== selectedUnits;
 
@@ -349,49 +370,49 @@ function showNumericValue(holderElement, allowEdition) {
         }
 
         /*if (unitsChanged) {
+         
+         holderElement.value = numberValue;
+         holderElement.value.units = selectedUnits; // Changing the units to the new one
+         
+         
+         
+         holderElement.outConnectors.forEach(function (outConnector) {
+         outConnector.setValue(holderElement.value, false, true);
+         });
+         
+         } else {
+         
+         
+         }*/
 
-            holderElement.value = numberValue;
-            holderElement.value.units = selectedUnits; // Changing the units to the new one
-            
-            
-            
-            holderElement.outConnectors.forEach(function (outConnector) {
-                outConnector.setValue(holderElement.value, false, true);
-            });
-
-        } else {
-            
-            
-        }*/
-        
         var refreshCanvas = false;
         var shouldAnimate = true;
-        
+
         if (holderElement.isVisualProperty) {
-            
+
             holderElement.setValue(numberValue, refreshCanvas, shouldAnimate);
-            
+
         } else {
-            
+
             // if I call the normal setValue method, it will respect the units that the object already has. That is, the units selected by the user in this 
             // pop up will not be taken into account. Thus, I have to choose another method
             holderElement.setValueChangingOutPrefixAndUnits(numberValue, refreshCanvas, shouldAnimate);
-            
+
         }
-        
-        
-            
-            
-            
-            
-            
+
+
+
+
+
+
+
 
         // This is NOW done by the holderElement, as that is the responsible to update its parent
         /*if (holderElement.parentObject) {
          holderElement.parentObject.setProperty(holderElement.attribute, numberValue, holderElement, true);
          }*/
 
-        
+
 
         //      holderVisualElement.value = numberValue;
 
@@ -399,10 +420,12 @@ function showNumericValue(holderElement, allowEdition) {
         /*holderVisualElement.outConnectors.forEach(function (outConnector) {
          outConnector.setValue(numberValue, refreshCanvas, shouldAnimate);
          });*/
-        
-        
-        if (LOG) console.log("holderElement.value");
-        if (LOG) console.log(holderElement.value);
+
+
+        if (LOG)
+            console.log("holderElement.value");
+        if (LOG)
+            console.log(holderElement.value);
 
         setTimeout(function () {
             canvas.renderAll();

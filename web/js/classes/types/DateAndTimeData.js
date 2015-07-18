@@ -1,8 +1,6 @@
 var DateAndTimeData = fabric.util.createClass(fabric.Path, {
-    
     serializableProperties: ['left', 'top', 'theType', 'value'],
     deserializer: addVisualValueToCanvas,
-    
     initialize: function (options) {
         options || (options = {});
         var path = paths["dateAndTime"].rw;
@@ -11,30 +9,21 @@ var DateAndTimeData = fabric.util.createClass(fabric.Path, {
         this.set('dataTypeProposition', 'isDateAndTimeData');
         this.set(this.dataTypeProposition, true);
 
-        var theMoment = moment();
-        
-        if (options.theMoment) {
-            var valueType = typeof options.theMoment;
-            if (valueType === "string") {
-                theMoment = moment(options.theMoment);
-            } else {
-                theMoment = options.theMoment;
-            }
-        }
-        
+        var theMoment = options.theMoment || moment();
+
         var value = createDateAndTimeValue(theMoment);
         this.set('value', value);
 
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', this.strokeWidth);
 
-        
-        
-        this.set('fill', options.fill || rgb(254,210,66));
-        this.set('stroke', options.stroke || darkenrgb(254,210,66));
-        this.set('colorForStroke', options.stroke || darkenrgb(254,210,66));
-        
-        
+
+
+        this.set('fill', options.fill || rgb(254, 210, 66));
+        this.set('stroke', options.stroke || darkenrgb(254, 210, 66));
+        this.set('colorForStroke', options.stroke || darkenrgb(254, 210, 66));
+
+
 
         this.set('inConnectors', new Array());
         this.set('outConnectors', new Array());
@@ -134,7 +123,6 @@ var DateAndTimeData = fabric.util.createClass(fabric.Path, {
 
         return timeFieldsDiv;
     },
-    
     setValue: function (dateAndTimeValue, refreshCanvas) {
         if (dateAndTimeValue.isDateAndTimeData) {
             var theDataType = this;
@@ -155,13 +143,11 @@ var DateAndTimeData = fabric.util.createClass(fabric.Path, {
             return false;
         }
     },
-    
-
     expand: function () {
 
         var theDataType = this;
 
-        showDateAndTimeValue (theDataType, true);
+        showDateAndTimeValue(theDataType, true);
 
     }
 
@@ -170,115 +156,125 @@ var DateAndTimeData = fabric.util.createClass(fabric.Path, {
 DataType.call(DateAndTimeData.prototype);
 
 
-function showDateAndTimeValue (valueHolder, editable) {
-    
+function showDateAndTimeValue(valueHolder, editable) {
+
     var mainDiv = $('<div/>', {class: 'icon-large'});
 
-        if (LOG) console.log("%cconfigurator:", "background:red; color:white;");
-        if (LOG) console.log(mainDiv);
+    if (LOG)
+        console.log("%cconfigurator:", "background:red; color:white;");
+    if (LOG)
+        console.log(mainDiv);
 
-        var padding = (valueHolder.width / 4) * canvas.getZoom();
+    var padding = (valueHolder.width / 4) * canvas.getZoom();
 
-        mainDiv.css('padding-right', padding + 'px');
-        mainDiv.css('padding-left', padding + 'px');
+    mainDiv.css('padding-right', padding + 'px');
+    mainDiv.css('padding-left', padding + 'px');
 
-        document.body.appendChild(mainDiv[0]);
+    document.body.appendChild(mainDiv[0]);
 
 
-        var dateInputField = $('<input />', {id: 'dateInputField', type: 'date', style: 'text-align: center; margin-top: 2px; font-size: 18px; margin-right: 5px;', value: valueHolder.value.moment.format('YYYY-MM-DD')});
-        dateInputField.prop('disabled', !editable);
+    var dateInputField = $('<input />', {id: 'dateInputField', type: 'date', style: 'text-align: center; margin-top: 2px; font-size: 18px; margin-right: 5px;', value: valueHolder.value.moment.format('YYYY-MM-DD')});
+    dateInputField.prop('disabled', !editable);
 
-        var timeInputField = $('<input />', {id: 'timeInputField', type: 'time', step: 1, style: 'width: 150px; text-align: center; margin-top: 2px; font-size: 18px; margin-right: 5px;', value: valueHolder.value.moment.format('HH:mm:ss')});
-        timeInputField.prop('disabled', !editable);
+    var timeInputField = $('<input />', {id: 'timeInputField', type: 'time', step: 1, style: 'width: 150px; text-align: center; margin-top: 2px; font-size: 18px; margin-right: 5px;', value: valueHolder.value.moment.format('HH:mm:ss')});
+    timeInputField.prop('disabled', !editable);
 
-        var okButton = $('<button/>', {text: "OK", class: "square", style: "width: 35%; margin-left: 10%; float: left; border-color: #000; border-style: solid; border-width: 2px; color: black; "});
+    var okButton = $('<button/>', {text: "OK", class: "square", style: "width: 35%; margin-left: 10%; float: left; border-color: #000; border-style: solid; border-width: 2px; color: black; "});
 
-        var cancelButton = $('<button/>', {text: "Cancel", class: "square", style: "width: 35%; float: right; margin-right: 10%; border-color: #000; border-style: solid; border-width: 2px; color: black; "});
+    var cancelButton = $('<button/>', {text: "Cancel", class: "square", style: "width: 35%; float: right; margin-right: 10%; border-color: #000; border-style: solid; border-width: 2px; color: black; "});
 
-        okButton.click(function () {
-            
-            var dateInputFieldValue = $("#dateInputField").val();
-            var timeInputFieldValue = $("#timeInputField").val();
-            
-            var inputDate = dateInputFieldValue + " -- " + timeInputFieldValue;
-            
-            if (LOG) console.log(dateInputFieldValue);
-            if (LOG) console.log(timeInputFieldValue);
-            
-            var storedMoment = valueHolder.value.moment;
-            var currentMoment = moment(inputDate, "YYYY-MM-DD" + " -- " + "HH:mm:ss");
-            
-            var diffSeconds = storedMoment.diff(currentMoment, 'seconds');
-            
-            var dateAndTimeChanged = diffSeconds !== 0;
-            if (dateAndTimeChanged) {
-                
-                var newDateAndTimeValue = createDateAndTimeValue(currentMoment);
-                
-                valueHolder.inConnectors.forEach(function (inConnector) {
-                    inConnector.contract();
-                });
-                
-                valueHolder.setValue (newDateAndTimeValue, true);
-                
-                valueHolder.outConnectors.forEach(function (outConnector) {
-                    outConnector.setValue(newDateAndTimeValue, false, true);
-                });
-                
-            }
+    okButton.click(function () {
 
-            if (LOG) console.log(currentMoment); 
+        var dateInputFieldValue = $("#dateInputField").val();
+        var timeInputFieldValue = $("#timeInputField").val();
 
-            mainDiv.tooltipster('hide');
-        });
-        
-        associateEnterEvent(dateInputField, okButton);
-        associateEnterEvent(timeInputField, okButton);
+        var inputDate = dateInputFieldValue + " -- " + timeInputFieldValue;
 
-        cancelButton.click(function () {
-            mainDiv.tooltipster('hide');
-        });
+        if (LOG)
+            console.log(dateInputFieldValue);
+        if (LOG)
+            console.log(timeInputFieldValue);
 
-        var configurationPanel = $('<div/>', {id: 'theConfigurationPanel'});
+        var storedMoment = valueHolder.value.moment;
+        var currentMoment = moment(inputDate, "YYYY-MM-DD" + " -- " + "HH:mm:ss");
 
-        configurationPanel.append($('<label/>', {text: 'Date:', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"}));
-        configurationPanel.append(dateInputField);
+        var diffSeconds = storedMoment.diff(currentMoment, 'seconds');
 
-        configurationPanel.append($('<br /><br />'));
+        var dateAndTimeChanged = diffSeconds !== 0;
+        if (dateAndTimeChanged) {
 
-        configurationPanel.append($('<label/>', {text: 'Time:', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"}));
-        configurationPanel.append(timeInputField);
+            var newDateAndTimeValue = createDateAndTimeValue(currentMoment);
 
-        configurationPanel.append($('<hr />', {style: "margin-top: 20px;"}));
+            valueHolder.inConnectors.forEach(function (inConnector) {
+                inConnector.contract();
+            });
 
-        configurationPanel.append($('<br />'));
+            valueHolder.setValue(newDateAndTimeValue, true);
 
-        configurationPanel.append(okButton);
+            valueHolder.outConnectors.forEach(function (outConnector) {
+                outConnector.setValue(newDateAndTimeValue, false, true);
+            });
 
-        configurationPanel.append(cancelButton);
+        }
 
-        mainDiv.tooltipster({
-            content: configurationPanel,
-            animation: 'grow',
-            trigger: 'click',
-            interactive: true,
-            position: 'right',
-            multiple: true
-        });
+        if (LOG)
+            console.log(currentMoment);
 
-        valueHolder.configurator = mainDiv;
+        mainDiv.tooltipster('hide');
+    });
 
-        // positioning and showing the configurator        
-        var centerPoint = valueHolder.getPointByOrigin('center', 'center');
-        var screenCoords = getScreenCoordinates(centerPoint);
-        mainDiv.css('position', 'absolute');
-        mainDiv.css('top', screenCoords.y + 'px');
-        mainDiv.css('left', screenCoords.x + 'px');
-        mainDiv.tooltipster('reposition');
-        mainDiv.tooltipster('show');
-    
+    associateEnterEvent(dateInputField, okButton);
+    associateEnterEvent(timeInputField, okButton);
+
+    cancelButton.click(function () {
+        mainDiv.tooltipster('hide');
+    });
+
+    var configurationPanel = $('<div/>', {id: 'theConfigurationPanel'});
+
+    configurationPanel.append($('<label/>', {text: 'Date:', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"}));
+    configurationPanel.append(dateInputField);
+
+    configurationPanel.append($('<br /><br />'));
+
+    configurationPanel.append($('<label/>', {text: 'Time:', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"}));
+    configurationPanel.append(timeInputField);
+
+    configurationPanel.append($('<hr />', {style: "margin-top: 20px;"}));
+
+    configurationPanel.append($('<br />'));
+
+    configurationPanel.append(okButton);
+
+    configurationPanel.append(cancelButton);
+
+    mainDiv.tooltipster({
+        content: configurationPanel,
+        animation: 'grow',
+        trigger: 'click',
+        interactive: true,
+        position: 'right',
+        multiple: true
+    });
+
+    valueHolder.configurator = mainDiv;
+
+    // positioning and showing the configurator        
+    var centerPoint = valueHolder.getPointByOrigin('center', 'center');
+    var screenCoords = getScreenCoordinates(centerPoint);
+    mainDiv.css('position', 'absolute');
+    mainDiv.css('top', screenCoords.y + 'px');
+    mainDiv.css('left', screenCoords.x + 'px');
+    mainDiv.tooltipster('reposition');
+    mainDiv.tooltipster('show');
+
 }
 
-function createDateAndTimeValue(theMoment) {
+function createDateAndTimeValue(aMoment) {
+    var theMoment = aMoment;
+    var type = typeof aMoment;
+    if (type === "string") { // if the sent value is a string, we have to create the corresponding moment.js object
+        theMoment = moment(aMoment);
+    }
     return new Value({isDateAndTimeData: true, moment: theMoment});
 }

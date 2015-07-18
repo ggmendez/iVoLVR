@@ -119,7 +119,7 @@ function canvasPathCreated(options) {
             markAsSelected: false,
             thePath: points
         };
-        addMarkToCanvas(SVGPATH_MARK, options);
+        addMarkToCanvas(FILLEDPATH_MARK, options);
         
         drawnPath.remove();
         

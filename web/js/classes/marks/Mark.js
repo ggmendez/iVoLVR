@@ -34,6 +34,29 @@ var Mark = function () {
     this.set('lockScalingY', true);
     this.set('lockRotation', true);
 
+    this.setCoreVisualPropertiesValues = function () {
+        if (this.shape.svgPathGroupMark || this.shape.path) {
+            this.getVisualPropertyByAttributeName('shape').value = createShapeValue(this.shape.shape, this.shape.svgPathGroupMark || this.shape.path);
+        } else {
+            this.getVisualPropertyByAttributeName('shape').value = createShapeValue(this.shape);
+        }
+        this.getVisualPropertyByAttributeName('fill').value = createColorValue(new fabric.Color(this.fill));
+        this.getVisualPropertyByAttributeName('label').value = createStringValue(this.label);
+    };
+
+    this.toXML = function () {
+        var markNode = createXMLElement("mark");
+        addAttributeWithValue(markNode, "shape", this.shape.shape || this.shape);
+        appendElementWithValue(markNode, "left", this.left);
+        appendElementWithValue(markNode, "top", this.top);
+        appendElementWithValue(markNode, "visualPropertiesStroke", this.visualProperties[0].stroke);
+        this.visualProperties.forEach(function (visualProperty) {
+            var propertyNode = visualProperty.toXML();
+            markNode.append(propertyNode);
+        });
+        return markNode;
+    };
+
 
     this.createVariables = function () {
         this.set('inConnectors', new Array());
@@ -1099,7 +1122,6 @@ var Mark = function () {
 
                 this.deactivateCopyingMode(); // TODO: Should this be here? 
             },
-            
             // This event is triggered when the mark is associated by a locator element
             'newInConnection': function (options) {
                 var newInConnection = options.newInConnection;
@@ -1183,7 +1205,7 @@ var Mark = function () {
                             }
 
                             if (this.currentCopy) {
-                                this.currentCopy.setPositionByOrigin(p2, 'center', 'center');                                
+                                this.currentCopy.setPositionByOrigin(p2, 'center', 'center');
                                 this.currentCopy.positionElements();
                             }
 
@@ -1260,7 +1282,7 @@ var Mark = function () {
                     console.log("%c" + "MOUSE UP over a mark!", "background: #914b30; color: white;");
                     if (this.currentCopy) {
                         this.currentCopy.opacity = 1;
-                        this.currentCopy.evented = true;                        
+                        this.currentCopy.evented = true;
                         this.currentCopy.positionElements();
                         this.currentCopy.deactivateCopyingMode();
                         canvas.renderAll();
@@ -1433,46 +1455,46 @@ var Mark = function () {
 
 /* Function to add outputs to Canvas*/
 function addMarkToCanvas(markType, options) {
-    if (markType == CIRCULAR_MARK) {
+    if (markType === CIRCULAR_MARK) {
         return addCircularMarkToCanvas(options);
-    } else if (markType == SQUARED_MARK) {
+    } else if (markType === SQUARED_MARK) {
         return addSquaredMarkToCanvas(options);
-    } else if (markType == RECTANGULAR_MARK) {
+    } else if (markType === RECTANGULAR_MARK) {
         return addRectangularMarkToCanvas(options);
-    } else if (markType == ELLIPTIC_MARK) {
+    } else if (markType === ELLIPTIC_MARK) {
         return addEllipticMarkToCanvas(options);
-    } else if (markType == FATFONT_MARK) {
+    } else if (markType === FATFONT_MARK) {
         return addFatFontMarkToCanvas(options);
-    } else if (markType == PATH_MARK) {
+    } else if (markType === PATH_MARK) {
         return addPathMarkToCanvas(options.thePath, options);
-    } else if (markType == SVGPATH_MARK) {
+    } else if (markType === FILLEDPATH_MARK) {
         return addSVGPathMarkToCanvas(options.thePath, options);
-    } else if (markType == SVGPATHGROUP_MARK) {
+    } else if (markType === SVGPATHGROUP_MARK) {
         return addSVGPathGroupMarkToCanvas(options.thePaths, options);
     }
 }
 
 /* Function to add outputs to Canvas*/
-function addMarkToCanvasFromXML(markType, $markNode) {
+function addMarkToCanvasFromXML(markType, markNode) {
 
     console.log(markType);
 
     if (markType === CIRCULAR_MARK) {
-        return addCircularMarkToCanvasFromXML($markNode);
+        return addCircularMarkToCanvasFromXML(markNode);
     } else if (markType == SQUARED_MARK) {
-        return addSquaredMarkToCanvasFromXML($markNode);
+        return addSquaredMarkToCanvasFromXML(markNode);
     } else if (markType == RECTANGULAR_MARK) {
-        return addRectangularMarkToCanvasFromXML($markNode);
+        return addRectangularMarkToCanvasFromXML(markNode);
     } else if (markType == ELLIPTIC_MARK) {
-        return addEllipticMarkToCanvasFromXML($markNode);
+        return addEllipticMarkToCanvasFromXML(markNode);
     } else if (markType == FATFONT_MARK) {
-        return addFatFontMarkToCanvasFromXML($markNode);
+        return addFatFontMarkToCanvasFromXML(markNode);
     } else if (markType == PATH_MARK) {
-        return addPathMarkToCanvasFromXML($markNode);
-    } else if (markType == SVGPATH_MARK) {
-        return addSVGPathMarkToCanvasFromXML($markNode);
+        return addPathMarkToCanvasFromXML(markNode);
+    } else if (markType == FILLEDPATH_MARK) {
+        return addSVGPathMarkToCanvasFromXML(markNode);
     } else if (markType == SVGPATHGROUP_MARK) {
-        return addSVGPathGroupMarkToCanvasFromXML($markNode);
+        return addSVGPathGroupMarkToCanvasFromXML(markNode);
     }
 }
 
@@ -1652,5 +1674,74 @@ function changeMarkShape(theMark, shapeValue) {
         });
 
     }, 500);
+
+}
+
+
+
+
+function createMarkFromXMLNode(valueXmlNode) {
+
+    var options = {
+        type: valueXmlNode.attr('shape')
+    };
+
+    var children = valueXmlNode.children();
+    children.each(function () {
+        var child = $(this);
+        var tagName = this.tagName;
+
+        if (tagName === "property") {
+
+
+            var valueXmlNode = $(child.find('value')[0]);
+            var propertyValue = createValueFromXMLNode(valueXmlNode);
+
+            var attribute = child.attr('attribute');
+
+            console.log(attribute + ":");
+            console.log(propertyValue);
+
+            options[attribute] = propertyValue;
+
+
+        } else {
+
+            var value = child.text();
+            var type = child.attr('type');
+
+            if (type === "number") {
+                value = Number(value);
+            } else if (type === "boolean") {
+                value = value === "true";
+            }
+
+            options[tagName] = value;
+
+        }
+
+    });
+
+    return createMark(options);
+}
+
+function createMark(options) {
+
+    console.log("options:");
+    console.log(options);
+
+    var newOptions = {
+        left: options.left,
+        top: options.top,
+        fill: options.fill.color.toRgb(),
+        stroke: options.visualPropertiesStroke,
+        width: options.width.number,
+        height: options.height.number,
+        label: options.label.string,
+        markAsSelected: false,
+        animateAtBirth: true
+    };
+
+    addMarkToCanvas(options.type, newOptions);
 
 }

@@ -303,9 +303,7 @@ var ShapeData = fabric.util.createClass(fabric.Path, {
 DataType.call(ShapeData.prototype);
 
 function createShapeValue(shape, svgPathGroupMark) {
-    
-    console.log("svgPathGroupMark:");
-    console.log(svgPathGroupMark);
-    
+//    console.log("svgPathGroupMark:");
+//    console.log(svgPathGroupMark);
     return new Value({isShapeData: true, shape: shape, svgPathGroupMark: svgPathGroupMark});
 }

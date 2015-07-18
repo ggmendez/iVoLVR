@@ -31,14 +31,16 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
 
         this.createRectBackground();
 
-        this.specificProperties.push({attribute: "rx", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData'});
-        this.specificProperties.push({attribute: "ry", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData'});
-        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['rx', 'ry'], dataTypeProposition: 'isNumericData'});
-        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData'});
+        this.specificProperties.push({attribute: "rx", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.rx)});
+        this.specificProperties.push({attribute: "ry", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.ry)});
+        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['rx', 'ry'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.area)});
+        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: createNumericValue(this.anlge)});
 
 
         this.createVisualProperties();
-        this.createPositionProperties();
+        this.createPositionProperties();                
+        
+        this.setCoreVisualPropertiesValues();
 
 
     },
@@ -301,7 +303,7 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
             options.stroke = '';
             options.markAsSelected = false;
 
-        } else if (newShapeType == SVGPATH_MARK || newShapeType == SVGPATHGROUP_MARK) {
+        } else if (newShapeType == FILLEDPATH_MARK || newShapeType == SVGPATHGROUP_MARK) {
 
             options.targetWidth = theMark.rx * 2;
             options.targetHeight = theMark.ry * 2;

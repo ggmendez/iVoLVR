@@ -30,6 +30,7 @@
         <script type="text/javascript" src="./js/jquery-ui-1.10.4/js/jquery.path.js"></script>
         <script type="text/javascript" src="./js/kickstart.js"></script>
         <script type="text/javascript" src="./fabric.js-1.4.12/dist/fabric.js"></script>
+        <!--<script type="text/javascript" src="./fabric.js-1.5/dist/fabric.js"></script>-->
         <script type="text/javascript" src="./js/moment.js"></script>
         <script type="text/javascript" src="./js/alertify.js-0.3.11/lib/alertify.js"></script>
         <script type="text/javascript" src="./js/jquery.ui.touch-punch.min.js"></script>
@@ -57,10 +58,10 @@
         <script type="text/javascript" src="./js/classes/operators/MultiplicationOperator.js"></script>
         <script type="text/javascript" src="./js/classes/operators/DivisionOperator.js"></script>
         <script type="text/javascript" src="./js/classes/Connector.js"></script>
-        <script type="text/javascript" src="./js/classes/Output.js"></script>
+        
         <script type="text/javascript" src="./js/classes/iconPaths.js"></script>
         <script type="text/javascript" src="./js/classes/VisualProperty.js"></script>
-        <script type="text/javascript" src="./js/classes/Plotter.js"></script>
+        
         <script type="text/javascript" src="./js/classes/marks/Mark.js"></script>
         <script type="text/javascript" src="./js/classes/marks/EllipticMark.js"></script>
         <script type="text/javascript" src="./js/classes/marks/CircularMark.js"></script>
@@ -816,6 +817,7 @@
                     animateAtBirth: true
                 };
                 addMarkToCanvas(CIRCULAR_MARK, options1);
+                
                 var options2 = {
                     left: 400,
                     top: 100,

@@ -25,10 +25,10 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
 
         this.createRectBackground();
 
-        this.specificProperties.push({attribute: "number", readable: true, writable: true, types: ['number'], updatesTo: ['label'], dataTypeProposition: 'isNumericData'});
-//      this.specificProperties.push({attribute: "fontFamily", readable: true, writable: true, types: ['string'], updatesTo: [], dataTypeProposition: 'isStringData'});
-        this.specificProperties.push({attribute: "fontSize", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData'});
-        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData'});
+        this.specificProperties.push({attribute: "number", readable: true, writable: true, types: ['number'], updatesTo: ['label'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.number)});
+//      this.specificProperties.push({attribute: "fontFamily", readable: true, writable: true, types: ['string'], updatesTo: [], dataTypeProposition: 'isStringData', value: createNumericValue(this.fontFamily)});
+        this.specificProperties.push({attribute: "fontSize", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: createNumericValue(this.fontSize)});
+        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: createNumericValue(this.angle)});
 
 
         this.createVisualProperties();
@@ -62,6 +62,8 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
 
             });
         };
+        
+        this.setCoreVisualPropertiesValues();
 
 
 
@@ -334,7 +336,7 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
             options.fontSize = Math.round((theMark.width + theMark.height) / 2);
             options.stroke = '';
 
-        } else if (newShapeType == SVGPATH_MARK || newShapeType == SVGPATHGROUP_MARK) {
+        } else if (newShapeType == FILLEDPATH_MARK || newShapeType == SVGPATHGROUP_MARK) {
 
             options.targetWidth = theMark.width;
             options.targetHeight = theMark.height;

@@ -93,6 +93,70 @@ function Value(options) {
 
     };
 
+    this.getValueType = function () {
+        if (this.isNumericData) {
+            return NUMERIC;
+        } else if (this.isStringData) {
+            return STRING;
+        } else if (this.isDurationData) {
+            return DURATION;
+        } else if (this.isDateAndTimeData) {
+            return DATEANDTIME;
+        } else if (this.isColorData) {
+            return COLOR;
+        } else if (this.isShapeData) {
+            return SHAPE;
+        }
+    };
+
+
+    this.toXML = function () {
+
+        var valueNode = createXMLElement("value");
+        addAttributeWithValue(valueNode, "type", this.getValueType());
+
+        if (this.isNumericData) {
+
+            appendElementWithValue(valueNode, "unscaledValue", this.unscaledValue);
+            appendElementWithValue(valueNode, "inPrefix", this.inPrefix);
+            appendElementWithValue(valueNode, "outPrefix", this.outPrefix);
+            appendElementWithValue(valueNode, "units", this.units);
+
+        } else if (this.isStringData) {
+
+            appendElementWithValue(valueNode, "string", this.string);
+
+        } else if (this.isDurationData) {
+
+            appendElementWithValue(valueNode, "duration", this.duration.asMilliseconds());
+            appendElementWithValue(valueNode, "outputUnits", this.outputUnits);
+
+        } else if (this.isDateAndTimeData) {
+
+            appendElementWithValue(valueNode, "moment", this.moment.format());
+
+        } else if (this.isColorData) {
+
+            appendElementWithValue(valueNode, "color", this.color.toRgba());
+
+        } else if (this.isShapeData) {
+
+            appendElementWithValue(valueNode, "shape", this.shape.shape || this.shape);
+
+            if (this.svgPathGroupMark) {
+                if (this.shape === PATH_MARK || this.shape === FILLEDPATH_MARK) {
+                    appendCDATAWithValue(valueNode, "path", this.svgPathGroupMark.path);
+                } else {
+                    appendCDATAWithValue(valueNode, "svgPathGroupMark", this.svgPathGroupMark.SVGString);
+                }
+            }
+
+        }
+
+        return valueNode;
+
+    };
+
     this.getDisplayableString = function (options) {
 
         if (this.isNumericData) {
@@ -104,13 +168,13 @@ function Value(options) {
             if (options && options.showAsInteger) {
                 decimalPositions = 0;
             }
-            
+
             var theString = this.number.toFixed(decimalPositions) + " " + (this.outPrefix || "") + (this.units || "");
 
             return theString.trim();
-            
-            
-            
+
+
+
         } else if (this.isStringData) {
             return this.string;
         } else if (this.isDurationData) {
@@ -310,25 +374,25 @@ function addNumericValues(numericValues, outputPrefix) {
 }
 
 function mixColors(colorValues) {
-    
+
     var percent = 100 / colorValues.length;
     var percents = new Array();
     var colors = new Array();
-    
+
     for (var i = 0; i < colorValues.length; i++) {
         var currentColor = colorValues[i].color;
         colors.push(new ColorMix.Color(getR(currentColor), getG(currentColor), getB(currentColor)));
         percents.push(percent);
     }
-    
+
     var mixResult = ColorMix.mix(colors, percents);
     var fabricColor = new fabric.Color(rgb(mixResult.red, mixResult.green, mixResult.blue));
-               
+
     return createColorValue(fabricColor);
-    
+
 }
 
-function concatStrings (stringValues) {
+function concatStrings(stringValues) {
     var concatenation = "";
     for (var i = 0; i < stringValues.length; i++) {
 //        concatenation += stringValues[i].string;
@@ -430,26 +494,26 @@ function addValues(value1, value2, outputPrefix) {
         }
 
     } else if (value1.isDateAndTimeData) {
-       
-       if (value2.isDurationData) {
-          
-          console.log("value1:");
-          console.log(value1);
-          
-          console.log("value2:");
-          console.log(value2);
+
+        if (value2.isDurationData) {
+
+            console.log("value1:");
+            console.log(value1);
+
+            console.log("value2:");
+            console.log(value2);
 
             var theDate = value1.moment;
             var theDuration = value2.duration;
-            
+
             var newDate = theDate.clone().add(theDuration);
-            
+
             return createDateAndTimeValue(newDate);
 
         }
 
     }
-    
+
     return null;
 }
 
@@ -566,3 +630,35 @@ function computeStringDistance(stringValue1, stringValue2) {
     return null;
 }
 
+function createValue (options) {
+    if (options.type === NUMERIC) {
+        return createNumericValue(options.unscaledValue, options.inPrefix, options.outPrefix, options.units);
+    } else if (options.type === STRING) {
+        return createStringValue(options.string);
+    } else if (options.type === DURATION) {
+        return createDurationValue(options.duration, options.outputUnits);
+    } else if (options.type === DATEANDTIME) {
+        return createDateAndTimeValue(options.moment);
+    } else if (options.type === COLOR) {
+        return createColorValue(options.color);
+    } else if (options.type === SHAPE) {
+        return createShapeValue(options.shape, options.svgPathGroupMark || options.path);
+    }
+}
+
+function createValueFromXMLNode(valueXmlNode) {
+        
+    var options = {
+        type: valueXmlNode.attr('type')
+    };
+    
+    var children = valueXmlNode.children();
+    children.each(function () {
+        var child = $(this);
+        var property = this.tagName;
+        var value = child.text();
+        options[property] = value;
+    });
+    
+    return createValue (options);
+}

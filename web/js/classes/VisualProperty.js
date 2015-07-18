@@ -1,5 +1,8 @@
 // The Output mixing defines all the common properties and behaviours that outputs share
 var VisualProperty = function () {
+    
+    this.set('nonSerializable', true);
+    
     this.set('visualProperty', true);
     this.set('isVisualProperty', true);
     this.set('originX', 'center');
@@ -16,6 +19,28 @@ var VisualProperty = function () {
     this.set('hasBorders', false);
     this.set('hasControls', false);
     this.set('hasRotatingPoint', false);
+
+    this.toXML = function () {
+        var propertyNode = createXMLElement("property");
+        addAttributeWithValue(propertyNode, "attribute", this.attribute);
+
+        if ($.isArray(this.value)) {
+
+            var arrayNode = createXMLElement("array");
+            this.value.forEach(function (value) {
+                var valueNode = value.toXML();
+                arrayNode.append(valueNode);
+            });
+            propertyNode.append(arrayNode);
+
+        } else {
+            var valueNode = this.value.toXML();
+            propertyNode.append(valueNode);
+        }
+
+
+        return propertyNode;
+    };
 
     this.setValue = function (value, renderCanvas, shouldAnimate) {
 
@@ -354,7 +379,7 @@ var VisualProperty = function () {
 
 
                         } else if (targetObject.isVerticalCollection) {
-                            
+
                             var theValue = theVisualProperty.value;
                             var connector = getLastElementOfArray(this.outConnectors);
 
@@ -364,15 +389,15 @@ var VisualProperty = function () {
                                 connector.setDestination(targetObject, true);
 
                             } else {
-                                
+
                                 addVisualVariableToCollection(theVisualProperty, targetObject, connector);
                             }
 
-                            
+
 
 
                         } else if (targetObject.isMark) {
-                            
+
                             blink(targetObject, true);
 
                             if (targetObject !== this.parentObject) {
@@ -1131,11 +1156,11 @@ VisualProperty.call(ReadableAndWritableVisualProperty.prototype);
 
 function CreateVisualProperty(options, parentObject, x, y) {
     if (options.readable && options.writable) {
-        return new ReadableAndWritableVisualProperty({attribute: options.attribute, updatesTo: options.updatesTo, types: options.types, parentObject: parentObject, left: x, top: y, dataTypeProposition: options.dataTypeProposition});
+        return new ReadableAndWritableVisualProperty({value: options.value, attribute: options.attribute, updatesTo: options.updatesTo, types: options.types, parentObject: parentObject, left: x, top: y, dataTypeProposition: options.dataTypeProposition});
     } else if (options.readable) {
-        return new ReadableVisualProperty({attribute: options.attribute, updatesTo: options.updatesTo, types: options.types, parentObject: parentObject, left: x, top: y, dataTypeProposition: options.dataTypeProposition});
+        return new ReadableVisualProperty({value: options.value, attribute: options.attribute, updatesTo: options.updatesTo, types: options.types, parentObject: parentObject, left: x, top: y, dataTypeProposition: options.dataTypeProposition});
     } else {
-        return new WritableVisualProperty({attribute: options.attribute, updatesTo: options.updatesTo, types: options.types, parentObject: parentObject, left: x, top: y, dataTypeProposition: options.dataTypeProposition});
+        return new WritableVisualProperty({value: options.value, attribute: options.attribute, updatesTo: options.updatesTo, types: options.types, parentObject: parentObject, left: x, top: y, dataTypeProposition: options.dataTypeProposition});
     }
 }
 
@@ -1205,7 +1230,7 @@ function showShapeSelector(theVisualProperty) {
     var outputShapes = {
         'Circle': CIRCULAR_MARK,
         'Square': SQUARED_MARK,
-        'SVGPath': SVGPATH_MARK,
+        'SVGPath': FILLEDPATH_MARK,
         'Rectangle': RECTANGULAR_MARK,
         'Ellipse': ELLIPTIC_MARK,
         'FatFont': FATFONT_MARK,
@@ -1406,95 +1431,6 @@ function showShapeSelector(theVisualProperty) {
     mainDiv.tooltipster('show');
 
 }
-
-/*function showLabelModifier(theVisualProperty) {
- 
- var mainDiv = $('<div/>', {class: 'icon-large'});
- 
- if (LOG) console.log("%cconfigurator:", "background:red; color:white;");
- if (LOG) console.log(mainDiv);
- 
- var padding = (theVisualProperty.width / 4) * canvas.getZoom();
- 
- mainDiv.css('padding-right', padding + 'px');
- mainDiv.css('padding-left', padding + 'px');
- 
- document.body.appendChild(mainDiv[0]);
- 
- var labelString = $('<label/>', {text: 'Label' + ':', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"});
- 
- var stringField = $('<input />', {id: 'stringTextField', type: 'text', maxlength: 20, style: 'margin-top: 10px; font-size: 18px; width: 180px;', value: theVisualProperty.value.string});
- 
- var okButton = $('<button/>', {text: "OK", class: "square", style: "width: 35%; margin-left: 10%; float: left; border-color: #000; border-style: solid; border-width: 2px; color: black; "});
- 
- var cancelButton = $('<button/>', {text: "Cancel", class: "square", style: "width: 35%; float: right; margin-right: 10%; border-color: #000; border-style: solid; border-width: 2px; color: black; "});
- 
- okButton.click(function () {
- 
- var stringValue = new Value({isStringData: true, string: $('#stringTextField').val()});
- 
- if (theVisualProperty.inConnectors.length > 0) {
- var connector = theVisualProperty.inConnectors.pop();
- connector.contract();
- }
- 
- theVisualProperty.parentObject.setProperty(theVisualProperty.attribute, stringValue, theVisualProperty);
- theVisualProperty.value = stringValue;
- 
- theVisualProperty.outConnectors.forEach(function (outConnector) {
- outConnector.setValue(stringValue, false, false);
- });
- 
- setTimeout(function () {
- canvas.renderAll();
- }, 10);
- 
- mainDiv.tooltipster('hide');
- });
- 
- cancelButton.click(function () {
- mainDiv.tooltipster('hide');
- });
- 
- 
- 
- var configurationPanel = $('<div/>', {id: 'theConfigurationPanel'});
- 
- configurationPanel.append(labelString);
- 
- stringField.appendTo(configurationPanel);
- 
- configurationPanel.append($('<br /><br />'));
- 
- configurationPanel.append($('<hr />'));
- 
- configurationPanel.append($('<br />'));
- 
- configurationPanel.append(okButton);
- 
- configurationPanel.append(cancelButton);
- 
- mainDiv.tooltipster({
- content: configurationPanel,
- animation: 'grow',
- trigger: 'click',
- interactive: true,
- position: 'right',
- multiple: true
- });
- 
- theVisualProperty.configurator = mainDiv;
- 
- // positioning and showing the configurator
- var centerPoint = theVisualProperty.getPointByOrigin('center', 'center');
- var screenCoords = getScreenCoordinates(centerPoint);
- mainDiv.css('position', 'absolute');
- mainDiv.css('top', screenCoords.y + 'px');
- mainDiv.css('left', screenCoords.x + 'px');
- mainDiv.tooltipster('reposition');
- mainDiv.tooltipster('show');
- 
- }*/
 
 function showColorChooser(theVisualProperty) {
 

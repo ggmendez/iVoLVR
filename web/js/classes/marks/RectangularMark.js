@@ -1,10 +1,8 @@
 var RectangularMark = fabric.util.createClass(fabric.Rect, {
     type: 'rectangularMark',
     isRectangularMark: true,
-    
     serializableProperties: ['left', 'top', 'fill', 'colorForStroke', 'width', 'height', 'label', 'isCompressed'],
     deserializer: addRectangularMarkToCanvas,
-    
     initialize: function (options) {
         options || (options = {});
         this.callSuper('initialize', options);
@@ -32,31 +30,26 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
 
         this.createRectBackground();
 
-
-
-        this.specificProperties.push({attribute: "width", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData'});
-        this.specificProperties.push({attribute: "height", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData'});
-        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['width', 'height'], dataTypeProposition: 'isNumericData'});
-        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData'});
+        this.specificProperties.push({attribute: "width", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.width)})
+        this.specificProperties.push({attribute: "height", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.height)});
+        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['width', 'height'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.area)});
+        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: createNumericValue(this.angle)});
 
         this.createVisualProperties();
         this.createPositionProperties();
-        
-        
-        this.on('scaling', function (option) {
-            console.log("Nahgs");
-        });
 
-    },
+        this.setCoreVisualPropertiesValues();
+
+    },    
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
-        if (updater == 'width' || updater == 'height') {
-            if (updatedProperty == 'area') {
+        if (updater === 'width' || updater === 'height') {
+            if (updatedProperty === 'area') {
                 return value * value;
             }
-        } else if (updater == 'area') {
-            if (updatedProperty == 'width') {
+        } else if (updater === 'area') {
+            if (updatedProperty === 'width') {
                 return Math.sqrt(value);
-            } else if (updatedProperty == 'height') {
+            } else if (updatedProperty === 'height') {
                 return Math.sqrt(value);
             }
         }
@@ -104,7 +97,8 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
 
                 var numericWidth = propertyValue.number;
 
-                if (LOG) console.log("%cModifying " + changedVisualProperty.attribute + ". Value: " + propertyValue, "background:green; color:white;");
+                if (LOG)
+                    console.log("%cModifying " + changedVisualProperty.attribute + ". Value: " + propertyValue, "background:green; color:white;");
 
 
 
@@ -116,7 +110,8 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
                     var visualProperty = theMark.getVisualPropertyByAttributeName(attributeName);
                     var updatedValue = theMark.computeUpdatedValueOf(property, numericWidth, attributeName);
 
-                    if (LOG) console.log("%cAfecting " + attributeName + ". Value: " + updatedValue, "background:red; color:white;");
+                    if (LOG)
+                        console.log("%cAfecting " + attributeName + ". Value: " + updatedValue, "background:red; color:white;");
 
                     var easing = fabric.util.ease['easeOutBack'];
                     if ((attributeName == 'width' || attributeName == 'height') && updatedValue < 15) {
@@ -141,13 +136,18 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
 
                 var numericWidth = propertyValue.number;
 
-                if (LOG) console.log("propertyValue:");
-                if (LOG) console.log(propertyValue);
+                if (LOG)
+                    console.log("propertyValue:");
+                if (LOG)
+                    console.log(propertyValue);
 
-                if (LOG) console.log("numericWidth:");
-                if (LOG) console.log(numericWidth);
+                if (LOG)
+                    console.log("numericWidth:");
+                if (LOG)
+                    console.log(numericWidth);
 
-                if (LOG) console.log("%cModifying " + property + ". Value: " + numericWidth, "background: black; color: white;");
+                if (LOG)
+                    console.log("%cModifying " + property + ". Value: " + numericWidth, "background: black; color: white;");
 
                 var easing = fabric.util.ease['easeOutBack'];
                 if (numericWidth < 15) {
@@ -155,10 +155,12 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
                 }
 
                 if (shouldAnimate) {
-                    if (LOG) console.log("property WITH animation");
+                    if (LOG)
+                        console.log("property WITH animation");
                     theMark.animateProperty(property, numericWidth, 500, easing);
                 } else {
-                    if (LOG) console.log("property  with NO animation");
+                    if (LOG)
+                        console.log("property  with NO animation");
                     theMark.changeProperty(property, numericWidth);
                 }
 
@@ -169,7 +171,8 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
                     var visualProperty = theMark.getVisualPropertyByAttributeName(attributeName);
                     var updatedValue = theMark.computeUpdatedValueOf(property, numericWidth, attributeName);
 
-                    if (LOG) console.log("%cAfecting " + attributeName + ". Value: " + updatedValue, "background:red; color:white;");
+                    if (LOG)
+                        console.log("%cAfecting " + attributeName + ". Value: " + updatedValue, "background:red; color:white;");
 
                     var easing = fabric.util.ease['easeOutBack'];
                     if ((attributeName == 'width' || attributeName == 'height') && updatedValue < 15) {
@@ -177,10 +180,12 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
                     }
 
                     if (shouldAnimate) {
-                        if (LOG) console.log("WITH animation");
+                        if (LOG)
+                            console.log("WITH animation");
                         theMark.animateProperty(attributeName, updatedValue, 500, easing);
                     } else {
-                        if (LOG) console.log("with NO animation");
+                        if (LOG)
+                            console.log("with NO animation");
                         theMark.changeProperty(attributeName, updatedValue);
                     }
 
@@ -192,15 +197,17 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
             }
 
         } else {
-            
+
             console.log("%cGoing to set ANGLE. shouldAnimate value: " + shouldAnimate, "background: blue; color: white;");
 
             var numericValue = propertyValue.number;
 
             if (property == 'angle') {
-                if (LOG) console.log("Original value: " + numericValue);
+                if (LOG)
+                    console.log("Original value: " + numericValue);
                 numericValue = numericValue % 360;
-                if (LOG) console.log("Modified value: " + numericValue);
+                if (LOG)
+                    console.log("Modified value: " + numericValue);
             }
 
             var easing = fabric.util.ease['easeOutBack'];
@@ -272,7 +279,7 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
 
             options.rx = theMark.width / 2;
             options.ry = theMark.height / 2;
-            
+
         } else if (newShapeType === CIRCULAR_MARK || newShapeType === ELLIPTIC_MARK || newShapeType === RECTANGULAR_MARK || newShapeType === SQUARED_MARK) {
 
             options.area = theMark.area;
@@ -284,7 +291,7 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
             options.fontSize = Math.round((theMark.width + theMark.height) / 2);
             options.stroke = '';
 
-        } else if (newShapeType === SVGPATH_MARK || newShapeType === SVGPATHGROUP_MARK) {
+        } else if (newShapeType === FILLEDPATH_MARK || newShapeType === SVGPATHGROUP_MARK) {
 
             options.targetWidth = theMark.width;
             options.targetHeight = theMark.height;

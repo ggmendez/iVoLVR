@@ -41,7 +41,7 @@ function createObjectFromXMLString(XMLNode) {
             } else if (type === "boolean") {
                 value = value === "true";
             } else if (type === "array") {
-                
+
                 value = new Array();
 
                 console.log("%c" + "An array has been found as child of a saved object!", "background: #9cf6f6; color: black;");
@@ -51,12 +51,12 @@ function createObjectFromXMLString(XMLNode) {
                 var elements = child.children('element');
                 elements.each(function () {
                     var xmlElement = $(this);
-                    var elementType = xmlElement.attr('type');                    
+                    var elementType = xmlElement.attr('type');
                     if (elementType === "number") {
                         value.push(Number(xmlElement.text()));
                     }
-                    
-                    
+
+
                 });
 
 
@@ -84,8 +84,8 @@ function createObjectFromXMLString(XMLNode) {
 }
 
 function generateXMLNodeString(object) {
-        
-    
+
+
     var serializableProperties = object.serializableProperties;
     var XMLNode = createXMLElement(object.xmlNodeName);
     appendElementWithValue(XMLNode, 'deserializer', object.deserializer.name);
@@ -128,6 +128,12 @@ function generateXMLNodeString(object) {
 }
 
 function generateProjectXML() {
+    
+    var root = createXMLElement('iVoLVR_Canvas');
+    
+    addAttributeWithValue(root, "zoom", canvas.getZoom());
+    addAttributeWithValue(root, "panX", -canvas.viewportTransform[4]);
+    addAttributeWithValue(root, "panY", -canvas.viewportTransform[5]);   
 
     // generating the ids of all the elements that are on the canvas
     var cont = 1;
@@ -138,57 +144,74 @@ function generateProjectXML() {
         cont++;
     });
 
-    var root = createXMLElement('project');
+
+
     canvas.forEachObject(function (object) {
+        if (!object.nonSerializable && object.toXML) {
+            root.append(object.toXML());
+        }
+    });
+
+    
+
+
+
+
+    
+    /*canvas.forEachObject(function (object) {
 
         if (!object.nonSerializable && object.serializableProperties && object.deserializer) {
             root.append(generateXMLNodeString(object));
         }
 
-//        if (object.toXML) {
-//            root.append(object.toXML());
-//        }
-    });
+
+    });*/
+    
+    
     var xmlText = (new XMLSerializer()).serializeToString(root[0]);
-    return xmlText;
+    
+    return formatXml(xmlText);
+//    return xmlText;
 }
 
 function loadProjectXML(XMLString) {
 
-    // the logic that creates the instances according to the content of the XML file should be here
-
     var xmlDoc = $.parseXML(XMLString);
     var $xml = $(xmlDoc);
+    var canvasNode = $xml.find('iVoLVR_Canvas');
 
+    console.log("canvasNode:");
+    console.log(canvasNode);
+    
+    var zoom = Number(canvasNode.attr('zoom'));
+    var panX = Number(canvasNode.attr('panX'));
+    var panY = Number(canvasNode.attr('panY'));
+    
+    canvas.setZoom(zoom);
+    canvas.absolutePan(new fabric.Point(panX, panY));            
 
-    var projectNode = $xml.find('project');
-
-    console.log("projectNode:");
-    console.log(projectNode);
-
-    /*var $rootElement = $xml.first();
-     console.log("$rootElement:");
-     console.log($rootElement);
-     console.log("$($rootElement):");
-     console.log($($rootElement)); */
-
-    var children = projectNode.children();
+    var children = canvasNode.children();
     console.log("children:");
     console.log(children);
 
     children.each(function () {
+        
         var child = $(this);
+        var tagName = this.tagName;
+        
 //        console.log(child);
-        console.log(this.tagName);
-        console.log(child.text());
+//        console.log(this.tagName);
+//        console.log(child.text());
+        
+        if (tagName === "mark") {
+            
+            createMarkFromXMLNode(child);
+            
+        }
 
-        createObjectFromXMLString(child);
+//        createObjectFromXMLString(child);
 
     });
-
-//    loadMarks($rootElement);
-
-//    makeConnections($rootElement);
 
     setTimeout(function () {
         canvas.renderAll();

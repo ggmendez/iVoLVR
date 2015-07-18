@@ -1,30 +1,28 @@
 var CircularMark = fabric.util.createClass(fabric.Circle, {
     type: 'circularMark',
     isCircularMark: true,
-    
     serializableProperties: ['left', 'top', 'fill', 'colorForStroke', 'radius', 'label', 'isCompressed'],
     deserializer: addCircularMarkToCanvas,
-    
     /*toXML: function () {
-        var theMark = this;
+     var theMark = this;
+     
+     var XMLMark = createXMLElement('mark');
+     
+     appendElementWithValue(XMLMark, 'type', CIRCULAR_MARK);
+     appendElementWithValue(XMLMark, 'serialID', theMark.serialID);
+     appendElementWithValue(XMLMark, 'left', theMark.left);
+     appendElementWithValue(XMLMark, 'top', theMark.top);
+     appendElementWithValue(XMLMark, 'fill', theMark.fill);
+     appendElementWithValue(XMLMark, 'stroke', theMark.colorForStroke);
+     appendElementWithValue(XMLMark, 'radius', theMark.radius);
+     appendElementWithValue(XMLMark, 'label', theMark.label);
+     appendElementWithValue(XMLMark, 'isCompressed', theMark.isCompressed);
+     
+     var xmlText = (new XMLSerializer()).serializeToString(XMLMark[0]);
+     
+     return xmlText;
+     },*/
 
-        var XMLMark = createXMLElement('mark');
-        
-        appendElementWithValue(XMLMark, 'type', CIRCULAR_MARK);
-        appendElementWithValue(XMLMark, 'serialID', theMark.serialID);
-        appendElementWithValue(XMLMark, 'left', theMark.left);
-        appendElementWithValue(XMLMark, 'top', theMark.top);
-        appendElementWithValue(XMLMark, 'fill', theMark.fill);
-        appendElementWithValue(XMLMark, 'stroke', theMark.colorForStroke);
-        appendElementWithValue(XMLMark, 'radius', theMark.radius);
-        appendElementWithValue(XMLMark, 'label', theMark.label);
-        appendElementWithValue(XMLMark, 'isCompressed', theMark.isCompressed);
-
-        var xmlText = (new XMLSerializer()).serializeToString(XMLMark[0]);
-
-        return xmlText;
-    },*/
-    
     initialize: function (options) {
         options || (options = {});
         this.callSuper('initialize', options);
@@ -47,23 +45,19 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
         }
 
         this.set('shape', CIRCULAR_MARK);
-                
+
         this.set('stroke', options.colorForStroke || options.stroke);
         this.set('colorForStroke', options.colorForStroke || this.stroke);
 
         this.createRectBackground();
 
-
-
-        this.specificProperties.push({attribute: "radius", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData'});
-        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['radius'], dataTypeProposition: 'isNumericData'});
-
-
+        this.specificProperties.push({attribute: "radius", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.radius)});
+        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['radius'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.area)});
 
         this.createVisualProperties();
         this.createPositionProperties();
 
-
+        this.setCoreVisualPropertiesValues();
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
@@ -260,7 +254,7 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
             options.fontSize = Math.round(theMark.radius * 2);
             options.stroke = '';
 
-        } else if (newShapeType === SVGPATH_MARK || newShapeType === SVGPATHGROUP_MARK) {
+        } else if (newShapeType === FILLEDPATH_MARK || newShapeType === SVGPATHGROUP_MARK) {
 
             options.targetWidth = theMark.radius * 2;
             options.targetHeight = theMark.radius * 2;
@@ -306,10 +300,10 @@ function addCircularMarkToCanvasFromXML($markNode) {
 
     // numeric properties
     var serialID = Number($markNode.find('serialID').text());
-    
+
     console.log("serialID:");
     console.log(serialID);
-    
+
     var left = Number($markNode.find('left').text());
     var top = Number($markNode.find('top').text());
     var radius = Number($markNode.find('radius').text());

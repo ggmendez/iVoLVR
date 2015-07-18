@@ -1,8 +1,6 @@
 var ColorData = fabric.util.createClass(fabric.Path, {
-    
     serializableProperties: ['left', 'top', 'theType', 'value'],
     deserializer: addVisualValueToCanvas,
-    
     initialize: function (options) {
         options || (options = {});
         var path = paths["fill"].rw;
@@ -13,17 +11,9 @@ var ColorData = fabric.util.createClass(fabric.Path, {
 
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', this.strokeWidth);
-        
+
         // the given color could be also in the form of a string (usually, when the initialize function is called during an XML iVoLVR project file
-        var fabricColor = new fabric.Color(rgb(112, 112, 112));
-        if (options.theColor) {
-            var valueType = typeof options.theColor;
-            if (valueType === "string") {
-                fabricColor = new fabric.Color(options.theColor);
-            } else {
-                fabricColor = options.theColor;
-            }
-        }
+        var fabricColor = options.theColor || new fabric.Color(rgb(112, 112, 112));
 
         this.set('value', createColorValue(fabricColor));
 
@@ -56,7 +46,7 @@ var ColorData = fabric.util.createClass(fabric.Path, {
                 };
                 theDataType.collection.trigger('valueChanged', options);
             }
-            
+
             theDataType.outConnectors.forEach(function (outConnector) {
                 outConnector.setValue(theDataType.value.clone(), false, shouldAnimate);
             });
@@ -76,8 +66,10 @@ var ColorData = fabric.util.createClass(fabric.Path, {
 
         var mainDiv = $('<div/>', {class: 'icon-large'});
 
-        if (LOG) console.log("%cconfigurator:", "background:red; color:white;");
-        if (LOG) console.log(mainDiv);
+        if (LOG)
+            console.log("%cconfigurator:", "background:red; color:white;");
+        if (LOG)
+            console.log(mainDiv);
 
         var padding = (theDataType.width / 4) * canvas.getZoom();
 
@@ -318,6 +310,11 @@ ColorData.prototype._render = function (ctx) {
 
 };
 
-function createColorValue(fabricColor) {
+function createColorValue(color) {
+    var fabricColor = color;    
+    var type = typeof color;
+    if (type === "string") {
+        fabricColor = new fabric.Color(color);
+    }
     return new Value({isColorData: true, color: fabricColor});
 }

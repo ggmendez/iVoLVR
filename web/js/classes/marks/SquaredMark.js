@@ -39,12 +39,13 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
 
 
 
-        this.specificProperties.push({attribute: "side", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData'});
-        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['side'], dataTypeProposition: 'isNumericData'});
-        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData'});
+        this.specificProperties.push({attribute: "side", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.side)});
+        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['side'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.area)});
+        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: createNumericValue(this.angle)});
 
         this.createVisualProperties();
         this.createPositionProperties();
+        this.setCoreVisualPropertiesValues();
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
@@ -336,7 +337,7 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
             options.fontSize = Math.round((theMark.width + theMark.height) / 2);
             options.stroke = '';
 
-        } else if (newShapeType == SVGPATH_MARK || newShapeType == SVGPATHGROUP_MARK) {
+        } else if (newShapeType == FILLEDPATH_MARK || newShapeType == SVGPATHGROUP_MARK) {
 
             options.targetWidth = theMark.width;
             options.targetHeight = theMark.height;

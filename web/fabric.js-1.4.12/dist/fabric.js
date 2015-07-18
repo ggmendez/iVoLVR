@@ -15132,11 +15132,15 @@ fabric.util.object.extend(fabric.StaticCanvas.prototype, /** @lends fabric.Stati
      * @param {CanvasRenderingContext2D} ctx Context to render on
      */
     _renderStroke: function(ctx) {
-        
+
         // MODIFICATION BY GONZALO
-//      if (!this.stroke || this.strokeWidth === 0) {
-//        return;
-//      }
+      if (this.group && this.group.isSVGPathGroupMark && !this.group.fill) {
+        return;
+      }
+      
+        /*if (!this.stroke || this.strokeWidth === 0) {
+        return;
+      }*/
 
       ctx.save();
       if (this.strokeDashArray) {

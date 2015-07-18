@@ -2,6 +2,14 @@ var LOG = true;
 
 /* TYPES */
 
+NUMERIC = "Numeric";
+STRING = "String";
+DURATION = "Duration";
+DATEANDTIME = "DateAndTime";
+COLOR = "Color";
+SHAPE = "Shape";
+
+
 PANNING_OPERATION = 'Panning';
 DISCONNECTION_OPERATION = 'Disconnecting';
 
@@ -23,8 +31,8 @@ SQUARED_MARK = 'Square';
 ELLIPTIC_MARK = 'Ellipse';
 FATFONT_MARK = 'FatFont';
 PATH_MARK = 'Path';
-SVGPATH_MARK = 'SVGPath';
-SVGPATHGROUP_MARK = 'SVG File';
+FILLEDPATH_MARK = 'FilledPath';
+SVGPATHGROUP_MARK = 'SVGPathGroup';
 
 
 CIRCULAR_VIXOR = 'CircleVixor';

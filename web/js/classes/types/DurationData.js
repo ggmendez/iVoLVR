@@ -9,7 +9,7 @@ var DurationData = fabric.util.createClass(fabric.Path, {
         this.set('dataTypeProposition', 'isDurationData');
         this.set(this.dataTypeProposition, true);
 
-        var duration = moment.duration({
+        var duration = options.duration || moment.duration({
             milliseconds: 1,
             seconds: 1,
             minutes: 1,
@@ -19,15 +19,6 @@ var DurationData = fabric.util.createClass(fabric.Path, {
             months: 0,
             years: 0
         });
-
-        if (options.duration) {
-            var valueType = typeof options.duration;
-            if (valueType === "string" || valueType === "number") {
-                duration = moment.duration(options.duration);
-            } else {
-                duration = options.duration;
-            }
-        }
 
         var value = createDurationValue(duration, options.outputUnits || 'minutes');
         this.set('value', value);
@@ -344,13 +335,13 @@ function getInputFieldsDiv(labels, valueHolder, editable) {
         }
     }
 
-    console.log("durationValue.duration.asMilliseconds(): " + durationValue.duration.asMilliseconds());    
+    console.log("durationValue.duration.asMilliseconds(): " + durationValue.duration.asMilliseconds());
 
     labels.forEach(function (label) {
 
         var liElement = $('<li/>', {style: 'padding: 0px; width: 110px; display:inline-block;'});
 
-        
+
 
         var value = durationValue.duration.get(label);
         console.log(value + " " + label);
@@ -389,5 +380,13 @@ function buildDurationUnitsSelector(valueHolder) {
 }
 
 function createDurationValue(duration, outputUnits) {
-    return new Value({isDurationData: true, duration: duration, outputUnits: outputUnits});
+
+    // checking if the provided duration is already a moment.js object. If not, we have to create it
+    var theDuration = duration;
+    var type = typeof duration;
+    if (type === "string" || type === "number") {
+        theDuration = moment.duration(duration);
+    }
+
+    return new Value({isDurationData: true, duration: theDuration, outputUnits: outputUnits});
 }

@@ -13,7 +13,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         this.set('originalStrokeWidth', options.strokeWidth || 2);
         this.set('perPixelTargetFind', true);
         
-        this.set('shape', {shape: SVGPATH_MARK, path: path});
+        this.set('shape', {shape: FILLEDPATH_MARK, path: path});
 
         this.set('lockScalingX', true);
         this.set('lockScalingY', true);

@@ -1,3 +1,39 @@
+function isBlank(str) {
+    return (!str || /^\s*$/.test(str));
+}
+
+function formatXml(xml) {
+    var formatted = '';
+    var reg = /(>)(<)(\/*)/g;
+    xml = xml.replace(reg, '$1\r\n$2$3');
+    var pad = 0;
+    jQuery.each(xml.split('\r\n'), function (index, node) {
+        var indent = 0;
+        if (node.match(/.+<\/\w[^>]*>$/)) {
+            indent = 0;
+        } else if (node.match(/^<\/\w/)) {
+            if (pad != 0) {
+                pad -= 1;
+            }
+        } else if (node.match(/^<\w[^>]*[^\/]>.*$/)) {
+            indent = 1;
+        } else {
+            indent = 0;
+        }
+
+        var padding = '';
+        for (var i = 0; i < pad; i++) {
+            padding += '  ';
+        }
+
+        formatted += padding + node + '\r\n';
+        pad += indent;
+    });
+
+    return formatted;
+}
+
+
 function canBeCurrency(string) {
     var regex = /^[1-9]\d*(((,\d{3})*)?(\.\d*)?)$/;
     return regex.test(string);
@@ -505,10 +541,10 @@ function draw(figureType) {
                     },
                     'mouseup': function (option) {
 
-                        
+
                     },
                 });
-                
+
             }
 
             var d = new Date();
@@ -1387,10 +1423,10 @@ function addMarkFromSVGString(file, SVGString) {
 
     fabric.loadSVGFromString(SVGString, function (objects, options) {
 
-        //                   if (LOG) console.log("options:");
-        //                   if (LOG) console.log(options);
-
-        /*var canvasCenter = canvas.getCenter();*/
+        if (LOG)
+            console.log("Original options:");
+        if (LOG)
+            console.log(options);
 
         var canvasActualCenter = getActualCanvasCenter();
         var defaultOptions = {
@@ -1399,13 +1435,16 @@ function addMarkFromSVGString(file, SVGString) {
             thePaths: objects,
             left: canvasActualCenter.x,
             top: canvasActualCenter.y,
-            /*left: canvasCenter.left,
-             top: canvasCenter.top,*/
-            animateAtBirth: true
+            animateAtBirth: true,
+            SVGString: SVGString
         };
         options = $.extend(true, {}, defaultOptions, options);
+        
+        if (LOG)
+            console.log("Merged options:");
         if (LOG)
             console.log(options);
+        
         addMarkToCanvas(SVGPATHGROUP_MARK, options);
     });
 
@@ -1418,7 +1457,7 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
     // if (LOG) console.log(event);        
 
     var SVGString = event.target.result;
-
+    
     if (asSingleMark) {
 
         addMarkFromSVGString(file, SVGString);
@@ -1433,7 +1472,7 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
         fabric.loadSVGFromString(SVGString, function (objects, options) {
 
 
-
+            
 
             var obj = fabric.util.groupSVGElements(objects, options);
             canvas.add(obj).renderAll();
@@ -1642,7 +1681,7 @@ function isMarkShape(string) {
             string === RECTANGULAR_MARK ||
             string === ELLIPTIC_MARK ||
             string === FATFONT_MARK ||
-            string === SVGPATH_MARK ||
+            string === FILLEDPATH_MARK ||
             string === SVGPATHGROUP_MARK;
 }
 
@@ -2041,7 +2080,7 @@ function repositionAllWidgets(targetObject) {
 //         if (LOG) console.log("widget:");
 //         if (LOG) console.log(widget);
 
-            if (widget.movingOpacity != 'undefined') {
+            if (widget.movingOpacity !== 'undefined') {
                 widget.opacity = widget.movingOpacity;
             } else {
                 widget.opacity = 0.6;
@@ -2847,7 +2886,7 @@ function deActivateSamplingMode() {
 }
 
 function activateLineSamplingMode() {
-    
+
     canvas.currentPan1FingerendOperation = canvas.activePanningMode ? PANNING_OPERATION : DISCONNECTION_OPERATION;
 
     canvas.forEachObject(function (object) {
@@ -2859,15 +2898,15 @@ function activateLineSamplingMode() {
 
     deActivateTransmogrificationMode();
     deActivateSamplingMode();
-    
+
     canvas.activePanningMode = false;
     canvas.defaultCursor = "default";
-    
+
     $("#samplerLineButton").css("background", "#D6D6D6 none repeat scroll 0% 0% / auto padding-box border-box");
     canvas.isSamplingLineMode = true;
 
     canvas.defaultCursor = 'crosshair';
-    
+
 }
 
 function deActivateLineSamplingMode() {
@@ -2884,7 +2923,7 @@ function deActivateLineSamplingMode() {
     $("#samplerLineButton").css("border", "0px none rgb(0, 0, 0)");
 
     canvas.defaultCursor = 'default';
-    
+
     if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
         activatePanningMode();
     } else {
@@ -4538,7 +4577,33 @@ function createXMLElement(elementName) {
     return node;
 }
 
+
+function addAttributeWithValue(node, attributeName, value) {
+    if (typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
+        return;
+    }
+    node.attr(attributeName, value);
+}
+
+function appendCDATAWithValue(root, elementName, value) {
+    if (typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
+        return;
+    }
+    root.append('<' + elementName + ' type="cdata">' + '<![CDATA[' + value + ']]>' + '</' + elementName + '>');
+}
+
 function appendElementWithValue(root, elementName, value) {
+    if (typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
+        return;
+    }
+    root.append('<' + elementName + ' type= "' + typeof value + '">' + value + '</' + elementName + '>');
+}
+
+/*function appendElementWithValue(root, elementName, value) {
+
+    if (typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
+        return;
+    }
 
     if ($.isArray(value)) {
 
@@ -4653,7 +4718,7 @@ function appendElementWithValue(root, elementName, value) {
 
 
     }
-}
+}*/
 
 
 function createValueOfType(homogeneityGuess) {
@@ -5358,4 +5423,14 @@ function canvasDropFunction(ev, ui) {
         disableDrawingMode();
     }
 
+}
+
+
+function printXML(object) {
+    var xml = object.toXML();
+    var serializer = new XMLSerializer();
+    var xmlString = serializer.serializeToString(xml[0]);
+    // var bautifiedString = vkbeautify.xml(xmlString);
+    var bautifiedString = formatXml(xmlString);
+    console.log(bautifiedString);
 }

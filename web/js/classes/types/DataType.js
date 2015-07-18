@@ -17,6 +17,14 @@ var DataType = function () {
 
     this.set('scaleX', 1.2);
     this.set('scaleY', 1.2);
+    
+    this.toXML = function () {
+        var visualValueNode = createXMLElement("visualValue");
+        appendElementWithValue(visualValueNode, "left", this.left);
+        appendElementWithValue(visualValueNode, "top", this.top);        
+        visualValueNode.append(this.value.toXML());
+        return visualValueNode;
+    };
 
     this.applySelectedStyle = function (selectConnectors) {
         this.selected = true;
