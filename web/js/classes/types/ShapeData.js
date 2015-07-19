@@ -1,8 +1,6 @@
 var ShapeData = fabric.util.createClass(fabric.Path, {
-    
     serializableProperties: ['left', 'top', 'theType', 'value'],
     deserializer: addVisualValueToCanvas,
-    
     initialize: function (options) {
         options || (options = {});
         var path = paths["shape"].rw;
@@ -13,7 +11,7 @@ var ShapeData = fabric.util.createClass(fabric.Path, {
 
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', this.strokeWidth);
-        
+
         console.log("Creating SHAPE DATA with the following options: ");
         console.log(options);
 
@@ -70,7 +68,7 @@ var ShapeData = fabric.util.createClass(fabric.Path, {
         var svgFileReadFunction = function (event, file) {
 
             var SVGString = event.target.result;
-                        
+
             fabric.loadSVGFromString(SVGString, function (objects, options) {
 
 //                var canvasCenter = canvas.getCenter();
@@ -97,14 +95,14 @@ var ShapeData = fabric.util.createClass(fabric.Path, {
                 var shapeValue = createShapeValue(SVGPATHGROUP_MARK, svgPathGroupMark);
 
                 theDataType.setValue(shapeValue, true);
-                                
-               theDataType.value.SVGString = SVGString;                
+
+                theDataType.value.SVGString = SVGString;
 
                 theDataType.outConnectors.forEach(function (outConnector) {
                     outConnector.setValue(shapeValue, false, false);
                 });
 
-                
+
 
             });
 
@@ -303,7 +301,16 @@ var ShapeData = fabric.util.createClass(fabric.Path, {
 DataType.call(ShapeData.prototype);
 
 function createShapeValue(shape, svgPathGroupMark) {
+
+    var theValue = new Value({isShapeData: true, shape: shape});
+    if (shape === PATH_MARK) {
+        theValue.path = svgPathGroupMark;
+    } else {
+        theValue.svgPathGroupMark = svgPathGroupMark;
+    }
 //    console.log("svgPathGroupMark:");
 //    console.log(svgPathGroupMark);
-    return new Value({isShapeData: true, shape: shape, svgPathGroupMark: svgPathGroupMark});
+//    return new Value({isShapeData: true, shape: shape, svgPathGroupMark: svgPathGroupMark});
+
+    return theValue;
 }

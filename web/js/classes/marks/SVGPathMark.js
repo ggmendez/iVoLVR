@@ -20,25 +20,7 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         this.set('shape', {shape: FILLEDPATH_MARK, path: this});
 
         this.createRectBackground();
-
-        /*this.specificProperties.push({attribute: "xCollection", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData'})
-        this.specificProperties.push({attribute: "yCollection", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData'});*/
         
-        this.specificProperties.push({attribute: "width", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.width)});
-        this.specificProperties.push({attribute: "height", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.height)});
-        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: createNumericValue(this.angle)});
-
-
-        this.createVisualProperties();
-        this.createPositionProperties();
-
-        this.setCoords();
-
-        this.associateLabelEvents();
-        
-        this.setCoreVisualPropertiesValues();
-
-
         if (options.targetWidth) {
             var theWidth = options.targetWidth / this.width;
             this.set('finalScaleX', theWidth);
@@ -54,6 +36,36 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         } else {
             this.set("the_height", this.height);
         }
+
+        var widthValue = null;
+        var heightValue = null;        
+        var angleValue = null;
+
+        if (options.values) {
+            widthValue = options.values.width || createNumericValue(this.the_width || this.width, null, null, 'pixels');
+            heightValue = options.values.height || createNumericValue(this.the_height || this.height, null, null, 'pixels');
+            angleValue = options.values.angle || createNumericValue(this.angle, null, null, 'degrees');
+        } else {
+            widthValue = createNumericValue(this.the_width || this.width, null, null, 'pixels');
+            heightValue = createNumericValue(this.the_height || this.height, null, null, 'pixels');
+            angleValue = createNumericValue(this.angle, null, null, 'degrees');
+        }
+        
+        this.specificProperties.push({attribute: "width", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: widthValue});
+        this.specificProperties.push({attribute: "height", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: heightValue});
+        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: angleValue});
+
+        this.createVisualProperties();
+        this.createPositionProperties();
+
+        this.setCoords();
+
+        this.associateLabelEvents();
+        
+        this.setCoreVisualPropertiesValues();
+
+
+        
 
 
         this.changeColors = function (fill, stroke) {

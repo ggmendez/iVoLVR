@@ -4579,21 +4579,21 @@ function createXMLElement(elementName) {
 
 
 function addAttributeWithValue(node, attributeName, value) {
-    if (typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
+    if (value === null || typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
         return;
     }
     node.attr(attributeName, value);
 }
 
 function appendCDATAWithValue(root, elementName, value) {
-    if (typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
+    if (value === null || typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
         return;
     }
     root.append('<' + elementName + ' type="cdata">' + '<![CDATA[' + value + ']]>' + '</' + elementName + '>');
 }
 
 function appendElementWithValue(root, elementName, value) {
-    if (typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
+    if (value === null || typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
         return;
     }
     root.append('<' + elementName + ' type= "' + typeof value + '">' + value + '</' + elementName + '>');

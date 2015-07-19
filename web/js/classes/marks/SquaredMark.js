@@ -7,25 +7,31 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
     
     initialize: function (options) {
         options || (options = {});
+        
+        options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
+        options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
+        options.angle = options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0);
+        
+        options.side = options.side || options.values.side.number;
+        if (typeof options.side !== 'undefined') {
+            this.set('side', options.side || 0);
+            this.set('width', this.side);
+            this.set('height', this.side);
+            this.set('area', Math.abs(this.side) * Math.abs(this.side));
+        } else {
+            options.area = options.area || options.values.area.number;
+            var side = Math.sqrt(Math.abs(options.area));
+            this.set('side', Math.abs(side));
+            this.set('width', this.side);
+            this.set('height', this.side);
+            this.set('area', options.area);
+        }
+        
         this.callSuper('initialize', options);
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', options.strokeWidth || 2);
         
         
-
-        if (options.area) {
-            var side = Math.sqrt(options.area);
-           
-            this.set('side', Math.abs(side));
-            this.set('width', this.side);
-            this.set('height', this.side);
-            this.set('area', options.area);
-        } else {
-            this.set('side', options.side || 0);
-            this.set('width', this.side);
-            this.set('height', this.side);
-            this.set('area', Math.abs(this.side) * Math.abs(this.side));
-        }
 
         this.createVariables();
         this.createIText();
@@ -37,11 +43,23 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
 
         this.createRectBackground();
 
+        var sideValue = null;
+        var areaValue = null;
+        var angleValue = null;
 
+        if (options.values) {
+            sideValue = options.values.side || createNumericValue(this.side, null, null, 'pixels');
+            areaValue = options.values.area || createNumericValue(this.area, null, null, 'pixels');
+            angleValue = options.values.angle || createNumericValue(this.angle, null, null, 'degrees');
+        } else {
+            sideValue = createNumericValue(this.side, null, null, 'pixels');
+            areaValue = createNumericValue(this.area, null, null, 'pixels');
+            angleValue = createNumericValue(this.angle, null, null, 'degrees');
+        }
 
-        this.specificProperties.push({attribute: "side", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.side)});
-        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['side'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.area)});
-        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: createNumericValue(this.angle)});
+        this.specificProperties.push({attribute: "side", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: sideValue});
+        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['side'], dataTypeProposition: 'isNumericData', value: areaValue});
+        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: angleValue});
 
         this.createVisualProperties();
         this.createPositionProperties();

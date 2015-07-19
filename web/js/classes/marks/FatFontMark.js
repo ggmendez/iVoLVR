@@ -1,21 +1,21 @@
 var FatFontMark = fabric.util.createClass(fabric.IText, {
     type: 'fatFontMark',
-    isFatFontMark: true,            
-    
+    isFatFontMark: true,
     serializableProperties: ['left', 'top', 'fill', 'colorForStroke', 'radius', 'label', 'isCompressed', 'fontFamily', 'number', 'fontSize'],
     deserializer: addFatFontMarkToCanvas,
-    
     initialize: function (text, options) {
         options || (options = {});
+
+        options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
+        options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
+        options.angle = options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0);
+        options.fontSize = options.fontSize || ((options.values && options.values.fontSize) ? options.values.fontSize.number : 80);
+
         this.callSuper('initialize', text, options);
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', options.strokeWidth || 2);
 
         this.set('colorForStroke', options.colorForStroke || this.stroke);
-
-        this.set('number', options.number || 0);
-
-        this.set('label', options.label || '');
 
         this.set('hasBorders', true);
 
@@ -24,6 +24,20 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
         this.createIText();
 
         this.createRectBackground();
+
+        var numberValue = null;
+        var fontSizeValue = null;
+        var angleValue = null;
+
+        if (options.values) {
+            numberValue = options.values.number || createNumericValue(this.number);
+            fontSizeValue = options.values.fontSize || createNumericValue(this.fontSize, null, null, 'pixels');
+            angleValue = options.values.angle || createNumericValue(this.angle, null, null, 'degrees');
+        } else {
+            numberValue = createNumericValue(this.number);
+            fontSizeValue = createNumericValue(this.fontSize, null, null, 'pixels');
+            angleValue = createNumericValue(this.angle, null, null, 'degrees');
+        }
 
         this.specificProperties.push({attribute: "number", readable: true, writable: true, types: ['number'], updatesTo: ['label'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.number)});
 //      this.specificProperties.push({attribute: "fontFamily", readable: true, writable: true, types: ['string'], updatesTo: [], dataTypeProposition: 'isStringData', value: createNumericValue(this.fontFamily)});
@@ -34,13 +48,8 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
         this.createVisualProperties();
         this.createPositionProperties();
 
-        this.applySelectedStyle = function () {
-        };
-
-        this.applyUnselectedStyle = function () {
-        };
-
-
+        this.applySelectedStyle = function () {};
+        this.applyUnselectedStyle = function () {};
 
         this.set('perPixelTargetFind', false);
         this.set('editable', false);
@@ -62,7 +71,7 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
 
             });
         };
-        
+
         this.setCoreVisualPropertiesValues();
 
 
@@ -351,6 +360,12 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
 Mark.call(FatFontMark.prototype);
 
 function addFatFontMarkToCanvas(options) {
+    
+    options.colorForStroke = options.colorForStroke || options.stroke;
+    options.stroke = '';
+    options.number = options.number || ((options.values && options.values.number) ? options.values.number.number : 0);
+    options.fontFamily = options.fontFamily || 'Miguta';
+    
     var text = '' + options.number;
     var fatFontMark = new FatFontMark(text, options);
     canvas.add(fatFontMark);

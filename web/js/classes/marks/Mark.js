@@ -34,14 +34,25 @@ var Mark = function () {
     this.set('lockScalingY', true);
     this.set('lockRotation', true);
 
-    this.setCoreVisualPropertiesValues = function () {
-        if (this.shape.svgPathGroupMark || this.shape.path) {
-            this.getVisualPropertyByAttributeName('shape').value = createShapeValue(this.shape.shape, this.shape.svgPathGroupMark || this.shape.path);
+    this.setCoreVisualPropertiesValues = function (values) {
+
+        var shapeValue = null;
+        var fillValue = null;
+        var labelValue = null;
+
+        if (values) {
+            shapeValue = values.shape || ((this.shape.svgPathGroupMark || this.shape.path) ? createShapeValue(this.shape.shape, this.shape.svgPathGroupMark || this.shape.path) : createShapeValue(this.shape));
+            fillValue = values.fill || createColorValue(new fabric.Color(this.fill));
+            labelValue = values.label || createStringValue(this.label);
         } else {
-            this.getVisualPropertyByAttributeName('shape').value = createShapeValue(this.shape);
+            shapeValue = this.shape.svgPathGroupMark || this.shape.path ? createShapeValue(this.shape.shape, this.shape.svgPathGroupMark || this.shape.path) : createShapeValue(this.shape);
+            fillValue = createColorValue(new fabric.Color(this.fill));
+            labelValue = createStringValue(this.label);
         }
-        this.getVisualPropertyByAttributeName('fill').value = createColorValue(new fabric.Color(this.fill));
-        this.getVisualPropertyByAttributeName('label').value = createStringValue(this.label);
+
+        this.getVisualPropertyByAttributeName('shape').value = shapeValue;
+        this.getVisualPropertyByAttributeName('fill').value = fillValue;
+        this.getVisualPropertyByAttributeName('label').value = labelValue;
     };
 
     this.toXML = function () {
@@ -49,7 +60,9 @@ var Mark = function () {
         addAttributeWithValue(markNode, "shape", this.shape.shape || this.shape);
         appendElementWithValue(markNode, "left", this.left);
         appendElementWithValue(markNode, "top", this.top);
-        appendElementWithValue(markNode, "visualPropertiesStroke", this.visualProperties[0].stroke);
+        appendElementWithValue(markNode, "stroke", this.visualProperties[0].stroke);
+        appendElementWithValue(markNode, "visualPropertyFill", this.visualProperties[0].fill);
+        appendElementWithValue(markNode, "isExpanded", !this.isCompressed);
         this.visualProperties.forEach(function (visualProperty) {
             var propertyNode = visualProperty.toXML();
             markNode.append(propertyNode);
@@ -1007,13 +1020,13 @@ var Mark = function () {
 
         if (options) {
             for (var key in options) {
-                if (key == "targetWidth") {
+                if (key === "targetWidth") {
 
                     var theWidth = options.targetWidth / this.width;
                     theCopy.set('finalScaleX', theWidth);
                     theCopy.set("the_width", options.targetWidth);
 
-                } else if (key == "targetHeight") {
+                } else if (key === "targetHeight") {
 
                     var theHeight = options.targetHeight / this.height;
                     theCopy.set('finalScaleY', theHeight);
@@ -1050,6 +1063,15 @@ var Mark = function () {
 
         theCopy.inConnectors = new Array();
         theCopy.set('inConnectors', new Array());
+
+        // The values hold by the visual properties of the original mark should be copied to the copy
+        theMark.visualProperties.forEach(function (visualProperty) {
+            var attribute = visualProperty.attribute;
+            var value = visualProperty.value;
+            var clonedValue = value.clone();
+            theCopy.getVisualPropertyByAttributeName(attribute).value = clonedValue;
+            ;
+        });
 
         if (LOG)
             console.log(" **************************** theCopy: **************************** ");
@@ -1683,16 +1705,20 @@ function changeMarkShape(theMark, shapeValue) {
 function createMarkFromXMLNode(valueXmlNode) {
 
     var options = {
-        type: valueXmlNode.attr('shape')
+        markType: valueXmlNode.attr('shape'),
+        values: {}
     };
+
+
 
     var children = valueXmlNode.children();
     children.each(function () {
         var child = $(this);
         var tagName = this.tagName;
 
-        if (tagName === "property") {
 
+
+        if (tagName === "property") {
 
             var valueXmlNode = $(child.find('value')[0]);
             var propertyValue = createValueFromXMLNode(valueXmlNode);
@@ -1702,7 +1728,7 @@ function createMarkFromXMLNode(valueXmlNode) {
             console.log(attribute + ":");
             console.log(propertyValue);
 
-            options[attribute] = propertyValue;
+            options.values[attribute] = propertyValue;
 
 
         } else {
@@ -1730,18 +1756,9 @@ function createMark(options) {
     console.log("options:");
     console.log(options);
 
-    var newOptions = {
-        left: options.left,
-        top: options.top,
-        fill: options.fill.color.toRgb(),
-        stroke: options.visualPropertiesStroke,
-        width: options.width.number,
-        height: options.height.number,
-        label: options.label.string,
-        markAsSelected: false,
-        animateAtBirth: true
-    };
-
-    addMarkToCanvas(options.type, newOptions);
-
+    var markType = options.markType;
+    options.markAsSelected = false;
+    options.animateAtBirth = true;
+    
+    addMarkToCanvas(markType, options);
 }

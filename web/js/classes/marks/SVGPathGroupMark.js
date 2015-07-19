@@ -43,10 +43,24 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
         } else {
             this.set("the_height", this.height);
         }
+        
+        var widthValue = null;
+        var heightValue = null;        
+        var angleValue = null;
 
-        this.specificProperties.push({attribute: "width", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.the_width || this.width)});
-        this.specificProperties.push({attribute: "height", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.the_height || this.height)});
-        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: createNumericValue(this.angle)});
+        if (options.values) {
+            widthValue = options.values.width || createNumericValue(this.the_width || this.width, null, null, 'pixels');
+            heightValue = options.values.height || createNumericValue(this.the_height || this.height, null, null, 'pixels');
+            angleValue = options.values.angle || createNumericValue(this.angle, null, null, 'degrees');
+        } else {
+            widthValue = createNumericValue(this.the_width || this.width, null, null, 'pixels');
+            heightValue = createNumericValue(this.the_height || this.height, null, null, 'pixels');
+            angleValue = createNumericValue(this.angle, null, null, 'degrees');
+        }
+        
+        this.specificProperties.push({attribute: "width", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: widthValue});
+        this.specificProperties.push({attribute: "height", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: heightValue});
+        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: angleValue});
 
         this.createVisualProperties(options.left, options.top);
         this.createPositionProperties();

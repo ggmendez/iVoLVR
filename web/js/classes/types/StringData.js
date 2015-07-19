@@ -170,5 +170,8 @@ function showStringValue(holderElement, allowEdition) {
 }
 
 function createStringValue(theString) {
+    if (theString === null || typeof theString === 'undefined') {
+        theString = '';
+    }
     return  new Value({isStringData: true, string: theString});
 }

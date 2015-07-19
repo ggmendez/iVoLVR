@@ -5,20 +5,31 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
     deserializer: addRectangularMarkToCanvas,
     initialize: function (options) {
         options || (options = {});
+
+        options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
+        options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
+        options.angle = options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0);
+        
+        options.width = options.width || options.values.width.number;
+        options.height = options.height || options.values.height.number;
+        
+        if (typeof options.width !== 'undefined' && typeof options.height !== 'undefined') {
+            this.set('width', options.width);
+            this.set('height', options.height);
+            this.set('area', Math.abs(this.width) * Math.abs(this.height));
+        } else {
+            options.area = options.area || options.values.area.number;
+            this.set('area', options.area);
+            var side = Math.sqrt(options.area);
+            this.set('width', Math.abs(side));
+            this.set('height', Math.abs(side));
+        }
+
         this.callSuper('initialize', options);
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', options.strokeWidth || 2);
 
-        if (options.area) {
-            var side = Math.sqrt(options.area);
-            this.set('width', Math.abs(side));
-            this.set('height', Math.abs(side));
-            this.set('area', options.area);
-        } else {
-            this.set('width', options.width || 0);
-            this.set('height', options.height || 0);
-            this.set('area', Math.abs(this.width) * Math.abs(this.height));
-        }
+        
 
         this.createVariables();
         this.createIText();
@@ -30,17 +41,34 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
 
         this.createRectBackground();
 
-        this.specificProperties.push({attribute: "width", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.width)})
-        this.specificProperties.push({attribute: "height", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.height)});
-        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['width', 'height'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.area)});
-        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: createNumericValue(this.angle)});
+        var widthValue = null;
+        var heightValue = null;
+        var areaValue = null;
+        var angleValue = null;
+
+        if (options.values) {
+            widthValue = options.values.width || createNumericValue(this.width, null, null, 'pixels');
+            heightValue = options.values.height || createNumericValue(this.height, null, null, 'pixels');
+            areaValue = options.values.area || createNumericValue(this.area, null, null, 'pixels');
+            angleValue = options.values.angle || createNumericValue(this.angle, null, null, 'degrees');
+        } else {
+            widthValue = createNumericValue(this.width, null, null, 'pixels');
+            heightValue = createNumericValue(this.height, null, null, 'pixels');
+            areaValue = createNumericValue(this.area, null, null, 'pixels');
+            angleValue = createNumericValue(this.angle, null, null, 'degrees');
+        }
+
+        this.specificProperties.push({attribute: "width", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: widthValue})
+        this.specificProperties.push({attribute: "height", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: heightValue});
+        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['width', 'height'], dataTypeProposition: 'isNumericData', value: areaValue});
+        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: angleValue});
 
         this.createVisualProperties();
         this.createPositionProperties();
 
-        this.setCoreVisualPropertiesValues();
+        this.setCoreVisualPropertiesValues(options.values);
 
-    },    
+    },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
         if (updater === 'width' || updater === 'height') {
             if (updatedProperty === 'area') {

@@ -142,14 +142,23 @@ function Value(options) {
         } else if (this.isShapeData) {
 
             appendElementWithValue(valueNode, "shape", this.shape.shape || this.shape);
-
-            if (this.svgPathGroupMark) {
-                if (this.shape === PATH_MARK || this.shape === FILLEDPATH_MARK) {
-                    appendCDATAWithValue(valueNode, "path", this.svgPathGroupMark.path);
-                } else {
-                    appendCDATAWithValue(valueNode, "svgPathGroupMark", this.svgPathGroupMark.SVGString);
-                }
+            
+            console.log("this: ++++++++++++++++++++++++++++");
+            console.log(this);
+            
+            if (this.shape === PATH_MARK || this.shape === FILLEDPATH_MARK) {
+                appendCDATAWithValue(valueNode, "path", this.path.path);
+            } else if (this.shape === SVGPATHGROUP_MARK) {
+                appendCDATAWithValue(valueNode, "svgPathGroupMark", this.svgPathGroupMark.SVGString);
             }
+
+//            if (this.svgPathGroupMark) {
+//                if (this.shape === PATH_MARK || this.shape === FILLEDPATH_MARK) {
+//                    appendCDATAWithValue(valueNode, "path", this.svgPathGroupMark.path);
+//                } else {
+//                    appendCDATAWithValue(valueNode, "svgPathGroupMark", this.svgPathGroupMark.SVGString);
+//                }
+//            }
 
         }
 
@@ -289,7 +298,7 @@ function Value(options) {
         if (this.isColorData) {
             return createColorValue(new fabric.Color(this.color.toRgb()));
         } else if (this.isDateAndTimeData) {
-            return;
+            return createDateAndTimeValue(this.moment);
         } else if (this.isNumericData) {
             var unscaledValue = this.unscaledValue;
             var inPrefix = this.inPrefix;
@@ -299,11 +308,9 @@ function Value(options) {
         } else if (this.isDurationData) {
             return createDurationValue(this.duration, this.outputUnits);
         } else if (this.isShapeData) {
-            return;
+            return createShapeValue(this.shape, this.svgPathGroupMark);
         } else if (this.isStringData) {
             return createStringValue(this.string);
-        } else {
-            return null;
         }
     };
 

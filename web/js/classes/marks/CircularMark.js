@@ -25,19 +25,25 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
 
     initialize: function (options) {
         options || (options = {});
+                        
+        options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
+        options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
+        
+        options.radius = options.radius || options.values.radius.number;
+        if (typeof options.radius !== 'undefined') {
+            this.set('radius', options.radius);            
+            this.set('area', Math.PI * Math.abs(this.radius) * Math.abs(this.radius));
+        } else {
+            options.area = options.area || options.values.area.number;
+            this.set('area', options.area);
+            var radius = Math.sqrt(options.area / Math.PI);
+            this.set('radius', Math.abs(radius));
+        }
+        
         this.callSuper('initialize', options);
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', options.strokeWidth || 2);
-
-        if (options.area) {
-            var radius = Math.sqrt(options.area / Math.PI);
-            this.set('radius', Math.abs(radius));
-            this.set('area', options.area);
-        } else {
-            this.set('radius', options.radius || 0);
-            this.set('area', Math.PI * Math.abs(this.radius) * Math.abs(this.radius));
-        }
-
+                                        
         this.createVariables();
 
         if (!options.withoutLabel) {
@@ -50,9 +56,20 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
         this.set('colorForStroke', options.colorForStroke || this.stroke);
 
         this.createRectBackground();
+                        
+        var radiusValue = null;
+        var areaValue = null;
 
-        this.specificProperties.push({attribute: "radius", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.radius)});
-        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['radius'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.area)});
+        if (options.values) {
+            radiusValue = options.values.radius || createNumericValue(this.radius, null, null, 'pixels');
+            areaValue = options.values.area || createNumericValue(this.area, null, null, 'pixels');            
+        } else {
+            radiusValue = createNumericValue(this.radius, null, null, 'pixels');
+            areaValue = createNumericValue(this.area, null, null, 'pixels');
+        }
+                        
+        this.specificProperties.push({attribute: "radius", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: radiusValue});
+        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['radius'], dataTypeProposition: 'isNumericData', value: areaValue});
 
         this.createVisualProperties();
         this.createPositionProperties();

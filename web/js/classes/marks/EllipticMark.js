@@ -1,19 +1,27 @@
 var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
     type: 'ellipticMark',
     isEllipticMark: true,
-    
     serializableProperties: ['left', 'top', 'fill', 'colorForStroke', 'rx', 'ry', 'label', 'isCompressed', 'angle'],
     deserializer: addEllipticMarkToCanvas,
-    
     initialize: function (options) {
         options || (options = {});
-        if (options.area) {
+
+        options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
+        options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
+        options.angle = options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0);
+        
+        options.rx = options.rx || options.values.rx.number;
+        options.ry = options.ry || options.values.ry.number;
+        
+        if (typeof options.rx !== 'undefined' && typeof options.ry !== 'undefined') {
+            var area = Math.PI * Math.abs(options.rx) * Math.abs(options.ry);
+            this.set('area', area);
+        } else {
+            options.area = options.area || options.values.area.number;
             var side = Math.sqrt(options.area / Math.PI);
             options.rx = side;
             options.ry = side;
             this.set('area', options.area);
-        } else {
-            this.set('area', Math.PI * Math.abs(options.rx) * Math.abs(options.ry));
         }
 
         this.callSuper('initialize', options);
@@ -31,38 +39,53 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
 
         this.createRectBackground();
 
-        this.specificProperties.push({attribute: "rx", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.rx)});
-        this.specificProperties.push({attribute: "ry", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.ry)});
-        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['rx', 'ry'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.area)});
-        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: createNumericValue(this.anlge)});
+        var rxValue = null;
+        var ryValue = null;
+        var areaValue = null;
+        var angleValue = null;
 
+        if (options.values) {
+            rxValue = options.values.rx || createNumericValue(this.rx, null, null, 'pixels');
+            ryValue = options.values.ry || createNumericValue(this.ry, null, null, 'pixels');
+            areaValue = options.values.area || createNumericValue(this.area, null, null, 'pixels');
+            angleValue = options.values.angle || createNumericValue(this.angle, null, null, 'degrees');
+        } else {
+            rxValue = createNumericValue(this.rx, null, null, 'pixels');
+            ryValue = createNumericValue(this.ry, null, null, 'pixels');
+            areaValue = createNumericValue(this.area, null, null, 'pixels');
+            angleValue = createNumericValue(this.angle, null, null, 'degrees');
+        }
+
+        this.specificProperties.push({attribute: "rx", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: rxValue});
+        this.specificProperties.push({attribute: "ry", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: ryValue});
+        this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['rx', 'ry'], dataTypeProposition: 'isNumericData', value: areaValue});
+        this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: angleValue});
 
         this.createVisualProperties();
-        this.createPositionProperties();                
-        
-        this.setCoreVisualPropertiesValues();
+        this.createPositionProperties();
 
+        this.setCoreVisualPropertiesValues();
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
-        if (updater == 'rx') {
-            if (updatedProperty == 'area') {
+        if (updater === 'rx') {
+            if (updatedProperty === 'area') {
                 return value * this.ry * Math.PI;
             }
-        } else if (updater == 'ry') {
-            if (updatedProperty == 'area') {
+        } else if (updater === 'ry') {
+            if (updatedProperty === 'area') {
                 return value * this.rx * Math.PI;
             }
-        } else if (updater == 'area') {
-            if (updatedProperty == 'rx' || updatedProperty == 'ry') {
+        } else if (updater === 'area') {
+            if (updatedProperty === 'rx' || updatedProperty === 'ry') {
                 return Math.sqrt(value / Math.PI);
             }
         }
     },
     setProperty: function (property, propertyValue, theVisualProperty, shouldAnimate) {
         var theMark = this;
-        if (property == 'shape') {
-            if (propertyValue == theMark.shape) {
+        if (property === 'shape') {
+            if (propertyValue === theMark.shape) {
                 return;
             }
 
@@ -74,16 +97,16 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
             setTimeout(function () {
                 changeMarkShape(theMark, propertyValue);
             }, waitingTime);
-        } else if (property == 'label') {
+        } else if (property === 'label') {
 
             this.setLabelProperty(propertyValue);
 
-        } else if (property == 'fill') {
+        } else if (property === 'fill') {
 
             this.setColorProperty(propertyValue);
 
 
-        } else if (property == 'rx' || property == 'ry' || property == 'area') {
+        } else if (property === 'rx' || property === 'ry' || property === 'area') {
 
             var numericValue = propertyValue.number;
 
@@ -91,7 +114,7 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
             var changedVisualProperty = theMark.getVisualPropertyByAttributeName(property);
             var propertiesToUpdate = changedVisualProperty.updatesTo;
 
-            if (property == 'area') {
+            if (property === 'area') {
 
 
 
@@ -128,7 +151,7 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
                 property = 'rx';
                 numericValue = Math.sqrt(numericValue / Math.PI);
 
-            } else if (property == 'rx' || property == 'ry') {
+            } else if (property === 'rx' || property === 'ry') {
 
                 if (LOG)
                     console.log("Modifying " + property + ". Value: " + numericValue);
@@ -175,20 +198,20 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
 
             var numericValue = propertyValue.number;
 
-            if (property == 'angle') {
+            if (property === 'angle') {
                 if (LOG)
-                    console.log("Original value: " + propertyValue);
-                propertyValue = propertyValue % 360;
+                    console.log("Original value: " + numericValue);
+                numericValue = numericValue % 360;
                 if (LOG)
-                    console.log("Modified value: " + propertyValue);
+                    console.log("Modified value: " + numericValue);
             }
 
             var easing = fabric.util.ease['easeOutBack'];
 
             if (shouldAnimate) {
-                theMark.animateProperty(property, propertyValue, 500, easing);
+                theMark.animateProperty(property, numericValue, 500, easing);
             } else {
-                theMark.changeProperty(property, propertyValue);
+                theMark.changeProperty(property, numericValue);
             }
 
 
