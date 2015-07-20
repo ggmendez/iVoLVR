@@ -664,6 +664,9 @@ function createValueFromXMLNode(valueXmlNode) {
         var child = $(this);
         var property = this.tagName;
         var value = child.text();
+                
+        value = replaceAll(value, CDATA_END_REPLACE, CDATA_END);
+        
         options[property] = value;
     });
     

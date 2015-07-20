@@ -128,12 +128,12 @@ function generateXMLNodeString(object) {
 }
 
 function generateProjectXML() {
-    
+
     var root = createXMLElement('iVoLVR_Canvas');
-    
+
     addAttributeWithValue(root, "zoom", canvas.getZoom());
     addAttributeWithValue(root, "panX", -canvas.viewportTransform[4]);
-    addAttributeWithValue(root, "panY", -canvas.viewportTransform[5]);   
+    addAttributeWithValue(root, "panY", -canvas.viewportTransform[5]);
 
     // generating the ids of all the elements that are on the canvas
     var cont = 1;
@@ -152,92 +152,82 @@ function generateProjectXML() {
         }
     });
 
-    
 
 
 
 
-    
+
+
     /*canvas.forEachObject(function (object) {
+     
+     if (!object.nonSerializable && object.serializableProperties && object.deserializer) {
+     root.append(generateXMLNodeString(object));
+     }
+     
+     
+     });*/
 
-        if (!object.nonSerializable && object.serializableProperties && object.deserializer) {
-            root.append(generateXMLNodeString(object));
-        }
 
-
-    });*/
-    
-    
     var xmlText = (new XMLSerializer()).serializeToString(root[0]);
-    
+
     return formatXml(xmlText);
 //    return xmlText;
 }
 
 function loadProjectXML(XMLString) {
-
+    
     var xmlDoc = $.parseXML(XMLString);
     var $xml = $(xmlDoc);
     var canvasNode = $xml.find('iVoLVR_Canvas');
 
-    console.log("canvasNode:");
-    console.log(canvasNode);
-    
+    if (LOG) {
+        console.log("canvasNode:");
+        console.log(canvasNode);
+    }
+
     var zoom = Number(canvasNode.attr('zoom'));
     var panX = Number(canvasNode.attr('panX'));
     var panY = Number(canvasNode.attr('panY'));
-    
+
     canvas.setZoom(zoom);
-    canvas.absolutePan(new fabric.Point(panX, panY));            
+    canvas.absolutePan(new fabric.Point(panX, panY));
 
     var children = canvasNode.children();
-    console.log("children:");
-    console.log(children);
+
+    if (LOG) {
+        console.log("children:");
+        console.log(children);
+    }
+
+//    setTimeout(function () {
+//        canvas.renderAll();
+//    }, 1300);
+
+//     Refreshing the canvas so that all the loaders do not do it
+    fabric.util.animate({
+        duration: 1300,
+        onChange: refresherFunction,
+        onComplete: refresherFunction
+    });
 
     children.each(function () {
-        
+
         var child = $(this);
         var tagName = this.tagName;
-        
+
 //        console.log(child);
 //        console.log(this.tagName);
 //        console.log(child.text());
-        
+
         if (tagName === "mark") {
-            
+
             createMarkFromXMLNode(child);
-            
+
         }
-
-//        createObjectFromXMLString(child);
-
+        
     });
-
-    setTimeout(function () {
-        canvas.renderAll();
-    }, 500);
-
-
 }
 
-function loadMarks($rootElement) {
-
-    var markNodes = $rootElement.find('mark');
-
-    console.log(markNodes.length + " marks found!");
-
-    markNodes.each(function () {
-        var $markNode = $(this);
-        var markType = $markNode.find('type').text();
-        addMarkToCanvasFromXML(markType, $markNode);
-    });
-
-
-
-
-
-
-}
 
 function makeConnections($rootElement) {
 

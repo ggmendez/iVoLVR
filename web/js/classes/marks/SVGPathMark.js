@@ -4,6 +4,15 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
     initialize: function (path, options) {
 
         options || (options = {});
+        
+        options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
+        options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
+        options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
+        
+        if (!options.values) {
+            options.values = {};
+        }
+        options.values.shape = createShapeValue(FILLEDPATH_MARK, this);
 
         this.callSuper('initialize', path, options);
 
@@ -44,11 +53,11 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         if (options.values) {
             widthValue = options.values.width || createNumericValue(this.the_width || this.width, null, null, 'pixels');
             heightValue = options.values.height || createNumericValue(this.the_height || this.height, null, null, 'pixels');
-            angleValue = options.values.angle || createNumericValue(this.angle, null, null, 'degrees');
+            angleValue = options.values.angle || createNumericValue(-this.angle, null, null, 'degrees');
         } else {
             widthValue = createNumericValue(this.the_width || this.width, null, null, 'pixels');
             heightValue = createNumericValue(this.the_height || this.height, null, null, 'pixels');
-            angleValue = createNumericValue(this.angle, null, null, 'degrees');
+            angleValue = createNumericValue(-this.angle, null, null, 'degrees');
         }
         
         this.specificProperties.push({attribute: "width", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: widthValue});
@@ -62,7 +71,7 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
 
         this.associateLabelEvents();
         
-        this.setCoreVisualPropertiesValues();
+        this.setCoreVisualPropertiesValues(options.values);
 
 
         
@@ -306,6 +315,9 @@ SVGPathMark.async = true;
 Mark.call(SVGPathMark.prototype);
 
 function addSVGPathMarkToCanvas(path, options) {
+    
+    path = path || ((options.values && options.values.shape) ? options.values.shape.path : '');
+    
     var svgPathMark = new SVGPathMark(path, options);
 
     if (LOG) console.log("svgPathMark:");
@@ -314,7 +326,8 @@ function addSVGPathMarkToCanvas(path, options) {
     canvas.add(svgPathMark);
 
     if (options.animateAtBirth) {
-        svgPathMark.animateBirth(options.markAsSelected);
+//        svgPathMark.animateBirth(options.markAsSelected);
+        svgPathMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
     }
 
     svgPathMark.associateEvents(svgPathMark);

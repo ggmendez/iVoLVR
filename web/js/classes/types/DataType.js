@@ -629,8 +629,11 @@ function CreateDataType(options) {
 
 function CreateDataTypeFromValue(value) {
     if (value.isNumericData) {
+        
+        console.log("--------------- ************************* value:");
+        console.log(value);
 
-        var options = {unscaledValue: value.unscaledValue, inPrefix: value.inPrefix, outPrefix: value.outPrefix, theUnits: value.theUnits};
+        var options = {unscaledValue: value.unscaledValue, inPrefix: value.inPrefix, outPrefix: value.outPrefix, units: value.units};
         return new NumericData(options);
 
     } else if (value.isStringData) {

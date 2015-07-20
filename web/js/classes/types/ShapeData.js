@@ -128,7 +128,9 @@ var ShapeData = fabric.util.createClass(fabric.Path, {
             'Rectangle': RECTANGULAR_MARK,
             'Ellipse': ELLIPTIC_MARK,
             'FatFont': FATFONT_MARK,
-            'SVG File': SVGPATHGROUP_MARK
+            'Path': PATH_MARK,
+            'FilledPath': FILLEDPATH_MARK,
+            'SVGPathGroup': SVGPATHGROUP_MARK
         }
 
         var outputShapeSelector = $('<select />', {id: 'outputShapeSelector', style: 'font-size: 18px;'});
@@ -153,7 +155,7 @@ var ShapeData = fabric.util.createClass(fabric.Path, {
 
             $('#outputShapeSelector').val(newShapeType);
 
-            if (newShapeType == SVGPATHGROUP_MARK) {
+            if (newShapeType === SVGPATHGROUP_MARK) {
 
                 configurationPanel.append('<br /><br />');
 
@@ -215,7 +217,7 @@ var ShapeData = fabric.util.createClass(fabric.Path, {
 
             if (newShapeType) {
 
-                if (newShapeType == SVGPATHGROUP_MARK) {
+                if (newShapeType === SVGPATHGROUP_MARK) {
 
                     var reader = new FileReader();
                     reader.onload = (function (file) {
@@ -229,7 +231,7 @@ var ShapeData = fabric.util.createClass(fabric.Path, {
 
                 } else {
 
-                    if (currentShapeType != newShapeType) {
+                    if (currentShapeType !== newShapeType) {
 
                         theDataType.inConnectors.forEach(function (inConnector) {
                             inConnector.contract();
@@ -252,7 +254,7 @@ var ShapeData = fabric.util.createClass(fabric.Path, {
                 // This point is reached when an SGV path group is loaded and it will be changed by another one. As there is no "change" in the select element, 
                 // the newShapeType variable will be null. However, a file might have been selected by the user, so this should be checked
 
-                if (currentShapeType == SVGPATHGROUP_MARK && selectedFile) {
+                if (currentShapeType === SVGPATHGROUP_MARK && selectedFile) {
 
                     var reader = new FileReader();
                     reader.onload = (function (file) {

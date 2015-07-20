@@ -50,6 +50,12 @@ var Mark = function () {
             labelValue = createStringValue(this.label);
         }
 
+        if (LOG) {
+            console.log("shapeValue:");
+            console.log(shapeValue);
+        }
+
+
         this.getVisualPropertyByAttributeName('shape').value = shapeValue;
         this.getVisualPropertyByAttributeName('fill').value = fillValue;
         this.getVisualPropertyByAttributeName('label').value = labelValue;
@@ -60,8 +66,8 @@ var Mark = function () {
         addAttributeWithValue(markNode, "shape", this.shape.shape || this.shape);
         appendElementWithValue(markNode, "left", this.left);
         appendElementWithValue(markNode, "top", this.top);
-        appendElementWithValue(markNode, "stroke", this.visualProperties[0].stroke);
-        appendElementWithValue(markNode, "visualPropertyFill", this.visualProperties[0].fill);
+        appendElementWithValue(markNode, "stroke", new fabric.Color(this.visualProperties[0].stroke).toRgba());
+        appendElementWithValue(markNode, "visualPropertyFill", new fabric.Color(this.visualProperties[0].fill).toRgba());
         appendElementWithValue(markNode, "isExpanded", !this.isCompressed);
         this.visualProperties.forEach(function (visualProperty) {
             var propertyNode = visualProperty.toXML();
@@ -191,7 +197,12 @@ var Mark = function () {
     // The finalScaleX and finalScaleY parameters are sent to avoid that the mark, after the animation, dissapear in the case where it is born with a scale of 0
     this.animateBirth = function (markAsSelected, finalScaleX, finalScaleY, doNotRefreshCanvas) {
 
-//        if (LOG) console.log("%cANIMATING birth of " + this, "background: black; color: yellow;");
+        if (doNotRefreshCanvas) {
+            if (LOG) {
+                console.log("%cThe canvas will not be refreshed in this BIRTH animation...", "background: green; color: black;");
+            }
+
+        }
 
         var theMark = this;
         var scaleX = finalScaleX || this.scaleX;
@@ -211,12 +222,28 @@ var Mark = function () {
             easing: easing
         });
 
-        theMark.animate('scaleY', scaleY, {
-            duration: duration,
-            easing: easing,
-            onChange: doNotRefreshCanvas ? null : canvas.renderAll.bind(canvas),
-            onComplete: doNotRefreshCanvas ? null : canvas.renderAll.bind(canvas),
-        });
+        var scaleYAnimationOptions = {};
+        scaleYAnimationOptions['duration'] = duration;
+        scaleYAnimationOptions['easing'] = easing;
+
+        if (!doNotRefreshCanvas) {
+            scaleYAnimationOptions['onChange'] = refresherFunction;
+            scaleYAnimationOptions['onComplete'] = refresherFunction;
+        }
+
+        if (LOG) {
+            console.log("scaleYAnimationOptions:");
+            console.log(scaleYAnimationOptions);
+        }
+
+        theMark.animate('scaleY', scaleY, scaleYAnimationOptions);
+
+//        theMark.animate('scaleY', scaleY, {
+//            duration: duration,
+//            easing: easing,
+//            onChange: doNotRefreshCanvas ? null : canvas.renderAll.bind(canvas),
+//            onComplete: doNotRefreshCanvas ? null : canvas.renderAll.bind(canvas),
+//        });
 
     };
     this.applySelectedStyle = function (selectConnectors) {
@@ -285,9 +312,11 @@ var Mark = function () {
             console.log("%cchangeProperty " + property + " with NO animation", "background:blue; color:yellow;");
         var theMark = this;
 
+        if (property === 'angle') {
+            value = -value;
+        }
 
-
-        if (theMark.isPathMark) {
+        if (theMark.isPathMark && (property === 'width' || property === 'height')) {
 
             var previousLeft = theMark.left;
             var previousTop = theMark.top;
@@ -305,7 +334,7 @@ var Mark = function () {
 
             theMark.set("the_" + property, value);
 
-        } else if (theMark.isSVGPathMark || theMark.isSVGPathGroupMark) {
+        } else if (theMark.isSVGPathMark || theMark.isSVGPathGroupMark && (property === 'width' || property === 'height')) {
             theMark.set("the_" + property, value);
             if (property === 'width') {
                 property = "scaleX";
@@ -328,12 +357,16 @@ var Mark = function () {
 
         var theMark = this;
 
+        if (property === 'angle') {
+            value = -value;
+        }
+
         if (LOG)
             console.log("Previous property: " + property);
         if (LOG)
             console.log("Previous value: " + value);
 
-        if (theMark.isPathMark) {
+        if (theMark.isPathMark && (property === 'width' || property === 'height')) {
 
             var startValue = theMark[property];
             var endValue = value;
@@ -384,7 +417,7 @@ var Mark = function () {
 
         } else {
 
-            if (theMark.isSVGPathMark || theMark.isSVGPathGroupMark) {
+            if (theMark.isSVGPathMark || theMark.isSVGPathGroupMark && (property === 'width' || property === 'height')) {
 
                 theMark.set("the_" + property, value);
 
@@ -1068,10 +1101,24 @@ var Mark = function () {
         theMark.visualProperties.forEach(function (visualProperty) {
             var attribute = visualProperty.attribute;
             var value = visualProperty.value;
-            var clonedValue = value.clone();
-            theCopy.getVisualPropertyByAttributeName(attribute).value = clonedValue;
-            ;
+            if (value.clone) {
+                var clonedValue = value.clone();
+                theCopy.getVisualPropertyByAttributeName(attribute).value = clonedValue;
+            }
         });
+        
+        if (options.targetWidth) {
+            theCopy.getVisualPropertyByAttributeName("width").value = createNumericValue(options.targetWidth, null, null, 'pixels');
+        }
+        if (options.targetHeight) {
+            theCopy.getVisualPropertyByAttributeName("height").value = createNumericValue(options.targetHeight, null, null, 'pixels');
+        }
+
+        if (theMark.isPathMark) {
+            theCopy.getVisualPropertyByAttributeName("xCollection").value = theMark.getVisualPropertyByAttributeName("xCollection").value;
+            theCopy.getVisualPropertyByAttributeName("yCollection").value = theMark.getVisualPropertyByAttributeName("yCollection").value;
+        }
+
 
         if (LOG)
             console.log(" **************************** theCopy: **************************** ");
@@ -1477,6 +1524,9 @@ var Mark = function () {
 
 /* Function to add outputs to Canvas*/
 function addMarkToCanvas(markType, options) {
+    if (LOG) {
+        console.log("%cThe birth of this mark will be animated...", "background: red; color: white;");
+    }
     if (markType === CIRCULAR_MARK) {
         return addCircularMarkToCanvas(options);
     } else if (markType === SQUARED_MARK) {
@@ -1495,32 +1545,6 @@ function addMarkToCanvas(markType, options) {
         return addSVGPathGroupMarkToCanvas(options.thePaths, options);
     }
 }
-
-/* Function to add outputs to Canvas*/
-function addMarkToCanvasFromXML(markType, markNode) {
-
-    console.log(markType);
-
-    if (markType === CIRCULAR_MARK) {
-        return addCircularMarkToCanvasFromXML(markNode);
-    } else if (markType == SQUARED_MARK) {
-        return addSquaredMarkToCanvasFromXML(markNode);
-    } else if (markType == RECTANGULAR_MARK) {
-        return addRectangularMarkToCanvasFromXML(markNode);
-    } else if (markType == ELLIPTIC_MARK) {
-        return addEllipticMarkToCanvasFromXML(markNode);
-    } else if (markType == FATFONT_MARK) {
-        return addFatFontMarkToCanvasFromXML(markNode);
-    } else if (markType == PATH_MARK) {
-        return addPathMarkToCanvasFromXML(markNode);
-    } else if (markType == FILLEDPATH_MARK) {
-        return addSVGPathMarkToCanvasFromXML(markNode);
-    } else if (markType == SVGPATHGROUP_MARK) {
-        return addSVGPathGroupMarkToCanvasFromXML(markNode);
-    }
-}
-
-
 
 function copyVisualPropertiesConnectors(fromMark, toMark) {
 
@@ -1709,8 +1733,6 @@ function createMarkFromXMLNode(valueXmlNode) {
         values: {}
     };
 
-
-
     var children = valueXmlNode.children();
     children.each(function () {
         var child = $(this);
@@ -1725,8 +1747,10 @@ function createMarkFromXMLNode(valueXmlNode) {
 
             var attribute = child.attr('attribute');
 
-            console.log(attribute + ":");
-            console.log(propertyValue);
+            if (LOG) {
+                console.log(attribute + ":");
+                console.log(propertyValue);
+            }
 
             options.values[attribute] = propertyValue;
 
@@ -1753,12 +1777,26 @@ function createMarkFromXMLNode(valueXmlNode) {
 
 function createMark(options) {
 
-    console.log("options:");
-    console.log(options);
-
     var markType = options.markType;
+    var isExpanded = options.isExpanded;
+
+    options.doNotRefreshCanvas = true;
     options.markAsSelected = false;
-    options.animateAtBirth = true;
-    
-    addMarkToCanvas(markType, options);
+    options.animateAtBirth = !isExpanded;
+
+    if (LOG) {
+        console.log("options:");
+        console.log(options);
+    }
+
+    var mark = addMarkToCanvas(markType, options);
+
+    if (typeof mark !== 'undefined' && mark !== null) { // due to the asynchronous nature of SVGPATHGROUP_MARK, this should be checked. The expansion of such marks is donde withint their adding method
+        if (isExpanded) {
+            mark.expand(false);
+        }
+    }
+
+
+
 }

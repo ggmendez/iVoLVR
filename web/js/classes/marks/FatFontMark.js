@@ -8,7 +8,7 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
 
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
-        options.angle = options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0);
+        options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
         options.fontSize = options.fontSize || ((options.values && options.values.fontSize) ? options.values.fontSize.number : 80);
 
         this.callSuper('initialize', text, options);
@@ -32,11 +32,11 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
         if (options.values) {
             numberValue = options.values.number || createNumericValue(this.number);
             fontSizeValue = options.values.fontSize || createNumericValue(this.fontSize, null, null, 'pixels');
-            angleValue = options.values.angle || createNumericValue(this.angle, null, null, 'degrees');
+            angleValue = options.values.angle || createNumericValue(-this.angle, null, null, 'degrees');
         } else {
             numberValue = createNumericValue(this.number);
             fontSizeValue = createNumericValue(this.fontSize, null, null, 'pixels');
-            angleValue = createNumericValue(this.angle, null, null, 'degrees');
+            angleValue = createNumericValue(-this.angle, null, null, 'degrees');
         }
 
         this.specificProperties.push({attribute: "number", readable: true, writable: true, types: ['number'], updatesTo: ['label'], dataTypeProposition: 'isNumericData', value: createNumericValue(this.number)});
@@ -72,9 +72,7 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
             });
         };
 
-        this.setCoreVisualPropertiesValues();
-
-
+        this.setCoreVisualPropertiesValues(options.values);
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
@@ -377,7 +375,8 @@ function addFatFontMarkToCanvas(options) {
 
 
     if (options.animateAtBirth) {
-        fatFontMark.animateBirth(options.markAsSelected, 1, 1);
+//        fatFontMark.animateBirth(options.markAsSelected, 1, 1);
+        fatFontMark.animateBirth(options.markAsSelected, 1, 1, options.doNotRefreshCanvas);
     }
 //    
 //    else {

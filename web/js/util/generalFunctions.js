@@ -1,3 +1,15 @@
+function escapeRegExp(string) {
+    return string.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
+
+function replaceAll(string, find, replace) {
+  return string.replace(new RegExp(escapeRegExp(find), 'g'), replace);
+}
+
+function refresherFunction() {
+    canvas.renderAll()
+}
+
 function isBlank(str) {
     return (!str || /^\s*$/.test(str));
 }
@@ -1430,7 +1442,7 @@ function addMarkFromSVGString(file, SVGString) {
 
         var canvasActualCenter = getActualCanvasCenter();
         var defaultOptions = {
-            label: file.name,
+            label: (typeof file !== 'undefined') ? file.name : '',
             markAsSelected: true,
             thePaths: objects,
             left: canvasActualCenter.x,
@@ -1439,12 +1451,12 @@ function addMarkFromSVGString(file, SVGString) {
             SVGString: SVGString
         };
         options = $.extend(true, {}, defaultOptions, options);
-        
+
         if (LOG)
             console.log("Merged options:");
         if (LOG)
             console.log(options);
-        
+
         addMarkToCanvas(SVGPATHGROUP_MARK, options);
     });
 
@@ -1457,7 +1469,7 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
     // if (LOG) console.log(event);        
 
     var SVGString = event.target.result;
-    
+
     if (asSingleMark) {
 
         addMarkFromSVGString(file, SVGString);
@@ -1472,7 +1484,7 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
         fabric.loadSVGFromString(SVGString, function (objects, options) {
 
 
-            
+
 
             var obj = fabric.util.groupSVGElements(objects, options);
             canvas.add(obj).renderAll();
@@ -4586,9 +4598,13 @@ function addAttributeWithValue(node, attributeName, value) {
 }
 
 function appendCDATAWithValue(root, elementName, value) {
+
     if (value === null || typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
         return;
-    }
+    }    
+    
+    value = replaceAll(value, CDATA_END, CDATA_END_REPLACE);
+    
     root.append('<' + elementName + ' type="cdata">' + '<![CDATA[' + value + ']]>' + '</' + elementName + '>');
 }
 
@@ -4600,125 +4616,125 @@ function appendElementWithValue(root, elementName, value) {
 }
 
 /*function appendElementWithValue(root, elementName, value) {
-
-    if (typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
-        return;
-    }
-
-    if ($.isArray(value)) {
-
-
-        console.log("The given value is an array here!!!! " + elementName + ": ");
-        console.log(value);
-
-//        var arrayElement = createXMLElement(elementName);
-
-
-        var xml = '<' + elementName + ' type="array"></' + elementName + '>';
-        var xmlDoc = $.parseXML(xml);
-        var $xml = $(xmlDoc);
-        var arrayElement = $xml.find(elementName);
-
-
-
-        value.forEach(function (element) {
-
-            var serializableValue = null;
-            var serializableValueName = null;
-
-            serializableValueName = 'element';
-
-            if (element.isNumericData) {
-                serializableValue = element.number;
-            }
-
-            arrayElement.append('<' + serializableValueName + ' type= "' + typeof serializableValue + '">' + serializableValue + '</' + serializableValueName + '>');
-
-
-            console.log("element:");
-            console.log(element);
-
-
-
-        });
-
-        root.append(arrayElement);
-
-
-
-        // here, the array value should be processed to be sabed in the XML file
-        //root.append('<' + elementName + ' type= "array">' + value + '</' + elementName + '>');
-
-
-    } else {
-
-        var valueType = typeof value;
-
-        print(elementName + " : " + value + " : " + valueType, "#6537a7", "white");
-
-        if (valueType === "object") {
-
-            if (value.isColorData) {
-
-                elementName = "theColor";
-                value = value.color.toRgba();
-
-            } else if (value.isDateAndTimeData) {
-
-                elementName = "theMoment";
-                value = value.moment.format();
-
-            } else if (value.isDurationData) {
-
-                console.log("value.outputUnits:");
-                console.log(value.outputUnits);
-
-                if (value.outputUnits) {
-                    root.append('<outputUnits type="string">' + value.outputUnits + '</outputUnits>');
-                }
-
-                elementName = "duration";
-                value = value.duration.asMilliseconds();
-
-
-
-            } else if (value.isShapeData) {
-
-                console.log("value.svgPathGroupMark:");
-                console.log(value.svgPathGroupMark);
-
-                if (value.svgPathGroupMark) {
-
-                    var SVGString = value.SVGString;
-
-                    console.log("SVGString:");
-                    console.log(SVGString);
-
-
-                    root.append('<svgPathGroupMark type="svgString">' + '<![CDATA[' + SVGString + ']]>' + '</svgPathGroupMark>');
-
-
-                }
-
-                console.log("value.shape:");
-                console.log(value.shape);
-
-                elementName = "shape";
-                value = value.shape;
-
-            }
-
-        }
-
-        root.append('<' + elementName + ' type= "' + typeof value + '">' + value + '</' + elementName + '>');
-
-
-
-
-
-
-    }
-}*/
+ 
+ if (typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
+ return;
+ }
+ 
+ if ($.isArray(value)) {
+ 
+ 
+ console.log("The given value is an array here!!!! " + elementName + ": ");
+ console.log(value);
+ 
+ //        var arrayElement = createXMLElement(elementName);
+ 
+ 
+ var xml = '<' + elementName + ' type="array"></' + elementName + '>';
+ var xmlDoc = $.parseXML(xml);
+ var $xml = $(xmlDoc);
+ var arrayElement = $xml.find(elementName);
+ 
+ 
+ 
+ value.forEach(function (element) {
+ 
+ var serializableValue = null;
+ var serializableValueName = null;
+ 
+ serializableValueName = 'element';
+ 
+ if (element.isNumericData) {
+ serializableValue = element.number;
+ }
+ 
+ arrayElement.append('<' + serializableValueName + ' type= "' + typeof serializableValue + '">' + serializableValue + '</' + serializableValueName + '>');
+ 
+ 
+ console.log("element:");
+ console.log(element);
+ 
+ 
+ 
+ });
+ 
+ root.append(arrayElement);
+ 
+ 
+ 
+ // here, the array value should be processed to be sabed in the XML file
+ //root.append('<' + elementName + ' type= "array">' + value + '</' + elementName + '>');
+ 
+ 
+ } else {
+ 
+ var valueType = typeof value;
+ 
+ print(elementName + " : " + value + " : " + valueType, "#6537a7", "white");
+ 
+ if (valueType === "object") {
+ 
+ if (value.isColorData) {
+ 
+ elementName = "theColor";
+ value = value.color.toRgba();
+ 
+ } else if (value.isDateAndTimeData) {
+ 
+ elementName = "theMoment";
+ value = value.moment.format();
+ 
+ } else if (value.isDurationData) {
+ 
+ console.log("value.outputUnits:");
+ console.log(value.outputUnits);
+ 
+ if (value.outputUnits) {
+ root.append('<outputUnits type="string">' + value.outputUnits + '</outputUnits>');
+ }
+ 
+ elementName = "duration";
+ value = value.duration.asMilliseconds();
+ 
+ 
+ 
+ } else if (value.isShapeData) {
+ 
+ console.log("value.svgPathGroupMark:");
+ console.log(value.svgPathGroupMark);
+ 
+ if (value.svgPathGroupMark) {
+ 
+ var SVGString = value.SVGString;
+ 
+ console.log("SVGString:");
+ console.log(SVGString);
+ 
+ 
+ root.append('<svgPathGroupMark type="svgString">' + '<![CDATA[' + SVGString + ']]>' + '</svgPathGroupMark>');
+ 
+ 
+ }
+ 
+ console.log("value.shape:");
+ console.log(value.shape);
+ 
+ elementName = "shape";
+ value = value.shape;
+ 
+ }
+ 
+ }
+ 
+ root.append('<' + elementName + ' type= "' + typeof value + '">' + value + '</' + elementName + '>');
+ 
+ 
+ 
+ 
+ 
+ 
+ }
+ }*/
 
 
 function createValueOfType(homogeneityGuess) {
@@ -5341,6 +5357,7 @@ function canvasDropFunction(ev, ui) {
                 stroke: darkenrgb(0, 153, 255),
                 side: 60,
                 label: '',
+                angle: 35,
                 markAsSelected: false,
                 animateAtBirth: true,
                 thePath: 'M 0 0 L 50 0 L 75 50 L 100 -50 L 125 0 L 175 0',

@@ -1,21 +1,117 @@
 SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
-//   type: 'SVGPathGroupMark',
     isSVGPathGroupMark: true,
     initialize: function (elements, options) {
         options || (options = {});
 
+        options.fill = options.fill || options.visualPropertyFill;
+        options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
+        options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
+        
+        var hastBeenPainted = false;
+        
+        if (!options.values) {
+            options.values = {};
+        }
+        options.values.shape = createShapeValue(SVGPATHGROUP_MARK, this);
+
+        if (options.fill) {
+
+            if (options.fill === DEFAULT_VISUAL_PROPERTY_FILL) {
+                options.fill = '';
+                options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
+                options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
+                options.values.fill = createColorValue(DEFAULT_VISUAL_PROPERTY_FILL);
+                
+                options.stroke = '';
+                options.colorForStroke = '';
+                options.strokeWidth = 0;
+                options.originalStrokeWidth = 0;
+                options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
+                options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
+                
+            } else {
+                
+                hastBeenPainted = true;
+                options.visualPropertyFill = options.fill;
+                options.colorForStroke = options.stroke;
+                options.strokeWidth = options.strokeWidth || 2;
+                options.originalStrokeWidth = options.strokeWidth;
+                options.visualPropertyStroke = options.stroke;
+                
+            }
+
+        } else {
+
+            options.fill = '';
+            options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
+            options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
+            options.values.fill = createColorValue(DEFAULT_VISUAL_PROPERTY_FILL);
+            
+            options.stroke = '';
+                options.colorForStroke = '';
+                options.strokeWidth = 0;
+                options.originalStrokeWidth = 0;
+                options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
+                options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
+
+        }
+
+//        if (options.stroke) {
+//
+//            if (options.stroke === DEFAULT_VISUAL_PROPERTY_STROKE) {
+//
+//                options.stroke = '';
+//                options.colorForStroke = '';
+//                options.strokeWidth = 0;
+//                options.originalStrokeWidth = 0;
+//                options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
+//                options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
+//
+//            } else {
+//
+//
+//
+//
+//            }
+//
+//        } else {
+//
+//            options.stroke = '';
+//            options.colorForStroke = '';
+//            options.strokeWidth = 0;
+//            options.originalStrokeWidth = 0;
+//            options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
+//            options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
+//
+//        }
+
+
+
+//        this.set('visualPropertyFill', options.visualPropertyFill || rgb(153, 153, 153));
+//        this.set('visualPropertyStroke', options.visualPropertyStroke || rgb(86, 86, 86));
+//        this.set('colorForStroke', options.visualPropertyStroke || rgb(86, 86, 86));
+//        
+
+
+        
 
         this.callSuper('initialize', elements, options);
-        
+
         this.set('isSVGPathGroupMark', true);
 
-        this.set('strokeWidth', options.strokeWidth || 2);
-        this.set('originalStrokeWidth', options.strokeWidth || 2);
+//        this.set('strokeWidth', options.strokeWidth || 2);
+//        this.set('originalStrokeWidth', options.strokeWidth || 2);
         this.set('perPixelTargetFind', false);
 
-        this.set('visualPropertyFill', options.visualPropertyFill || rgb(153, 153, 153));
-        this.set('visualPropertyStroke', options.visualPropertyStroke || rgb(86, 86, 86));
-        this.set('colorForStroke', options.visualPropertyStroke || rgb(86, 86, 86));
+//        this.set('visualPropertyFill', options.visualPropertyFill || DEFAULT_VISUAL_PROPERTY_FILL);       
+
+
+
+
+
+
+//        this.set('visualPropertyStroke', options.stroke || (options.visualPropertyStroke || DEFAULT_VISUAL_PROPERTY_STROKE));
+//        this.set('colorForStroke', this.visualPropertyStroke);
 
         this.createVariables();
 
@@ -28,6 +124,9 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
 
         this.createRectBackground();
         
+        console.log("options.targetWidth:");
+        console.log(options.targetWidth);
+
         if (options.targetWidth) {
             var theWidth = options.targetWidth / this.width;
             this.set('finalScaleX', theWidth);
@@ -43,21 +142,24 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
         } else {
             this.set("the_height", this.height);
         }
-        
+
         var widthValue = null;
-        var heightValue = null;        
+        var heightValue = null;
         var angleValue = null;
 
         if (options.values) {
             widthValue = options.values.width || createNumericValue(this.the_width || this.width, null, null, 'pixels');
             heightValue = options.values.height || createNumericValue(this.the_height || this.height, null, null, 'pixels');
-            angleValue = options.values.angle || createNumericValue(this.angle, null, null, 'degrees');
+            angleValue = options.values.angle || createNumericValue(-this.angle, null, null, 'degrees');
         } else {
             widthValue = createNumericValue(this.the_width || this.width, null, null, 'pixels');
             heightValue = createNumericValue(this.the_height || this.height, null, null, 'pixels');
-            angleValue = createNumericValue(this.angle, null, null, 'degrees');
+            angleValue = createNumericValue(-this.angle, null, null, 'degrees');
         }
         
+        console.log("widthValue:");
+        console.log(widthValue);
+
         this.specificProperties.push({attribute: "width", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: widthValue});
         this.specificProperties.push({attribute: "height", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: heightValue});
         this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: angleValue});
@@ -68,8 +170,14 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
         this.setCoords();
 
 
+        this.toXML = function () {
+            // Calling the nomal expand method from the prototype definition
+            var markNode = SVGPathGroupMark.prototype.toXML.call(this);
+            appendElementWithValue(markNode, "finalScaleX", this.finalScaleX);
+            appendElementWithValue(markNode, "finalScaleY", this.finalScaleY);
+            return markNode;
+        };
 
-        
 
         this.changeColors = function (fill, stroke) {
 
@@ -99,7 +207,11 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
             });
         };
 
-        this.setCoreVisualPropertiesValues();
+        this.setCoreVisualPropertiesValues(options.values);
+
+        if (hastBeenPainted) {
+            this.changeColors(options.visualPropertyFill, this.visualPropertyStroke);
+        }
 
 
     },
@@ -307,25 +419,80 @@ SVGPathGroupMark.async = true;
 Mark.call(SVGPathGroupMark.prototype);
 
 function addSVGPathGroupMarkToCanvas(paths, options) {
-    var svgPathGroupMark = new SVGPathGroupMark(paths, options);
 
-    if (LOG)
-        console.log("svgPathGroupMark:");
-    if (LOG)
-        console.log(svgPathGroupMark);
+    console.log("options:");
+    console.log(options);
 
-    canvas.add(svgPathGroupMark);
-    svgPathGroupMark.setCoords();
+    if (typeof paths === 'undefined' && options.values && options.values.shape && options.values.shape.svgPathGroupMark) {
+        var SVGString = options.values.shape.svgPathGroupMark;
 
-    canvas.setActiveObject(svgPathGroupMark);
+        fabric.loadSVGFromString(SVGString, function (objects, defaultOptions) {
 
-    if (options.animateAtBirth) {
-        svgPathGroupMark.animateBirth(options.markAsSelected);
+            options.SVGString = SVGString;
+            options.thePaths = objects;
+            paths = objects;
+            
+            options.targetWidth = options.values.width.number;
+            options.targetHeight = options.values.height.number;
+
+            options = $.extend(true, {}, defaultOptions, options);
+
+            var svgPathGroupMark = new SVGPathGroupMark(paths, options);
+
+            if (LOG)
+                console.log("svgPathGroupMark:");
+            if (LOG)
+                console.log(svgPathGroupMark);
+
+            canvas.add(svgPathGroupMark);
+            svgPathGroupMark.setCoords();
+
+            canvas.setActiveObject(svgPathGroupMark);
+
+            if (options.animateAtBirth) {
+                svgPathGroupMark.animateBirth(options.markAsSelected, options.finalScaleX, options.finalScaleY, options.doNotRefreshCanvas);
+            }
+
+            svgPathGroupMark.associateEvents(svgPathGroupMark);
+
+            if (options.isExpanded) {
+                svgPathGroupMark.expand(false);
+            }
+
+            return svgPathGroupMark;
+
+        });
+
+
+
+    } else {
+
+        var svgPathGroupMark = new SVGPathGroupMark(paths, options);
+
+        if (LOG)
+            console.log("svgPathGroupMark:");
+        if (LOG)
+            console.log(svgPathGroupMark);
+
+        canvas.add(svgPathGroupMark);
+        svgPathGroupMark.setCoords();
+
+        canvas.setActiveObject(svgPathGroupMark);
+
+        if (options.animateAtBirth) {
+//        svgPathGroupMark.animateBirth(options.markAsSelected);
+            svgPathGroupMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
+        }
+
+
+        svgPathGroupMark.associateEvents(svgPathGroupMark);
+
+        return svgPathGroupMark;
+
     }
 
 
-    svgPathGroupMark.associateEvents(svgPathGroupMark);
 
-    return svgPathGroupMark;
+
 }
 

@@ -10,7 +10,7 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
         
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
-        options.angle = options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0);
+        options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
         
         options.side = options.side || options.values.side.number;
         if (typeof options.side !== 'undefined') {
@@ -50,11 +50,11 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
         if (options.values) {
             sideValue = options.values.side || createNumericValue(this.side, null, null, 'pixels');
             areaValue = options.values.area || createNumericValue(this.area, null, null, 'pixels');
-            angleValue = options.values.angle || createNumericValue(this.angle, null, null, 'degrees');
+            angleValue = options.values.angle || createNumericValue(-this.angle, null, null, 'degrees');
         } else {
             sideValue = createNumericValue(this.side, null, null, 'pixels');
             areaValue = createNumericValue(this.area, null, null, 'pixels');
-            angleValue = createNumericValue(this.angle, null, null, 'degrees');
+            angleValue = createNumericValue(-this.angle, null, null, 'degrees');
         }
 
         this.specificProperties.push({attribute: "side", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: sideValue});
@@ -63,16 +63,16 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
 
         this.createVisualProperties();
         this.createPositionProperties();
-        this.setCoreVisualPropertiesValues();
+        this.setCoreVisualPropertiesValues(options.values);
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
-        if (updater == 'side') {
-            if (updatedProperty == 'area') {
+        if (updater === 'side') {
+            if (updatedProperty === 'area') {
                 return value * value;
             }
-        } else if (updater == 'area') {
-            if (updatedProperty == 'side') {
+        } else if (updater === 'area') {
+            if (updatedProperty === 'side') {
                 return Math.sqrt(value);
             }
         }
@@ -374,22 +374,8 @@ function addSquaredMarkToCanvas(options) {
     canvas.add(squaredMark);
     if (options.animateAtBirth) {
         if (squaredMark.side > 0) {
-            squaredMark.animateBirth(options.markAsSelected);
-        }
-    }
-    squaredMark.associateEvents(squaredMark);
-    return squaredMark;
-}
-
-function addSquaredMarkToCanvasFromXML(options) {
-    
-    console.log("adding SQUARED mark to canvas from XML");
-
-    var squaredMark = new SquaredMark(options);
-    canvas.add(squaredMark);
-    if (options.animateAtBirth) {
-        if (squaredMark.side > 0) {
-            squaredMark.animateBirth(options.markAsSelected);
+//            squaredMark.animateBirth(options.markAsSelected);
+            squaredMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
         }
     }
     squaredMark.associateEvents(squaredMark);

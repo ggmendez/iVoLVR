@@ -5,6 +5,7 @@
  */
 package classes;
 
+import com.sun.jna.NativeLibrary;
 import java.io.File;
 import org.opencv.core.Core;
 
@@ -22,6 +23,7 @@ public class OpenCVLoader {
     public static String fileSeparator = System.getProperty("file.separator");
 
     static {
+        
         if (operatingSystem.contains("Linux")) {
             System.load("/usr/local/share/OpenCV/java/libopencv_java249.so");
         } else if (operatingSystem.contains("Windows")) {

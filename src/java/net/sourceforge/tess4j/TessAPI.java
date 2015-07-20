@@ -32,7 +32,7 @@ public interface TessAPI extends Library {
      */
     public static final String LIB_NAME = "libtesseract302";
 //    public static final String LIB_NAME_NON_WIN = "libtesseract302";
-    public static final String LIB_NAME_NON_WIN = "/opt/apache-tomcat-8.0.23/webapps/iVoLVR/WEB-INF/classes/libtesseract302.so";
+    public static final String LIB_NAME_NON_WIN = "tesseract";    
     /**
      * An instance of the class library.
      */

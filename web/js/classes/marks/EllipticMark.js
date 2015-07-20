@@ -8,7 +8,7 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
 
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
-        options.angle = options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0);
+        options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
         
         options.rx = options.rx || options.values.rx.number;
         options.ry = options.ry || options.values.ry.number;
@@ -48,12 +48,12 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
             rxValue = options.values.rx || createNumericValue(this.rx, null, null, 'pixels');
             ryValue = options.values.ry || createNumericValue(this.ry, null, null, 'pixels');
             areaValue = options.values.area || createNumericValue(this.area, null, null, 'pixels');
-            angleValue = options.values.angle || createNumericValue(this.angle, null, null, 'degrees');
+            angleValue = options.values.angle || createNumericValue(-this.angle, null, null, 'degrees');
         } else {
             rxValue = createNumericValue(this.rx, null, null, 'pixels');
             ryValue = createNumericValue(this.ry, null, null, 'pixels');
             areaValue = createNumericValue(this.area, null, null, 'pixels');
-            angleValue = createNumericValue(this.angle, null, null, 'degrees');
+            angleValue = createNumericValue(-this.angle, null, null, 'degrees');
         }
 
         this.specificProperties.push({attribute: "rx", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: rxValue});
@@ -64,7 +64,7 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
         this.createVisualProperties();
         this.createPositionProperties();
 
-        this.setCoreVisualPropertiesValues();
+        this.setCoreVisualPropertiesValues(options.values);
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
@@ -344,7 +344,8 @@ function addEllipticMarkToCanvas(options) {
     canvas.add(ellipticMark);
     if (options.animateAtBirth) {
         if (ellipticMark.width > 0 && ellipticMark.height > 0) {
-            ellipticMark.animateBirth(options.markAsSelected);
+//            ellipticMark.animateBirth(options.markAsSelected);
+            ellipticMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
         }
     }
 

@@ -22,6 +22,7 @@ var NumericData = fabric.util.createClass(fabric.Path, {
         var unscaledValue = options.unscaledValue;
         var inPrefix = options.inPrefix || '';
         var outPrefix = options.outPrefix || '';
+        var theUnits = options.units || '';
 
 //      if (LOG) console.log("++++++++++++++ inPrefix:");
 //      if (LOG) console.log(inPrefix);
@@ -29,8 +30,13 @@ var NumericData = fabric.util.createClass(fabric.Path, {
 //      if (LOG) console.log("++++++++++++++ outPrefix:");
 //      if (LOG) console.log(outPrefix);
 
-        var theUnits = options.units || '';
+        
         var value = createNumericValue(unscaledValue, inPrefix, outPrefix, theUnits);
+        
+        console.log("$$$$$$$$$$$$$$$$$$$$$$$Created value : ");
+        console.log(value);
+        
+        
         this.set('value', value);
 
         if (LOG)

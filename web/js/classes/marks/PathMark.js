@@ -4,10 +4,16 @@ PathMark = fabric.util.createClass(fabric.Path, {
     initialize: function (path, options) {
 
         options || (options = {});
-
         options.fill = options.fill || options.visualPropertyFill;
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
-        options.angle = options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0);
+        options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
+        
+        if (!options.values) {
+            options.values = {};
+        }
+        options.values.fill = createColorValue(new fabric.Color(options.fill));        
+        options.values.shape = createShapeValue(PATH_MARK, this);
+        
 
         this.callSuper('initialize', path, options);
 
@@ -60,11 +66,11 @@ PathMark = fabric.util.createClass(fabric.Path, {
         if (options.values) {
             widthValue = options.values.width || createNumericValue(this.width, null, null, 'pixels');
             heightValue = options.values.height || createNumericValue(this.height, null, null, 'pixels');
-            angleValue = options.values.angle || createNumericValue(this.angle, null, null, 'degrees');
+            angleValue = options.values.angle || createNumericValue(-this.angle, null, null, 'degrees');
         } else {
             widthValue = createNumericValue(this.width, null, null, 'pixels');
             heightValue = createNumericValue(this.height, null, null, 'pixels');
-            angleValue = createNumericValue(this.angle, null, null, 'degrees');
+            angleValue = createNumericValue(-this.angle, null, null, 'degrees');
         }
 
         this.specificProperties.push({attribute: "xCollection", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData'});
@@ -153,7 +159,7 @@ PathMark = fabric.util.createClass(fabric.Path, {
         this.scaledY = this.scaleCoordiates(this.yCollection, 'y');
         this.updatePoints();
 
-        this.setCoreVisualPropertiesValues();
+        this.setCoreVisualPropertiesValues(options.values);
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
@@ -637,7 +643,8 @@ function addPathMarkToCanvas(path, options) {
     canvas.add(svgPathMark);
 
     if (options.animateAtBirth) {
-        svgPathMark.animateBirth(options.markAsSelected);
+//        svgPathMark.animateBirth(options.markAsSelected);
+        svgPathMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
     }
 
     svgPathMark.associateEvents(svgPathMark);

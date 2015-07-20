@@ -15,6 +15,7 @@
  */
 package net.sourceforge.tess4j;
 
+import com.sun.jna.NativeLibrary;
 import net.sourceforge.vietocr.ImageIOHelper;
 import com.sun.jna.Pointer;
 import java.awt.Rectangle;
@@ -274,6 +275,9 @@ public class Tesseract implements ITesseract {
      * Initializes Tesseract engine.
      */
     private void init() {
+        
+        
+        
         pageNum = 0;
         
         api = TessAPI.INSTANCE;

@@ -74,7 +74,7 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
         this.createVisualProperties();
         this.createPositionProperties();
 
-        this.setCoreVisualPropertiesValues();
+        this.setCoreVisualPropertiesValues(options.values);
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
@@ -286,12 +286,12 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
 Mark.call(CircularMark.prototype);
 
 
-function addCircularMarkToCanvas(options) {
-
+function addCircularMarkToCanvas(options) {        
+    
     var circularMark = new CircularMark(options);
     canvas.add(circularMark);
 
-    if (options.animateAtBirth) {
+    if (options.animateAtBirth) {        
         if (circularMark.radius > 0) {
             circularMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
         }
@@ -311,55 +311,4 @@ function addCircularMarkToCanvas(options) {
     return circularMark;
 }
 
-function addCircularMarkToCanvasFromXML($markNode) {
 
-    console.log("adding CIRCULAR mark to canvas from XML");
-
-    // numeric properties
-    var serialID = Number($markNode.find('serialID').text());
-
-    console.log("serialID:");
-    console.log(serialID);
-
-    var left = Number($markNode.find('left').text());
-    var top = Number($markNode.find('top').text());
-    var radius = Number($markNode.find('radius').text());
-
-    // text fields
-    var fill = $markNode.find('fill').text();
-    var stroke = $markNode.find('stroke').text();
-    var label = $markNode.find('label').text();
-
-    // logic values
-    var isCompressed = $markNode.find('isCompressed').text() === 'true';
-
-    console.log("serialID: " + serialID);
-    console.log("left: " + left);
-    console.log("top: " + top);
-    console.log("fill: " + fill);
-    console.log("stroke: " + stroke);
-    console.log("radius: " + radius);
-    console.log("label: " + label);
-    console.log("isCompressed: " + isCompressed);
-
-    var options = {
-        serialID: serialID,
-        left: left,
-        top: top,
-        fill: fill,
-        stroke: stroke,
-        radius: radius,
-        label: label || '',
-        markAsSelected: false,
-        animateAtBirth: isCompressed
-    };
-
-    var circularMark = addCircularMarkToCanvas(options);
-
-    if (!isCompressed) {
-        circularMark.expand(true);
-    }
-
-
-    return circularMark;
-}

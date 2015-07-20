@@ -8,7 +8,7 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
 
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
-        options.angle = options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0);
+        options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
         
         options.width = options.width || options.values.width.number;
         options.height = options.height || options.values.height.number;
@@ -50,12 +50,12 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
             widthValue = options.values.width || createNumericValue(this.width, null, null, 'pixels');
             heightValue = options.values.height || createNumericValue(this.height, null, null, 'pixels');
             areaValue = options.values.area || createNumericValue(this.area, null, null, 'pixels');
-            angleValue = options.values.angle || createNumericValue(this.angle, null, null, 'degrees');
+            angleValue = options.values.angle || createNumericValue(-this.angle, null, null, 'degrees');
         } else {
             widthValue = createNumericValue(this.width, null, null, 'pixels');
             heightValue = createNumericValue(this.height, null, null, 'pixels');
             areaValue = createNumericValue(this.area, null, null, 'pixels');
-            angleValue = createNumericValue(this.angle, null, null, 'degrees');
+            angleValue = createNumericValue(-this.angle, null, null, 'degrees');
         }
 
         this.specificProperties.push({attribute: "width", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: widthValue})
@@ -337,7 +337,8 @@ function addRectangularMarkToCanvas(options) {
     canvas.add(rectangularMark);
     if (options.animateAtBirth) {
         if (rectangularMark.width > 0 && rectangularMark.height > 0) {
-            rectangularMark.animateBirth(options.markAsSelected);
+//            rectangularMark.animateBirth(options.markAsSelected);
+            rectangularMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
         }
     }
     rectangularMark.associateEvents(rectangularMark);

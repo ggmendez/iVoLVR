@@ -1,8 +1,8 @@
 // The Output mixing defines all the common properties and behaviours that outputs share
 var VisualProperty = function () {
-    
+
     this.set('nonSerializable', true);
-    
+
     this.set('visualProperty', true);
     this.set('isVisualProperty', true);
     this.set('originX', 'center');
@@ -623,7 +623,11 @@ var VisualProperty = function () {
 //
 //                this.set('value', composedValue);
 
-                if (!theVisualProperty.value || theVisualProperty.attribute === "colorValues") {
+//                if (!theVisualProperty.value || theVisualProperty.attribute === "colorValues") {
+                if (theVisualProperty.attribute === "colorValues") {
+
+                    alert("The visual property is going to create its own value");
+
                     var value = theVisualProperty.createValue();
                     theVisualProperty.set('value', value);
 
@@ -636,7 +640,7 @@ var VisualProperty = function () {
 
                 }
 
-                var newConnector = new Connector({source: this, x2: this.left, y2: this.top, arrowColor: this.parentObject.colorForStroke, filledArrow: true, strokeWidth: 1});
+                var newConnector = new Connector({source: this, value: theVisualProperty.value, x2: this.left, y2: this.top, arrowColor: this.parentObject.colorForStroke, filledArrow: true, strokeWidth: 1});
 
                 if (LOG)
                     console.log(newConnector.value);
@@ -1230,12 +1234,13 @@ function showShapeSelector(theVisualProperty) {
     var outputShapes = {
         'Circle': CIRCULAR_MARK,
         'Square': SQUARED_MARK,
-        'SVGPath': FILLEDPATH_MARK,
         'Rectangle': RECTANGULAR_MARK,
         'Ellipse': ELLIPTIC_MARK,
         'FatFont': FATFONT_MARK,
-        'SVG File': SVGPATHGROUP_MARK
-    }
+        'Path': PATH_MARK,
+        'FilledPath': FILLEDPATH_MARK,
+        'SVGPathGroup': SVGPATHGROUP_MARK
+    };
 
     var outputShapeSelector = $('<select />', {id: 'outputShapeSelector', style: 'font-size: 18px;'});
 //    outputShapeSelector.css('transform', 'scale(' + canvas.getZoom() + ', ' + canvas.getZoom() + '  )');
@@ -1260,7 +1265,7 @@ function showShapeSelector(theVisualProperty) {
         newShapeType = this.value;
         $('#outputShapeSelector').val(newShapeType);
 
-        if (newShapeType == SVGPATHGROUP_MARK) {
+        if (newShapeType === SVGPATHGROUP_MARK) {
 
             configurationPanel.append('<br /><br />');
 
@@ -1323,7 +1328,7 @@ function showShapeSelector(theVisualProperty) {
 
             if (newShapeType) {
 
-                if (newShapeType == SVGPATHGROUP_MARK) {
+                if (newShapeType === SVGPATHGROUP_MARK) {
 
                     var reader = new FileReader();
                     reader.onload = (function (file) {
@@ -1361,7 +1366,7 @@ function showShapeSelector(theVisualProperty) {
                 // This point is reached when an SGV path group is loaded and it will be changed by another one. As there is no "change" in the select element, 
                 // the newShapeType variable will be null. However, a file might have been selected by the user, so this should be checked
 
-                if (currentShapeType == SVGPATHGROUP_MARK && selectedFile) {
+                if (currentShapeType === SVGPATHGROUP_MARK && selectedFile) {
 
                     var reader = new FileReader();
                     reader.onload = (function (file) {
