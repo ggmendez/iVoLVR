@@ -3,7 +3,12 @@ function escapeRegExp(string) {
 }
 
 function replaceAll(string, find, replace) {
-  return string.replace(new RegExp(escapeRegExp(find), 'g'), replace);
+    if (string.replace) {
+        return string.replace(new RegExp(escapeRegExp(find), 'g'), replace);
+    } else {
+        return string;
+    }
+  
 }
 
 function refresherFunction() {
@@ -5355,7 +5360,6 @@ function canvasDropFunction(ev, ui) {
                 top: y,
                 fill: rgb(0, 153, 255),
                 stroke: darkenrgb(0, 153, 255),
-                side: 60,
                 label: '',
                 angle: 35,
                 markAsSelected: false,

@@ -1106,12 +1106,14 @@ var Mark = function () {
                 theCopy.getVisualPropertyByAttributeName(attribute).value = clonedValue;
             }
         });
-        
-        if (options.targetWidth) {
-            theCopy.getVisualPropertyByAttributeName("width").value = createNumericValue(options.targetWidth, null, null, 'pixels');
-        }
-        if (options.targetHeight) {
-            theCopy.getVisualPropertyByAttributeName("height").value = createNumericValue(options.targetHeight, null, null, 'pixels');
+
+        if (options) {
+            if (options.targetWidth) {
+                theCopy.getVisualPropertyByAttributeName("width").value = createNumericValue(options.targetWidth, null, null, 'pixels');
+            }
+            if (options.targetHeight) {
+                theCopy.getVisualPropertyByAttributeName("height").value = createNumericValue(options.targetHeight, null, null, 'pixels');
+            }
         }
 
         if (theMark.isPathMark) {

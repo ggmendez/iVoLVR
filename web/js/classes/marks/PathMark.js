@@ -6,7 +6,7 @@ PathMark = fabric.util.createClass(fabric.Path, {
         options || (options = {});
         options.fill = options.fill || options.visualPropertyFill;
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
-        options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
+        options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : -0));
         
         if (!options.values) {
             options.values = {};
@@ -147,10 +147,6 @@ PathMark = fabric.util.createClass(fabric.Path, {
         var xCollectionVisualProperty = this.getVisualPropertyByAttributeName('xCollection');
         xCollectionVisualProperty.value = coordinates.XCoordinates;
         
-        if (options.values && options.values.shape && options.values.shape.path) {
-            coordinates.YCoordinates = coordinates.YCoordinates.reverse(); // IMPORTANT! The if condition is true when this is loaded from a XML iVoLVR project file
-        }
-
         this.set("yCollection", coordinates.YCoordinates);
         var yCollectionVisualProperty = this.getVisualPropertyByAttributeName('yCollection');
         yCollectionVisualProperty.value = coordinates.YCoordinates;        
@@ -630,8 +626,16 @@ PathMark.async = true;
 Mark.call(PathMark.prototype);
 
 function addPathMarkToCanvas(path, options) {
-
-    path = path || ((options.values && options.values.shape) ? options.values.shape.path : '');
+    
+    console.log("path BEFORE");
+    console.log(path);
+    
+    if (typeof path === 'undefined') {
+        path = (options.values && options.values.shape) ? options.values.shape.path : '';
+    }
+    
+    console.log("path AFTER");
+    console.log(path);
         
     var svgPathMark = new PathMark(path, options);
 

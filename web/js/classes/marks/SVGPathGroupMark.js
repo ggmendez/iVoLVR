@@ -24,8 +24,8 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
                 
                 options.stroke = '';
                 options.colorForStroke = '';
-                options.strokeWidth = 0;
-                options.originalStrokeWidth = 0;
+                options.strokeWidth = 2;
+                options.originalStrokeWidth = options.strokeWidth;
                 options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
                 options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
                 
@@ -49,8 +49,8 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
             
             options.stroke = '';
                 options.colorForStroke = '';
-                options.strokeWidth = 0;
-                options.originalStrokeWidth = 0;
+                options.strokeWidth = 2;
+                options.originalStrokeWidth = options.strokeWidth;
                 options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
                 options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
 

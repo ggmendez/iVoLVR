@@ -7,7 +7,7 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
-        options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
+        options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : -0));
         
         if (!options.values) {
             options.values = {};
