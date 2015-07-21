@@ -174,23 +174,22 @@ function generateProjectXML() {
 //    return xmlText;
 }
 
-function loadProjectXML(XMLString) {
-    
-    var xmlDoc = $.parseXML(XMLString);
-    var $xml = $(xmlDoc);
-    var canvasNode = $xml.find('iVoLVR_Canvas');
-
+function processCanvasXMLNode(canvasNode) {
     if (LOG) {
         console.log("canvasNode:");
         console.log(canvasNode);
     }
 
-    var zoom = Number(canvasNode.attr('zoom'));
-    var panX = Number(canvasNode.attr('panX'));
-    var panY = Number(canvasNode.attr('panY'));
+    var currentZoom = canvas.getZoom();
+    var currentPanX = -canvas.viewportTransform[4];
+    var currentPanY = -canvas.viewportTransform[5];
 
-    canvas.setZoom(zoom);
-    canvas.absolutePan(new fabric.Point(panX, panY));
+    var newZoom = Number(canvasNode.attr('zoom'));
+    var newPanX = Number(canvasNode.attr('panX'));
+    var newPanY = Number(canvasNode.attr('panY'));
+
+//    canvas.setZoom(newZoom);
+//    canvas.absolutePan(new fabric.Point(panX, panY));
 
     var children = canvasNode.children();
 
@@ -199,16 +198,53 @@ function loadProjectXML(XMLString) {
         console.log(children);
     }
 
-//    setTimeout(function () {
-//        canvas.renderAll();
-//    }, 1300);
+    console.log("currentZoom: " + currentZoom);
+    console.log("newZoom: " + newZoom);
+    
+    var duration = 1300;
+    
+    var tempPanX = currentPanX;
+    var tempPanY = currentPanY;
+    fabric.util.animate({
+        startValue: currentPanX,
+        endValue: newPanX,
+        duration: duration,
+        onChange: function (value) {
+            tempPanX = value;
+        }
+    });
+    fabric.util.animate({
+        startValue: currentPanY,
+        endValue: newPanY,
+        duration: duration,
+        onChange: function (value) {
+            tempPanY = value;
+        }
+    });
+
+    fabric.util.animate({
+        startValue: currentZoom,
+        endValue: newZoom,
+        duration: duration,
+        onChange: function (value) {
+            console.log(value);
+            canvas.setZoom(value);
+            canvas.absolutePan(new fabric.Point(tempPanX, tempPanY));
+        },
+        onComplete: function () {
+            canvas.setZoom(newZoom);
+            canvas.absolutePan(new fabric.Point(newPanX, newPanY));
+        }
+    });
+
+
 
 //     Refreshing the canvas so that all the loaders do not do it
-    fabric.util.animate({
-        duration: 1300,
-        onChange: refresherFunction,
-        onComplete: refresherFunction
-    });
+//    fabric.util.animate({
+//        duration: 1300,
+//        onChange: refresherFunction,
+//        onComplete: refresherFunction
+//    });
 
     children.each(function () {
 
@@ -223,15 +259,35 @@ function loadProjectXML(XMLString) {
 
             createMarkFromXMLNode(child);
 
+        } else if (tagName === "operator") {
+
+            createOperatorFromXMLNode(child);
+
         } else if (tagName === "visualValue") {
 
             createVisualVariableFromXMLNode(child);
 
         }
-            
-            
-        
+
+
+
     });
+}
+
+
+function openProjectFile(fileName) {
+    $.get(fileName, function (xmlDoc) {
+        var $xml = $(xmlDoc);
+        var canvasNode = $xml.find('iVoLVR_Canvas');
+        processCanvasXMLNode(canvasNode);
+    });
+}
+
+function loadProjectXML(XMLString) {
+    var xmlDoc = $.parseXML(XMLString);
+    var $xml = $(xmlDoc);
+    var canvasNode = $xml.find('iVoLVR_Canvas');
+    processCanvasXMLNode(canvasNode);
 }
 
 

@@ -142,10 +142,14 @@ function Value(options) {
         } else if (this.isShapeData) {
 
             appendElementWithValue(valueNode, "shape", this.shape.shape || this.shape);
-            
-            console.log("this: ++++++++++++++++++++++++++++");
-            console.log(this);
-            
+
+            if (LOG) {
+                console.log("this: ++++++++++++++++++++++++++++");
+                console.log(this);
+            }
+
+
+
             if (this.shape === PATH_MARK || this.shape === FILLEDPATH_MARK) {
                 appendCDATAWithValue(valueNode, "path", this.path.path);
             } else if (this.shape === SVGPATHGROUP_MARK) {
@@ -504,11 +508,13 @@ function addValues(value1, value2, outputPrefix) {
 
         if (value2.isDurationData) {
 
-            console.log("value1:");
-            console.log(value1);
+            if (LOG) {
+                console.log("value1:");
+                console.log(value1);
 
-            console.log("value2:");
-            console.log(value2);
+                console.log("value2:");
+                console.log(value2);
+            }
 
             var theDate = value1.moment;
             var theDuration = value2.duration;
@@ -637,7 +643,7 @@ function computeStringDistance(stringValue1, stringValue2) {
     return null;
 }
 
-function createValue (options) {
+function createValue(options) {
     if (options.type === NUMERIC) {
         return createNumericValue(options.unscaledValue, options.inPrefix, options.outPrefix, options.units);
     } else if (options.type === STRING) {
@@ -654,21 +660,21 @@ function createValue (options) {
 }
 
 function createValueFromXMLNode(valueXmlNode) {
-        
+
     var options = {
         type: valueXmlNode.attr('type')
     };
-    
+
     var children = valueXmlNode.children();
     children.each(function () {
         var child = $(this);
         var property = this.tagName;
         var value = child.text();
-                
+
         value = replaceAll(value, CDATA_END_REPLACE, CDATA_END);
-        
+
         options[property] = value;
     });
-    
-    return createValue (options);
+
+    return createValue(options);
 }

@@ -19,11 +19,9 @@ var DivisionOperatorStrokeColor = darkenrgb(0, 0, 0);
 
 var Operator = fabric.util.createClass(fabric.Circle, {
     type: 'operator',
-    
     xmlNodeName: 'operator',
     serializableProperties: ['type', 'top', 'left'],
     deserializer: addOperatorWithOptions,
-    
     initialize: function (options) {
         options || (options = {});
         this.callSuper('initialize', options);
@@ -53,7 +51,14 @@ var Operator = fabric.util.createClass(fabric.Circle, {
 
         this.associateEvents();
     },
-    
+    toXML: function () {
+        var operatorNode = createXMLElement("operator");
+        addAttributeWithValue(operatorNode, "type", this.type);
+        appendElementWithValue(operatorNode, "left", this.left);
+        appendElementWithValue(operatorNode, "top", this.top);
+        operatorNode.append(this.value.toXML());
+        return operatorNode;
+    },
     getAllInComingValues: function () {
         var theOperator = this;
         var values = new Array();
@@ -62,7 +67,6 @@ var Operator = fabric.util.createClass(fabric.Circle, {
         });
         return values;
     },
-    
     applySelectedStyle: function (selectConnectorsToo) {
 
         this.stroke = widget_selected_stroke_color;
@@ -373,7 +377,7 @@ var Operator = fabric.util.createClass(fabric.Circle, {
 
                 var newInConnection = options.newInConnection;
                 var shouldAnimate = options.shouldAnimate;
-                
+
                 if (newInConnection.value.isShapeData) {
                     alertify.error("No operations are defined for shape values.", "", 2000);
                     newInConnection.contract();
@@ -382,7 +386,7 @@ var Operator = fabric.util.createClass(fabric.Circle, {
 
 
 
-                if ( (theOperator.isSubtractionOperator || theOperator.isDivisionOperator) && theOperator.inConnectors.length === 2) {
+                if ((theOperator.isSubtractionOperator || theOperator.isDivisionOperator) && theOperator.inConnectors.length === 2) {
                     alertify.error("Only two incoming connections are allowed for this operator.", "", 2000);
                     newInConnection.contract();
                     return;
@@ -410,15 +414,15 @@ var Operator = fabric.util.createClass(fabric.Circle, {
                     console.log("newInConnection:");
                 if (LOG)
                     console.log(newInConnection);
-                
+
                 var outputValue = theOperator.computeOutputValue(shouldAnimate);
-                
+
                 if (!outputValue) {
                     alertify.error("Invalid input.", "", 2000);
                     newInConnection.contract();
                     return;
                 }
-                
+
 
             },
 //            'inValueUpdated': function (options) {
@@ -479,7 +483,15 @@ var Operator = fabric.util.createClass(fabric.Circle, {
 
 
 
-function addOperatorWithOptions (options) {
+function addOperatorWithOptions(options) {
+
+    if (LOG) {
+        console.log("options");
+    }
+    if (LOG) {
+        console.log(options);
+    }
+
     return addOperator(options.type, options.left, options.top);
 }
 
@@ -537,3 +549,38 @@ function addOperator(type, x, y) {
 
 
 
+function createOperatorFromXMLNode(valueXmlNode) {
+
+    var options = {
+        type: valueXmlNode.attr('type'),
+    };
+
+    var children = valueXmlNode.children();
+    children.each(function () {
+        var child = $(this);
+        var tagName = this.tagName;
+
+        if (tagName === "value") {
+
+            options.value = createValueFromXMLNode(child);
+
+        } else {
+
+            var value = child.text();
+            var type = child.attr('type');
+
+            if (type === "number") {
+                value = Number(value);
+            } else if (type === "boolean") {
+                value = value === "true";
+            }
+
+            options[tagName] = value;
+
+        }
+
+    });
+
+    return addOperatorWithOptions(options);
+
+}

@@ -305,7 +305,7 @@ DataType.call(ShapeData.prototype);
 function createShapeValue(shape, svgPathGroupMark) {
 
     var theValue = new Value({isShapeData: true, shape: shape});
-    if (shape === PATH_MARK) {
+    if (shape === PATH_MARK || shape === FILLEDPATH_MARK) {
         theValue.path = svgPathGroupMark;
     } else {
         theValue.svgPathGroupMark = svgPathGroupMark;

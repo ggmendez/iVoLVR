@@ -6,9 +6,9 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
         options.fill = options.fill || options.visualPropertyFill;
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
         options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
-        
+
         var hastBeenPainted = false;
-        
+
         if (!options.values) {
             options.values = {};
         }
@@ -21,23 +21,23 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
                 options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
                 options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
                 options.values.fill = createColorValue(DEFAULT_VISUAL_PROPERTY_FILL);
-                
+
                 options.stroke = '';
                 options.colorForStroke = '';
                 options.strokeWidth = 2;
                 options.originalStrokeWidth = options.strokeWidth;
                 options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
                 options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
-                
+
             } else {
-                
+
                 hastBeenPainted = true;
                 options.visualPropertyFill = options.fill;
                 options.colorForStroke = options.stroke;
                 options.strokeWidth = options.strokeWidth || 2;
                 options.originalStrokeWidth = options.strokeWidth;
                 options.visualPropertyStroke = options.stroke;
-                
+
             }
 
         } else {
@@ -46,13 +46,13 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
             options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
             options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
             options.values.fill = createColorValue(DEFAULT_VISUAL_PROPERTY_FILL);
-            
+
             options.stroke = '';
-                options.colorForStroke = '';
-                options.strokeWidth = 2;
-                options.originalStrokeWidth = options.strokeWidth;
-                options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
-                options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
+            options.colorForStroke = '';
+            options.strokeWidth = 2;
+            options.originalStrokeWidth = options.strokeWidth;
+            options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
+            options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
 
         }
 
@@ -93,7 +93,7 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
 //        
 
 
-        
+
 
         this.callSuper('initialize', elements, options);
 
@@ -123,9 +123,13 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
         this.set('shape', {shape: SVGPATHGROUP_MARK, svgPathGroupMark: this});
 
         this.createRectBackground();
-        
-        console.log("options.targetWidth:");
-        console.log(options.targetWidth);
+
+        if (LOG) {
+            console.log("options.targetWidth:");
+            console.log(options.targetWidth);
+        }
+
+
 
         if (options.targetWidth) {
             var theWidth = options.targetWidth / this.width;
@@ -156,9 +160,12 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
             heightValue = createNumericValue(this.the_height || this.height, null, null, 'pixels');
             angleValue = createNumericValue(-this.angle, null, null, 'degrees');
         }
-        
-        console.log("widthValue:");
-        console.log(widthValue);
+
+        if (LOG) {
+            console.log("widthValue:");
+            console.log(widthValue);
+        }
+
 
         this.specificProperties.push({attribute: "width", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: widthValue});
         this.specificProperties.push({attribute: "height", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: heightValue});
@@ -420,8 +427,12 @@ Mark.call(SVGPathGroupMark.prototype);
 
 function addSVGPathGroupMarkToCanvas(paths, options) {
 
-    console.log("options:");
-    console.log(options);
+    if (LOG) {
+        console.log("options:");
+        console.log(options);
+    }
+
+
 
     if (typeof paths === 'undefined' && options.values && options.values.shape && options.values.shape.svgPathGroupMark) {
         var SVGString = options.values.shape.svgPathGroupMark;
@@ -431,7 +442,7 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
             options.SVGString = SVGString;
             options.thePaths = objects;
             paths = objects;
-            
+
             options.targetWidth = options.values.width.number;
             options.targetHeight = options.values.height.number;
 

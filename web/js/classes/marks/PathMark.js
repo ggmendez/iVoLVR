@@ -7,13 +7,13 @@ PathMark = fabric.util.createClass(fabric.Path, {
         options.fill = options.fill || options.visualPropertyFill;
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
         options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : -0));
-        
+
         if (!options.values) {
             options.values = {};
         }
-        options.values.fill = createColorValue(new fabric.Color(options.fill));        
+        options.values.fill = createColorValue(new fabric.Color(options.fill));
         options.values.shape = createShapeValue(PATH_MARK, this);
-        
+
 
         this.callSuper('initialize', path, options);
 
@@ -130,9 +130,11 @@ PathMark = fabric.util.createClass(fabric.Path, {
             }
         };
 
-        this.applySelectedStyle = function () {};
+        this.applySelectedStyle = function () {
+        };
 
-        this.applyUnselectedStyle = function () {};
+        this.applyUnselectedStyle = function () {
+        };
 
         var XYValues = extractXYValues(this, true);
 
@@ -146,10 +148,10 @@ PathMark = fabric.util.createClass(fabric.Path, {
         this.set("xCollection", coordinates.XCoordinates);
         var xCollectionVisualProperty = this.getVisualPropertyByAttributeName('xCollection');
         xCollectionVisualProperty.value = coordinates.XCoordinates;
-        
+
         this.set("yCollection", coordinates.YCoordinates);
         var yCollectionVisualProperty = this.getVisualPropertyByAttributeName('yCollection');
-        yCollectionVisualProperty.value = coordinates.YCoordinates;        
+        yCollectionVisualProperty.value = coordinates.YCoordinates;
 
         this.scaledX = this.scaleCoordiates(this.xCollection, 'x');
         this.scaledY = this.scaleCoordiates(this.yCollection, 'y');
@@ -400,7 +402,7 @@ PathMark = fabric.util.createClass(fabric.Path, {
             }
 
             var easing = fabric.util.ease['easeOutBack'];
-            
+
             if (shouldAnimate) {
                 theMark.animateProperty(property, theNumber, 500, easing);
             } else {
@@ -626,17 +628,23 @@ PathMark.async = true;
 Mark.call(PathMark.prototype);
 
 function addPathMarkToCanvas(path, options) {
-    
-    console.log("path BEFORE");
-    console.log(path);
-    
+
+    if (LOG) {
+        console.log("path BEFORE");
+        console.log(path);
+    }
+
+
     if (typeof path === 'undefined') {
         path = (options.values && options.values.shape) ? options.values.shape.path : '';
     }
-    
-    console.log("path AFTER");
-    console.log(path);
-        
+
+    if (LOG) {
+        console.log("path AFTER");
+        console.log(path);
+    }
+
+
     var svgPathMark = new PathMark(path, options);
 
     if (LOG)

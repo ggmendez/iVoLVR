@@ -1399,6 +1399,7 @@ function onDataFileReadComplete(event, file) {
 
         aDataWidget.setCoords();
         aDataWidget.parseJSONString();
+
     } else if (isCSVFile.exec(file.name)) {
 
         var aDataWidget = new DataWidget({
@@ -1485,20 +1486,41 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
 
     } else {
 
-        alert(SVGString);
+//        console.log("SVGString:");
+//        console.log(SVGString);
+
+        fabric.loadSVGFromString(SVGString, function (objects) {
+
+            objects.forEach(function (object) {
+
+                console.log("object:");
+                console.log(object);
+
+                object.stroke = 'transparent';
+                object.strokeWidth = 0;
+//                object.hasBorders = false;
+//                object.hasControls = false;
+                object.hasRotatingPoint = false;
+                object.lockScalingX = true;
+                object.lockScalingY = true;
+                object.lockRotation = true;
+
+                if (object._parseDimensions) {
+
+                    updatePathCoords(object);
+
+                    object.setCoords();
+
+                }
 
 
-        console.log(SVGString);
+            });
 
-        fabric.loadSVGFromString(SVGString, function (objects, options) {
+            canvas.add.apply(canvas, objects);
 
+            canvas.setActiveObject(objects[1]);
 
-
-
-            var obj = fabric.util.groupSVGElements(objects, options);
-            canvas.add(obj).renderAll();
-
-
+            canvas.renderAll();
         });
 
 

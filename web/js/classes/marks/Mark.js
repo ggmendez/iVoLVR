@@ -1186,11 +1186,14 @@ var Mark = function () {
         theMark.on({
             // This event is triggered when the mark is associated by a locator element
             'mouseover': function (options) {
-                console.log("Mouse over a mark!");
+                if (LOG) {
+                    console.log("Mouse over a mark!");
+                }
             },
             'mouseout': function (options) {
-                console.log("Mouse out of a mark!");
-
+                if (LOG) {
+                    console.log("Mouse out of a mark!");
+                }
                 this.deactivateCopyingMode(); // TODO: Should this be here? 
             },
             // This event is triggered when the mark is associated by a locator element
@@ -1350,7 +1353,11 @@ var Mark = function () {
 
                 if (this.copyingMode) {
 
-                    console.log("%c" + "MOUSE UP over a mark!", "background: #914b30; color: white;");
+                    if (LOG) {
+                        console.log("%c" + "MOUSE UP over a mark!", "background: #914b30; color: white;");
+                    }
+
+
                     if (this.currentCopy) {
                         this.currentCopy.opacity = 1;
                         this.currentCopy.evented = true;
@@ -1364,8 +1371,12 @@ var Mark = function () {
             },
             'mousedown': function (options) {
 
-                console.log("%c" + "MOUSE DOWN over a mark!", "background: #572a82; color: white;");
-                console.log("%c" + "this.copyingMode: " + this.copyingMode, "background: #572a82; color: white;");
+                if (LOG) {
+                    console.log("%c" + "MOUSE DOWN over a mark!", "background: #572a82; color: white;");
+                    console.log("%c" + "this.copyingMode: " + this.copyingMode, "background: #572a82; color: white;");
+                }
+
+
 
 
                 if (this.copyingMode) {
@@ -1376,7 +1387,11 @@ var Mark = function () {
                     this.currentCopy.evented = false;
                     canvas.add(this.currentCopy);
 
-                    console.log("%c" + "Clone added to canvas!", "background: #6dce8d; color: black;");
+                    if (LOG) {
+                        console.log("%c" + "Clone added to canvas!", "background: #6dce8d; color: black;");
+                    }
+
+
 
 
 
@@ -1782,7 +1797,7 @@ function createMark(options) {
     var markType = options.markType;
     var isExpanded = options.isExpanded;
 
-    options.doNotRefreshCanvas = true;
+    options.doNotRefreshCanvas = (options.markType !== SVGPATHGROUP_MARK); // SVGPATHGROUP_MARKs should always refresh the canvas, as they do not necessarily are loaded together with all other marks
     options.markAsSelected = false;
     options.animateAtBirth = !isExpanded;
 
@@ -1795,7 +1810,7 @@ function createMark(options) {
 
     if (typeof mark !== 'undefined' && mark !== null) { // due to the asynchronous nature of SVGPATHGROUP_MARK, this should be checked. The expansion of such marks is donde withint their adding method
         if (isExpanded) {
-            mark.expand(false);
+            mark.expand(options.markType !== SVGPATHGROUP_MARK);
         }
     }
 

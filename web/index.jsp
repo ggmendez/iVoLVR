@@ -137,9 +137,18 @@
                 </a>
                 <ul>
                     <li><a href="javascript:void(0);" onclick="saveProject();"><i id="saveProjectElement" class="fa-save icon-large"></i> Save project</a></li>
-                    <li><a href="javascript:void(0);" onclick="loadiVoLVRProject();"><i id="loadProjectElement" class="fa-folder-open-o icon-large"></i> Open project</a></li>
-                    <li> <input type="file" id="dataprojectFileInput" name="someProjectfile" onchange="handleDatafiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
-                    <li><a href="javascript:void(0);"><i class="fa-download icon-large"></i> Export canvas</a>
+                    <li><a href="javascript:void(0);" onclick="loadiVoLVRProject();"><i class="fa-folder-open-o icon-large"></i> Open project</a></li>
+                    <li> <input type="file" id="dataprojectFileInput" name="someProjectfile" onchange="handleDatafiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>                    
+                    <li><a href="javascript:void(0);"><i class="fa-lightbulb-o icon-large"></i> Sample projects</a>
+                        <ul>
+                            <li><a href="javascript:void(0);" onclick="openProjectFile('sampleProjects/Sample1.xml');"> Sample 1</a></li>
+                            <li><a href="javascript:void(0);" onclick="openProjectFile('sampleProjects/Sample2.xml');"> Sample 2</a></li>
+                            <li><a href="javascript:void(0);" onclick="openProjectFile('sampleProjects/Sample3.xml');"> Sample 3</a></li>
+                            <li><a href="javascript:void(0);" onclick="openProjectFile('sampleProjects/Sample4.xml');"> Sample 4</a></li>
+                            <li><a href="javascript:void(0);" onclick="openProjectFile('sampleProjects/Sample5.xml');"> Earth & Sun</a></li>
+                        </ul>
+                    </li>                                                            
+                    <li class="divider"><a href="javascript:void(0);"><i class="fa-download icon-large"></i> Export canvas</a>
                         <ul>
                             <li><a href="javascript:void(0);" onclick="saveCanvas();"><i id="saveCanvasElement" class="fa-file-code-o icon-large"></i> As SVG</a></li>
                             <li><a href="javascript:void(0);" onclick="saveCanvas();"><i id="saveCanvasElement" class="fa-file-image-o icon-large"></i> As PNG</a></li>
@@ -194,8 +203,8 @@
                 </a>
                 <ul>
                     <li><a id="toggleConnectorsVisibilityActivatorLink" href="javascript:toggleConnectorsVisibility();"><i id="checkConnectorsVisibility" class="icon-check"></i> Show connectors</a></li>
-                    <li><a href="javascript:void(0);" onclick="deleteObject();"><i id="loadProjectElement" class="fa-remove icon-large"></i> Remove object</a></li>
-                    <li><a href="javascript:void(0);" onclick="deleteAllObjects();"><i id="loadProjectElement" class="fa-trash-o icon-large"></i> Clear canvas</a></li>
+                    <li><a href="javascript:void(0);" onclick="deleteObject();"><i class="fa-remove icon-large"></i> Remove object</a></li>
+                    <li><a href="javascript:void(0);" onclick="deleteAllObjects();"><i class="fa-trash-o icon-large"></i> Clear canvas</a></li>
                 </ul>
             </li>
             <li class="verticalLeftDivider2" style="float: right;"><a id="toggleAdditionalToolsVisibility" href="javascript:void(0);" onclick="togglePanelVisibility('#rightPanel');"><i class="fa fa-chevron-right fa-2x"></i></a></li>
