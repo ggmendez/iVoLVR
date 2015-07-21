@@ -223,7 +223,13 @@ function loadProjectXML(XMLString) {
 
             createMarkFromXMLNode(child);
 
+        } else if (tagName === "visualValue") {
+
+            createVisualVariableFromXMLNode(child);
+
         }
+            
+            
         
     });
 }

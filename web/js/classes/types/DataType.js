@@ -821,3 +821,52 @@ function addVisualValueToCanvas(options) {
 
 
 }
+
+function createVisualVariableFromXMLNode(valueXmlNode) {
+
+    var options = {
+        markType: valueXmlNode.attr('shape'),
+        values: {}
+    };
+    
+    var children = valueXmlNode.children();
+    children.each(function () {
+        var child = $(this);
+        var tagName = this.tagName;
+
+
+
+        if (tagName === "value") {
+            
+            options.value = createValueFromXMLNode(child);
+
+        } else {
+
+            var value = child.text();
+            var type = child.attr('type');
+
+            if (type === "number") {
+                value = Number(value);
+            } else if (type === "boolean") {
+                value = value === "true";
+            }
+
+            options[tagName] = value;
+            
+        }
+
+    });
+    
+    console.log("options.value:");
+    console.log(options.value);
+
+    var visualValue = CreateDataTypeFromValue(options.value);
+    
+    visualValue.top = options.top;
+    visualValue.left = options.left;
+    
+    canvas.add(visualValue);
+    visualValue.animateBirth(false, null, null, true);
+    
+    return visualValue;
+}

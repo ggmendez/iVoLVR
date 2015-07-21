@@ -8,7 +8,7 @@ function replaceAll(string, find, replace) {
     } else {
         return string;
     }
-  
+
 }
 
 function refresherFunction() {
@@ -724,8 +724,12 @@ function adjustCanvasDimensions() {
         console.log("$('#theMenu').height(): " + $('#theMenu').height());
     var maxHeight = Math.max($(window).height(), $('#rightPanel').height());
     var height = maxHeight - $('#theMenu').height() - 10;
-    canvas.setWidth(width);
-    canvas.setHeight(height);
+
+    if (canvas) {
+        canvas.setWidth(width);
+        canvas.setHeight(height);
+    }
+
 }
 
 function hidePanel(id, adjustCanvasSize) {
@@ -4606,10 +4610,10 @@ function appendCDATAWithValue(root, elementName, value) {
 
     if (value === null || typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
         return;
-    }    
-    
+    }
+
     value = replaceAll(value, CDATA_END, CDATA_END_REPLACE);
-    
+
     root.append('<' + elementName + ' type="cdata">' + '<![CDATA[' + value + ']]>' + '</' + elementName + '>');
 }
 
