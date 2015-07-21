@@ -1,10 +1,52 @@
 var NumericFunction = fabric.util.createClass(fabric.Rect, {
     isNumericFunction: true,
-    
     xmlNodeName: 'numericFunction',
     serializableProperties: ['left', 'top', 'width', 'height', 'coordinatesX', 'coordinatesY'],
     deserializer: addNumericFunctionWithOptions,
+    toXML: function () {
+
+        var theFunction = this;
+        var operatorNode = createXMLElement("numericFunction");
+
+        var minXNode = theFunction.minX.value.toXML();
+        var maxXNode = theFunction.maxX.value.toXML();
+        var minYNode = theFunction.minY.value.toXML();
+        var maxYNode = theFunction.maxY.value.toXML();
+//        var inputNode = theFunction.inputPoint.value.toXML();
+//        var outputNode = theFunction.outputPoint.value.toXML();
+
+        addAttributeWithValue(minXNode, "which", "minX");
+        addAttributeWithValue(maxXNode, "which", "maxX");
+        addAttributeWithValue(minYNode, "which", "minY");
+        addAttributeWithValue(maxYNode, "which", "maxY");
+//        addAttributeWithValue(inputNode, "which", "input");
+//        addAttributeWithValue(outputNode, "which", "output");
+
+        var xCoordinatesNode = createXMLElement("array");
+        addAttributeWithValue(xCoordinatesNode, "which", "xCoordinates");
+        theFunction.coordinatesX.forEach(function (coordinate) {
+            var valueNode = coordinate.toXML();
+            xCoordinatesNode.append(valueNode);
+        });
         
+        var yCoordinatesNode = createXMLElement("array");
+        addAttributeWithValue(yCoordinatesNode, "which", "yCoordinates");
+        theFunction.coordinatesY.forEach(function (coordinate) {
+            var valueNode = coordinate.toXML();
+            yCoordinatesNode.append(valueNode);
+        });
+
+        operatorNode.append(minXNode);
+        operatorNode.append(maxXNode);
+        operatorNode.append(minYNode);
+        operatorNode.append(maxYNode);
+//        operatorNode.append(inputNode);
+//        operatorNode.append(outputNode);
+        operatorNode.append(xCoordinatesNode);
+        operatorNode.append(yCoordinatesNode);
+
+        return operatorNode;
+    },
     initialize: function (options) {
         options || (options = {});
 
@@ -143,6 +185,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
     },
     addNumericLimit: function (limitName, unscaledValue) {
+        
         var theFunction = this;
         var numericVisualValue = new NumericData({unscaledValue: unscaledValue});
         numericVisualValue.scaleX = theFunction.valueScale;
@@ -1301,19 +1344,19 @@ function addNumericFunctionWithOptions(functionOptions) {
     var shouldAnimate = false;
 
     if (functionOptions.coordinatesX && functionOptions.coordinatesY) {
-        
-        if (typeof functionOptions.coordinatesX[0] === "number") {            
-            
+
+        if (typeof functionOptions.coordinatesX[0] === "number") {
+
             var functionCoordinates = createFunctionCoordinatesFromValues(functionOptions.coordinatesX, functionOptions.coordinatesY);
             theFunction.setBothCoordinates(functionCoordinates.XCoordinates, functionCoordinates.YCoordinates, shouldAnimate);
-            
+
         } else {
             theFunction.setBothCoordinates(functionOptions.coordinatesX, functionOptions.coordinatesY, shouldAnimate);
         }
-        
-        
+
+
     }
-    
+
     theFunction.bringTopElementsToFront();
 
     if (theFunction.functionPath) {
