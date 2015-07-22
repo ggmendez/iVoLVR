@@ -35,8 +35,6 @@ var FunctionValuesCollection = fabric.util.createClass(fabric.Path, {
             'mouseup': function (options) {
                 var theFunctionValuesCollection = this;
                 var theNumericFunction = theFunctionValuesCollection.numericFunction;
-                var inCollection = theNumericFunction.getInCollection();
-                var outCollection = theNumericFunction.getOutCollection();
             },
             'mousedown': function (options) {
                 var theFunctionValuesCollection = this;

@@ -47,8 +47,8 @@ var NumericFunctionInput = fabric.util.createClass(fabric.Path, {
 
             },
             'mouseup': function (options) {
-                
-                var theInputPoint = this;                
+
+                var theInputPoint = this;
 
                 if (theInputPoint.connecting) {
 
@@ -60,16 +60,55 @@ var NumericFunctionInput = fabric.util.createClass(fabric.Path, {
                     var coordX = canvasCoords.x;
                     var coordY = canvasCoords.y;
 
-                    var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isOperator', 'isFunctionInput', 'isAggregator', 'isMark', 'isPlayer', 'isDataType', 'isVerticalCollection', 'isMapperInput', 'isMapperOutput', 'isFunctionValuesCollection']);
+                    var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isOperator', 'isNumericFunctionInput', 'isAggregator', 'isMark', 'isPlayer', 'isDataType', 'isVerticalCollection', 'isMapperInput', 'isMapperOutput', 'isFunctionValuesCollection']);
+                    var connector = getLastElementOfArray(theInputPoint.outConnectors);
 
                     if (!targetObject) {
-                        
-                        var lastAddedConnector = getLastElementOfArray(theInputPoint.outConnectors);
-                        newConnectionReleasedOnCanvas (lastAddedConnector);
-                        
+
+                        newConnectionReleasedOnCanvas(connector, coordX, coordY);
+                    } else {
+
+                        if (targetObject !== theInputPoint) {
+
+
+                            if (targetObject.isPlayer) {
+
+                                connector.setDestination(targetObject, true);
+
+                            } else if (targetObject.isOperator || targetObject.isVisualProperty || targetObject.isFunctionInput || targetObject.isDataType || targetObject.isVerticalCollection || targetObject.isMapperInput || targetObject.isNumericFunctionOutput || targetObject.isNumericFunctionInput || targetObject.isFunctionValuesCollection) {
+
+                                connector.setDestination(targetObject, true);
+
+                                if (!targetObject.isVerticalCollection) {
+
+                                    setTimeout(function () {
+                                        connector.source.bringToFront();
+                                        connector.destination.bringToFront();
+                                    }, 50);
+
+                                }
+
+                            } else if (targetObject.isAggregator) {
+
+                                targetObject.addConnector(connector, canvasCoords);
+
+                            } else { // This makes no sense, so, the added connector is just removed
+                                connector = theInputPoint.outConnectors.pop();
+                                if (connector) {
+                                    connector.contract();
+                                }
+                            }
+
+                        } else {
+
+                            connector = theInputPoint.outConnectors.pop();
+                            if (connector) {
+                                connector.contract();
+                            }
+
+                        }
+
                     }
-
-
 
                     theInputPoint.connecting = false;
 

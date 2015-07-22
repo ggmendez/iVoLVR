@@ -125,27 +125,7 @@ var NumericFunctionOutput = fabric.util.createClass(fabric.Path, {
 
                     // The mouse up event is done over a blank section of the canvas
                     var lastAddedConnector = getLastElementOfArray(theNumericFunctionOutput.outConnectors);
-
-                    var theValue = theNumericFunctionOutput.value;
-                    var destination = null;
-
-                    // First, we have to check if this is a collection
-                    if ($.isArray(theValue)) {
-
-                        destination = addVerticalCollection(coordX, coordY, theValue);
-
-                    } else {
-                        destination = CreateDataTypeFromValue(theValue);
-                        destination.top = coordY;
-                        destination.left = coordX;
-                        canvas.add(destination);
-                    }
-
-                    lastAddedConnector.setDestination(destination, true);
-
-                    if (destination.animateBirth) {
-                        destination.animateBirth(false, null, null, false);
-                    }
+                    newConnectionReleasedOnCanvas (lastAddedConnector, coordX, coordY);
 
                 }
 

@@ -1743,14 +1743,14 @@ function changeMarkShape(theMark, shapeValue) {
 
 
 
-function createMarkFromXMLNode(valueXmlNode) {
+function createMarkFromXMLNode(markXmlNode) {
 
     var options = {
-        markType: valueXmlNode.attr('shape'),
+        markType: markXmlNode.attr('shape'),
         values: {}
     };
 
-    var children = valueXmlNode.children();
+    var children = markXmlNode.children();
     children.each(function () {
         var child = $(this);
         var tagName = this.tagName;

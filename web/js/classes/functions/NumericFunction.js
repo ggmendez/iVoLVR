@@ -6,46 +6,65 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
     toXML: function () {
 
         var theFunction = this;
-        var operatorNode = createXMLElement("numericFunction");
+        var functionNode = createXMLElement("numericFunction");
+
+        appendElementWithValue(functionNode, "left", theFunction.left);
+        appendElementWithValue(functionNode, "top", theFunction.top);
+        appendElementWithValue(functionNode, "width", theFunction.width);
+        appendElementWithValue(functionNode, "height", theFunction.height);
 
         var minXNode = theFunction.minX.value.toXML();
         var maxXNode = theFunction.maxX.value.toXML();
         var minYNode = theFunction.minY.value.toXML();
         var maxYNode = theFunction.maxY.value.toXML();
-//        var inputNode = theFunction.inputPoint.value.toXML();
-//        var outputNode = theFunction.outputPoint.value.toXML();
 
         addAttributeWithValue(minXNode, "which", "minX");
         addAttributeWithValue(maxXNode, "which", "maxX");
         addAttributeWithValue(minYNode, "which", "minY");
         addAttributeWithValue(maxYNode, "which", "maxY");
-//        addAttributeWithValue(inputNode, "which", "input");
-//        addAttributeWithValue(outputNode, "which", "output");
 
-        var xCoordinatesNode = createXMLElement("array");
-        addAttributeWithValue(xCoordinatesNode, "which", "xCoordinates");
-        theFunction.coordinatesX.forEach(function (coordinate) {
-            var valueNode = coordinate.toXML();
-            xCoordinatesNode.append(valueNode);
-        });
-        
-        var yCoordinatesNode = createXMLElement("array");
-        addAttributeWithValue(yCoordinatesNode, "which", "yCoordinates");
-        theFunction.coordinatesY.forEach(function (coordinate) {
-            var valueNode = coordinate.toXML();
-            yCoordinatesNode.append(valueNode);
-        });
+        functionNode.append(minXNode);
+        functionNode.append(maxXNode);
+        functionNode.append(minYNode);
+        functionNode.append(maxYNode);
 
-        operatorNode.append(minXNode);
-        operatorNode.append(maxXNode);
-        operatorNode.append(minYNode);
-        operatorNode.append(maxYNode);
-//        operatorNode.append(inputNode);
-//        operatorNode.append(outputNode);
-        operatorNode.append(xCoordinatesNode);
-        operatorNode.append(yCoordinatesNode);
+        var inputValue = theFunction.inputPoint.value;
+        if (typeof inputValue !== 'undefined') {
+            var inputNode = theFunction.inputPoint.value.toXML();
+            addAttributeWithValue(inputNode, "which", "input");
+            functionNode.append(inputNode);
+        }
 
-        return operatorNode;
+        var outputValue = theFunction.outputPoint.value;
+        if (typeof outputValue !== 'undefined') {
+            var outputNode = theFunction.outputPoint.value.toXML();
+            addAttributeWithValue(outputNode, "which", "output");
+            functionNode.append(outputNode);
+        }
+
+        var coordinatesX = theFunction.coordinatesX;
+        if (typeof coordinatesX !== 'undefined') {
+            var xCoordinatesNode = createXMLElement("array");
+            addAttributeWithValue(xCoordinatesNode, "which", "coordinatesX");
+            coordinatesX.forEach(function (coordinate) {
+                var valueNode = coordinate.toXML();
+                xCoordinatesNode.append(valueNode);
+            });
+            functionNode.append(xCoordinatesNode);
+        }
+
+        var coordinatesY = theFunction.coordinatesY;
+        if (typeof coordinatesY !== 'undefined') {
+            var yCoordinatesNode = createXMLElement("array");
+            addAttributeWithValue(yCoordinatesNode, "which", "coordinatesY");
+            theFunction.coordinatesY.forEach(function (coordinate) {
+                var valueNode = coordinate.toXML();
+                yCoordinatesNode.append(valueNode);
+            });
+            functionNode.append(yCoordinatesNode);
+        }
+
+        return functionNode;
     },
     initialize: function (options) {
         options || (options = {});
@@ -97,8 +116,10 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
         this.set('topElements', new Array());
 
-        this.addNumericLimits();
-        this.addInOutPoints();
+        this.addNumericLimits(options.values);
+
+        this.addInOutPoints(options.values);
+
         this.addValuesCollections();
 
         this.addIntersectionPoint();
@@ -106,6 +127,20 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         this.associateEvents();
 
         this.positionElements(false);
+
+        var values = options.values;
+        if (values !== null && typeof values !== 'undefined') {
+            var input = values.input;
+            if (input !== null && typeof input !== 'undefined') {
+                var theFunction = this;
+                var inputValue = options.values.input;
+
+                console.log("*********inputValue:");
+                console.log(inputValue);
+
+                theFunction.evaluate(inputValue, false);
+            }
+        }
     },
     bringTopElementsToFront: function () {
         var theFunction = this;
@@ -184,10 +219,11 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         }
 
     },
-    addNumericLimit: function (limitName, unscaledValue) {
-        
+    addNumericLimit: function (limitName, numericValue) {
+
         var theFunction = this;
-        var numericVisualValue = new NumericData({unscaledValue: unscaledValue});
+
+        var numericVisualValue = CreateDataTypeFromValue(numericValue);
         numericVisualValue.scaleX = theFunction.valueScale;
         numericVisualValue.scaleY = theFunction.valueScale;
         numericVisualValue.isLimitValue = true;
@@ -299,12 +335,30 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         });
 
     },
-    addNumericLimits: function () {
+    addNumericLimits: function (values) {
+
         var theFunction = this;
-        theFunction.addNumericLimit('minX', 0);
-        theFunction.addNumericLimit('maxX', 100);
-        theFunction.addNumericLimit('minY', 0);
-        theFunction.addNumericLimit('maxY', 100);
+        var minXValue = null;
+        var maxXValue = null;
+        var minYValue = null;
+        var maxYValue = null;
+
+        if (values !== null && typeof values !== 'undefined') {
+            minXValue = values.minX || new NumericData({unscaledValue: 0});
+            maxXValue = values.maxX || new NumericData({unscaledValue: 100});
+            minYValue = values.minY || new NumericData({unscaledValue: 0});
+            maxYValue = values.maxY || new NumericData({unscaledValue: 100});
+        } else {
+            minXValue = new NumericData({unscaledValue: 0});
+            maxXValue = new NumericData({unscaledValue: 100});
+            minYValue = new NumericData({unscaledValue: 0});
+            maxYValue = new NumericData({unscaledValue: 100});
+        }
+
+        theFunction.addNumericLimit('minX', minXValue);
+        theFunction.addNumericLimit('maxX', maxXValue);
+        theFunction.addNumericLimit('minY', minYValue);
+        theFunction.addNumericLimit('maxY', maxYValue);
     },
     createFunctionPath: function () {
         var theFunction = this;
@@ -459,7 +513,18 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         canvas.add(yValues);
 
     },
-    addInOutPoints: function () {
+    addInOutPoints: function (values) {
+
+        var inputValue = null;
+        var outputValue = null;
+
+        if (values !== null && typeof values !== 'undefined') {
+            inputValue = values.input || new NumericData({unscaledValue: 0}); // What values should be here?????
+            outputValue = values.output || new NumericData({unscaledValue: 100});
+        } else {
+            inputValue = new NumericData({unscaledValue: 0});
+            outputValue = new NumericData({unscaledValue: 100});
+        }
 
         var theFunction = this;
 
@@ -470,6 +535,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             angle: 270,
             opacity: 0, // The input point is not visible at the bigining. It will appear when the incollection has values.
             function: theFunction,
+            value: inputValue
         });
         canvas.add(inputPoint);
         theFunction.inputPoint = inputPoint;
@@ -482,6 +548,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             angle: 180,
             opacity: 0, // The output point is not visible at the bigining. It will appear when the outCollection has values
             function: theFunction,
+            value: outputValue
         });
         canvas.add(outputPoint);
         theFunction.set('outputPoint', outputPoint);
@@ -607,6 +674,26 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
 
         theFunction.setCoords();
+    },
+    expand: function () {
+        var theFunction = this;
+        if (!theFunction.isCompressed) {
+            return;
+        }
+        if (LOG) {
+            console.log("Still to be implemented");
+        }
+        theFunction.isCompressed = false;
+    },
+    compress: function () {
+        var theFunction = this;
+        if (theFunction.isCompressed) {
+            return;
+        }
+        theFunction.isCompressed = false;
+        if (LOG) {
+            console.log("Still to be implemented");
+        }
     },
     associateEvents: function () {
         var theFunction = this;
@@ -938,11 +1025,12 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             var evaluationResult = theFunction.evaluateSingleValue(value);
 
 
-            var duration = 500;
-            var easing = fabric.util.ease['easeOutCubic'];
+
             var theInputPoint = theFunction.inputPoint;
 
             if (shouldAnimate) {
+                var duration = 500;
+                var easing = fabric.util.ease['easeOutCubic'];
                 theInputPoint.animate('left', evaluationResult, {
                     easing: easing,
                     duration: duration,
@@ -1026,6 +1114,9 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             console.log(inputXCoordinate);
 
         var theFunction = this;
+        var updateInputValue = false;
+
+
         theFunction.showIntersection = positionOutputPoint;
 
         if (!theFunction.functionPath) {
@@ -1040,8 +1131,12 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             console.log(theFunction.inputPoint.relativeX);
 
         var functionPathLeftTop = theFunction.functionPath.getPointByOrigin('left', 'top');
-        if (inputXCoordinate == null) {
+        if (inputXCoordinate === null) {
+
+            updateInputValue = true;
+
             inputXCoordinate = theFunction.inputPoint.getCenterPoint().x - functionPathLeftTop.x - theFunction.functionPath.strokeWidth / 2;
+
         } else {
             inputXCoordinate = inputXCoordinate - functionPathLeftTop.x - theFunction.functionPath.strokeWidth / 2;
         }
@@ -1095,17 +1190,40 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
                     }
                 }
 
+
+
+
+
+                if (updateInputValue) {
+
+                    var intersection = theFunction.intersection;
+                    var minX = getArrayMin(theFunction.scaledX);
+                    var maxX = getArrayMax(theFunction.scaledX);
+
+                    var unscaledValue = changeRange(intersection.x, minX, maxX, theFunction.minX.value.number, theFunction.maxX.value.number);
+                    var inPrefix = '';
+                    var outPrefix = theFunction.inputPoint.value.outPrefix || '';
+                    var units = theFunction.inputPoint.value.units || '';
+                    var value = createNumericValue(unscaledValue, inPrefix, outPrefix, units);
+                    ;
+                    var inputPoint = theFunction.inputPoint;
+                    inputPoint.value = value;
+                    var i;
+                    for (i = 0; i < inputPoint.outConnectors.length; i++) {
+                        inputPoint.outConnectors[i].setValue(value, false, shouldAnimate);
+                    }
+
+                }
+
+
+
+
                 return functionY;
 
             } else {
 
-
                 return null;
             }
-
-
-
-
 
         } else {
 
@@ -1115,6 +1233,9 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             }
 
         }
+
+
+
 
 
     },
@@ -1299,8 +1420,6 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
                 ctx.closePath();
                 ctx.restore();
 
-
-
                 var minX = getArrayMin(theFunction.scaledX);
                 var maxX = getArrayMax(theFunction.scaledX);
                 var minY = getArrayMin(theFunction.scaledY);
@@ -1308,8 +1427,6 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
                 var displayableX = changeRange(intersection.x, minX, maxX, theFunction.minX.value.number, theFunction.maxX.value.number).toFixed(2);
                 var displayableY = changeRange(intersection.y, minY, maxY, theFunction.maxY.value.number, theFunction.minY.value.number).toFixed(2);
-
-
 
                 ctx.save();
                 ctx.beginPath();
@@ -1336,22 +1453,22 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
 });
 
-function addNumericFunctionWithOptions(functionOptions) {
+function addNumericFunctionWithOptions(options) {
 
-    var theFunction = new NumericFunction(functionOptions);
+    var theFunction = new NumericFunction(options);
     canvas.add(theFunction);
 
     var shouldAnimate = false;
 
-    if (functionOptions.coordinatesX && functionOptions.coordinatesY) {
+    if (options.coordinatesX && options.coordinatesY) {
 
-        if (typeof functionOptions.coordinatesX[0] === "number") {
+        if (typeof options.coordinatesX[0] === "number") {
 
-            var functionCoordinates = createFunctionCoordinatesFromValues(functionOptions.coordinatesX, functionOptions.coordinatesY);
+            var functionCoordinates = createFunctionCoordinatesFromValues(options.coordinatesX, options.coordinatesY);
             theFunction.setBothCoordinates(functionCoordinates.XCoordinates, functionCoordinates.YCoordinates, shouldAnimate);
 
         } else {
-            theFunction.setBothCoordinates(functionOptions.coordinatesX, functionOptions.coordinatesY, shouldAnimate);
+            theFunction.setBothCoordinates(options.coordinatesX, options.coordinatesY, shouldAnimate);
         }
 
 
@@ -1359,18 +1476,20 @@ function addNumericFunctionWithOptions(functionOptions) {
 
     theFunction.bringTopElementsToFront();
 
-    if (theFunction.functionPath) {
-        blink(theFunction.functionPath, false, 0.3);
+    if (!options.doNotAnimateAtBirth) {
+        if (theFunction.functionPath) {
+            blink(theFunction.functionPath, false, 0.3);
+        }
+        blink(theFunction.xValues, false, 0.3);
+        blink(theFunction.yValues, false, 0.3);
+        blink(theFunction.inputPoint, false, 0.3);
+        blink(theFunction.outputPoint, false, 0.3);
+        blink(theFunction.minX, false, 0.3);
+        blink(theFunction.maxX, false, 0.3);
+        blink(theFunction.minY, false, 0.3);
+        blink(theFunction.maxY, false, 0.3);
+        blink(theFunction, true, 0.1);
     }
-    blink(theFunction.xValues, false, 0.3);
-    blink(theFunction.yValues, false, 0.3);
-    blink(theFunction.inputPoint, false, 0.3);
-    blink(theFunction.outputPoint, false, 0.3);
-    blink(theFunction.minX, false, 0.3);
-    blink(theFunction.maxX, false, 0.3);
-    blink(theFunction.minY, false, 0.3);
-    blink(theFunction.maxY, false, 0.3);
-    blink(theFunction, true, 0.1);
 
     if (theFunction.intersectionPoint && theFunction.intersectionPoint.canvas) {
         theFunction.intersectionPoint.bringToFront();
@@ -1385,7 +1504,7 @@ function addNumericFunction(x, y, coordinatesX, coordinatesY, otherOptions) {
         left: x,
         top: y,
         coordinatesX: coordinatesX,
-        coordinatesY: coordinatesY,
+        coordinatesY: coordinatesY
     }
 
     for (var prop in otherOptions) {
@@ -1486,4 +1605,61 @@ function getFunctionCoordinates(functionString) {
         YValues.push(f(i));
     }
     return createFunctionCoordinatesFromValues(XValues, YValues);
+}
+
+function createNumericFunctionFromXMLNode(functionXmlNode) {
+
+    var options = {
+        doNotAnimateAtBirth: true,
+        values: {}
+    };
+
+    var children = functionXmlNode.children();
+    children.each(function () {
+        var child = $(this);
+        var tagName = this.tagName;
+
+        if (tagName === "value") {
+
+            var propertyValue = createValueFromXMLNode(child);
+            var which = child.attr('which');
+            options.values[which] = propertyValue;
+
+        } else if (tagName === "array") {
+
+            var array = new Array();
+            var which = child.attr('which');
+
+            var elements = child.children('value');
+            elements.each(function () {
+                var valueNode = $(this);
+                var value = createValueFromXMLNode(valueNode);
+                array.push(value);
+            });
+
+            options[which] = array;
+
+        } else {
+
+            var value = child.text();
+            var type = child.attr('type');
+
+            if (type === "number") {
+                value = Number(value);
+            } else if (type === "boolean") {
+                value = value === "true";
+            }
+
+            options[tagName] = value;
+
+        }
+
+    });
+
+    console.log("+++++++++++++++++++++++++++++++++++++++++++++++ options to create the saved FUNCTION");
+    console.log(options);
+
+    return addNumericFunctionWithOptions(options);
+
+
 }

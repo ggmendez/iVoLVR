@@ -549,13 +549,13 @@ function addOperator(type, x, y) {
 
 
 
-function createOperatorFromXMLNode(valueXmlNode) {
+function createOperatorFromXMLNode(operatorXmlNode) {
 
     var options = {
-        type: valueXmlNode.attr('type'),
+        type: operatorXmlNode.attr('type'),
     };
 
-    var children = valueXmlNode.children();
+    var children = operatorXmlNode.children();
     children.each(function () {
         var child = $(this);
         var tagName = this.tagName;

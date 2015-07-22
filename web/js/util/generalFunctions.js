@@ -4577,12 +4577,31 @@ function rectSelectionButtonClicked() {
 // this function can be used to handle with a default behaviour the events of releasing a new connection on a blank section of the canvas
 // in order to provide further manipulation or behaviour of the newly created object, it is returned by the function
 // If something weird happends, the function returns null
-function newConnectionReleasedOnCanvas(connection) {
+function newConnectionReleasedOnCanvas(connection, coordX, coordY) {
 
 
     console.log(connection);
 
-    var value = connection.value;
+    var theValue = connection.value;
+    var destination = null;
+
+    // First, we have to check if this is a collection
+    if ($.isArray(theValue)) {
+
+        destination = addVerticalCollection(coordX, coordY, theValue);
+
+    } else {
+        destination = CreateDataTypeFromValue(theValue);
+        destination.top = coordY;
+        destination.left = coordX;
+        canvas.add(destination);
+    }
+
+    connection.setDestination(destination, true);
+
+    if (destination.animateBirth) {
+        destination.animateBirth(false, null, null, false);
+    }
 
 
 

@@ -822,14 +822,14 @@ function addVisualValueToCanvas(options) {
 
 }
 
-function createVisualVariableFromXMLNode(valueXmlNode) {
+function createVisualVariableFromXMLNode(visualValueXmlNode) {
 
     var options = {
-        markType: valueXmlNode.attr('shape'),
+        markType: visualValueXmlNode.attr('shape'),
         values: {}
     };
     
-    var children = valueXmlNode.children();
+    var children = visualValueXmlNode.children();
     children.each(function () {
         var child = $(this);
         var tagName = this.tagName;

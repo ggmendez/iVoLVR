@@ -33,9 +33,8 @@ var NumericData = fabric.util.createClass(fabric.Path, {
         
         var value = createNumericValue(unscaledValue, inPrefix, outPrefix, theUnits);
         
-        console.log("$$$$$$$$$$$$$$$$$$$$$$$Created value : ");
-        console.log(value);
-        
+//        console.log("$$$$$$$$$$$$$$$$$$$$$$$Created value : ");
+//        console.log(value);
         
         this.set('value', value);
 

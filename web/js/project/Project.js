@@ -227,7 +227,7 @@ function processCanvasXMLNode(canvasNode) {
         endValue: newZoom,
         duration: duration,
         onChange: function (value) {
-            console.log(value);
+//            console.log(value);
             canvas.setZoom(value);
             canvas.absolutePan(new fabric.Point(tempPanX, tempPanY));
         },
@@ -266,6 +266,10 @@ function processCanvasXMLNode(canvasNode) {
         } else if (tagName === "visualValue") {
 
             createVisualVariableFromXMLNode(child);
+            
+        } else if (tagName === "numericFunction") {
+
+            createNumericFunctionFromXMLNode(child);
 
         }
 
