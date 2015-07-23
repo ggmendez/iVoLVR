@@ -1,6 +1,20 @@
 var Locator = fabric.util.createClass(fabric.Circle, {
     type: 'Locator',
     isLocator: true,
+    toXML: function () {
+
+        var theLocator = this;
+        var locatorNode = createXMLElement("locator");
+
+        addAttributeWithValue(locatorNode, "xmlID", theLocator.xmlID);
+
+        appendElementWithValue(locatorNode, "left", theLocator.left);
+        appendElementWithValue(locatorNode, "top", theLocator.top);
+        appendElementWithValue(locatorNode, "isExpanded", !theLocator.isCompressed);
+
+        return locatorNode;
+
+    },
     initialize: function (options) {
         options || (options = {});
         this.callSuper('initialize', options);
@@ -30,7 +44,6 @@ var Locator = fabric.util.createClass(fabric.Circle, {
 
 
         this.set('widgets', new Array());
-
 
 
 
@@ -1563,50 +1576,90 @@ var Locator = fabric.util.createClass(fabric.Circle, {
 });
 
 
-function addLocator(x, y) {
+function addLocator(options) {
 
-    var locator = new Locator({
-        left: x,
-        top: y,
-        scaleX: 0.05,
-        scaleY: 0.05
-    });
+    console.log("Options for function addLocator:");
+    console.log(options);
 
-    var easing = fabric.util.ease.easeOutElastic;
-    var duration = 1000;
+    if (options.animateAtBirth) {
+        options.scaleX = 0.05;
+        options.scaleY = 0.05;
+    } else {
+        options.scaleX = 1;
+        options.scaleY = 1;
+    }
 
-    locator.animate('scaleX', 1, {
-        duration: duration,
-        easing: easing
-    });
-    locator.animate('scaleY', 1, {
-        onChange: canvas.renderAll.bind(canvas),
-        duration: duration,
-        easing: easing
-    });
+    var newLocator = new Locator(options);
+    canvas.add(newLocator);
 
+    if (options.markAsSelected) {
+        newLocator.applySelectedStyle();
+        canvas.setActiveObject(newLocator);
+    }
 
+    if (options.animateAtBirth) {
+        var easing = fabric.util.ease.easeOutElastic;
+        var duration = 1000;
 
-    locator.applySelectedStyle();
+        newLocator.animate('scaleX', 1, {
+            duration: duration,
+            easing: easing
+        });
+        newLocator.animate('scaleY', 1, {
+            onChange: canvas.renderAll.bind(canvas),
+            duration: duration,
+            easing: easing
+        });
+    }
+    
+    if (options.shouldExpand) {
+        newLocator.expand(true);
+    }
+    
+    console.log("newLocator:");
+    console.log(newLocator);
 
-    canvas.add(locator);
-
-    locator.set('originX', 'center');
-    locator.set('originY', 'center');
-    locator.set('left', x);
-    locator.set('top', y);
-    locator.setCoords();
-
-    canvas.setActiveObject(locator);
-
-//    drawRectAt(new fabric.Point(x, y), 'red');
-
-    canvas.renderAll();
-
-
-
+    return newLocator;
 
 }
 
 
 
+
+
+function createLocatorFromXMLNode(locatorXmlNode) {
+
+    var options = {
+        markAsSelected: false,
+        xmlID: locatorXmlNode.attr('xmlID')
+    };
+
+    var children = locatorXmlNode.children();
+    children.each(function () {
+        var child = $(this);
+        var tagName = this.tagName;
+
+        var value = child.text();
+        var type = child.attr('type');
+
+        if (type === "number") {
+            value = Number(value);
+        } else if (type === "boolean") {
+            value = value === "true";
+        }
+
+        options[tagName] = value;
+
+    });
+
+    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! options to create the saved LOCATOR");
+    console.log(options);
+    
+    options.animateAtBirth = !options.isExpanded;
+    options.shouldExpand = options.isExpanded;
+
+    var theLocator = addLocator(options);
+    
+    return theLocator;
+
+}

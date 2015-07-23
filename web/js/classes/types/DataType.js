@@ -20,6 +20,7 @@ var DataType = function () {
     
     this.toXML = function () {
         var visualValueNode = createXMLElement("visualValue");
+        addAttributeWithValue(visualValueNode, "xmlID", this.xmlID);
         appendElementWithValue(visualValueNode, "left", this.left);
         appendElementWithValue(visualValueNode, "top", this.top);        
         visualValueNode.append(this.value.toXML());
@@ -826,6 +827,7 @@ function createVisualVariableFromXMLNode(visualValueXmlNode) {
 
     var options = {
         markType: visualValueXmlNode.attr('shape'),
+        xmlID: visualValueXmlNode.attr('xmlID'),
         values: {}
     };
     
@@ -833,8 +835,6 @@ function createVisualVariableFromXMLNode(visualValueXmlNode) {
     children.each(function () {
         var child = $(this);
         var tagName = this.tagName;
-
-
 
         if (tagName === "value") {
             
@@ -857,11 +857,12 @@ function createVisualVariableFromXMLNode(visualValueXmlNode) {
 
     });
     
-    console.log("options.value:");
-    console.log(options.value);
+    console.log("options to create a new DATATYPE from an XML node");
+    console.log(options);
 
     var visualValue = CreateDataTypeFromValue(options.value);
     
+    visualValue.xmlID = options.xmlID;
     visualValue.top = options.top;
     visualValue.left = options.left;
     

@@ -134,39 +134,24 @@ function generateProjectXML() {
     addAttributeWithValue(root, "zoom", canvas.getZoom());
     addAttributeWithValue(root, "panX", -canvas.viewportTransform[4]);
     addAttributeWithValue(root, "panY", -canvas.viewportTransform[5]);
+    addAttributeWithValue(root, "connectorsHidden", canvas.connectorsHidden);
 
     // generating the ids of all the elements that are on the canvas
     var cont = 1;
     canvas.forEachObject(function (object) {
-        if (!object.serialID) {
-            object.serialID = cont;
+        object.xmlID = cont++;
+        if (object.visualProperties) {
+            object.visualProperties.forEach(function (visualProperty) {
+                visualProperty.xmlID = cont++;
+            });
         }
-        cont++;
     });
-
-
 
     canvas.forEachObject(function (object) {
         if (!object.nonSerializable && object.toXML) {
             root.append(object.toXML());
         }
     });
-
-
-
-
-
-
-
-    /*canvas.forEachObject(function (object) {
-     
-     if (!object.nonSerializable && object.serializableProperties && object.deserializer) {
-     root.append(generateXMLNodeString(object));
-     }
-     
-     
-     });*/
-
 
     var xmlText = (new XMLSerializer()).serializeToString(root[0]);
 
@@ -175,6 +160,7 @@ function generateProjectXML() {
 }
 
 function processCanvasXMLNode(canvasNode) {
+
     if (LOG) {
         console.log("canvasNode:");
         console.log(canvasNode);
@@ -188,6 +174,14 @@ function processCanvasXMLNode(canvasNode) {
     var newPanX = Number(canvasNode.attr('panX'));
     var newPanY = Number(canvasNode.attr('panY'));
 
+    var connectorsHidden = canvasNode.attr('connectorsHidden') === "true";
+    canvas.connectorsHidden = connectorsHidden;
+    if (connectorsHidden) {
+        $('#toggleConnectorsVisibilityActivatorLink').html('<i id="checkConnectorsVisibility" class="icon-check-empty"></i> Show connectors');
+    } else {
+        $('#toggleConnectorsVisibilityActivatorLink').html('<i id="checkConnectorsVisibility" class="icon-check"></i> Show connectors');
+    }
+
 //    canvas.setZoom(newZoom);
 //    canvas.absolutePan(new fabric.Point(panX, panY));
 
@@ -200,9 +194,9 @@ function processCanvasXMLNode(canvasNode) {
 
     console.log("currentZoom: " + currentZoom);
     console.log("newZoom: " + newZoom);
-    
+
     var duration = 1300;
-    
+
     var tempPanX = currentPanX;
     var tempPanY = currentPanY;
     fabric.util.animate({
@@ -237,7 +231,7 @@ function processCanvasXMLNode(canvasNode) {
         }
     });
 
-
+    var connectors = new Array();
 
 //     Refreshing the canvas so that all the loaders do not do it
 //    fabric.util.animate({
@@ -266,16 +260,27 @@ function processCanvasXMLNode(canvasNode) {
         } else if (tagName === "visualValue") {
 
             createVisualVariableFromXMLNode(child);
-            
+
         } else if (tagName === "numericFunction") {
 
             createNumericFunctionFromXMLNode(child);
 
+        } else if (tagName === "locator") {
+
+            createLocatorFromXMLNode(child);
+
+        } else if (tagName === "connector") {
+
+            connectors.push(child);
+
         }
 
-
-
     });
+
+    connectors.forEach(function (connectorNode) {
+        createConnectorFromXMLNode(connectorNode);
+    });
+
 }
 
 
@@ -345,11 +350,11 @@ function makeConnections($rootElement) {
 
 }
 
-function getElementBySerialID(serialID) {
+function getFabricElementByXmlID(xmlID) {
     var canvasObjects = canvas.getObjects();
     for (var i = 0; i < canvasObjects.length; i++) {
         var object = canvas.item(i);
-        if (object.serialID === serialID) {
+        if (object.xmlID === xmlID) {
             return object;
         }
     }

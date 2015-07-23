@@ -5,9 +5,6 @@ var MultiplicationOperator = fabric.util.createClass(Operator, {
         options || (options = {});
         this.callSuper('initialize', options);
         this.set('operator', '\u00D7');
-        this.set('fill', MultiplicationOperatorFillColor);
-        this.set('stroke', MultiplicationOperatorStrokeColor);
-        this.set('colorForStroke', MultiplicationOperatorStrokeColor);
     },
     multiplyBy: function (a, b) {
         if (LOG)
@@ -70,7 +67,7 @@ var MultiplicationOperator = fabric.util.createClass(Operator, {
         ctx.save();
         this.callSuper('_render', ctx);
         ctx.font = '60px Verdana';
-        ctx.fillStyle = OperatorTextFillColor;
+        ctx.fillStyle = OPERATOR_TEXT_FILL;
         ctx.textAlign = "center";
 
 

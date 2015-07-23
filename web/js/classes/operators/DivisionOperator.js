@@ -5,9 +5,6 @@ var DivisionOperator = fabric.util.createClass(Operator, {
         options || (options = {});
         this.callSuper('initialize', options);
         this.set('operator', '\u00F7');
-        this.set('fill', DivisionOperatorFillColor);
-        this.set('stroke', DivisionOperatorStrokeColor);
-        this.set('colorForStroke', DivisionOperatorStrokeColor);
     },
     divideBy: function (a, b) {
         if (LOG)
@@ -75,7 +72,7 @@ var DivisionOperator = fabric.util.createClass(Operator, {
         ctx.save();
         this.callSuper('_render', ctx);
         ctx.font = '55px Verdana';
-        ctx.fillStyle = OperatorTextFillColor;
+        ctx.fillStyle = OPERATOR_TEXT_FILL;
 
         ctx.beginPath();
         ctx.strokeStyle = 'black';

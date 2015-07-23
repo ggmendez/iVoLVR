@@ -55,7 +55,6 @@ var Mark = function () {
             console.log(shapeValue);
         }
 
-
         this.getVisualPropertyByAttributeName('shape').value = shapeValue;
         this.getVisualPropertyByAttributeName('fill').value = fillValue;
         this.getVisualPropertyByAttributeName('label').value = labelValue;
@@ -63,6 +62,7 @@ var Mark = function () {
 
     this.toXML = function () {
         var markNode = createXMLElement("mark");
+        addAttributeWithValue(markNode, "xmlID", this.xmlID);
         addAttributeWithValue(markNode, "shape", this.shape.shape || this.shape);
         appendElementWithValue(markNode, "left", this.left);
         appendElementWithValue(markNode, "top", this.top);
@@ -1747,6 +1747,8 @@ function createMarkFromXMLNode(markXmlNode) {
 
     var options = {
         markType: markXmlNode.attr('shape'),
+        xmlID: markXmlNode.attr('xmlID'),
+        xmlIDs: {},
         values: {}
     };
 
@@ -1755,13 +1757,12 @@ function createMarkFromXMLNode(markXmlNode) {
         var child = $(this);
         var tagName = this.tagName;
 
-
-
         if (tagName === "property") {
 
             var valueXmlNode = $(child.find('value')[0]);
             var propertyValue = createValueFromXMLNode(valueXmlNode);
-
+            
+            var xmlID = child.attr('xmlID');
             var attribute = child.attr('attribute');
 
             if (LOG) {
@@ -1770,7 +1771,7 @@ function createMarkFromXMLNode(markXmlNode) {
             }
 
             options.values[attribute] = propertyValue;
-
+            options.xmlIDs[attribute] = xmlID;
 
         } else {
 
@@ -1813,7 +1814,19 @@ function createMark(options) {
             mark.expand(options.markType !== SVGPATHGROUP_MARK);
         }
     }
-
-
+    
+    console.log("options.xmlIDs:");
+    console.log(options.xmlIDs);
+    
+    for (var attribute in options.xmlIDs) {
+        
+        console.log("attribute: " + attribute);
+        
+        var xmlID = options.xmlIDs[attribute];
+        var visualProperty = mark.getVisualPropertyByAttributeName(attribute);
+        if (visualProperty !== null) {
+            visualProperty.xmlID = xmlID;
+        }
+    }
 
 }

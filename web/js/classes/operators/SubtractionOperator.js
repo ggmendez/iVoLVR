@@ -5,9 +5,6 @@ var SubtractionOperator = fabric.util.createClass(Operator, {
         options || (options = {});
         this.callSuper('initialize', options);
         this.set('operator', '\u2013');
-        this.set('fill', SubtractionOperatorFillColor);
-        this.set('stroke', SubtractionOperatorStrokeColor);
-        this.set('colorForStroke', SubtractionOperatorStrokeColor);
     },
     // return a-b
     subtractFrom: function (a, b) {
@@ -65,31 +62,6 @@ var SubtractionOperator = fabric.util.createClass(Operator, {
             console.log("RESULT " + result);
         return result;
     },
-//    computeOutputValue: function (shouldAnimate) {
-//
-//        var theOperator = this;
-//
-//        var result = createStringValue('');
-//
-//        if (this.inConnectors.length) {
-//            result = this.inConnectors[0].value;
-//            for (var i = 1; i < this.inConnectors.length; i++) {
-//                result = this.subtractFrom(result, this.inConnectors[i].value);
-//            }
-//        } else {
-//
-////            result = createNumericValue(0, '', '', '');
-//            result = createStringValue('');
-//
-//        }
-//
-//        theOperator.setValue(result, true);
-//
-//        if (LOG) console.log("%cValue of this operator updated to " + theOperator.value + " due to the new in connection", "background:yellow");
-//        if (LOG) console.log("theOperator.value:");
-//        if (LOG) console.log(theOperator.value);
-//
-//    },
     computeOutputValue: function (shouldAnimate) {
 
         var theOperator = this;
@@ -157,7 +129,7 @@ var SubtractionOperator = fabric.util.createClass(Operator, {
         ctx.save();
         this.callSuper('_render', ctx);
         ctx.font = '70px Helvetica';
-        ctx.fillStyle = OperatorTextFillColor;
+        ctx.fillStyle = OPERATOR_TEXT_FILL;
         ctx.textAlign = "center";
 
         ctx.beginPath();

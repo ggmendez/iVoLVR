@@ -5305,15 +5305,23 @@ function canvasDropFunction(ev, ui) {
     }
 
     if (id) {
+
         targetObject = getImportedImageContaining(x, y);
-        if (id === "addition-operator") {
-            addOperator('addition', x, y);
-        } else if (id === "subtraction-operator") {
-            addOperator('subtraction', x, y);
-        } else if (id === "multiplication-operator") {
-            addOperator('multiplication', x, y);
-        } else if (id === "division-operator") {
-            addOperator('division', x, y);
+
+        if (id === "addition-operator" || id === "subtraction-operator" || id === "multiplication-operator" || id === "division-operator") {
+
+            var type = replaceAll(id, "-operator", "");            
+
+            var options = {
+                type: type,
+                left: x,
+                top: y,
+                markAsSelected: true,
+                animateAtBirth: true
+            };
+
+            addOperator(options);
+
         } else if (id === "emptyFunction") {
 
             addNumericFunction(x, y);
@@ -5354,8 +5362,18 @@ function canvasDropFunction(ev, ui) {
             addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
 
         } else if (id === "locatorWidget") {
+            
+            var options = {
+                top: y,
+                left: x,
+                markAsSelected: true,
+                animateAtBirth: true,
+                shouldExpand: false,
+            };
 
-            addLocator(x, y);
+            addLocator(options);
+            
+            
         } else if (id === "mapperWidget") {
 
             addMapper(x, y);

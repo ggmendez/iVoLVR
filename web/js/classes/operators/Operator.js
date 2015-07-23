@@ -1,29 +1,31 @@
-var OperatorTextFillColor = rgb(0, 0, 0);
-var AdditionOperatorFillColor = rgb(226, 227, 227);
-var AdditionOperatorStrokeColor = darkenrgb(0, 0, 0);
-var SubtractionOperatorFillColor = rgb(226, 227, 227);
-var SubtractionOperatorStrokeColor = darkenrgb(0, 0, 0);
-var MultiplicationOperatorFillColor = rgb(226, 227, 227);
-var MultiplicationOperatorStrokeColor = darkenrgb(0, 0, 0);
-var DivisionOperatorFillColor = rgb(226, 227, 227);
-var DivisionOperatorStrokeColor = darkenrgb(0, 0, 0);
-//var AdditionOperatorFillColor = rgb(180, 232, 56);
-//var AdditionOperatorStrokeColor = darkenrgb(180, 232, 56);
-//var SubtractionOperatorFillColor = rgb(255, 158, 41);
-//var SubtractionOperatorStrokeColor = darkenrgb(255, 158, 41);
-//var MultiplicationOperatorFillColor = rgb(254, 232, 45);
-//var MultiplicationOperatorStrokeColor = darkenrgb(254, 232, 45);
-//var DivisionOperatorFillColor = rgb(105, 205, 236);
-//var DivisionOperatorStrokeColor = darkenrgb(105, 205, 236);
-
-
 var Operator = fabric.util.createClass(fabric.Circle, {
     type: 'operator',
     xmlNodeName: 'operator',
     serializableProperties: ['type', 'top', 'left'],
-    deserializer: addOperatorWithOptions,
+    deserializer: addOperator,
     initialize: function (options) {
         options || (options = {});
+
+        var fill = DEFAULT_OPERATOR_FILL;
+        var stroke = DEFAULT_OPERATOR_STROKE;
+        var colorForStroke = DEFAULT_OPERATOR_STROKE;
+
+        var value = options.value;
+        
+        console.log(" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ******************************* value");
+        console.log(value);
+        
+        if (typeof value !== 'undefined') {
+            var iconName = getIconNameByDataTypeProposition(value.getTypeProposition());
+            fill = icons[iconName].fill;
+            stroke = icons[iconName].stroke;
+            colorForStroke = stroke;
+        }
+
+        options.fill = fill;
+        options.stroke = stroke;
+        options.colorForStroke = colorForStroke;
+
         this.callSuper('initialize', options);
         this.set('operator', options.operator || '');
         this.set('isOperator', true);
@@ -38,21 +40,17 @@ var Operator = fabric.util.createClass(fabric.Circle, {
         this.set('hasControls', false);
         this.set('hasRotatingPoint', false);
 
-
         this.set('originX', 'center');
         this.set('originY', 'center');
 
-
-//      this.set('value', createNumericValue(0, '', null, '')); // the out prefix has to be null at the beginning because the computeOutputValue method checks for null to decide which units it will output
-        this.set('value', createStringValue('')); // the out prefix has to be null at the beginning because the computeOutputValue method checks for null to decide which units it will output
-
-
-        this.set('label', options.label || '');
+        this.set('value', value || createStringValue('')); // the out prefix has to be null at the beginning because the computeOutputValue method checks for null to decide which units it will output
+        this.set('label', typeof value !== 'undefined' ? value.getDisplayableString() : (options.label || ''));
 
         this.associateEvents();
     },
     toXML: function () {
         var operatorNode = createXMLElement("operator");
+        addAttributeWithValue(operatorNode, "xmlID", this.xmlID);
         addAttributeWithValue(operatorNode, "type", this.type);
         appendElementWithValue(operatorNode, "left", this.left);
         appendElementWithValue(operatorNode, "top", this.top);
@@ -69,8 +67,10 @@ var Operator = fabric.util.createClass(fabric.Circle, {
     },
     applySelectedStyle: function (selectConnectorsToo) {
 
+        this.selected = true;
         this.stroke = widget_selected_stroke_color;
         this.strokeDashArray = widget_selected_stroke_dash_array;
+        
         if (selectConnectorsToo) {
 
             this.inConnectors.forEach(function (inConnector) {
@@ -110,6 +110,7 @@ var Operator = fabric.util.createClass(fabric.Circle, {
 
     },
     applyUnselectedStyle: function () {
+        this.selected = false;
         this.stroke = this.colorForStroke;
         this.strokeDashArray = [];
         this.inConnectors.forEach(function (inConnector) {
@@ -193,7 +194,9 @@ var Operator = fabric.util.createClass(fabric.Circle, {
         var iconName = getIconNameByDataTypeProposition(value.getTypeProposition());
 
         theOperator.fill = icons[iconName].fill;
-        theOperator.stroke = icons[iconName].stroke;
+        if (!theOperator.selected) {
+            theOperator.stroke = icons[iconName].stroke;   
+        }        
         theOperator.colorForStroke = icons[iconName].stroke;
 
         if (refreshCanvas) {
@@ -478,26 +481,12 @@ var Operator = fabric.util.createClass(fabric.Circle, {
 });
 
 
+function addOperator(options) {
 
+//    console.log("----------------------options");
+//    console.log(options);
 
-
-
-
-function addOperatorWithOptions(options) {
-
-    if (LOG) {
-        console.log("options");
-    }
-    if (LOG) {
-        console.log(options);
-    }
-
-    return addOperator(options.type, options.left, options.top);
-}
-
-
-function addOperator(type, x, y) {
-
+    var type = options.type;
     var operatorConstructor = null;
 
     if (type === 'addition') {
@@ -518,32 +507,35 @@ function addOperator(type, x, y) {
 
     }
 
-    var operator = new operatorConstructor({
-        left: x,
-        top: y,
-        scaleX: 0.05,
-        scaleY: 0.05,
-        type: type
-    });
+    if (options.animateAtBirth) {
+        options.scaleX = 0.05;
+        options.scaleY = 0.05;
+    } else {
+        options.scaleX = 1;
+        options.scaleY = 1;
+    }
 
-    var easing = fabric.util.ease.easeOutElastic;
-    var duration = 1000;
+    var operator = new operatorConstructor(options);
 
-    operator.animate('scaleX', 1, {
-        onChange: canvas.renderAll.bind(canvas),
-        duration: duration,
-        easing: easing
-    });
-    operator.animate('scaleY', 1, {
-        onChange: canvas.renderAll.bind(canvas),
-        duration: duration,
-        easing: easing
-    });
+    if (options.animateAtBirth) {
+        var easing = fabric.util.ease.easeOutElastic;
+        var duration = 1000;
+        operator.animate('scaleX', 1, {
+            duration: duration,
+            easing: easing
+        });
+        operator.animate('scaleY', 1, {
+            onChange: canvas.renderAll.bind(canvas),
+            duration: duration,
+            easing: easing
+        });
+    }
 
     canvas.add(operator);
-    canvas.setActiveObject(operator);
-    canvas.renderAll();
 
+    if (options.markAsSelected) {
+        canvas.setActiveObject(operator);
+    }
 
 }
 
@@ -553,6 +545,8 @@ function createOperatorFromXMLNode(operatorXmlNode) {
 
     var options = {
         type: operatorXmlNode.attr('type'),
+        xmlID: operatorXmlNode.attr('xmlID'),
+        animateAtBirth: true
     };
 
     var children = operatorXmlNode.children();
@@ -581,6 +575,9 @@ function createOperatorFromXMLNode(operatorXmlNode) {
 
     });
 
-    return addOperatorWithOptions(options);
+//    console.log("options to create a new OPERATOR from an XML node");
+//    console.log(options);
+
+    return addOperator(options);
 
 }

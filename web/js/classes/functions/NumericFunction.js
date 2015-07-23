@@ -18,6 +18,11 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         var minYNode = theFunction.minY.value.toXML();
         var maxYNode = theFunction.maxY.value.toXML();
 
+        addAttributeWithValue(minXNode, "xmlID", theFunction.minX.xmlID);
+        addAttributeWithValue(maxXNode, "xmlID", theFunction.maxX.xmlID);
+        addAttributeWithValue(minYNode, "xmlID", theFunction.minY.xmlID);
+        addAttributeWithValue(maxYNode, "xmlID", theFunction.maxY.xmlID);
+
         addAttributeWithValue(minXNode, "which", "minX");
         addAttributeWithValue(maxXNode, "which", "maxX");
         addAttributeWithValue(minYNode, "which", "minY");
@@ -28,16 +33,20 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         functionNode.append(minYNode);
         functionNode.append(maxYNode);
 
-        var inputValue = theFunction.inputPoint.value;
+        var inputPoint = theFunction.inputPoint;
+        var inputValue = inputPoint.value;
         if (typeof inputValue !== 'undefined') {
-            var inputNode = theFunction.inputPoint.value.toXML();
+            var inputNode = inputValue.toXML();
+            addAttributeWithValue(inputNode, "xmlID", inputPoint.xmlID);
             addAttributeWithValue(inputNode, "which", "input");
             functionNode.append(inputNode);
         }
 
-        var outputValue = theFunction.outputPoint.value;
+        var outputPoint = theFunction.outputPoint;
+        var outputValue = outputPoint.value;
         if (typeof outputValue !== 'undefined') {
-            var outputNode = theFunction.outputPoint.value.toXML();
+            var outputNode = outputValue.toXML();
+            addAttributeWithValue(outputNode, "xmlID", outputPoint.xmlID);
             addAttributeWithValue(outputNode, "which", "output");
             functionNode.append(outputNode);
         }
@@ -45,6 +54,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         var coordinatesX = theFunction.coordinatesX;
         if (typeof coordinatesX !== 'undefined') {
             var xCoordinatesNode = createXMLElement("array");
+            addAttributeWithValue(xCoordinatesNode, "xmlID", theFunction.xValues.xmlID);
             addAttributeWithValue(xCoordinatesNode, "which", "coordinatesX");
             coordinatesX.forEach(function (coordinate) {
                 var valueNode = coordinate.toXML();
@@ -56,6 +66,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         var coordinatesY = theFunction.coordinatesY;
         if (typeof coordinatesY !== 'undefined') {
             var yCoordinatesNode = createXMLElement("array");
+            addAttributeWithValue(yCoordinatesNode, "xmlID", theFunction.yValues.xmlID);
             addAttributeWithValue(yCoordinatesNode, "which", "coordinatesY");
             theFunction.coordinatesY.forEach(function (coordinate) {
                 var valueNode = coordinate.toXML();
@@ -116,11 +127,11 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
         this.set('topElements', new Array());
 
-        this.addNumericLimits(options.values);
+        this.addNumericLimits(options.values, options.xmlIDs);
 
-        this.addInOutPoints(options.values);
+        this.addInOutPoints(options.values, options.xmlIDs);
 
-        this.addValuesCollections();
+        this.addValuesCollections(options.xmlIDs);
 
         this.addIntersectionPoint();
 
@@ -219,11 +230,12 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         }
 
     },
-    addNumericLimit: function (limitName, numericValue) {
+    addNumericLimit: function (limitName, numericValue, xmlID) {
 
         var theFunction = this;
 
         var numericVisualValue = CreateDataTypeFromValue(numericValue);
+        numericVisualValue.xmlID = xmlID;
         numericVisualValue.scaleX = theFunction.valueScale;
         numericVisualValue.scaleY = theFunction.valueScale;
         numericVisualValue.isLimitValue = true;
@@ -335,7 +347,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         });
 
     },
-    addNumericLimits: function (values) {
+    addNumericLimits: function (values, xmlIDs) {
 
         var theFunction = this;
         var minXValue = null;
@@ -353,12 +365,12 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             maxXValue = new NumericData({unscaledValue: 100});
             minYValue = new NumericData({unscaledValue: 0});
             maxYValue = new NumericData({unscaledValue: 100});
-        }
+        }                
 
-        theFunction.addNumericLimit('minX', minXValue);
-        theFunction.addNumericLimit('maxX', maxXValue);
-        theFunction.addNumericLimit('minY', minYValue);
-        theFunction.addNumericLimit('maxY', maxYValue);
+        theFunction.addNumericLimit('minX', minXValue, xmlIDs ? xmlIDs['minX'] : null);
+        theFunction.addNumericLimit('maxX', maxXValue, xmlIDs ? xmlIDs['maxX'] : null);
+        theFunction.addNumericLimit('minY', minYValue, xmlIDs ? xmlIDs['minY'] : null);
+        theFunction.addNumericLimit('maxY', maxYValue, xmlIDs ? xmlIDs['maxY'] : null);
     },
     createFunctionPath: function () {
         var theFunction = this;
@@ -486,7 +498,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
 
     },
-    addValuesCollections: function () {
+    addValuesCollections: function (xmlIDs) {
 
         var theFunction = this;
 
@@ -496,6 +508,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             scaleY: 0.8,
             numericFunction: theFunction,
             isXValues: true,
+            xmlID: xmlIDs ? xmlIDs['coordinatesX'] : null
         });
         theFunction.xValues = xValues;
         theFunction.topElements.push(xValues);
@@ -507,13 +520,14 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             scaleY: 0.8,
             numericFunction: theFunction,
             isYValues: true,
+            xmlID: xmlIDs ? xmlIDs['coordinatesY'] : null
         });
         theFunction.yValues = yValues;
         theFunction.topElements.push(yValues);
         canvas.add(yValues);
 
     },
-    addInOutPoints: function (values) {
+    addInOutPoints: function (values, xmlIDs) {
 
         var inputValue = null;
         var outputValue = null;
@@ -535,7 +549,8 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             angle: 270,
             opacity: 0, // The input point is not visible at the bigining. It will appear when the incollection has values.
             function: theFunction,
-            value: inputValue
+            value: inputValue,
+            xmlID: xmlIDs ? xmlIDs['input'] : null
         });
         canvas.add(inputPoint);
         theFunction.inputPoint = inputPoint;
@@ -548,7 +563,8 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             angle: 180,
             opacity: 0, // The output point is not visible at the bigining. It will appear when the outCollection has values
             function: theFunction,
-            value: outputValue
+            value: outputValue,
+            xmlID: xmlIDs ? xmlIDs['output'] : null
         });
         canvas.add(outputPoint);
         theFunction.set('outputPoint', outputPoint);
@@ -1455,6 +1471,9 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
 function addNumericFunctionWithOptions(options) {
 
+    console.log("###################################### options to create a new NUMERIC FUNCTION from an XML node");
+    console.log(options);
+    
     var theFunction = new NumericFunction(options);
     canvas.add(theFunction);
 
@@ -1611,6 +1630,7 @@ function createNumericFunctionFromXMLNode(functionXmlNode) {
 
     var options = {
         doNotAnimateAtBirth: true,
+        xmlIDs: {},
         values: {}
     };
 
@@ -1623,13 +1643,15 @@ function createNumericFunctionFromXMLNode(functionXmlNode) {
 
             var propertyValue = createValueFromXMLNode(child);
             var which = child.attr('which');
+            var xmlID = child.attr('xmlID');
+            options.xmlIDs[which] = xmlID;
             options.values[which] = propertyValue;
 
         } else if (tagName === "array") {
 
             var array = new Array();
             var which = child.attr('which');
-
+            var xmlID = child.attr('xmlID');
             var elements = child.children('value');
             elements.each(function () {
                 var valueNode = $(this);
@@ -1638,6 +1660,7 @@ function createNumericFunctionFromXMLNode(functionXmlNode) {
             });
 
             options[which] = array;
+            options.xmlIDs[which] = xmlID;
 
         } else {
 

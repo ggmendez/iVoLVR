@@ -4,11 +4,7 @@ var AdditionOperator = fabric.util.createClass(Operator, {
     initialize: function (options) {
         options || (options = {});
         this.callSuper('initialize', options);
-        this.set('operator', '\u002B');
-        this.set('fill', AdditionOperatorFillColor);
-        this.set('stroke', AdditionOperatorStrokeColor);
-        this.set('colorForStroke', AdditionOperatorStrokeColor);
-
+        this.set('operator', '\u002B'); 
     },
     // return a+b
     addTo: function (a, b) {
@@ -105,46 +101,46 @@ var AdditionOperator = fabric.util.createClass(Operator, {
                 } else {
 
                     var types = getAllTypes(incomingValues);
-                    
+
                     console.log("types:");
                     console.log(types);
 
                     var containsString = types.indexOf("string") !== -1;
                     var containsDuration = types.indexOf("duration") !== -1;
                     var containsDateAndTime = types.indexOf("dateAndTime") !== -1;
-                    
+
                     if (containsString) {
-                        
-                        result = concatStrings(incomingValues);  
-                        
+
+                        result = concatStrings(incomingValues);
+
                         console.log("result:");
                         console.log(result);
-                        
+
                     } else {
-                       
-                       console.log("incomingValues:");
-                       console.log(incomingValues);
-                       
-                       if (types.length === incomingValues.length && incomingValues.length === 2 && containsDateAndTime && containsDuration ) {
-                          
-                          console.log("incomingValues[0]:");
-                          console.log(incomingValues[0]);
-                          
-                          console.log("incomingValues[1]:");
-                          console.log(incomingValues[1]);
-                          
-                          result = addValues(incomingValues[0], incomingValues[1]);
-                          
-                          
-                       } else {
-                          
-                          return null;
-                          
-                       }
-                       
+
+                        console.log("incomingValues:");
+                        console.log(incomingValues);
+
+                        if (types.length === incomingValues.length && incomingValues.length === 2 && containsDateAndTime && containsDuration) {
+
+                            console.log("incomingValues[0]:");
+                            console.log(incomingValues[0]);
+
+                            console.log("incomingValues[1]:");
+                            console.log(incomingValues[1]);
+
+                            result = addValues(incomingValues[0], incomingValues[1]);
+
+
+                        } else {
+
+                            return null;
+
+                        }
+
                     }
 
-                    
+
 
 
 
@@ -209,7 +205,7 @@ var AdditionOperator = fabric.util.createClass(Operator, {
         ctx.save();
         this.callSuper('_render', ctx);
         ctx.font = '70px Helvetica';
-        ctx.fillStyle = OperatorTextFillColor;
+        ctx.fillStyle = OPERATOR_TEXT_FILL;
         ctx.textAlign = "center";
 
         ctx.beginPath();

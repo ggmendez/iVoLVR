@@ -1,61 +1,21 @@
 var Connector = fabric.util.createClass(fabric.Line, {
     type: 'connector',
     toXML: function () {
+
         var theConnector = this;
 
-        console.log("==============================");
-        console.log("theConnector:");
-        console.log(theConnector);
-        console.log("==============================");
+        var source = theConnector.source;
+        var destination = theConnector.destination;
 
-        var XMLConnector = createXMLElement('connector');
+        var connectorNode = createXMLElement("connector");
+        addAttributeWithValue(connectorNode, "from", source.xmlID);
+        addAttributeWithValue(connectorNode, "to", destination.xmlID);
+        addAttributeWithValue(connectorNode, "arrowColor", theConnector.arrowColor);
+        addAttributeWithValue(connectorNode, "strokeWidth", theConnector.strokeWidth);
+        addAttributeWithValue(connectorNode, "filledArrow", theConnector.filledArrow);
+        addAttributeWithValue(connectorNode, "opacity", theConnector.opacity);
 
-        appendElementWithValue(XMLConnector, 'serialID', theConnector.serialID);
-
-        var theSource = theConnector.source;
-        var theDestination = theConnector.destination;
-
-        console.log("************************");
-
-        console.log("theSource:");
-        console.log(theSource);
-
-        console.log("theDestination:");
-        console.log(theDestination);
-
-        console.log("++++++++++++++++++++++++");
-
-        var sourceID = null;
-        var destinationID = null;
-
-        if (theSource) {
-            if (theSource.isVisualProperty) {
-                sourceID = theSource.parentObject.serialID;
-                appendElementWithValue(XMLConnector, 'sourceAttribute', theSource.attribute);
-            } else {
-                sourceID = theSource.serialID;
-            }
-        }
-
-        if (theDestination) {
-            if (theDestination.isVisualProperty) {
-                destinationID = theDestination.parentObject.serialID;
-                appendElementWithValue(XMLConnector, 'destinationAttribute', theDestination.attribute);
-            } else {
-                destinationID = theDestination.serialID;
-            }
-        }
-
-
-        appendElementWithValue(XMLConnector, 'source', sourceID);
-        appendElementWithValue(XMLConnector, 'destination', destinationID);
-        appendElementWithValue(XMLConnector, 'arrowColor', theConnector.arrowColor);
-
-
-
-        var xmlText = (new XMLSerializer()).serializeToString(XMLConnector[0]);
-
-        return xmlText;
+        return connectorNode;
     },
     initialize: function (options) {
 
@@ -747,32 +707,57 @@ var Connector = fabric.util.createClass(fabric.Line, {
 
 
 
-function connectElements(source, destination, value, color) {
+function createConnectorFromXMLNode(connectorNode) {
 
-    var options = {
-        value: value,
-        source: source,
-        x1: source.left,
-        y1: source.top,
-        x2: destination.left,
-        y2: destination.top,
-        arrowColor: color,
-        filledArrow: true,
-        strokeWidth: 3
-    };
+    var fromID = connectorNode.attr('from');
+    var toID = connectorNode.attr('to');
 
-    var theConnector = new Connector(options);
+    var source = getFabricElementByXmlID(fromID);
+    var destination = getFabricElementByXmlID(toID);
 
-    source.outConnectors.push(theConnector);
-    destination.inConnectors.push(theConnector);
-    canvas.add(theConnector);
+    if (source !== null && destination !== null) {
 
-    console.log("After the connection has been done");
+        var arrowColor = connectorNode.attr('arrowColor');
+        var strokeWidth = Number(connectorNode.attr('strokeWidth'));
+        var filledArrow = connectorNode.attr('filledArrow') === 'true';
+        var opacity = connectorNode.attr('opacity');
 
-    console.log("source:");
-    console.log(source);
+        var connector = new Connector({
+            source: source,
+            x1: source.left,
+            y1: source.top,
+            destination: destination,
+            x2: destination.left,
+            y2: destination.top,
+            arrowColor: arrowColor,
+            filledArrow: filledArrow,
+            strokeWidth: strokeWidth,
+            opacity: opacity
+        });
 
-    console.log("destination:");
-    console.log(destination);
+        source.outConnectors.push(connector);
+        destination.inConnectors.push(connector);
+
+//        console.log("source.outConnectors:");
+//        console.log(source.outConnectors);
+//
+//        console.log("destination.inConnectors:");
+//        console.log(destination.inConnectors);
+
+        canvas.add(connector);
+        
+        if (source.isOperator) {
+            source.bringToFront();
+        }
+        
+        if (destination.isOperator) {
+            destination.bringToFront();
+        }
+
+    } else {
+        
+        console.log("No source or destination found!");
+        
+    }
 
 }

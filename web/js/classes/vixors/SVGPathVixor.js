@@ -122,15 +122,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
                         } else {
 
-                            if (targetObject.isOutput) {
-                                // if the mouse up event happens over an existing output
-                                var existingOutput = targetObject;
-                                var connector = getLastElementOfArray(theVixor.connectors);
-                                connector.setDestination(targetObject, false);
-
-                                addConnectorToOutput(existingOutput, connector);
-
-                            } else if (targetObject.isOperator) {
+                            if (targetObject.isOperator) {
                                 var operator = targetObject;
                                 canvas.bringToFront(operator);
                                 var connector = getLastElementOfArray(theVixor.connectors);
@@ -156,18 +148,6 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
                         if (theVixor.recognizedStrings && theVixor.recognizedStrings.length > 0) {
                             mostFrecuentString = getMode(theVixor.recognizedStrings);
                         }
-
-//               var options = {
-//                  left: coordX,
-//                  top: coordY,
-//                  fill: lastAddedConnector.arrowColor,
-//                  stroke: theVixor.trueColorDarker,
-//                  area: lastAddedConnector.value,
-//                  label: '' + theVixor.area
-//               };
-//
-//               addOutputToCanvas(lastAddedConnector, CIRCULAR_OUTPUT, options);
-
 
                         fabric.util.removeFromArray(theVixor.connectors, lastAddedConnector);
                         lastAddedConnector.remove();
