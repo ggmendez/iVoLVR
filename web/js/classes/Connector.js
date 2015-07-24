@@ -14,8 +14,8 @@ var Connector = fabric.util.createClass(fabric.Line, {
         addAttributeWithValue(connectorNode, "strokeWidth", 1);
         addAttributeWithValue(connectorNode, "filledArrow", theConnector.filledArrow);
         addAttributeWithValue(connectorNode, "opacity", theConnector.opacity);
-        
-        
+
+
 
         return connectorNode;
     },
@@ -749,10 +749,21 @@ function createConnectorFromXMLNode(connectorNode) {
         if (destination.isOperator || destination.isMark) {
             destination.bringToFront();
         }
+        
+        return true;
 
     } else {
 
-        console.log("No source or destination found!");
+        // This means that either the source or the destination of this connector is not available in the canvas yet 
+        // We store the connector in the pendingConnections array, so that, objects that might be late, ask for their connections
+        // to be made when they become available. This call will be only executed for objects that might be delayed (SVGGroupMarks, for instance)
+        
+        // We need to check if this connection has not been previously added to this array.
+        if ($.inArray(connectorNode, pendingConnections) === -1) { // If the connection is NOT in the array
+            pendingConnections.push(connectorNode);
+        }
+                        
+        return false;
 
     }
 

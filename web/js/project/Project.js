@@ -1,3 +1,5 @@
+var pendingConnections = null;
+
 function createObjectFromXMLString(XMLNode) {
 
     var options = {};
@@ -258,7 +260,7 @@ function processCanvasXMLNode(canvasNode) {
 //        console.log(child.text());
 
         if (tagName === "mark") {
-            
+
             marks.push(child);
 
         } else if (tagName === "operator") {
@@ -288,30 +290,45 @@ function processCanvasXMLNode(canvasNode) {
         }
 
     });
-    
+
     // locators need to refer to objects that might not be in the canvas yet. That's a problem
     locators.forEach(function (locatorNode) {
         var locator = createLocatorFromXMLNode(locatorNode);
     });
-    
-    marks.forEach(function (markNode) {        
+
+    marks.forEach(function (markNode) {
         var mark = createMarkFromXMLNode(markNode);
     });
+
+    // the same happens for connectors (for instance, connections to position visual properties of marks)
+    connectors.forEach(function (connectorNode) {
+        createConnectorFromXMLNode(connectorNode);
+    });
     
-   
-//    setTimeout(function () {
-//
-//        // the same happens for connectors (for instance, connections to position visual properties of marks)
-//        connectors.forEach(function (connectorNode) {
-//            createConnectorFromXMLNode(connectorNode);
-//        });
-//
-//    }, 500);
+    var totalPendingConnections = pendingConnections.length;
+    console.log("%c" + "There are " + totalPendingConnections + " PENDING connections!", "background: #0afff9; color: black;");
 
+}
 
+function executePendingConnections(objectXmlID) {
+    
+    console.log("%c" + "Execute Pending Connections for element with ID: " + objectXmlID, "background: #e2ff28; color: black;");
+    
+    for (var i = pendingConnections.length - 1; i >= 0; i--) { // We iterate in reverse, as the removal of elements from the array will change its size
+        var connectorNode = pendingConnections[i];
 
+        var fromID = Number(connectorNode.attr('from'));
+        var toID = Number(connectorNode.attr('to'));
 
-
+        if (objectXmlID === fromID || objectXmlID === toID) {
+            if (createConnectorFromXMLNode(connectorNode)) { // We check if the connection was succesful. Only in that case the connection is removed from the array
+                fabric.util.removeFromArray(pendingConnections, connectorNode);
+            }
+        }
+    }
+    
+    var totalPendingConnections = pendingConnections.length;
+    console.log("%c" + "There are STILL " + totalPendingConnections + " connections!", "background: #0afff9; color: black;");
 }
 
 
@@ -324,6 +341,7 @@ function openProjectFile(fileName) {
 }
 
 function loadProjectXML(XMLString) {
+    pendingConnections = new Array();
     var xmlDoc = $.parseXML(XMLString);
     var $xml = $(xmlDoc);
     var canvasNode = $xml.find('iVoLVR_Canvas');
@@ -376,7 +394,6 @@ function makeConnections($rootElement) {
         if (sourceElement && destinationElement) {
             connectElements(sourceElement, destinationElement, value, color);
         }
-
     });
 
 }

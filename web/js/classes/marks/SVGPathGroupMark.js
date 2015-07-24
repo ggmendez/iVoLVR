@@ -432,6 +432,18 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
                     locator.reportMarkAvailable(svgPathGroupMark);
                 }
             }, waitingTime);
+            
+            // Checking all the pending connections that might have not been executed before due to the asynchronous nature of SVGPathGroup marks
+            executePendingConnections(svgPathGroupMark.xmlID);
+            
+            // The same is made for the visual properties of the mark, as they can also be connected
+            svgPathGroupMark.visualProperties.forEach(function (visualProperty) {
+                executePendingConnections(visualProperty.xmlID);
+            });
+            
+            // And for the position visual properties
+            executePendingConnections(svgPathGroupMark.xVisualProperty.xmlID);
+            executePendingConnections(svgPathGroupMark.yVisualProperty.xmlID);
 
             return svgPathGroupMark;
 
