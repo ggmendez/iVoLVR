@@ -238,6 +238,7 @@ function processCanvasXMLNode(canvasNode) {
     });
 
     var connectors = new Array();
+    var marks = new Array();
     var locators = new Array();
 
 //     Refreshing the canvas so that all the loaders do not do it
@@ -257,8 +258,8 @@ function processCanvasXMLNode(canvasNode) {
 //        console.log(child.text());
 
         if (tagName === "mark") {
-
-            createMarkFromXMLNode(child);
+            
+            marks.push(child);
 
         } else if (tagName === "operator") {
 
@@ -287,21 +288,25 @@ function processCanvasXMLNode(canvasNode) {
         }
 
     });
-
-    setTimeout(function () {
-
-        // locators need to refer to objects that might not be in the canvas yet. That's a problem
-        locators.forEach(function (locatorNode) {
-            var locator = createLocatorFromXMLNode(locatorNode);
-
-        });
-
-        // the same happens for connectors (for instance, connections to position visual properties of marks)
-        connectors.forEach(function (connectorNode) {
-            createConnectorFromXMLNode(connectorNode);
-        });
-
-    }, 500);
+    
+    // locators need to refer to objects that might not be in the canvas yet. That's a problem
+    locators.forEach(function (locatorNode) {
+        var locator = createLocatorFromXMLNode(locatorNode);
+    });
+    
+    marks.forEach(function (markNode) {        
+        var mark = createMarkFromXMLNode(markNode);
+    });
+    
+   
+//    setTimeout(function () {
+//
+//        // the same happens for connectors (for instance, connections to position visual properties of marks)
+//        connectors.forEach(function (connectorNode) {
+//            createConnectorFromXMLNode(connectorNode);
+//        });
+//
+//    }, 500);
 
 
 
@@ -410,8 +415,8 @@ function getFabricElementByXmlID(xmlID) {
             }
         }
     }
-    
+
     console.log("xmlID " + xmlID + " not FOUND!!!");
-    
+
     return null;
 }

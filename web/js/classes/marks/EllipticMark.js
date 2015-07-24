@@ -65,6 +65,8 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
         this.createPositionProperties(options.values);
 
         this.setCoreVisualPropertiesValues(options.values);
+        
+        this.setxmlIDs(options.xmlIDs);
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
@@ -342,13 +344,25 @@ Mark.call(EllipticMark.prototype);
 function addEllipticMarkToCanvas(options) {
     var ellipticMark = new EllipticMark(options);
     canvas.add(ellipticMark);
+    var waitingTime = 0;
     if (options.animateAtBirth) {
+        waitingTime = 1250;
         if (ellipticMark.width > 0 && ellipticMark.height > 0) {
-//            ellipticMark.animateBirth(options.markAsSelected);
             ellipticMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
         }
     }
-
     ellipticMark.associateEvents(ellipticMark);
+    
+    if (options.shouldExpand) {
+        ellipticMark.expand(true);
+    }
+    
+    setTimeout(function () {
+        if (options.locatorXmlID) {
+            var locator = getFabricElementByXmlID(options.locatorXmlID);
+            locator.reportMarkAvailable(ellipticMark);
+        }
+    }, waitingTime);
+    
     return ellipticMark;
 }

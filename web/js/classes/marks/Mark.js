@@ -60,16 +60,43 @@ var Mark = function () {
         this.getVisualPropertyByAttributeName('label').value = labelValue;
     };
 
+    this.setxmlIDs = function (xmlIDs) {
+
+        var theMark = this;
+        if (xmlIDs) {
+            
+            for (var attribute in xmlIDs) {
+                
+                var xmlID = xmlIDs[attribute];
+                var visualProperty = theMark.getVisualPropertyByAttributeName(attribute);
+                if (visualProperty !== null) {
+                    visualProperty.xmlID = xmlID;
+                }
+            }
+
+            theMark.xVisualProperty.xmlID = xmlIDs['x'];
+            theMark.yVisualProperty.xmlID = xmlIDs['y'];
+
+        }
+
+    };
+
     this.toXML = function () {
         var theMark = this;
         var markNode = createXMLElement("mark");
-        addAttributeWithValue(markNode, "xmlID", this.xmlID);
-        addAttributeWithValue(markNode, "shape", this.shape.shape || this.shape);
-        appendElementWithValue(markNode, "left", this.left);
-        appendElementWithValue(markNode, "top", this.top);
-        appendElementWithValue(markNode, "stroke", new fabric.Color(this.visualProperties[0].stroke).toRgba());
-        appendElementWithValue(markNode, "visualPropertyFill", new fabric.Color(this.visualProperties[0].fill).toRgba());
-        appendElementWithValue(markNode, "isExpanded", !this.isCompressed);
+        addAttributeWithValue(markNode, "xmlID", theMark.xmlID);
+        addAttributeWithValue(markNode, "shape", theMark.shape.shape || theMark.shape);
+        appendElementWithValue(markNode, "left", theMark.left);
+        appendElementWithValue(markNode, "top", theMark.top);
+        appendElementWithValue(markNode, "stroke", new fabric.Color(theMark.visualProperties[0].stroke).toRgba());
+        appendElementWithValue(markNode, "visualPropertyFill", new fabric.Color(theMark.visualProperties[0].fill).toRgba());
+        appendElementWithValue(markNode, "isExpanded", !theMark.isCompressed);
+
+        if (theMark.parentObject && theMark.parentObject.isLocator) {
+            appendElementWithValue(markNode, "locatorXmlID", theMark.parentObject.xmlID);
+        }
+
+
         theMark.visualProperties.forEach(function (visualProperty) {
             var propertyNode = visualProperty.toXML();
             markNode.append(propertyNode);
@@ -1756,6 +1783,7 @@ function createMarkFromXMLNode(markXmlNode) {
     var options = {
         markType: markXmlNode.attr('shape'),
         xmlID: Number(markXmlNode.attr('xmlID')),
+        locatorXmlID: Number(markXmlNode.attr('locatorXmlID')),
         xmlIDs: {},
         values: {}
     };
@@ -1815,38 +1843,6 @@ function createMark(options) {
         console.log(options);
     }
 
-    var mark = addMarkToCanvas(markType, options);
-
-    if (mark) {
-
-        console.log("%%%%%%%%%%%%%%%%%%% Created MARK:");
-        console.log(mark);
-
-        if (typeof mark !== 'undefined' && mark !== null) { // due to the asynchronous nature of SVGPATHGROUP_MARK, this should be checked. The expansion of such marks is donde withint their adding method
-            if (isExpanded) {
-                mark.expand(options.markType !== SVGPATHGROUP_MARK);
-            }
-        }
-
-        console.log("options.xmlIDs:");
-        console.log(options.xmlIDs);
-
-        for (var attribute in options.xmlIDs) {
-
-            console.log("attribute: " + attribute);
-
-            var xmlID = options.xmlIDs[attribute];
-            var visualProperty = mark.getVisualPropertyByAttributeName(attribute);
-            if (visualProperty !== null) {
-                visualProperty.xmlID = xmlID;
-            }
-        }
-
-        mark.xVisualProperty.xmlID = options.xmlIDs['x'];
-        mark.yVisualProperty.xmlID = options.xmlIDs['y'];
-
-    }
-
-
-
+    options.shouldExpand = options.isExpanded;
+    var theMark = addMarkToCanvas(markType, options);
 }

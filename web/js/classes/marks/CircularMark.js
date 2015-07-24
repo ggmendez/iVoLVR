@@ -3,16 +3,15 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
     isCircularMark: true,
     serializableProperties: ['left', 'top', 'fill', 'colorForStroke', 'radius', 'label', 'isCompressed'],
     deserializer: addCircularMarkToCanvas,
-
     initialize: function (options) {
         options || (options = {});
-                        
+
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
-        
+
         options.radius = options.radius || options.values.radius.number;
         if (typeof options.radius !== 'undefined') {
-            this.set('radius', options.radius);            
+            this.set('radius', options.radius);
             this.set('area', Math.PI * Math.abs(this.radius) * Math.abs(this.radius));
         } else {
             options.area = options.area || options.values.area.number;
@@ -20,11 +19,11 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
             var radius = Math.sqrt(options.area / Math.PI);
             this.set('radius', Math.abs(radius));
         }
-        
+
         this.callSuper('initialize', options);
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', options.strokeWidth || 2);
-                                        
+
         this.createVariables();
 
         if (!options.withoutLabel) {
@@ -37,18 +36,18 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
         this.set('colorForStroke', options.colorForStroke || this.stroke);
 
         this.createRectBackground();
-                        
+
         var radiusValue = null;
         var areaValue = null;
 
         if (options.values) {
             radiusValue = options.values.radius || createNumericValue(this.radius, null, null, 'pixels');
-            areaValue = options.values.area || createNumericValue(this.area, null, null, 'pixels');            
+            areaValue = options.values.area || createNumericValue(this.area, null, null, 'pixels');
         } else {
             radiusValue = createNumericValue(this.radius, null, null, 'pixels');
             areaValue = createNumericValue(this.area, null, null, 'pixels');
         }
-                        
+
         this.specificProperties.push({attribute: "radius", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: radiusValue});
         this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['radius'], dataTypeProposition: 'isNumericData', value: areaValue});
 
@@ -56,6 +55,8 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
         this.createPositionProperties(options.values);
 
         this.setCoreVisualPropertiesValues(options.values);
+
+        this.setxmlIDs(options.xmlIDs);
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
@@ -267,12 +268,14 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
 Mark.call(CircularMark.prototype);
 
 
-function addCircularMarkToCanvas(options) {        
-    
+function addCircularMarkToCanvas(options) {
+
     var circularMark = new CircularMark(options);
     canvas.add(circularMark);
 
-    if (options.animateAtBirth) {        
+    var waitingTime = 0;
+    if (options.animateAtBirth) {
+        waitingTime = 1250;
         if (circularMark.radius > 0) {
             circularMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
         }
@@ -285,9 +288,16 @@ function addCircularMarkToCanvas(options) {
         circularMark.selectable = false;
     }
 
+    if (options.shouldExpand) {
+        circularMark.expand(true);
+    }
 
-//   if (LOG) console.log("circularMark.radius: " + circularMark.radius);
-//   if (LOG) console.log("circularMark.width: " + circularMark.width);
+    setTimeout(function () {
+        if (options.locatorXmlID) {
+            var locator = getFabricElementByXmlID(options.locatorXmlID);
+            locator.reportMarkAvailable(circularMark);
+        }
+    }, waitingTime);
 
     return circularMark;
 }

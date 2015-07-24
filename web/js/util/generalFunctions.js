@@ -2151,38 +2151,38 @@ function repositionAllWidgets(targetObject) {
 
 }
 
-function repositionWidget(targetObject, widget) {
+function repositionWidget(parent, child) {
 
     // Relocating all the widgets associated to this object
 
 
-    var newWidgetLocation = computeWidgetPosition(widget);
+    var newWidgetLocation = computeWidgetPosition(child);
 
 //        widget.scaleX = targetObject.scaleX;
 //        widget.scaleY = targetObject.scaleY;
 //        var newXScale = widget.untransformedScaleX * targetObject.scaleX;
 //        var newYScale = widget.untransformedScaleY * targetObject.scaleY;
 
-    var newXScale = widget.untransformedScaleX * targetObject.getScaleX();
-    var newYScale = widget.untransformedScaleY * targetObject.getScaleY();
+    var newXScale = child.untransformedScaleX * parent.getScaleX();
+    var newYScale = child.untransformedScaleY * parent.getScaleY();
 
 //        if (LOG) console.log("newXScale: " + newXScale);
 //        if (LOG) console.log("newYScale: " + newYScale);
 
-    widget.scaleX = newXScale;
-    widget.scaleY = newYScale;
+    child.scaleX = newXScale;
+    child.scaleY = newYScale;
 
-    widget.angle = targetObject.getAngle() + widget.untransformedAngle;
+    child.angle = parent.getAngle() + child.untransformedAngle;
 
-    widget.set({
+    child.set({
         left: newWidgetLocation.x,
         top: newWidgetLocation.y
     });
-    widget.setCoords();
+    child.setCoords();
 
-    if (widget.connectors) {
-        widget.connectors.forEach(function (connector) {
-            connector.set({x1: widget.left, y1: widget.top});
+    if (child.connectors) {
+        child.connectors.forEach(function (connector) {
+            connector.set({x1: child.left, y1: child.top});
         });
     }
 
@@ -5358,7 +5358,7 @@ function canvasDropFunction(ev, ui) {
             addOperator(options);
 
         } else if (id === "emptyFunction") {
-            
+
             var options = {
                 left: x,
                 top: y
@@ -5367,7 +5367,7 @@ function canvasDropFunction(ev, ui) {
             addNumericFunction(options);
 
         } else if (id === "xFunction") {
-            
+
             var coordinates = getLinealFunctionCoordinates();
             var options = {
                 left: x,
@@ -5378,7 +5378,7 @@ function canvasDropFunction(ev, ui) {
             addNumericFunction(options);
 
         } else if (id === "x2Function") {
-            
+
             var coordinates = getQuadraticFunctionCoordinates();
             var options = {
                 left: x,
@@ -5389,7 +5389,7 @@ function canvasDropFunction(ev, ui) {
             addNumericFunction(options);
 
         } else if (id === "x3Function") {
-            
+
             var coordinates = getCubicFunctionCoordinates();
             var options = {
                 left: x,
@@ -5400,7 +5400,7 @@ function canvasDropFunction(ev, ui) {
             addNumericFunction(options);
 
         } else if (id === "sinXFunction") {
-            
+
             var coordinates = getSinFunctionCoordinates();
             var options = {
                 left: x,
@@ -5411,7 +5411,7 @@ function canvasDropFunction(ev, ui) {
             addNumericFunction(options);
 
         } else if (id === "cosXFunction") {
-            
+
             var coordinates = getCosFunctionCoordinates();
             var options = {
                 left: x,
@@ -5422,7 +5422,7 @@ function canvasDropFunction(ev, ui) {
             addNumericFunction(options);
 
         } else if (id === "logXFunction") {
-            
+
             var coordinates = getLogFunctionCoordinates();
             var options = {
                 left: x,
@@ -5433,7 +5433,7 @@ function canvasDropFunction(ev, ui) {
             addNumericFunction(options);
 
         } else if (id === "sqrtXFunction") {
-            
+
             var coordinates = getSqrtFunctionCoordinates();
             var options = {
                 left: x,

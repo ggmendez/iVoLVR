@@ -1,17 +1,15 @@
 var SquaredMark = fabric.util.createClass(fabric.Rect, {
     type: 'rectangularMark',
     isSquaredMark: true,
-    
     serializableProperties: ['left', 'top', 'fill', 'colorForStroke', 'side', 'label', 'isCompressed'],
     deserializer: addSquaredMarkToCanvas,
-    
     initialize: function (options) {
         options || (options = {});
-        
+
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
         options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : -0));
-        
+
         options.side = options.side || options.values.side.number;
         if (typeof options.side !== 'undefined') {
             this.set('side', options.side || 0);
@@ -26,12 +24,12 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
             this.set('height', this.side);
             this.set('area', options.area);
         }
-        
+
         this.callSuper('initialize', options);
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', options.strokeWidth || 2);
-        
-        
+
+
 
         this.createVariables();
         this.createIText();
@@ -64,6 +62,8 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
         this.createVisualProperties();
         this.createPositionProperties(options.values);
         this.setCoreVisualPropertiesValues(options.values);
+
+        this.setxmlIDs(options.xmlIDs);
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
@@ -120,7 +120,8 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
 
                 var numericWidth = propertyValue.number;
 
-                if (LOG) console.log("%cModifying " + changedVisualProperty.attribute + ". Value: " + propertyValue, "background:green; color:white;");
+                if (LOG)
+                    console.log("%cModifying " + changedVisualProperty.attribute + ". Value: " + propertyValue, "background:green; color:white;");
 
                 theMark.area = numericWidth; // This value has to be updated as fabric does not know its link with the radius attribute
 
@@ -129,26 +130,27 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
                 propertiesToUpdate.forEach(function (attributeName) {
 
                     if (attributeName === 'side') {
-                       
-                       
-                       
+
+
+
 
                         // When the side is to be affected, it has to affect both the width and the height of the mark
 
                         var visualProperty = theMark.getVisualPropertyByAttributeName(attributeName);
-                        
-                        
-                        
+
+
+
                         visualProperty.inConnectors.forEach(function (inConnector) {
-                           inConnector.contract();
+                            inConnector.contract();
                         });
-                        
+
                         var updatedValue = theMark.computeUpdatedValueOf(property, numericWidth, attributeName);
-                        
+
                         theMark.side = updatedValue;
                         visualProperty.value = createNumericValue(updatedValue);
 
-                        if (LOG) console.log("%cAfecting " + attributeName + ". Value: " + updatedValue, "background:red; color:white;");
+                        if (LOG)
+                            console.log("%cAfecting " + attributeName + ". Value: " + updatedValue, "background:red; color:white;");
 
                         var easing = fabric.util.ease['easeOutBack'];
                         if (updatedValue < 15) {
@@ -164,8 +166,10 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
                         }
 
                         visualProperty.outConnectors.forEach(function (outConnector) {
-                            if (LOG) console.log("+++ + + + + + + + + + + + outConnector");
-                            if (LOG) console.log(outConnector);
+                            if (LOG)
+                                console.log("+++ + + + + + + + + + + + outConnector");
+                            if (LOG)
+                                console.log(outConnector);
                             outConnector.setValue(visualProperty.value, false, shouldAnimate);
                         });
 
@@ -175,7 +179,8 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
                         var visualProperty = theMark.getVisualPropertyByAttributeName(attributeName);
                         var updatedValue = theMark.computeUpdatedValueOf(property, numericWidth, attributeName);
 
-                        if (LOG) console.log("%cAfecting " + attributeName + ". Value: " + updatedValue, "background:red; color:white;");
+                        if (LOG)
+                            console.log("%cAfecting " + attributeName + ". Value: " + updatedValue, "background:red; color:white;");
 
                         var easing = fabric.util.ease['easeOutBack'];
                         if (attributeName === 'side' && updatedValue < 15) {
@@ -207,13 +212,18 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
 
                 var numericSide = propertyValue.number;
 
-                if (LOG) console.log("propertyValue:");
-                if (LOG) console.log(propertyValue);
+                if (LOG)
+                    console.log("propertyValue:");
+                if (LOG)
+                    console.log(propertyValue);
 
-                if (LOG) console.log("numericSide:");
-                if (LOG) console.log(numericSide);
+                if (LOG)
+                    console.log("numericSide:");
+                if (LOG)
+                    console.log(numericSide);
 
-                if (LOG) console.log("%cModifying " + property + ". Value: " + numericSide, "background: black; color: white;");
+                if (LOG)
+                    console.log("%cModifying " + property + ". Value: " + numericSide, "background: black; color: white;");
 
                 var easing = fabric.util.ease['easeOutBack'];
                 if (numericSide < 15) {
@@ -221,11 +231,13 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
                 }
 
                 if (shouldAnimate) {
-                    if (LOG) console.log("property WITH animation");
+                    if (LOG)
+                        console.log("property WITH animation");
                     theMark.animateProperty("width", numericSide, 500, easing, true); // because of the last parameter of this call set to true, this call will not refresh the canvas as the animation is performed
                     theMark.animateProperty("height", numericSide, 500, easing);
                 } else {
-                    if (LOG) console.log("property  with NO animation");
+                    if (LOG)
+                        console.log("property  with NO animation");
                     theMark.changeProperty("width", numericSide);
                     theMark.changeProperty("height", numericSide);
                 }
@@ -237,7 +249,8 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
                     var visualProperty = theMark.getVisualPropertyByAttributeName(attributeName);
                     var updatedValue = theMark.computeUpdatedValueOf(property, numericSide, attributeName);
 
-                    if (LOG) console.log("%cAfecting " + attributeName + ". Value: " + updatedValue, "background:red; color:white;");
+                    if (LOG)
+                        console.log("%cAfecting " + attributeName + ". Value: " + updatedValue, "background:red; color:white;");
 
                     var easing = fabric.util.ease['easeOutBack'];
                     if (attributeName == 'side' && updatedValue < 15) {
@@ -245,10 +258,12 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
                     }
 
                     if (shouldAnimate) {
-                        if (LOG) console.log("WITH animation");
+                        if (LOG)
+                            console.log("WITH animation");
                         theMark.animateProperty(attributeName, updatedValue, 500, easing);
                     } else {
-                        if (LOG) console.log("with NO animation");
+                        if (LOG)
+                            console.log("with NO animation");
                         theMark.changeProperty(attributeName, updatedValue);
                     }
 
@@ -269,9 +284,11 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
             var numericValue = propertyValue.number;
 
             if (property == 'angle') {
-                if (LOG) console.log("Original value: " + numericValue);
+                if (LOG)
+                    console.log("Original value: " + numericValue);
                 numericValue = numericValue % 360;
-                if (LOG) console.log("Modified value: " + numericValue);
+                if (LOG)
+                    console.log("Modified value: " + numericValue);
             }
 
             var easing = fabric.util.ease['easeOutBack'];
@@ -372,12 +389,26 @@ function addSquaredMarkToCanvas(options) {
 
     var squaredMark = new SquaredMark(options);
     canvas.add(squaredMark);
+
+    var waitingTime = 0;
     if (options.animateAtBirth) {
+        waitingTime = 1250;
         if (squaredMark.side > 0) {
-//            squaredMark.animateBirth(options.markAsSelected);
             squaredMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
         }
     }
     squaredMark.associateEvents(squaredMark);
+
+    if (options.shouldExpand) {
+        squaredMark.expand(true);
+    }
+
+    setTimeout(function () {
+        if (options.locatorXmlID) {
+            var locator = getFabricElementByXmlID(options.locatorXmlID);
+            locator.reportMarkAvailable(squaredMark);
+        }
+    }, waitingTime);
+
     return squaredMark;
 }

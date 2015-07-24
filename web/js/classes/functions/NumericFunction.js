@@ -1,5 +1,5 @@
 var NumericFunction = fabric.util.createClass(fabric.Rect, {
-    isNumericFunction: true,   
+    isNumericFunction: true,
     toXML: function () {
 
         var theFunction = this;
@@ -228,7 +228,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
     },
     addNumericLimit: function (limitName, numericValue, xmlID) {
-        
+
         console.log("%c Adding numeric limit with value: ", "background: green; color: black;");
         console.log(numericValue);
 
@@ -348,7 +348,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
     },
     addNumericLimits: function (values, xmlIDs) {
-        
+
         console.log("addNumericLimits FUNCTION:");
         console.log(values);
 
@@ -1476,7 +1476,7 @@ function addNumericFunction(options) {
 
     console.log("###################################### options to create a new NUMERIC FUNCTION");
     console.log(options);
-    
+
     var theFunction = new NumericFunction(options);
     canvas.add(theFunction);
 
@@ -1493,14 +1493,15 @@ function addNumericFunction(options) {
             theFunction.setBothCoordinates(options.coordinatesX, options.coordinatesY, shouldAnimate);
         }
     }
-    
-    // TODO: This should be done somewhere else. The setBothCoordinates should take into account the limits so that it does not overwrite them. 
-    theFunction.minX.setValue(options.values.minX, true, false);
-    theFunction.maxX.setValue(options.values.maxX, true, false);
-    theFunction.minY.setValue(options.values.minY, true, false);
-    theFunction.maxY.setValue(options.values.maxY, true, false);
-    
-    
+
+    if (options.values) {        
+        theFunction.minX.setValue(options.values.minX, true, false);
+        theFunction.maxX.setValue(options.values.maxX, true, false);
+        theFunction.minY.setValue(options.values.minY, true, false);
+        theFunction.maxY.setValue(options.values.maxY, true, false);
+    }
+
+
 
     theFunction.bringTopElementsToFront();
 
@@ -1529,21 +1530,21 @@ function addNumericFunction(options) {
 
 
 /*function addNumericFunction(x, y, coordinatesX, coordinatesY, otherOptions) {
-
-    var functionOptions = {
-        left: x,
-        top: y,
-        coordinatesX: coordinatesX,
-        coordinatesY: coordinatesY
-    }
-
-    for (var prop in otherOptions) {
-        functionOptions[prop] = otherOptions[prop];
-    }
-
-    addNumericFunctionWithOptions(functionOptions);
-
-}*/
+ 
+ var functionOptions = {
+ left: x,
+ top: y,
+ coordinatesX: coordinatesX,
+ coordinatesY: coordinatesY
+ }
+ 
+ for (var prop in otherOptions) {
+ functionOptions[prop] = otherOptions[prop];
+ }
+ 
+ addNumericFunctionWithOptions(functionOptions);
+ 
+ }*/
 
 
 function createFunctionCoordinatesFromValues(XValues, YValues) {

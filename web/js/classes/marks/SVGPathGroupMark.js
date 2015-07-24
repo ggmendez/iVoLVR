@@ -56,62 +56,11 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
 
         }
 
-//        if (options.stroke) {
-//
-//            if (options.stroke === DEFAULT_VISUAL_PROPERTY_STROKE) {
-//
-//                options.stroke = '';
-//                options.colorForStroke = '';
-//                options.strokeWidth = 0;
-//                options.originalStrokeWidth = 0;
-//                options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
-//                options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
-//
-//            } else {
-//
-//
-//
-//
-//            }
-//
-//        } else {
-//
-//            options.stroke = '';
-//            options.colorForStroke = '';
-//            options.strokeWidth = 0;
-//            options.originalStrokeWidth = 0;
-//            options.visualPropertyFill = DEFAULT_VISUAL_PROPERTY_FILL;
-//            options.visualPropertyStroke = DEFAULT_VISUAL_PROPERTY_STROKE;
-//
-//        }
-
-
-
-//        this.set('visualPropertyFill', options.visualPropertyFill || rgb(153, 153, 153));
-//        this.set('visualPropertyStroke', options.visualPropertyStroke || rgb(86, 86, 86));
-//        this.set('colorForStroke', options.visualPropertyStroke || rgb(86, 86, 86));
-//        
-
-
-
-
         this.callSuper('initialize', elements, options);
 
         this.set('isSVGPathGroupMark', true);
 
-//        this.set('strokeWidth', options.strokeWidth || 2);
-//        this.set('originalStrokeWidth', options.strokeWidth || 2);
         this.set('perPixelTargetFind', false);
-
-//        this.set('visualPropertyFill', options.visualPropertyFill || DEFAULT_VISUAL_PROPERTY_FILL);       
-
-
-
-
-
-
-//        this.set('visualPropertyStroke', options.stroke || (options.visualPropertyStroke || DEFAULT_VISUAL_PROPERTY_STROKE));
-//        this.set('colorForStroke', this.visualPropertyStroke);
 
         this.createVariables();
 
@@ -128,8 +77,6 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
             console.log("options.targetWidth:");
             console.log(options.targetWidth);
         }
-
-
 
         if (options.targetWidth) {
             var theWidth = options.targetWidth / this.width;
@@ -175,6 +122,8 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
         this.createPositionProperties(options.values);
 
         this.setCoords();
+
+        this.setxmlIDs(options.xmlIDs);
 
 
         this.toXML = function () {
@@ -432,12 +381,13 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
         console.log(options);
     }
 
-
-
     if (typeof paths === 'undefined' && options.values && options.values.shape && options.values.shape.svgPathGroupMark) {
         var SVGString = options.values.shape.svgPathGroupMark;
 
         fabric.loadSVGFromString(SVGString, function (objects, defaultOptions) {
+
+            options.originX = 'center';
+            options.originY = 'center';
 
             options.SVGString = SVGString;
             options.thePaths = objects;
@@ -447,6 +397,10 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
             options.targetHeight = options.values.height.number;
 
             options = $.extend(true, {}, defaultOptions, options);
+
+
+            console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%% OPTIONS TO CREATE SVGPathGroupMark:");
+            console.log(options);
 
             var svgPathGroupMark = new SVGPathGroupMark(paths, options);
 
@@ -460,30 +414,24 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
 
             canvas.setActiveObject(svgPathGroupMark);
 
+            var waitingTime = 0;
             if (options.animateAtBirth) {
+                waitingTime = 1250;
                 svgPathGroupMark.animateBirth(options.markAsSelected, options.finalScaleX, options.finalScaleY, options.doNotRefreshCanvas);
             }
 
             svgPathGroupMark.associateEvents(svgPathGroupMark);
 
-            if (options.isExpanded) {
-                svgPathGroupMark.expand(false);
+            if (options.shouldExpand) {
+                svgPathGroupMark.expand(true);
             }
 
-
-
-            for (var attribute in options.xmlIDs) {
-                var xmlID = options.xmlIDs[attribute];
-                var visualProperty = svgPathGroupMark.getVisualPropertyByAttributeName(attribute);
-                if (visualProperty !== null) {
-                    visualProperty.xmlID = xmlID;
+            setTimeout(function () {
+                if (options.locatorXmlID) {
+                    var locator = getFabricElementByXmlID(options.locatorXmlID);
+                    locator.reportMarkAvailable(svgPathGroupMark);
                 }
-            }
-            svgPathGroupMark.xVisualProperty.xmlID = options.xmlIDs['x'];
-            svgPathGroupMark.yVisualProperty.xmlID = options.xmlIDs['y'];
-
-
-
+            }, waitingTime);
 
             return svgPathGroupMark;
 
@@ -505,23 +453,24 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
 
         canvas.setActiveObject(svgPathGroupMark);
 
-        if (options.animateAtBirth) {
-//        svgPathGroupMark.animateBirth(options.markAsSelected);
+        var waitingTime = 0;
+            if (options.animateAtBirth) {
+                waitingTime = 1250;
             svgPathGroupMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
         }
 
-
         svgPathGroupMark.associateEvents(svgPathGroupMark);
 
-        for (var attribute in options.xmlIDs) {
-            var xmlID = options.xmlIDs[attribute];
-            var visualProperty = svgPathGroupMark.getVisualPropertyByAttributeName(attribute);
-            if (visualProperty !== null) {
-                visualProperty.xmlID = xmlID;
-            }
+        if (options.shouldExpand) {
+            svgPathGroupMark.expand(true);
         }
-        svgPathGroupMark.xVisualProperty.xmlID = options.xmlIDs['x'];
-        svgPathGroupMark.yVisualProperty.xmlID = options.xmlIDs['y'];
+
+        setTimeout(function () {
+                if (options.locatorXmlID) {
+                    var locator = getFabricElementByXmlID(options.locatorXmlID);
+                    locator.reportMarkAvailable(svgPathGroupMark);
+                }
+            }, waitingTime);
 
         return svgPathGroupMark;
 
@@ -531,4 +480,3 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
 
 
 }
-

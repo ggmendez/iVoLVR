@@ -9,10 +9,10 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
         options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
-        
+
         options.width = options.width || options.values.width.number;
         options.height = options.height || options.values.height.number;
-        
+
         if (typeof options.width !== 'undefined' && typeof options.height !== 'undefined') {
             this.set('width', options.width);
             this.set('height', options.height);
@@ -29,7 +29,7 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', options.strokeWidth || 2);
 
-        
+
 
         this.createVariables();
         this.createIText();
@@ -67,6 +67,8 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
         this.createPositionProperties(options.values);
 
         this.setCoreVisualPropertiesValues(options.values);
+
+        this.setxmlIDs(options.xmlIDs);
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
@@ -333,14 +335,29 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
 Mark.call(RectangularMark.prototype);
 
 function addRectangularMarkToCanvas(options) {
+
     var rectangularMark = new RectangularMark(options);
     canvas.add(rectangularMark);
+
+    var waitingTime = 0;
     if (options.animateAtBirth) {
+        waitingTime = 1250;
         if (rectangularMark.width > 0 && rectangularMark.height > 0) {
-//            rectangularMark.animateBirth(options.markAsSelected);
             rectangularMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
         }
     }
     rectangularMark.associateEvents(rectangularMark);
+
+    if (options.shouldExpand) {
+        rectangularMark.expand(true);
+    }
+
+    setTimeout(function () {
+        if (options.locatorXmlID) {
+            var locator = getFabricElementByXmlID(options.locatorXmlID);
+            locator.reportMarkAvailable(rectangularMark);
+        }
+    }, waitingTime);
+
     return rectangularMark;
 }

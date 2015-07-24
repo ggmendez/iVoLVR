@@ -40,6 +40,7 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         this.set('inConnectors', new Array());
         this.set('outConnectors', new Array());
         this.set('widgets', new Array());
+        this.set('reportedMarks', 0);
 
         var xProperty = {attribute: "xCollection", readable: true, writable: true, types: ['number', 'object'], updatesTo: []};
         var xVisualProperty = CreateVisualProperty(xProperty, this, 0, 0);
@@ -126,29 +127,46 @@ var Locator = fabric.util.createClass(fabric.Circle, {
             },
         });
 
-
-
         this.widgets.push(this.xAxisArrow);
         this.widgets.push(this.yAxisArrow);
-
-
 
         this.associateEvents();
 
 
-        this.setPositionByOrigin(new fabric.Point(options.left, options.top), 'center', 'center');
-
         this.setCoords();
 
 
-        if (options.marks) {
-            var marks = new Array();
-            options.marks.forEach(function (xmlID) {
-                var mark = getFabricElementByXmlID(xmlID);
-                marks.push(mark);
-            });
-            this.addChildren(marks);
+        // This is now done by each mark as they are added to the canvas
+        /*if (options.marks) {
+         var marks = new Array();
+         options.marks.forEach(function (xmlID) {
+         var mark = getFabricElementByXmlID(xmlID);
+         marks.push(mark);
+         });
+         this.addChildren(marks);
+         }*/
+
+    },
+    reportMarkAvailable: function (mark) {
+        var theLocator = this;
+        theLocator.addChild(mark, null, false, false, false);
+        theLocator.reportedMarks++;
+        
+        if (mark.xmlID === theLocator.selectedMarkXmlID) {
+            theLocator.selectedMark = mark;
+        }        
+        
+        if (theLocator.reportedMarks === theLocator.marks.length) {                                                        
+            if (theLocator.shouldExpand) {
+                theLocator.expand(true);
+            }
         }
+
+        mark.configurePositionVisualProperties();
+        repositionWidget(theLocator, mark.xVisualProperty);
+        repositionWidget(theLocator, mark.yVisualProperty);
+        
+        
 
     },
     addChildren: function (marks) {
@@ -1668,26 +1686,26 @@ function addLocator(options) {
         });
     }
 
-    setTimeout(function () {
-
-        var secondWait = 0;
-        if (options.shouldExpand) {
-            secondWait = 550;
-            newLocator.expand(true);
-        }
-
-        setTimeout(function () {
-            if (options.selectedMarkXmlID) {
-                console.log("options.selectedMarkXmlID:");
-                console.log(options.selectedMarkXmlID);
-                newLocator.trigger('markSelected', getFabricElementByXmlID(options.selectedMarkXmlID));
-            }
-            
-            objectMoving(null, newLocator);
-            
-        }, secondWait);
-
-    }, waitingTime);
+//    setTimeout(function () {
+//
+//        var secondWait = 0;
+//        if (options.shouldExpand) {
+//            secondWait = 550;
+//            newLocator.expand(true);
+//        }
+//
+//        setTimeout(function () {
+//            if (options.selectedMarkXmlID) {
+//                console.log("options.selectedMarkXmlID:");
+//                console.log(options.selectedMarkXmlID);
+//                newLocator.trigger('markSelected', getFabricElementByXmlID(options.selectedMarkXmlID));
+//            }
+//            
+//            objectMoving(null, newLocator);
+//            
+//        }, secondWait);
+//
+//    }, waitingTime);
 
 
 
@@ -1705,6 +1723,7 @@ function createLocatorFromXMLNode(locatorXmlNode) {
 
     var options = {
         markAsSelected: false,
+        animateAtBirth: false,
         xmlID: Number(locatorXmlNode.attr('xmlID')),
         selectedMarkXmlID: Number(locatorXmlNode.attr('selectedMarkXmlID'))
     };
@@ -1746,9 +1765,7 @@ function createLocatorFromXMLNode(locatorXmlNode) {
     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! options to create the saved LOCATOR");
     console.log(options);
 
-//    options.animateAtBirth = !options.isExpanded;
-    options.animateAtBirth = false;
-
+    
     options.shouldExpand = options.isExpanded;
 
     var theLocator = addLocator(options);

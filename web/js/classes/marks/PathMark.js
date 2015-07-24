@@ -159,6 +159,8 @@ PathMark = fabric.util.createClass(fabric.Path, {
 
         this.setCoreVisualPropertiesValues(options.values);
 
+        this.setxmlIDs(options.xmlIDs);
+
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
         if (updater == 'rx') {
@@ -654,12 +656,24 @@ function addPathMarkToCanvas(path, options) {
 
     canvas.add(svgPathMark);
 
+    var waitingTime = 0;
     if (options.animateAtBirth) {
-//        svgPathMark.animateBirth(options.markAsSelected);
+        waitingTime = 1250;
         svgPathMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
     }
 
     svgPathMark.associateEvents(svgPathMark);
+
+    if (options.shouldExpand) {
+        svgPathMark.expand(true);
+    }
+
+    setTimeout(function () {
+        if (options.locatorXmlID) {
+            var locator = getFabricElementByXmlID(options.locatorXmlID);
+            locator.reportMarkAvailable(svgPathMark);
+        }
+    }, waitingTime);
 
     return svgPathMark;
 }

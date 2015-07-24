@@ -73,6 +73,8 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
         };
 
         this.setCoreVisualPropertiesValues(options.values);
+        
+        this.setxmlIDs(options.xmlIDs);
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
@@ -374,16 +376,24 @@ function addFatFontMarkToCanvas(options) {
         console.log(options);
 
 
+    var waitingTime = 0;
     if (options.animateAtBirth) {
-//        fatFontMark.animateBirth(options.markAsSelected, 1, 1);
+        waitingTime = 1250;
         fatFontMark.animateBirth(options.markAsSelected, 1, 1, options.doNotRefreshCanvas);
     }
-//    
-//    else {
-//        setTimeout(function () {
-//            canvas.renderAll();
-//        }, 10);
-//    }
+
     fatFontMark.associateEvents();
+    
+    if (options.shouldExpand) {
+        fatFontMark.expand(true);
+    }
+    
+    setTimeout(function () {
+        if (options.locatorXmlID) {
+            var locator = getFabricElementByXmlID(options.locatorXmlID);
+            locator.reportMarkAvailable(fatFontMark);
+        }
+    }, waitingTime);
+    
     return fatFontMark;
 }
