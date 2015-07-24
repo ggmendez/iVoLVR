@@ -12,43 +12,34 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         appendElementWithValue(locatorNode, "top", theLocator.top);
         appendElementWithValue(locatorNode, "isExpanded", !theLocator.isCompressed);
 
+        var marksNode = createXMLElement("marks");
+        addAttributeWithValue(marksNode, "type", "array");
+
+        theLocator.widgets.forEach(function (widget) {
+            if (widget.isMark) {
+                appendElementWithValue(marksNode, "markXmlID", widget.xmlID);
+            }
+        });
+        locatorNode.append(marksNode);
+
+        if (theLocator.selectedMark) {
+            addAttributeWithValue(locatorNode, "selectedMarkXmlID", theLocator.selectedMark.xmlID);
+        }
+
         return locatorNode;
 
     },
     initialize: function (options) {
         options || (options = {});
+
         this.callSuper('initialize', options);
 
-        this.set('fill', rgb(153, 153, 153));
-        this.set('colorForStroke', rgb(86, 86, 86));
-        this.set('stroke', rgb(86, 86, 86));
         this.set('isLocator', true);
-        this.set('inConnectors', new Array());
-        this.set('outConnectors', new Array());
-        this.set('strokeWidth', 3);
-        this.set('radius', 30);
-        this.set('lockRotation', true);
-        this.set('lockScalingX', true);
-        this.set('lockScalingY', true);
-        this.set('transparentCorners', false);
-        this.set('hasRotatingPoint', false);
-        this.set('hasControls', false);
-        this.set('hasBorders', false);
-        this.set('originX', 'center');
-        this.set('originY', 'center');
-
-        this.set('perPixelTargetFind', true);
         this.set('isCompressed', true);
 
-
-
-
+        this.set('inConnectors', new Array());
+        this.set('outConnectors', new Array());
         this.set('widgets', new Array());
-
-
-
-
-
 
         var xProperty = {attribute: "xCollection", readable: true, writable: true, types: ['number', 'object'], updatesTo: []};
         var xVisualProperty = CreateVisualProperty(xProperty, this, 0, 0);
@@ -82,11 +73,9 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         yVisualProperty.isYValues = true;
         this.set('yAxisArrow', yVisualProperty);
 
-
-        var theLocator = this;
-
         onNewInConnection = function (options, theVisualProperty) {
 
+            var theLocator = this;
 
 
             var newInConnection = options.newInConnection;
@@ -146,8 +135,27 @@ var Locator = fabric.util.createClass(fabric.Circle, {
 
         this.associateEvents();
 
-        this.set({left: options.left, top: options.top});
+
+        this.setPositionByOrigin(new fabric.Point(options.left, options.top), 'center', 'center');
+
         this.setCoords();
+
+
+        if (options.marks) {
+            var marks = new Array();
+            options.marks.forEach(function (xmlID) {
+                var mark = getFabricElementByXmlID(xmlID);
+                marks.push(mark);
+            });
+            this.addChildren(marks);
+        }
+
+    },
+    addChildren: function (marks) {
+        var theLocator = this;
+        marks.forEach(function (child) {
+            theLocator.addChild(child, null, false, false, false);
+        });
     },
     applySelectedStyle: function (selectConnectorsToo) {
 
@@ -219,13 +227,6 @@ var Locator = fabric.util.createClass(fabric.Circle, {
             }
         });
     },
-    toObject: function () {
-        return fabric.util.object.extend(this.callSuper('toObject'), {
-            locator: this.get('locator'),
-            isLocator: this.get('isLocator'),
-            inputs: this.get('inputs')
-        });
-    },
     blink: function () {
         var increment = 0.45;
         var duration = 100;
@@ -262,7 +263,9 @@ var Locator = fabric.util.createClass(fabric.Circle, {
             }
         });
     },
-    positionChild: function (property, value, theChild, shouldAnimate) {
+    positionChild: function (property, value, theMark, shouldAnimate) {
+
+        var theLocator = this;
 
         if (shouldAnimate) {
             if (LOG)
@@ -273,9 +276,6 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         }
 
         var theNumber = value.number;
-
-        var theLocator = this;
-        var theMark = theChild;
 
         theMark.setCoords();
 
@@ -291,21 +291,25 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         if (LOG)
             console.log(theMark);
 
-        var theLocator = this;
         var duration = 500;
         var easing = fabric.util.ease['easeOutBack'];
         var untransformedProperty = null;
 
         if (property === 'x') {
             untransformedProperty = 'untransformedX';
+
+            theMark.xVisualProperty.value = value; // TODO: If there are outgoing connectors associated to this visual mark, their value should also be updated            
+
         } else if (property === 'y') {
             untransformedProperty = 'untransformedY';
+
+            theMark.yVisualProperty.value = value; // TODO: If there are outgoing connectors associated to this visual mark, their value should also be updated
         }
 
         var newCoordinateValue = null;
         var theCoordinate = theNumber;
 
-        if (theCoordinate == null) {
+        if (theCoordinate === null) {
             var boundingRect = theMark.getBoundingRect();
             if (untransformedProperty === 'untransformedX') {
                 theCoordinate = boundingRect.width / 2 + 30;
@@ -374,12 +378,10 @@ var Locator = fabric.util.createClass(fabric.Circle, {
 
         }
 
-
-
-
-
     },
     setProperty: function (property, array, theVisualProperty, shouldAnimate) {
+
+        console.log("%csetProperty function. LOCATOR class", "background: red; color: white;");
 
         var theLocator = this;
         var duration = 500;
@@ -401,6 +403,7 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         var i = 0;
 
         theLocator.widgets.forEach(function (widget) {
+
             if (widget.isMark) {
 
                 if (LOG)
@@ -409,8 +412,6 @@ var Locator = fabric.util.createClass(fabric.Circle, {
                     console.log(widget.label);
 
                 var theMark = widget;
-
-
 
                 theMark.xVisualProperty.inConnectors.forEach(function (inConnector) {
                     inConnector.contract();
@@ -428,11 +429,11 @@ var Locator = fabric.util.createClass(fabric.Circle, {
 
                     var boundingRect = widget.getBoundingRect();
 
-                    if (untransformedProperty == 'untransformedX') {
+                    if (untransformedProperty === 'untransformedX') {
 
                         theCoordinate = boundingRect.width / 2 + 30;
 
-                    } else if (untransformedProperty == 'untransformedY') {
+                    } else if (untransformedProperty === 'untransformedY') {
 
                         theCoordinate = boundingRect.height / 2 + 60;
 
@@ -440,11 +441,11 @@ var Locator = fabric.util.createClass(fabric.Circle, {
 
                 }
 
-                if (untransformedProperty == 'untransformedX') {
+                if (untransformedProperty === 'untransformedX') {
 
                     newCoordinateValue = theCoordinate + theLocator.radius - theMark.width / 2;
 
-                } else if (untransformedProperty == 'untransformedY') {
+                } else if (untransformedProperty === 'untransformedY') {
 
                     newCoordinateValue = -theCoordinate + theLocator.radius - theMark.height / 2;
 
@@ -1220,10 +1221,99 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         });
 
     },
+    addChild: function (child, connector, blinkChild, checkConnectorOpacity, markAsSelected) {
+
+        var theLocator = this;
+
+        theLocator.widgets.push(child);
+        child.parentObject = theLocator;
+        child.untransformedScaleX = 1;
+        child.untransformedScaleY = 1;
+
+//        console.log("???????????????????????? BEFORE");
+//
+//        console.log("child.untransformedX: ");
+//        console.log(child.untransformedX);
+//
+//        console.log("child.untransformedY:");
+//        console.log(child.untransformedY);
+
+        computeUntransformedProperties(child);
+
+//        console.log("   ----          ---------------- AFTER");
+//
+//        console.log("child.untransformedX: ");
+//        console.log(child.untransformedX);
+//
+//        console.log("child.untransformedY:");
+//        console.log(child.untransformedY);
+
+        child.configurePositionVisualProperties();
+
+        var xVisualProperty = child.xVisualProperty;
+        theLocator.widgets.push(xVisualProperty);
+        xVisualProperty.opacity = 1;
+        xVisualProperty.selectable = true;
+        xVisualProperty.evented = true;
+        repositionWidget(theLocator, xVisualProperty);
+        xVisualProperty.setCoords();
+
+        var yVisualProperty = child.yVisualProperty;
+        theLocator.widgets.push(yVisualProperty);
+        yVisualProperty.opacity = 1;
+        yVisualProperty.selectable = true;
+        yVisualProperty.evented = true;
+        repositionWidget(theLocator, yVisualProperty);
+        yVisualProperty.setCoords();
+
+        if (blinkChild) {
+            child.blink();
+        }
+
+        if (checkConnectorOpacity) {
+            if (!theLocator.isCompressed) {
+                theLocator.computeUntransformedBoundaries();
+
+                // the boundaries of the axes have changed, so the x and y visual properties of the locator should be located properly
+                theLocator.positionCoordinateVisualProperties();
+
+                // Since the locator is extended, we have to set the visibility of the created connector to zero
+                var easing = fabric.util.ease['easeOutQuad'];
+                var duration = 500;
+                fabric.util.animate({
+                    startValue: 1,
+                    endValue: 0,
+                    duration: duration,
+                    easing: easing,
+                    onChange: function (value) {
+                        connector.opacity = value;
+                    },
+                });
+            }
+        }
+
+        if (connector && connector.canvas) {
+            connector.sendToBack();
+        }
+
+        child.bringToFront();
+
+        if (markAsSelected) {
+            theLocator.selectedMark = child;
+            canvas.setActiveObject(child);
+        }
+
+        var relativeX = theLocator.getPointByOrigin('center', 'center').x - child.getPointByOrigin('center', 'center').x;
+        var relativeY = theLocator.getPointByOrigin('center', 'center').y - child.getPointByOrigin('center', 'center').y;
+
+        child.xVisualProperty.value = createNumericValue(-relativeX);
+        child.yVisualProperty.value = createNumericValue(relativeY);
+
+    },
     associateEvents: function () {
         var theLocator = this;
         theLocator.on({
-            'moving': function (option) {
+            'moving': function (options) {
 
                 this.moving = true;
 
@@ -1231,7 +1321,7 @@ var Locator = fabric.util.createClass(fabric.Circle, {
                     if (LOG)
                         console.log("Output being created from locator");
 
-                    var theEvent = option['e'];
+                    var theEvent = options['e'];
 
                     if (theEvent) {
                         var canvasCoords = getCanvasCoordinates(theEvent);
@@ -1244,7 +1334,7 @@ var Locator = fabric.util.createClass(fabric.Circle, {
                 } else {
 
 //               if (LOG) console.log("objectMoving");
-                    objectMoving(option, theLocator);
+                    objectMoving(options, theLocator);
 
                     if (theLocator.isCompressed) {
                         theLocator.positionVisualPropertiesConnectorsAtTheOrigin();
@@ -1276,8 +1366,6 @@ var Locator = fabric.util.createClass(fabric.Circle, {
 
                     var theEvent = option['e'];
                     var canvasCoords = getCanvasCoordinates(theEvent);
-                    var coordX = canvasCoords.x;
-                    var coordY = canvasCoords.y;
 
                     var targetObject = findVisualPropertyPotentialDestination(canvasCoords);
 
@@ -1288,60 +1376,7 @@ var Locator = fabric.util.createClass(fabric.Circle, {
                             var connector = getLastElementOfArray(theLocator.outConnectors);
                             connector.setDestination(targetObject, true);
 
-                            theLocator.widgets.push(targetObject);
-                            targetObject.parentObject = theLocator;
-                            targetObject.untransformedScaleX = 1;
-                            targetObject.untransformedScaleY = 1;
-                            computeUntransformedProperties(targetObject);
-
-                            targetObject.configurePositionVisualProperties();
-
-                            var xVisualProperty = targetObject.xVisualProperty;
-                            theLocator.widgets.push(xVisualProperty);
-                            xVisualProperty.opacity = 1;
-                            xVisualProperty.selectable = true;
-                            xVisualProperty.evented = true;
-                            repositionWidget(theLocator, xVisualProperty);
-                            xVisualProperty.setCoords();
-
-                            var yVisualProperty = targetObject.yVisualProperty;
-                            theLocator.widgets.push(yVisualProperty);
-                            yVisualProperty.opacity = 1;
-                            yVisualProperty.selectable = true;
-                            yVisualProperty.evented = true;
-                            repositionWidget(theLocator, yVisualProperty);
-                            yVisualProperty.setCoords();
-
-                            targetObject.blink();
-
-
-                            if (!theLocator.isCompressed) {
-                                theLocator.computeUntransformedBoundaries();
-
-                                // the boundaries of the axes have changed, so the x and y visual properties of the locator should be located properly
-                                theLocator.positionCoordinateVisualProperties();
-
-                                // Since the locator is extended, we have to set the visibility of the created connector to zero
-                                var easing = fabric.util.ease['easeOutQuad'];
-                                var duration = 500;
-                                fabric.util.animate({
-                                    startValue: 1,
-                                    endValue: 0,
-                                    duration: duration,
-                                    easing: easing,
-                                    onChange: function (value) {
-                                        connector.opacity = value;
-                                    },
-                                });
-                            }
-
-                            connector.sendToBack();
-                            targetObject.bringToFront();
-
-                            theLocator.selectedMark = targetObject;
-
-                            canvas.setActiveObject(targetObject);
-
+                            theLocator.addChild(targetObject, connector, true, true, true);
 
                         }
 
@@ -1589,6 +1624,24 @@ function addLocator(options) {
         options.scaleY = 1;
     }
 
+    options.originX = 'center';
+    options.originY = 'center';
+    options.fill = 'rgb(153, 153, 153)';
+    options.colorForStroke = 'rgb(86, 86, 86)';
+    options.stroke = 'rgb(86, 86, 86)';
+
+    options.strokeWidth = 3;
+    options.radius = 30;
+    options.lockRotation = true;
+    options.lockScalingX = true;
+    options.lockScalingY = true;
+    options.transparentCorners = false;
+    options.hasRotatingPoint = false;
+    options.hasControls = false;
+    options.hasBorders = false;
+
+    options.perPixelTargetFind = 'true';
+
     var newLocator = new Locator(options);
     canvas.add(newLocator);
 
@@ -1597,9 +1650,12 @@ function addLocator(options) {
         canvas.setActiveObject(newLocator);
     }
 
+    var waitingTime = 0;
     if (options.animateAtBirth) {
+
         var easing = fabric.util.ease.easeOutElastic;
         var duration = 1000;
+        waitingTime = duration + 50;
 
         newLocator.animate('scaleX', 1, {
             duration: duration,
@@ -1611,11 +1667,31 @@ function addLocator(options) {
             easing: easing
         });
     }
-    
-    if (options.shouldExpand) {
-        newLocator.expand(true);
-    }
-    
+
+    setTimeout(function () {
+
+        var secondWait = 0;
+        if (options.shouldExpand) {
+            secondWait = 550;
+            newLocator.expand(true);
+        }
+
+        setTimeout(function () {
+            if (options.selectedMarkXmlID) {
+                console.log("options.selectedMarkXmlID:");
+                console.log(options.selectedMarkXmlID);
+                newLocator.trigger('markSelected', getFabricElementByXmlID(options.selectedMarkXmlID));
+            }
+            
+            objectMoving(null, newLocator);
+            
+        }, secondWait);
+
+    }, waitingTime);
+
+
+
+
     console.log("newLocator:");
     console.log(newLocator);
 
@@ -1623,15 +1699,14 @@ function addLocator(options) {
 
 }
 
-
-
-
-
 function createLocatorFromXMLNode(locatorXmlNode) {
+
+    console.clear();
 
     var options = {
         markAsSelected: false,
-        xmlID: locatorXmlNode.attr('xmlID')
+        xmlID: Number(locatorXmlNode.attr('xmlID')),
+        selectedMarkXmlID: Number(locatorXmlNode.attr('selectedMarkXmlID'))
     };
 
     var children = locatorXmlNode.children();
@@ -1642,24 +1717,45 @@ function createLocatorFromXMLNode(locatorXmlNode) {
         var value = child.text();
         var type = child.attr('type');
 
-        if (type === "number") {
-            value = Number(value);
-        } else if (type === "boolean") {
-            value = value === "true";
-        }
+        if (type === 'array') {
 
-        options[tagName] = value;
+            var array = new Array();
+            var elements = child.children('markXmlID');
+            elements.each(function () {
+                var markNode = $(this);
+                array.push(Number(markNode.text()));
+            });
+            options[tagName] = array;
+
+        } else {
+
+            if (type === "number") {
+                value = Number(value);
+            } else if (type === "boolean") {
+                value = value === "true";
+            }
+
+            options[tagName] = value;
+
+        }
 
     });
 
+
+
     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! options to create the saved LOCATOR");
     console.log(options);
-    
-    options.animateAtBirth = !options.isExpanded;
+
+//    options.animateAtBirth = !options.isExpanded;
+    options.animateAtBirth = false;
+
     options.shouldExpand = options.isExpanded;
 
     var theLocator = addLocator(options);
-    
+
+    console.log("theLocator:");
+    console.log(theLocator);
+
     return theLocator;
 
 }

@@ -21,27 +21,27 @@ var VisualProperty = function () {
     this.set('hasRotatingPoint', false);
 
     this.toXML = function () {
-        
+
         var theVisualProperty = this;
-        
+
         var propertyNode = createXMLElement("property");
         addAttributeWithValue(propertyNode, "xmlID", theVisualProperty.xmlID);
         addAttributeWithValue(propertyNode, "attribute", theVisualProperty.attribute);
 
-        if ($.isArray(this.value)) {
-
-            var arrayNode = createXMLElement("array");
-            theVisualProperty.value.forEach(function (value) {
-                var valueNode = value.toXML();
-                arrayNode.append(valueNode);
-            });
-            propertyNode.append(arrayNode);
-
-        } else {
-            var valueNode = theVisualProperty.value.toXML();
-            propertyNode.append(valueNode);
+        var value = this.value;
+        if (value) {
+            if ($.isArray(this.value)) {
+                var arrayNode = createXMLElement("array");
+                theVisualProperty.value.forEach(function (value) {
+                    var valueNode = value.toXML();
+                    arrayNode.append(valueNode);
+                });
+                propertyNode.append(arrayNode);
+            } else {
+                var valueNode = theVisualProperty.value.toXML();
+                propertyNode.append(valueNode);
+            }
         }
-
         return propertyNode;
     };
 

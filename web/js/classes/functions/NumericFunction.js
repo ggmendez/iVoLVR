@@ -1,8 +1,5 @@
 var NumericFunction = fabric.util.createClass(fabric.Rect, {
-    isNumericFunction: true,
-    xmlNodeName: 'numericFunction',
-    serializableProperties: ['left', 'top', 'width', 'height', 'coordinatesX', 'coordinatesY'],
-    deserializer: addNumericFunctionWithOptions,
+    isNumericFunction: true,   
     toXML: function () {
 
         var theFunction = this;
@@ -106,7 +103,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             realWith = 2 * this.smallIndent + this.largeIndent + options.pathWidth + 2 * this.smallIndent - d - this.strokeWidth;
         }
 
-        var realHeight = options.height || this.defaultWidth;
+        var realHeight = options.height || this.defaultHeight;
         if (options.pathHeight) {
             realHeight = this.height = 2 * this.smallIndent + this.largeIndent + options.pathHeight + 2 * this.smallIndent - d - this.strokeWidth;
         }
@@ -1469,9 +1466,9 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
 });
 
-function addNumericFunctionWithOptions(options) {
+function addNumericFunction(options) {
 
-    console.log("###################################### options to create a new NUMERIC FUNCTION from an XML node");
+    console.log("###################################### options to create a new NUMERIC FUNCTION");
     console.log(options);
     
     var theFunction = new NumericFunction(options);
@@ -1489,8 +1486,6 @@ function addNumericFunctionWithOptions(options) {
         } else {
             theFunction.setBothCoordinates(options.coordinatesX, options.coordinatesY, shouldAnimate);
         }
-
-
     }
 
     theFunction.bringTopElementsToFront();
@@ -1517,7 +1512,9 @@ function addNumericFunctionWithOptions(options) {
 
 }
 
-function addNumericFunction(x, y, coordinatesX, coordinatesY, otherOptions) {
+
+
+/*function addNumericFunction(x, y, coordinatesX, coordinatesY, otherOptions) {
 
     var functionOptions = {
         left: x,
@@ -1532,7 +1529,7 @@ function addNumericFunction(x, y, coordinatesX, coordinatesY, otherOptions) {
 
     addNumericFunctionWithOptions(functionOptions);
 
-}
+}*/
 
 
 function createFunctionCoordinatesFromValues(XValues, YValues) {
@@ -1643,7 +1640,7 @@ function createNumericFunctionFromXMLNode(functionXmlNode) {
 
             var propertyValue = createValueFromXMLNode(child);
             var which = child.attr('which');
-            var xmlID = child.attr('xmlID');
+            var xmlID = Number(child.attr('xmlID'));
             options.xmlIDs[which] = xmlID;
             options.values[which] = propertyValue;
 
@@ -1682,7 +1679,7 @@ function createNumericFunctionFromXMLNode(functionXmlNode) {
     console.log("+++++++++++++++++++++++++++++++++++++++++++++++ options to create the saved FUNCTION");
     console.log(options);
 
-    return addNumericFunctionWithOptions(options);
+    return addNumericFunction(options);
 
 
 }

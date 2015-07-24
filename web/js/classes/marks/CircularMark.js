@@ -3,25 +3,6 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
     isCircularMark: true,
     serializableProperties: ['left', 'top', 'fill', 'colorForStroke', 'radius', 'label', 'isCompressed'],
     deserializer: addCircularMarkToCanvas,
-    /*toXML: function () {
-     var theMark = this;
-     
-     var XMLMark = createXMLElement('mark');
-     
-     appendElementWithValue(XMLMark, 'type', CIRCULAR_MARK);
-     appendElementWithValue(XMLMark, 'serialID', theMark.serialID);
-     appendElementWithValue(XMLMark, 'left', theMark.left);
-     appendElementWithValue(XMLMark, 'top', theMark.top);
-     appendElementWithValue(XMLMark, 'fill', theMark.fill);
-     appendElementWithValue(XMLMark, 'stroke', theMark.colorForStroke);
-     appendElementWithValue(XMLMark, 'radius', theMark.radius);
-     appendElementWithValue(XMLMark, 'label', theMark.label);
-     appendElementWithValue(XMLMark, 'isCompressed', theMark.isCompressed);
-     
-     var xmlText = (new XMLSerializer()).serializeToString(XMLMark[0]);
-     
-     return xmlText;
-     },*/
 
     initialize: function (options) {
         options || (options = {});
@@ -72,7 +53,7 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
         this.specificProperties.push({attribute: "area", readable: true, writable: true, types: ['number'], updatesTo: ['radius'], dataTypeProposition: 'isNumericData', value: areaValue});
 
         this.createVisualProperties();
-        this.createPositionProperties();
+        this.createPositionProperties(options.values);
 
         this.setCoreVisualPropertiesValues(options.values);
 

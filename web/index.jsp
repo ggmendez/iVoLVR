@@ -561,13 +561,6 @@
                     return $("<div style='z-index: 100;'><li><i class='fa fa-archive'></i></li></div>");
                 }
             });
-            $("#numericFunctionWidget").draggable({
-                cursorAt: {top: 18.5, left: 60},
-                cursor: 'none',
-                helper: function (event) {
-                    return $("<div style='z-index: 100;'><li><i class='fa-child icon-2x'></i></li></div>");
-                }
-            });
             $("#verticalCollection").draggable({
                 cursorAt: {top: 18.5, left: 30},
                 cursor: 'none',
@@ -775,7 +768,7 @@
                 }
             });
             $("#theCanvas").droppable({
-                accept: "#addition-operator, #subtraction-operator, #multiplication-operator, #division-operator, #xFunction, #emptyFunction, #x2Function, #x3Function, #sinXFunction, #cosXFunction, #logXFunction, #sqrtXFunction, #playerWidget, #locatorWidget, #mapperWidget, #collectionGetterWidget, #collectionAttributeSelectorWidget, #numericFunctionWidget, #verticalCollection, #collectionGenerator, #numberGenerator, #rectPrototype, #squarePrototype, #pathMarkPrototype, #circlePrototype, #fatFontPrototype, #ellipsePrototype, #isColorData, #isStringData, #isNumericData, #collectionValue, #isDurationData, #isDateAndTimeData, #isShapeData",
+                accept: "#addition-operator, #subtraction-operator, #multiplication-operator, #division-operator, #xFunction, #emptyFunction, #x2Function, #x3Function, #sinXFunction, #cosXFunction, #logXFunction, #sqrtXFunction, #playerWidget, #locatorWidget, #mapperWidget, #collectionGetterWidget, #collectionAttributeSelectorWidget, #verticalCollection, #collectionGenerator, #numberGenerator, #rectPrototype, #squarePrototype, #pathMarkPrototype, #circlePrototype, #fatFontPrototype, #ellipsePrototype, #isColorData, #isStringData, #isNumericData, #collectionValue, #isDurationData, #isDateAndTimeData, #isShapeData",
                 drop: canvasDropFunction
             });
 
@@ -940,7 +933,7 @@
              numberDataType.animateBirth(false, null, null, false);*/
 
 
-//            addNumberGenerator(500, 700, 0, 100, {});
+
 
 
 //            addNumericCollectionGenerator(800, 600);

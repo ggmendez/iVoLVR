@@ -827,7 +827,7 @@ function createVisualVariableFromXMLNode(visualValueXmlNode) {
 
     var options = {
         markType: visualValueXmlNode.attr('shape'),
-        xmlID: visualValueXmlNode.attr('xmlID'),
+        xmlID: Number(visualValueXmlNode.attr('xmlID')),
         values: {}
     };
     

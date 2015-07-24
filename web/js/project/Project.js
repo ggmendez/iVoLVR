@@ -145,6 +145,12 @@ function generateProjectXML() {
                 visualProperty.xmlID = cont++;
             });
         }
+        if (object.xVisualProperty) {
+            object.xVisualProperty.xmlID = cont++;
+        }
+        if (object.yVisualProperty) {
+            object.yVisualProperty.xmlID = cont++;
+        }
     });
 
     canvas.forEachObject(function (object) {
@@ -232,6 +238,7 @@ function processCanvasXMLNode(canvasNode) {
     });
 
     var connectors = new Array();
+    var locators = new Array();
 
 //     Refreshing the canvas so that all the loaders do not do it
 //    fabric.util.animate({
@@ -265,9 +272,13 @@ function processCanvasXMLNode(canvasNode) {
 
             createNumericFunctionFromXMLNode(child);
 
+        } else if (tagName === "numberGenerator") {
+
+            createNumberGeneratorFromXMLNode(child);
+
         } else if (tagName === "locator") {
 
-            createLocatorFromXMLNode(child);
+            locators.push(child);
 
         } else if (tagName === "connector") {
 
@@ -277,9 +288,24 @@ function processCanvasXMLNode(canvasNode) {
 
     });
 
-    connectors.forEach(function (connectorNode) {
-        createConnectorFromXMLNode(connectorNode);
-    });
+//    setTimeout(function () {
+
+        // locators need to refer to objects that might not be in the canvas yet. That's a problem
+        locators.forEach(function (locatorNode) {
+            var locator = createLocatorFromXMLNode(locatorNode);
+            
+        });
+
+        // the same happens for connectors (for instance, connections to position visual properties of marks)
+        connectors.forEach(function (connectorNode) {
+            createConnectorFromXMLNode(connectorNode);
+        });
+
+//    }, 500);
+
+
+
+
 
 }
 

@@ -46,7 +46,7 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
 
 
         this.createVisualProperties();
-        this.createPositionProperties();
+        this.createPositionProperties(options.values);
 
         this.applySelectedStyle = function () {};
         this.applyUnselectedStyle = function () {};

@@ -64,7 +64,7 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
         this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: angleValue});
 
         this.createVisualProperties();
-        this.createPositionProperties();
+        this.createPositionProperties(options.values);
 
         this.setCoreVisualPropertiesValues(options.values);
 

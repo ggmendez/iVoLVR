@@ -545,7 +545,7 @@ function createOperatorFromXMLNode(operatorXmlNode) {
 
     var options = {
         type: operatorXmlNode.attr('type'),
-        xmlID: operatorXmlNode.attr('xmlID'),
+        xmlID: Number(operatorXmlNode.attr('xmlID')),
         animateAtBirth: true
     };
 

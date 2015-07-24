@@ -1,5 +1,38 @@
 var NumberGenerator = fabric.util.createClass(fabric.Rect, {
     isNumberGenerator: true,
+    toXML: function () {
+
+        var theNumberGenerator = this;
+        var functionNode = createXMLElement("numberGenerator");
+
+        appendElementWithValue(functionNode, "left", theNumberGenerator.left);
+        appendElementWithValue(functionNode, "top", theNumberGenerator.top);
+        appendElementWithValue(functionNode, "width", theNumberGenerator.width);
+        appendElementWithValue(functionNode, "height", theNumberGenerator.height);
+
+        var minXNode = theNumberGenerator.minX.value.toXML();
+        var maxXNode = theNumberGenerator.maxX.value.toXML();
+
+        addAttributeWithValue(minXNode, "xmlID", theNumberGenerator.minX.xmlID);
+        addAttributeWithValue(maxXNode, "xmlID", theNumberGenerator.maxX.xmlID);
+
+        addAttributeWithValue(minXNode, "which", "minX");
+        addAttributeWithValue(maxXNode, "which", "maxX");
+
+        functionNode.append(minXNode);
+        functionNode.append(maxXNode);
+
+        var outputPoint = theNumberGenerator.outputPoint;
+        var outputValue = outputPoint.value;
+        if (typeof outputValue !== 'undefined') {
+            var outputNode = outputValue.toXML();
+            addAttributeWithValue(outputNode, "xmlID", outputPoint.xmlID);
+            addAttributeWithValue(outputNode, "which", "output");
+            functionNode.append(outputNode);
+        }
+
+        return functionNode;
+    },
     initialize: function (options) {
 
         options || (options = {});
@@ -13,25 +46,15 @@ var NumberGenerator = fabric.util.createClass(fabric.Rect, {
 
         this.callSuper('initialize', options);
 
-        this.set('lockScalingX', true);
-        this.set('lockScalingY', true);
-        this.set('lockRotation', true);
-
-        this.set('hasRotatingPoint', false);
-        this.set('hasBorders', false);
-        this.set('hasControls', false);
-        this.set('transparentCorners', false);
-        this.set('perPixelTargetFind', true);
-
         var d = 4;
-        var realWith = this.defaultWidth;
-        if (options.width) {
-            realWith = 2 * this.smallIndent + this.largeIndent + options.width + 2 * this.smallIndent - d - this.strokeWidth;
+        var realWith = options.width || this.defaultWidth;
+        if (options.squareWidth) {
+            realWith = 2 * this.smallIndent + this.largeIndent + options.squareWidth + 2 * this.smallIndent - d - this.strokeWidth;
         }
 
-        var realHeight = this.defaultHeight;
-        if (options.height) {
-            realHeight = this.height = 2 * this.smallIndent + this.largeIndent + options.height + 2 * this.smallIndent - d - this.strokeWidth;
+        var realHeight = options.height || this.defaultHeight;
+        if (options.squareHeight) {
+            realHeight = this.height = 2 * this.smallIndent + this.largeIndent + options.squareHeight + 2 * this.smallIndent - d - this.strokeWidth;
         }
 
         this.set('width', realWith);
@@ -50,8 +73,8 @@ var NumberGenerator = fabric.util.createClass(fabric.Rect, {
 
         this.set('topElements', new Array());
 
-        this.addNumericLimits();
-        this.addOutputPoint();
+        this.addNumericLimits(options.values, options.xmlIDs);
+        this.addOutputPoint(options.values, options.xmlIDs);
         this.addPlayerButtons();
         this.associateEvents();
         this.positionElements(false);
@@ -129,7 +152,7 @@ var NumberGenerator = fabric.util.createClass(fabric.Rect, {
         var nextCoordinate = theOutputPoint.left + 4;
         if (nextCoordinate > theGenerator.maxX.getCenterPoint().x) {
             nextCoordinate = theGenerator.minX.getCenterPoint().x;
-        }        
+        }
         theOutputPoint.left = nextCoordinate;
         theOutputPoint.setCoords();
         theOutputPoint.relativeX = theOutputPoint.getPointByOrigin('center', 'center').x - theGenerator.getPointByOrigin('center', 'center').x;
@@ -152,7 +175,7 @@ var NumberGenerator = fabric.util.createClass(fabric.Rect, {
 
         theGenerator.playButton.evented = false;
         theGenerator.pauseButton.evented = true;
-        
+
 
         var interval = theGenerator.interval || 1000 / 30;
         theGenerator.timer = setInterval(function () {
@@ -199,14 +222,16 @@ var NumberGenerator = fabric.util.createClass(fabric.Rect, {
     applyUnselectedStyle: function () {
         this.selected = false;
     },
-    addNumericLimit: function (limitName, unscaledValue) {
+    addNumericLimit: function (limitName, numericValue, xmlID) {
         var theGenerator = this;
-        var numericVisualValue = new NumericData({unscaledValue: unscaledValue});
+        var numericVisualValue = CreateDataTypeFromValue(numericValue);
+        numericVisualValue.xmlID = xmlID;
         numericVisualValue.scaleX = theGenerator.valueScale;
         numericVisualValue.scaleY = theGenerator.valueScale;
         numericVisualValue.generator = theGenerator;
         numericVisualValue.isLimitValue = true;
         numericVisualValue.limitOf = theGenerator;
+        numericVisualValue.nonSerializable = true;
 
         canvas.add(numericVisualValue);
         theGenerator.set(limitName, numericVisualValue);
@@ -263,7 +288,7 @@ var NumberGenerator = fabric.util.createClass(fabric.Rect, {
         });
     },
     computeOutput: function (xCoordinate, shouldAnimate) {
-        
+
         console.log("%c computeOutput function NUMBERGENERATOR class. shouldAnimate: " + shouldAnimate, "background: #7FFFD4; color: #000000;");
 
         var theNumberGenerator = this;
@@ -283,13 +308,34 @@ var NumberGenerator = fabric.util.createClass(fabric.Rect, {
 
         theNumberGenerator.outputPoint.setValue(createNumericValue(output), refreshCanvas, shouldAnimate);
     },
-    addNumericLimits: function () {
+    addNumericLimits: function (values, xmlIDs) {
+
         var theGenerator = this;
-        theGenerator.addNumericLimit('minX', 0);
-        theGenerator.addNumericLimit('maxX', 100);
+        var minXValue = null;
+        var maxXValue = null;
+
+        if (values !== null && typeof values !== 'undefined') {
+            minXValue = values.minX || new NumericData({unscaledValue: 0});
+            maxXValue = values.maxX || new NumericData({unscaledValue: 100});
+        } else {
+            minXValue = new NumericData({unscaledValue: 0});
+            maxXValue = new NumericData({unscaledValue: 100});
+        }
+
+        theGenerator.addNumericLimit('minX', minXValue, xmlIDs ? xmlIDs['minX'] : null);
+        theGenerator.addNumericLimit('maxX', maxXValue, xmlIDs ? xmlIDs['maxX'] : null);
     },
-    addOutputPoint: function () {
+    addOutputPoint: function (values, xmlIDs) {
+
         var theGenerator = this;
+        var outputValue = null;
+
+        if (values !== null && typeof values !== 'undefined') {
+            outputValue = values.output || new NumericData({unscaledValue: 100});
+        } else {
+            outputValue = new NumericData({unscaledValue: 100});
+        }
+
         var outputPointPath = paths['output'].r;
         var outputPoint = new NumberGeneratorOutput(outputPointPath, {
             evented: true,
@@ -297,6 +343,8 @@ var NumberGenerator = fabric.util.createClass(fabric.Rect, {
             angle: 270,
             opacity: 1, // The output point is not visible at the bigining. It will appear when the outCollection has values
             generator: theGenerator,
+            value: outputValue,
+            xmlID: xmlIDs ? xmlIDs['output'] : null
         });
         canvas.add(outputPoint);
         theGenerator.set('outputPoint', outputPoint);
@@ -420,20 +468,18 @@ var NumberGenerator = fabric.util.createClass(fabric.Rect, {
 
 });
 
-function addNumberGenerator(x, y, min, max, otherOptions) {
+function addNumberGenerator(options) {
 
-    var functionOptions = {
-        left: x,
-        top: y,
-        min: min,
-        max: max
-    }
+    options.lockScalingX = true;
+    options.lockScalingY = true;
+    options.lockRotation = true;
+    options.hasRotatingPoint = false;
+    options.hasBorders = false;
+    options.hasControls = false;
+    options.transparentCorners = false;
+    options.perPixelTargetFind = true;
 
-    for (var prop in otherOptions) {
-        functionOptions[prop] = otherOptions[prop];
-    }
-
-    var theGenerator = new NumberGenerator(functionOptions);
+    var theGenerator = new NumberGenerator(options);
     canvas.add(theGenerator);
 
     var shouldAnimate = false;
@@ -445,5 +491,51 @@ function addNumberGenerator(x, y, min, max, otherOptions) {
     blink(theGenerator.maxX, false, 0.3);
     blink(theGenerator.playButton, false, 0.3);
     blink(theGenerator, true, 0.3);
+
+}
+
+
+function createNumberGeneratorFromXMLNode(functionXmlNode) {
+
+    var options = {
+        doNotAnimateAtBirth: true,
+        xmlIDs: {},
+        values: {}
+    };
+
+    var children = functionXmlNode.children();
+    children.each(function () {
+        var child = $(this);
+        var tagName = this.tagName;
+
+        if (tagName === "value") {
+
+            var propertyValue = createValueFromXMLNode(child);
+            var which = child.attr('which');
+            var xmlID = Number(child.attr('xmlID'));
+            options.xmlIDs[which] = xmlID;
+            options.values[which] = propertyValue;
+
+        } else {
+
+            var value = child.text();
+            var type = child.attr('type');
+
+            if (type === "number") {
+                value = Number(value);
+            } else if (type === "boolean") {
+                value = value === "true";
+            }
+
+            options[tagName] = value;
+
+        }
+
+    });
+
+    console.log("+++++++++++++++++++++++++++++++++++++++++++++++ options to create the saved NUMBER GENERATOR");
+    console.log(options);
+
+    return addNumberGenerator(options);
 
 }

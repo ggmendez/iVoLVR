@@ -11,9 +11,11 @@ var Connector = fabric.util.createClass(fabric.Line, {
         addAttributeWithValue(connectorNode, "from", source.xmlID);
         addAttributeWithValue(connectorNode, "to", destination.xmlID);
         addAttributeWithValue(connectorNode, "arrowColor", theConnector.arrowColor);
-        addAttributeWithValue(connectorNode, "strokeWidth", theConnector.strokeWidth);
+        addAttributeWithValue(connectorNode, "strokeWidth", 1);
         addAttributeWithValue(connectorNode, "filledArrow", theConnector.filledArrow);
         addAttributeWithValue(connectorNode, "opacity", theConnector.opacity);
+        
+        
 
         return connectorNode;
     },
@@ -709,8 +711,8 @@ var Connector = fabric.util.createClass(fabric.Line, {
 
 function createConnectorFromXMLNode(connectorNode) {
 
-    var fromID = connectorNode.attr('from');
-    var toID = connectorNode.attr('to');
+    var fromID = Number(connectorNode.attr('from'));
+    var toID = Number(connectorNode.attr('to'));
 
     var source = getFabricElementByXmlID(fromID);
     var destination = getFabricElementByXmlID(toID);
@@ -720,7 +722,7 @@ function createConnectorFromXMLNode(connectorNode) {
         var arrowColor = connectorNode.attr('arrowColor');
         var strokeWidth = Number(connectorNode.attr('strokeWidth'));
         var filledArrow = connectorNode.attr('filledArrow') === 'true';
-        var opacity = connectorNode.attr('opacity');
+        var opacity = Number(connectorNode.attr('opacity'));
 
         var connector = new Connector({
             source: source,
@@ -738,26 +740,20 @@ function createConnectorFromXMLNode(connectorNode) {
         source.outConnectors.push(connector);
         destination.inConnectors.push(connector);
 
-//        console.log("source.outConnectors:");
-//        console.log(source.outConnectors);
-//
-//        console.log("destination.inConnectors:");
-//        console.log(destination.inConnectors);
-
         canvas.add(connector);
-        
-        if (source.isOperator) {
+
+        if (source.isOperator || source.isLocator) {
             source.bringToFront();
         }
-        
-        if (destination.isOperator) {
+
+        if (destination.isOperator || destination.isMark) {
             destination.bringToFront();
         }
 
     } else {
-        
+
         console.log("No source or destination found!");
-        
+
     }
 
 }

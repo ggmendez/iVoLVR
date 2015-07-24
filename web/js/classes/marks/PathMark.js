@@ -85,7 +85,7 @@ PathMark = fabric.util.createClass(fabric.Path, {
         this.getVisualPropertyByAttributeName('yCollection').canHandleArrays = true;
 
 
-        this.createPositionProperties();
+        this.createPositionProperties(options.values);
 
         this.setCoords();
 

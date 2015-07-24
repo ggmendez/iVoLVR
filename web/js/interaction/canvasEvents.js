@@ -136,8 +136,17 @@ function canvasPathCreated(options) {
         var XYValues = extractXYValues(drawnPath);
         
         var coordinates = createFunctionCoordinatesFromValues(XYValues.xValues, XYValues.yValues);
+                
+        var options = {
+            top: center.y,
+            left: center.x,
+            coordinatesX: coordinates.XCoordinates,
+            coordinatesY: coordinates.YCoordinates,
+            pathWidth: drawnPath.getWidth(),
+            pathHeight: drawnPath.getHeight()
+        };
 
-        addNumericFunction(center.x, center.y, coordinates.XCoordinates, coordinates.YCoordinates, {pathWidth: drawnPath.getWidth(), pathHeight: drawnPath.getHeight()});
+        addNumericFunction(options);
 
         deActivateFunctionDrawingMode();
 

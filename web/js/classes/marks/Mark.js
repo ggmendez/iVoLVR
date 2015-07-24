@@ -61,6 +61,7 @@ var Mark = function () {
     };
 
     this.toXML = function () {
+        var theMark = this;
         var markNode = createXMLElement("mark");
         addAttributeWithValue(markNode, "xmlID", this.xmlID);
         addAttributeWithValue(markNode, "shape", this.shape.shape || this.shape);
@@ -69,10 +70,12 @@ var Mark = function () {
         appendElementWithValue(markNode, "stroke", new fabric.Color(this.visualProperties[0].stroke).toRgba());
         appendElementWithValue(markNode, "visualPropertyFill", new fabric.Color(this.visualProperties[0].fill).toRgba());
         appendElementWithValue(markNode, "isExpanded", !this.isCompressed);
-        this.visualProperties.forEach(function (visualProperty) {
+        theMark.visualProperties.forEach(function (visualProperty) {
             var propertyNode = visualProperty.toXML();
             markNode.append(propertyNode);
         });
+        markNode.append(theMark.xVisualProperty.toXML());
+        markNode.append(theMark.yVisualProperty.toXML());
         return markNode;
     };
 
@@ -178,15 +181,23 @@ var Mark = function () {
         }
     };
 
-    this.createPositionProperties = function () {
+    this.createPositionProperties = function (values) {
+        
+        var xValue = null;
+        var yValue = null;
+        
+        if (values) {
+            xValue = values.x;
+            yValue = values.y;
+        }
 
-        var xProperty = {attribute: "x", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData'};
+        var xProperty = {attribute: "x", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: xValue};
         this.xVisualProperty = CreateVisualProperty(xProperty, this, this.left, this.top);
         this.xVisualProperty.mark = this;
         this.xVisualProperty.setCoords();
         this.xVisualProperty.evented = false;
 
-        var yProperty = {attribute: "y", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData'};
+        var yProperty = {attribute: "y", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: yValue};
         this.yVisualProperty = CreateVisualProperty(yProperty, this, this.left, this.top);
         this.yVisualProperty.mark = this;
         this.yVisualProperty.setCoords();
@@ -1184,7 +1195,6 @@ var Mark = function () {
     this.associateEvents = function () {
         var theMark = this;
         theMark.on({
-            // This event is triggered when the mark is associated by a locator element
             'mouseover': function (options) {
                 if (LOG) {
                     console.log("Mouse over a mark!");
@@ -1482,8 +1492,6 @@ var Mark = function () {
                 ctx.lineTo(0, relativeY);
             }
 
-
-
             if (this.isSVGPathGroupMark) {
                 ctx.moveTo(markCenter.x, markCenter.y);
                 ctx.lineTo(markCenter.x + relativeX, markCenter.y);
@@ -1747,7 +1755,7 @@ function createMarkFromXMLNode(markXmlNode) {
 
     var options = {
         markType: markXmlNode.attr('shape'),
-        xmlID: markXmlNode.attr('xmlID'),
+        xmlID: Number(markXmlNode.attr('xmlID')),
         xmlIDs: {},
         values: {}
     };
@@ -1762,7 +1770,7 @@ function createMarkFromXMLNode(markXmlNode) {
             var valueXmlNode = $(child.find('value')[0]);
             var propertyValue = createValueFromXMLNode(valueXmlNode);
             
-            var xmlID = child.attr('xmlID');
+            var xmlID = Number(child.attr('xmlID'));
             var attribute = child.attr('attribute');
 
             if (LOG) {
@@ -1828,5 +1836,8 @@ function createMark(options) {
             visualProperty.xmlID = xmlID;
         }
     }
+    
+    mark.xVisualProperty.xmlID = options.xmlIDs['x'];
+    mark.yVisualProperty.xmlID = options.xmlIDs['y'];
 
 }

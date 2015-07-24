@@ -670,6 +670,13 @@ function createValueFromXMLNode(valueXmlNode) {
         var child = $(this);
         var property = this.tagName;
         var value = child.text();
+        var type = child.attr('type');
+
+        if (type === "number") {
+            value = Number(value);
+        } else if (type === "boolean") {
+            value = value === "true";
+        }
 
         value = replaceAll(value, CDATA_END_REPLACE, CDATA_END);
 

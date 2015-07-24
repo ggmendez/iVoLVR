@@ -2191,15 +2191,32 @@ function repositionWidget(targetObject, widget) {
 
 function computeUntransformedProperties(widget) {
 
+    console.log("widget:");
+    console.log(widget);
+
+
+
     if (LOG)
-        console.log("computeUntransformedProperties");
+        console.log("%ccomputeUntransformedProperties", "background: #ff1ed3; color: black;");
 
     var parentObject = widget.parentObject;
     var angleInDegrees = 360 - parentObject.getAngle();
     var angleInRadians = fabric.util.degreesToRadians(angleInDegrees);
     var parentTopLeft = parentObject.getPointByOrigin('left', 'top');
 
+    /*console.log("parentObject:");
+     console.log(parentObject);
+     
+     console.log("angleInDegrees:");
+     console.log(angleInDegrees);
+     
+     console.log("angleInRadians:");
+     console.log(angleInRadians);
+     
+     console.log("parentTopLeft:");
+     console.log(parentTopLeft);*/
 
+//    drawRectAt(parentTopLeft, 'black');
 
 //    canvas.add(new fabric.Rect({
 //        left: topLeft.x,
@@ -2211,7 +2228,11 @@ function computeUntransformedProperties(widget) {
 //        height: parentObject.getHeight()
 //    }));
 
+//    var widgetCenter = widget.getPointByOrigin('center', 'center');
     var widgetCenter = widget.getCenterPoint();
+
+//    console.log("widgetCenter:");
+//    console.log(widgetCenter);
 
 
     var widgetTopLeft = widget.getPointByOrigin('left', 'top');
@@ -2225,21 +2246,22 @@ function computeUntransformedProperties(widget) {
 
 
 
-//    drawRectAt(topLeft, 'blue');
+//    drawRectAt(widgetTopLeft, 'blue');
 //    drawRectAt(widgetCenter, 'red');
 
     var rotatedWidgetCenter = fabric.util.rotatePoint(new fabric.Point(widgetCenter.x, widgetCenter.y), parentTopLeft, angleInRadians);
+
+
 
 //    var rotatedWidgetTopLeft = fabric.util.rotatePoint(widgetTopLeft, topLeft, fabric.util.degreesToRadians(-parentObject.getAngle()));
 
 
     var rotatedWidgetTopLeft = fabric.util.rotatePoint(new fabric.Point(widgetTopLeft.x, widgetTopLeft.y), parentTopLeft, fabric.util.degreesToRadians(360 - parentObject.getAngle()));
 
-
-
+//    drawRectAt(rotatedWidgetCenter, 'green');
 //    drawRectAt(rotatedWidgetTopLeft, 'purple');
 
-//    drawRectAt(rotatedWidgetCenter, 'green');
+
 
 
 //    drawRectAt(topLeft, 'black');
@@ -2248,7 +2270,7 @@ function computeUntransformedProperties(widget) {
 //    if (LOG) console.log(topLeft);
 
 
-    if (widget.type == "path" || widget.isTextualVixor || widget.isEllipticMark || widget.isSamplerVixor) {
+    if (widget.type === "path" || widget.isTextualVixor || widget.isEllipticMark || widget.isSamplerVixor) {
 
 //        if (LOG) console.log("%c REPOSITIONING A PATH: ", "background: blue; color: white;");
 //        if (LOG) console.log("%cAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "background: blue; color: white;");
@@ -2256,7 +2278,7 @@ function computeUntransformedProperties(widget) {
         widget.untransformedX = (rotatedWidgetCenter.x - parentTopLeft.x - widget.getWidth() / 2 - parentObject.strokeWidth / 2) / parentObject.getScaleX();
         widget.untransformedY = (rotatedWidgetCenter.y - parentTopLeft.y - widget.getHeight() / 2 - parentObject.strokeWidth / 2) / parentObject.getScaleY();
 
-    } else if (widget.figureType == "Rectangle") {
+    } else if (widget.figureType === "Rectangle") {
 
 //        if (LOG) console.log("%c HERE: ", "background: blue; color: white;");
 //        if (LOG) console.log("%cBBBBBBBBBBBBBBBBBBBBBBBBBBB", "background: blue; color: white;");
@@ -2267,15 +2289,28 @@ function computeUntransformedProperties(widget) {
 
     } else if (widget.isMark && widget.parentObject.isLocator) {
 
-//        if (LOG) console.log("%cEEEEEEEEEEEEEEEEEEEEEEEE", "background: pink; color: blue;");
+        if (LOG)
+            console.log("%cEEEEEEEEEEEEEEEEEEEEEEEE", "background: pink; color: blue;");
 
-
+        if (LOG) {
+//            console.log("rotatedWidgetCenter.x");
+//            console.log(rotatedWidgetCenter.x);
+//
+//            console.log("parentTopLeft.x:");
+//            console.log(parentTopLeft.x);
+//
+//            console.log("widget.getWidth():");
+//            console.log(widget.getWidth());
+//
+//            console.log("parentObject.getScaleX():");
+//            console.log(parentObject.getScaleX());
+        }
 
 
         widget.untransformedX = (rotatedWidgetCenter.x - parentTopLeft.x - widget.getWidth() / 2 - 1.5) / parentObject.getScaleX();
         widget.untransformedY = (rotatedWidgetCenter.y - parentTopLeft.y - widget.getHeight() / 2 - 1.5) / parentObject.getScaleY();
 
-    } else if (widget.figureType == "functionSlider") {
+    } else if (widget.figureType === "functionSlider") {
 
 //        if (LOG) console.log("%cCCCCCCCCCCCCCCCCCCCCC", "background: red; color: white;");
 //       if (LOG) console.log("%c AQUIIIIIIIIIIII", "background: red; color: white;");
@@ -5310,7 +5345,7 @@ function canvasDropFunction(ev, ui) {
 
         if (id === "addition-operator" || id === "subtraction-operator" || id === "multiplication-operator" || id === "division-operator") {
 
-            var type = replaceAll(id, "-operator", "");            
+            var type = replaceAll(id, "-operator", "");
 
             var options = {
                 type: type,
@@ -5323,46 +5358,93 @@ function canvasDropFunction(ev, ui) {
             addOperator(options);
 
         } else if (id === "emptyFunction") {
+            
+            var options = {
+                left: x,
+                top: y
+            };
 
-            addNumericFunction(x, y);
+            addNumericFunction(options);
 
         } else if (id === "xFunction") {
-
+            
             var coordinates = getLinealFunctionCoordinates();
-            addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
+            var options = {
+                left: x,
+                top: y,
+                coordinatesX: coordinates.XCoordinates,
+                coordinatesY: coordinates.YCoordinates
+            };
+            addNumericFunction(options);
 
         } else if (id === "x2Function") {
-
+            
             var coordinates = getQuadraticFunctionCoordinates();
-            addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
+            var options = {
+                left: x,
+                top: y,
+                coordinatesX: coordinates.XCoordinates,
+                coordinatesY: coordinates.YCoordinates
+            };
+            addNumericFunction(options);
 
         } else if (id === "x3Function") {
-
+            
             var coordinates = getCubicFunctionCoordinates();
-            addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
+            var options = {
+                left: x,
+                top: y,
+                coordinatesX: coordinates.XCoordinates,
+                coordinatesY: coordinates.YCoordinates
+            };
+            addNumericFunction(options);
 
         } else if (id === "sinXFunction") {
-
+            
             var coordinates = getSinFunctionCoordinates();
-            addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
+            var options = {
+                left: x,
+                top: y,
+                coordinatesX: coordinates.XCoordinates,
+                coordinatesY: coordinates.YCoordinates
+            };
+            addNumericFunction(options);
 
         } else if (id === "cosXFunction") {
-
+            
             var coordinates = getCosFunctionCoordinates();
-            addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
+            var options = {
+                left: x,
+                top: y,
+                coordinatesX: coordinates.XCoordinates,
+                coordinatesY: coordinates.YCoordinates
+            };
+            addNumericFunction(options);
 
         } else if (id === "logXFunction") {
-
+            
             var coordinates = getLogFunctionCoordinates();
-            addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
+            var options = {
+                left: x,
+                top: y,
+                coordinatesX: coordinates.XCoordinates,
+                coordinatesY: coordinates.YCoordinates
+            };
+            addNumericFunction(options);
 
         } else if (id === "sqrtXFunction") {
-
+            
             var coordinates = getSqrtFunctionCoordinates();
-            addNumericFunction(x, y, coordinates.XCoordinates, coordinates.YCoordinates);
+            var options = {
+                left: x,
+                top: y,
+                coordinatesX: coordinates.XCoordinates,
+                coordinatesY: coordinates.YCoordinates
+            };
+            addNumericFunction(options);
 
         } else if (id === "locatorWidget") {
-            
+
             var options = {
                 top: y,
                 left: x,
@@ -5372,8 +5454,8 @@ function canvasDropFunction(ev, ui) {
             };
 
             addLocator(options);
-            
-            
+
+
         } else if (id === "mapperWidget") {
 
             addMapper(x, y);
@@ -5386,10 +5468,6 @@ function canvasDropFunction(ev, ui) {
 
             addCollectionAttributeSelector(x, y);
 
-        } else if (id === "numericFunctionWidget") {
-
-            addNumericFunction(x, y);
-
         } else if (id === "verticalCollection") {
 
             addEmptyVerticalCollection(x, y);
@@ -5400,7 +5478,7 @@ function canvasDropFunction(ev, ui) {
 
         } else if (id === "numberGenerator") {
 
-            addNumberGenerator(x, y, 0, 100, {});
+            addNumberGenerator({left: x, top: y});
 
         } else if (id === "squarePrototype") {
 
