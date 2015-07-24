@@ -288,20 +288,20 @@ function processCanvasXMLNode(canvasNode) {
 
     });
 
-//    setTimeout(function () {
+    setTimeout(function () {
 
-    // locators need to refer to objects that might not be in the canvas yet. That's a problem
-    locators.forEach(function (locatorNode) {
-        var locator = createLocatorFromXMLNode(locatorNode);
+        // locators need to refer to objects that might not be in the canvas yet. That's a problem
+        locators.forEach(function (locatorNode) {
+            var locator = createLocatorFromXMLNode(locatorNode);
 
-    });
+        });
 
-    // the same happens for connectors (for instance, connections to position visual properties of marks)
-    connectors.forEach(function (connectorNode) {
-        createConnectorFromXMLNode(connectorNode);
-    });
+        // the same happens for connectors (for instance, connections to position visual properties of marks)
+        connectors.forEach(function (connectorNode) {
+            createConnectorFromXMLNode(connectorNode);
+        });
 
-//    }, 500);
+    }, 500);
 
 
 
@@ -383,7 +383,7 @@ function getFabricElementByXmlID(xmlID) {
         if (object.xmlID === xmlID) {
             return object;
         } else {
-            
+
             if (object.isMark) { // If this object is a mark, we also have to look in its position visual properties and, if it is compressed in its all other one
 
                 if (object.xVisualProperty.xmlID === xmlID) {
@@ -395,10 +395,11 @@ function getFabricElementByXmlID(xmlID) {
                     var visualProperties = object.visualProperties;
 
                     for (var j = 0; j < visualProperties.length; j++) {
-                        var visualProperty = visualProperties[i];
-                        if (visualProperty.xmlID === xmlID) {
+                        var visualProperty = visualProperties[j];
+                        if (visualProperty && visualProperty.xmlID === xmlID) {
                             return visualProperty;
                         }
+
                     }
 
 
@@ -409,5 +410,8 @@ function getFabricElementByXmlID(xmlID) {
             }
         }
     }
+    
+    console.log("xmlID " + xmlID + " not FOUND!!!");
+    
     return null;
 }

@@ -228,6 +228,9 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
     },
     addNumericLimit: function (limitName, numericValue, xmlID) {
+        
+        console.log("%c Adding numeric limit with value: ", "background: green; color: black;");
+        console.log(numericValue);
 
         var theFunction = this;
 
@@ -345,6 +348,9 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
     },
     addNumericLimits: function (values, xmlIDs) {
+        
+        console.log("addNumericLimits FUNCTION:");
+        console.log(values);
 
         var theFunction = this;
         var minXValue = null;
@@ -362,7 +368,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             maxXValue = new NumericData({unscaledValue: 100});
             minYValue = new NumericData({unscaledValue: 0});
             maxYValue = new NumericData({unscaledValue: 100});
-        }                
+        }
 
         theFunction.addNumericLimit('minX', minXValue, xmlIDs ? xmlIDs['minX'] : null);
         theFunction.addNumericLimit('maxX', maxXValue, xmlIDs ? xmlIDs['maxX'] : null);
@@ -1487,6 +1493,14 @@ function addNumericFunction(options) {
             theFunction.setBothCoordinates(options.coordinatesX, options.coordinatesY, shouldAnimate);
         }
     }
+    
+    // TODO: This should be done somewhere else. The setBothCoordinates should take into account the limits so that it does not overwrite them. 
+    theFunction.minX.setValue(options.values.minX, true, false);
+    theFunction.maxX.setValue(options.values.maxX, true, false);
+    theFunction.minY.setValue(options.values.minY, true, false);
+    theFunction.maxY.setValue(options.values.maxY, true, false);
+    
+    
 
     theFunction.bringTopElementsToFront();
 
@@ -1676,7 +1690,7 @@ function createNumericFunctionFromXMLNode(functionXmlNode) {
 
     });
 
-    console.log("+++++++++++++++++++++++++++++++++++++++++++++++ options to create the saved FUNCTION");
+    console.log("%c+++++++++++++++++++++++++++++++++++++++++++++++ options to create the saved FUNCTION", "background: red; color: white;");
     console.log(options);
 
     return addNumericFunction(options);

@@ -470,6 +470,21 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
                 svgPathGroupMark.expand(false);
             }
 
+
+
+            for (var attribute in options.xmlIDs) {
+                var xmlID = options.xmlIDs[attribute];
+                var visualProperty = svgPathGroupMark.getVisualPropertyByAttributeName(attribute);
+                if (visualProperty !== null) {
+                    visualProperty.xmlID = xmlID;
+                }
+            }
+            svgPathGroupMark.xVisualProperty.xmlID = options.xmlIDs['x'];
+            svgPathGroupMark.yVisualProperty.xmlID = options.xmlIDs['y'];
+
+
+
+
             return svgPathGroupMark;
 
         });
@@ -497,6 +512,16 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
 
 
         svgPathGroupMark.associateEvents(svgPathGroupMark);
+
+        for (var attribute in options.xmlIDs) {
+            var xmlID = options.xmlIDs[attribute];
+            var visualProperty = svgPathGroupMark.getVisualPropertyByAttributeName(attribute);
+            if (visualProperty !== null) {
+                visualProperty.xmlID = xmlID;
+            }
+        }
+        svgPathGroupMark.xVisualProperty.xmlID = options.xmlIDs['x'];
+        svgPathGroupMark.yVisualProperty.xmlID = options.xmlIDs['y'];
 
         return svgPathGroupMark;
 

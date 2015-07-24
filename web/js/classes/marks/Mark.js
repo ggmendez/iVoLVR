@@ -182,10 +182,10 @@ var Mark = function () {
     };
 
     this.createPositionProperties = function (values) {
-        
+
         var xValue = null;
         var yValue = null;
-        
+
         if (values) {
             xValue = values.x;
             yValue = values.y;
@@ -1769,7 +1769,7 @@ function createMarkFromXMLNode(markXmlNode) {
 
             var valueXmlNode = $(child.find('value')[0]);
             var propertyValue = createValueFromXMLNode(valueXmlNode);
-            
+
             var xmlID = Number(child.attr('xmlID'));
             var attribute = child.attr('attribute');
 
@@ -1817,27 +1817,36 @@ function createMark(options) {
 
     var mark = addMarkToCanvas(markType, options);
 
-    if (typeof mark !== 'undefined' && mark !== null) { // due to the asynchronous nature of SVGPATHGROUP_MARK, this should be checked. The expansion of such marks is donde withint their adding method
-        if (isExpanded) {
-            mark.expand(options.markType !== SVGPATHGROUP_MARK);
+    if (mark) {
+
+        console.log("%%%%%%%%%%%%%%%%%%% Created MARK:");
+        console.log(mark);
+
+        if (typeof mark !== 'undefined' && mark !== null) { // due to the asynchronous nature of SVGPATHGROUP_MARK, this should be checked. The expansion of such marks is donde withint their adding method
+            if (isExpanded) {
+                mark.expand(options.markType !== SVGPATHGROUP_MARK);
+            }
         }
-    }
-    
-    console.log("options.xmlIDs:");
-    console.log(options.xmlIDs);
-    
-    for (var attribute in options.xmlIDs) {
-        
-        console.log("attribute: " + attribute);
-        
-        var xmlID = options.xmlIDs[attribute];
-        var visualProperty = mark.getVisualPropertyByAttributeName(attribute);
-        if (visualProperty !== null) {
-            visualProperty.xmlID = xmlID;
+
+        console.log("options.xmlIDs:");
+        console.log(options.xmlIDs);
+
+        for (var attribute in options.xmlIDs) {
+
+            console.log("attribute: " + attribute);
+
+            var xmlID = options.xmlIDs[attribute];
+            var visualProperty = mark.getVisualPropertyByAttributeName(attribute);
+            if (visualProperty !== null) {
+                visualProperty.xmlID = xmlID;
+            }
         }
+
+        mark.xVisualProperty.xmlID = options.xmlIDs['x'];
+        mark.yVisualProperty.xmlID = options.xmlIDs['y'];
+
     }
-    
-    mark.xVisualProperty.xmlID = options.xmlIDs['x'];
-    mark.yVisualProperty.xmlID = options.xmlIDs['y'];
+
+
 
 }

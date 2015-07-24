@@ -1701,7 +1701,7 @@ function addLocator(options) {
 
 function createLocatorFromXMLNode(locatorXmlNode) {
 
-    console.clear();
+//    console.clear();
 
     var options = {
         markAsSelected: false,
