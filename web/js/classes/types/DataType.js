@@ -714,7 +714,8 @@ function addVisualVariableToCollection(visualValue, collection, connector, useTh
 
     if (collection.isValueAllowed(value)) {
 
-        var newVisualValue = visualValue;
+        var newVisualValue = visualValue;        
+        
         if (!useTheGivenVisualValue) {
             newVisualValue = CreateDataTypeFromValue(value);
         }

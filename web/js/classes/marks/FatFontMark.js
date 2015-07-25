@@ -48,8 +48,10 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
         this.createVisualProperties();
         this.createPositionProperties(options.values);
 
-        this.applySelectedStyle = function () {};
-        this.applyUnselectedStyle = function () {};
+        this.applySelectedStyle = function () {
+        };
+        this.applyUnselectedStyle = function () {
+        };
 
         this.set('perPixelTargetFind', false);
         this.set('editable', false);
@@ -73,7 +75,7 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
         };
 
         this.setCoreVisualPropertiesValues(options.values);
-        
+
         this.setxmlIDs(options.xmlIDs);
 
     },
@@ -360,12 +362,12 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
 Mark.call(FatFontMark.prototype);
 
 function addFatFontMarkToCanvas(options) {
-    
+
     options.colorForStroke = options.colorForStroke || options.stroke;
     options.stroke = '';
     options.number = options.number || ((options.values && options.values.number) ? options.values.number.number : 0);
     options.fontFamily = options.fontFamily || 'Miguta';
-    
+
     var text = '' + options.number;
     var fatFontMark = new FatFontMark(text, options);
     canvas.add(fatFontMark);
@@ -383,15 +385,18 @@ function addFatFontMarkToCanvas(options) {
     }
 
     fatFontMark.associateEvents();
-    
+
     if (options.shouldExpand) {
         fatFontMark.expand(true);
     }
-    
+
     setTimeout(function () {
         if (options.locatorXmlID) {
             var locator = getFabricElementByXmlID(options.locatorXmlID);
             locator.reportMarkAvailable(fatFontMark);
+        }
+        if (options.xmlID) {
+            fatFontMark.executePendingConnections();
         }
     }, waitingTime);
     

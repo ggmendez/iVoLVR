@@ -357,6 +357,9 @@ function addRectangularMarkToCanvas(options) {
             var locator = getFabricElementByXmlID(options.locatorXmlID);
             locator.reportMarkAvailable(rectangularMark);
         }
+        if (options.xmlID) {
+            rectangularMark.executePendingConnections();
+        }
     }, waitingTime);
 
     return rectangularMark;

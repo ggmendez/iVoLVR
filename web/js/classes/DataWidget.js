@@ -511,31 +511,11 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
                     }
 
                 } else {
+                                                            
+                    var lastAddedConnector = getLastElementOfArray(this.outConnectors);                    
+                    newConnectionReleasedOnCanvas(lastAddedConnector, coordX, coordY);
                     
-                    var destination = null;
-                    var theValue = this.value;
-                    destination = addVerticalCollection(coordX, coordY, theValue);
-
-
-                    var lastAddedConnector = getLastElementOfArray(this.outConnectors);
-
-                    lastAddedConnector.setDestination(destination, true);
-
-                    if (destination.animateBirth) {
-                        destination.animateBirth(false, null, null, false);
-                    }
-
-
                 }
-
-
-//                    var connector = this.outConnectors.pop();
-//                        connector.contract();
-
-
-
-
-
             },
             'mousedown': function (option) {
 
@@ -556,47 +536,6 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
             },
             'outConnectionRemoved': standarOutConnectionRemovedHandler,
         });
-//
-//
-//
-//        var duration = 500;
-//        var easing = fabric.util.ease.easeInQuart;
-//        var clonnedAggregator = fabric.util.object.clone(theDataWidget);
-//
-////        if (LOG) console.log("Math.abs(theDataWidget.additionalWidth * theDataWidget.visualVariables.length - theDataWidget.width): ");
-////        if (LOG) console.log(Math.abs(theDataWidget.additionalWidth * theDataWidget.visualVariables.length - theDataWidget.width));
-//
-//        var topLeft = theDataWidget.getPointByOrigin('left', 'top');
-//        var realWidth = theDataWidget.getWidth() + (theDataWidget.getScaleX() * theDataWidget.strokeWidth);
-//
-//        if (theDataWidget.width - theDataWidget.additionalWidth * theDataWidget.visualVariables.length < 10) {
-//
-//
-//            theDataWidget.transitionWidth += theDataWidget.additionalWidth;
-//            clonnedAggregator.width = theDataWidget.transitionWidth;
-//
-//            theDataWidget.animate('width', theDataWidget.transitionWidth, {
-//                duration: duration,
-//                easing: easing,
-//                onChange: function () {
-//
-//                },
-//                onComplete: function () {
-//
-//                }
-//            });
-//
-//            topLeft = clonnedAggregator.getPointByOrigin('left', 'top');
-//            realWidth = clonnedAggregator.getWidth() + (theDataWidget.getScaleX() * theDataWidget.strokeWidth);
-//        }
-//
-//        var positions = theDataWidget.generateChildrenPositions(realWidth, topLeft);
-//
-//        for (var i = 0, len = theDataWidget.visualVariables.length; i < len; i++) {
-//            theDataWidget.animateChild(i, 'top', positions[i].y, duration, easing);
-//            theDataWidget.animateChild(i, 'left', positions[i].x, duration, easing);
-//        }
-
 
     },
     generateChildrenPositions: function (realWidth, topLeft) {
@@ -614,8 +553,6 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
             var x = topLeft.x + indent + (i + 0.5) * separation;
             positions.push(fabric.util.rotatePoint(new fabric.Point(x, y), topLeft, fabric.util.degreesToRadians(theDataWidget.getAngle())));
         }
-
-
 
         return positions;
     },

@@ -1,5 +1,67 @@
 var Mapper = fabric.util.createClass(fabric.Rect, {
     isMapper: true,
+    toXML: function () {
+
+        var theMapper = this;
+        var mapperNode = createXMLElement("mapper");
+
+        addAttributeWithValue(mapperNode, "xmlID", theMapper.xmlID);
+
+        var mapperLocation = theMapper.getPointByOrigin('center', 'top');
+        mapperLocation.y += theMapper.compressedHeight / 2 + theMapper.strokeWidth / 2;
+        appendElementWithValue(mapperNode, "left", mapperLocation.x);
+        appendElementWithValue(mapperNode, "top", mapperLocation.y);
+        appendElementWithValue(mapperNode, "inputPosition", theMapper.inputPosition);
+        appendElementWithValue(mapperNode, "isExpanded", !theMapper.isCompressed);
+
+        var inCollection = theMapper.inCollection;
+        if (inCollection) {
+            var inCollectionNode = inCollection.toXML();
+            addAttributeWithValue(inCollectionNode, "which", "inCollection");
+            mapperNode.append(inCollectionNode);
+        }
+
+        var outCollection = theMapper.outCollection;
+        if (outCollection) {
+            var outCollectionNode = outCollection.toXML();
+            addAttributeWithValue(outCollectionNode, "which", "outCollection");
+            mapperNode.append(outCollectionNode);
+        }
+
+        var inputPoint = theMapper.inputPoint;        
+        if (inputPoint) {
+            var value = inputPoint.value;            
+            if (value) {
+                var inputValueNode = null;
+                if ($.isArray(value)) {
+                    inputValueNode = createArrayNode(value);
+                } else {
+                    inputValueNode = value.toXML();
+                }
+                addAttributeWithValue(inputValueNode, "which", "input");
+                addAttributeWithValue(inputValueNode, "xmlID", inputPoint.xmlID);
+                mapperNode.append(inputValueNode);
+            }
+        }
+        
+        var outputPoint = theMapper.outputPoint;        
+        if (outputPoint) {
+            var value = outputPoint.value;            
+            if (value) {
+                var outputValueNode = null;
+                if ($.isArray(value)) {
+                    outputValueNode = createArrayNode(value);
+                } else {
+                    outputValueNode = value.toXML();
+                }
+                addAttributeWithValue(outputValueNode, "which", "output");
+                addAttributeWithValue(outputValueNode, "xmlID", outputPoint.xmlID);
+                mapperNode.append(outputValueNode);
+            }
+        }
+
+        return mapperNode;
+    },
     initialize: function (options) {
         options || (options = {});
 
@@ -33,18 +95,11 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         this.set('originY', 'center');
 
         this.set('topElements', new Array());
-
         this.addArrow();
         this.addInOutPoints();
         this.addCollections();
-
-
         this.associateEvents();
-
         this.positionElements(false);
-
-
-
 
     },
     bringTopElementsToFront: function () {
@@ -111,8 +166,8 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
         if (!theMapper.outCollection.isEmpty() && theMapper.outCollection.iconName) {
             theMapper.outputPoint.fill = icons[theMapper.outCollection.iconName].fill;
-            theMapper.outputPoint.stroke = icons[theMapper.outCollection.iconName].stroke;                        
-            
+            theMapper.outputPoint.stroke = icons[theMapper.outCollection.iconName].stroke;
+
             if (!theMapper.outputPoint.opacity) {
                 theMapper.outputPoint.opacity = 1;
                 theMapper.outputPoint.permanentOpacity = 1;
@@ -170,6 +225,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
             hasBorders: false,
             hasControls: false,
             mapper: theMapper,
+            nonSerializable: true
         });
 
         theMapper.inCollection = inCollection;
@@ -195,6 +251,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
             hasBorders: false,
             hasControls: false,
             mapper: theMapper,
+            nonSerializable: true
         });
 
         theMapper.outCollection = outCollection;
@@ -514,7 +571,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
          });*/
 
         /*console.log("intendedNumberOfElements:");
-        console.log(intendedNumberOfElements);*/
+         console.log(intendedNumberOfElements);*/
 
         theMapper.inCollection.expand(false, theMapper.valueScale, intendedNumberOfElements, valueUnscaledHeight);
         theMapper.outCollection.expand(false, theMapper.valueScale, intendedNumberOfElements, valueUnscaledHeight);
@@ -706,7 +763,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
                 onChange: function () {
                     theInputPoint.relativeY = yCoordinate - theMapper.getPointByOrigin('center', 'top').y;
                     theOutputPoint.relativeY = yCoordinate - theMapper.getPointByOrigin('center', 'top').y;
-                    
+
                     theInCollection.matchingY = theInputPoint.top - theInCollection.getPointByOrigin('center', 'top').y;
                     theOutCollection.matchingY = theInCollection.matchingY;
 
@@ -723,7 +780,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
             theInputPoint.top = yCoordinate;
             theOutputPoint.top = yCoordinate;
-            
+
             theInputPoint.setCoords();
             theOutputPoint.setCoords();
 
@@ -733,7 +790,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
             var outputValue = theMapper.computeOutput();
             theMapper.outputPoint.setValue(outputValue, false);
-            
+
             theOutputPoint.relativeY = yCoordinate - theMapper.getPointByOrigin('center', 'top').y;
 
             theMapper.inputPoint.updateConnectorsPositions();
@@ -750,9 +807,9 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         var theMapper = this;
 
         /*console.log("********************************************************************************************************************");
-        console.log("********************************************************************************************************************");
-        console.log("%cEvaluating A NUMBER this single value:", "background: " + theMapper.fill);
-        console.log(value);*/
+         console.log("********************************************************************************************************************");
+         console.log("%cEvaluating A NUMBER this single value:", "background: " + theMapper.fill);
+         console.log(value);*/
 
         var inCollection = theMapper.getInCollection();
         var valuesArray = inCollection.getValues();
@@ -768,9 +825,9 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         var minimumValue = theMapper.getInCollection().getValueAt(closestElementPosition);
 
         /*console.log("%c closestValue: " + closestValue.number, "background: " + theMapper.fill);
-        console.log("%c closestElementPosition: " + closestElementPosition, "background: " + theMapper.fill);
-        console.log("%c minimumValue: ", "background: " + theMapper.fill);
-        console.log(minimumValue);*/
+         console.log("%c closestElementPosition: " + closestElementPosition, "background: " + theMapper.fill);
+         console.log("%c minimumValue: ", "background: " + theMapper.fill);
+         console.log(minimumValue);*/
 
 
         var beforeValue = null;
@@ -885,9 +942,9 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         var theMapper = this;
 
         /*console.log("********************************************************************************************************************");
-        console.log("********************************************************************************************************************");
-        console.log("%cEvaluating this single value:", "background: " + theMapper.fill);
-        console.log(value);*/
+         console.log("********************************************************************************************************************");
+         console.log("%cEvaluating this single value:", "background: " + theMapper.fill);
+         console.log(value);*/
 
         var inCollection = theMapper.getInCollection();
         var valuesArray = inCollection.getValues();
@@ -901,16 +958,16 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 //            });
 
         /*console.log("%c distances: " + distances, "background: " + theMapper.fill);
-        console.log(distances);*/
+         console.log(distances);*/
 
         var minimunDistance = Math.min.apply(Math, distances);
         var closestElementPosition = distances.indexOf(minimunDistance);
         var minimumValue = theMapper.getInCollection().getValueAt(closestElementPosition);
 
         /*console.log("%c minimunDistance: " + minimunDistance, "background: " + theMapper.fill);
-        console.log("%c closestElementPosition: " + closestElementPosition, "background: " + theMapper.fill);
-        console.log("%c minimumValue: ", "background: " + theMapper.fill);
-        console.log(minimumValue);*/
+         console.log("%c closestElementPosition: " + closestElementPosition, "background: " + theMapper.fill);
+         console.log("%c minimumValue: ", "background: " + theMapper.fill);
+         console.log(minimumValue);*/
 
 
         var beforeValue = null;
@@ -985,19 +1042,19 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         }
 
         /*console.log("%c beforeValue: ", "beforeValue: " + theMapper.fill);
-        console.log(beforeValue);
-
-        console.log("%c afterValue: ", "afterValue: " + theMapper.fill);
-        console.log(afterValue);
-
-        console.log("%c beforeDistance: " + beforeDistance, "background: " + theMapper.fill);
-        console.log("%c afterDistance: " + afterDistance, "background: " + theMapper.fill);
-
-        console.log("%c secondLowestPosition: " + secondLowestPosition, "background: " + theMapper.fill);
-        console.log("%c secondLowestDistance: " + secondLowestDistance, "background: " + theMapper.fill);
-
-        console.log("%c secondLowestValue: ", "background: " + theMapper.fill);
-        console.log(secondLowestValue);*/
+         console.log(beforeValue);
+         
+         console.log("%c afterValue: ", "afterValue: " + theMapper.fill);
+         console.log(afterValue);
+         
+         console.log("%c beforeDistance: " + beforeDistance, "background: " + theMapper.fill);
+         console.log("%c afterDistance: " + afterDistance, "background: " + theMapper.fill);
+         
+         console.log("%c secondLowestPosition: " + secondLowestPosition, "background: " + theMapper.fill);
+         console.log("%c secondLowestDistance: " + secondLowestDistance, "background: " + theMapper.fill);
+         
+         console.log("%c secondLowestValue: ", "background: " + theMapper.fill);
+         console.log(secondLowestValue);*/
 
 
 
@@ -1010,7 +1067,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
 //        var newDistance = d * (r / (R + r));
 
-        
+
         var newDistance = getProportionalDistance(firstVisualValue.value.color, secondVisualValue.value.color, value.color);
 
 //        console.log("newDistance:" + newDistance);
@@ -1054,7 +1111,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
 
         /*drawRectAt(firstVisualValue.getCenterPoint(), 'green');
-        drawRectAt(secondVisualValue.getCenterPoint(), 'red');*/
+         drawRectAt(secondVisualValue.getCenterPoint(), 'red');*/
 
 
 
@@ -1069,8 +1126,8 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         var theMapper = this;
 
         /*console.log("%cThe mapper is trying to evaluate the following value:", "background: " + theMapper.fill);
-        console.log("%cThe evaluation will happen with this value for shouldAnimate:" + shouldAnimate, "background: " + theMapper.fill);
-        console.log(value);*/
+         console.log("%cThe evaluation will happen with this value for shouldAnimate:" + shouldAnimate, "background: " + theMapper.fill);
+         console.log(value);*/
 
         if ($.isArray(value)) {
 
@@ -1092,7 +1149,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
             theMapper.outputPoint.setValue(outputValues, shouldAnimate);
 
             /*console.log("RESULTS OF THE EVALUATION PROCESS:", "background: red; color: white;");
-            console.log(outputValues);*/
+             console.log(outputValues);*/
 
         } else {
 
@@ -1215,11 +1272,11 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
 
             } else {
-                
+
                 console.log("The evaluated value is NOT within the given range. A default value is returned.");
-                
+
                 return createDefaultValueByTypeProposition(theMapper.outCollection.dataTypeProposition);
-                
+
             }
 
 

@@ -147,8 +147,18 @@ var Locator = fabric.util.createClass(fabric.Circle, {
          }*/
 
     },
-    reportMarkAvailable: function (mark) {
+    
+    executePendingConnections: function () {        
         var theLocator = this;
+        executePendingConnections(theLocator.xmlID);
+    },
+    
+    reportMarkAvailable: function (mark) {
+        
+        var theLocator = this;
+        
+        console.log("%c" + "New MARK AVAILABLE (xmlID: " + mark.xmlID + ") for locator with xmlID " + theLocator.xmlID, "background: rgb(235,86,41); color: white;");
+                                
         theLocator.addChild(mark, null, false, false, false);
         theLocator.reportedMarks++;
         
@@ -166,7 +176,7 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         repositionWidget(theLocator, mark.xVisualProperty);
         repositionWidget(theLocator, mark.yVisualProperty);
         
-        
+        this.executePendingConnections();
 
     },
     addChildren: function (marks) {

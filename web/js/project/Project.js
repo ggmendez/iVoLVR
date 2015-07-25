@@ -279,6 +279,10 @@ function processCanvasXMLNode(canvasNode) {
 
             createNumberGeneratorFromXMLNode(child);
 
+        } else if (tagName === "verticalCollection") {
+
+            createVerticalCollectionFromXMLNode(child);
+
         } else if (tagName === "locator") {
 
             locators.push(child);
@@ -286,6 +290,8 @@ function processCanvasXMLNode(canvasNode) {
         } else if (tagName === "connector") {
 
             connectors.push(child);
+            
+            pendingConnections.push(child);
 
         }
 
@@ -301,19 +307,20 @@ function processCanvasXMLNode(canvasNode) {
     });
 
     // the same happens for connectors (for instance, connections to position visual properties of marks)
-    connectors.forEach(function (connectorNode) {
-        createConnectorFromXMLNode(connectorNode);
-    });
-    
+//    connectors.forEach(function (connectorNode) {
+//        createConnectorFromXMLNode(connectorNode);
+//    });
+
     var totalPendingConnections = pendingConnections.length;
     console.log("%c" + "There are " + totalPendingConnections + " PENDING connections!", "background: #0afff9; color: black;");
 
 }
 
 function executePendingConnections(objectXmlID) {
-    
-    console.log("%c" + "Execute Pending Connections for element with ID: " + objectXmlID, "background: #e2ff28; color: black;");
-    
+
+    console.log("%c" + "Executing pending connections for element with ID: " + objectXmlID, "background: rgb(81,195,183); color: white;");
+    var cont = 0;
+
     for (var i = pendingConnections.length - 1; i >= 0; i--) { // We iterate in reverse, as the removal of elements from the array will change its size
         var connectorNode = pendingConnections[i];
 
@@ -323,10 +330,13 @@ function executePendingConnections(objectXmlID) {
         if (objectXmlID === fromID || objectXmlID === toID) {
             if (createConnectorFromXMLNode(connectorNode)) { // We check if the connection was succesful. Only in that case the connection is removed from the array
                 fabric.util.removeFromArray(pendingConnections, connectorNode);
+                cont ++;
             }
         }
     }
     
+    console.log("%c" + cont + " connections executed sucessfully for element with ID: " + objectXmlID, "background: rgb(81,195,183); color: white;");
+
     var totalPendingConnections = pendingConnections.length;
     console.log("%c" + "There are STILL " + totalPendingConnections + " connections!", "background: #0afff9; color: black;");
 }
@@ -428,6 +438,16 @@ function getFabricElementByXmlID(xmlID) {
 
                 }
 
+
+            } else if (object.isVerticalCollection && object.isCompressed) {
+
+                var visualValues = object.visualValues;
+                for (var j = 0; j < visualValues.length; j++) {
+                    var visualValue = visualValues[j];
+                    if (visualValue && visualValue.xmlID === xmlID) {
+                        return visualValue;
+                    }
+                }
 
             }
         }

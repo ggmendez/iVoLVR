@@ -122,53 +122,56 @@ var MapperOutput = fabric.util.createClass(fabric.Path, {
                     }
 
                 } else {
+                    
+                    var lastAddedConnector = getLastElementOfArray(theMapperOutput.outConnectors);
+                    newConnectionReleasedOnCanvas(lastAddedConnector, coordX, coordY);
 
-                    if ($.isArray(theMapperOutput.value)) {
-
-                        // TODO: Implement a collection here with the correspongin values
-
-                        var createdCollection = addVerticalCollection(coordX, coordY, theMapperOutput.value);
-
-
-                        console.log("BEFORE: createdCollection.inConnectors:");
-                        console.log(createdCollection.inConnectors);
-
-                        connector.setDestination(createdCollection, true);
-                        
-                        console.log("AFTER: createdCollection.inConnectors:");
-                        console.log(createdCollection.inConnectors);
-
-
-
-                    } else {
-
-                        // The mouse up event is done over a blank section of the canvas
-                        var lastAddedConnector = getLastElementOfArray(theMapperOutput.outConnectors);
-
-                        var visualValue = CreateDataTypeFromValue(theMapperOutput.value);
-                        visualValue.top = coordY;
-                        visualValue.left = coordX;
-
-                        lastAddedConnector.setDestination(visualValue, true);
-
-                        canvas.add(visualValue);
-                        visualValue.animateBirth(false, null, null, false);
-
-                        setTimeout(function () {
-
-                            var theSource = connector.source;
-                            var theDestination = connector.destination;
-
-                            if (theSource) {
-                                theSource.bringToFront();
-                            }
-                            if (theDestination) {
-                                theDestination.bringToFront();
-                            }
-                        }, 50);
-
-
-                    }
+//                    if ($.isArray(theMapperOutput.value)) {
+//
+//                        // TODO: Implement a collection here with the correspongin values
+//
+//                        var createdCollection = addVerticalCollection(coordX, coordY, theMapperOutput.value);
+//
+//
+//                        console.log("BEFORE: createdCollection.inConnectors:");
+//                        console.log(createdCollection.inConnectors);
+//
+//                        connector.setDestination(createdCollection, true);
+//                        
+//                        console.log("AFTER: createdCollection.inConnectors:");
+//                        console.log(createdCollection.inConnectors);
+//
+//
+//
+//                    } else {
+//
+//                        // The mouse up event is done over a blank section of the canvas
+//                        var lastAddedConnector = getLastElementOfArray(theMapperOutput.outConnectors);
+//
+//                        var visualValue = CreateDataTypeFromValue(theMapperOutput.value);
+//                        visualValue.top = coordY;
+//                        visualValue.left = coordX;
+//
+//                        lastAddedConnector.setDestination(visualValue, true);
+//
+//                        canvas.add(visualValue);
+//                        visualValue.animateBirth(false, null, null, false);
+//
+//                        setTimeout(function () {
+//
+//                            var theSource = connector.source;
+//                            var theDestination = connector.destination;
+//
+//                            if (theSource) {
+//                                theSource.bringToFront();
+//                            }
+//                            if (theDestination) {
+//                                theDestination.bringToFront();
+//                            }
+//                        }, 50);
+//
+//
+//                    }
 
 
                 }

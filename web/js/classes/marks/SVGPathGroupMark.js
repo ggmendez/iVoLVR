@@ -431,19 +431,10 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
                     var locator = getFabricElementByXmlID(options.locatorXmlID);
                     locator.reportMarkAvailable(svgPathGroupMark);
                 }
+                if (options.xmlID) {
+                    svgPathGroupMark.executePendingConnections();
+                }
             }, waitingTime);
-            
-            // Checking all the pending connections that might have not been executed before due to the asynchronous nature of SVGPathGroup marks
-            executePendingConnections(svgPathGroupMark.xmlID);
-            
-            // The same is made for the visual properties of the mark, as they can also be connected
-            svgPathGroupMark.visualProperties.forEach(function (visualProperty) {
-                executePendingConnections(visualProperty.xmlID);
-            });
-            
-            // And for the position visual properties
-            executePendingConnections(svgPathGroupMark.xVisualProperty.xmlID);
-            executePendingConnections(svgPathGroupMark.yVisualProperty.xmlID);
 
             return svgPathGroupMark;
 
@@ -466,8 +457,8 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
         canvas.setActiveObject(svgPathGroupMark);
 
         var waitingTime = 0;
-            if (options.animateAtBirth) {
-                waitingTime = 1250;
+        if (options.animateAtBirth) {
+            waitingTime = 1250;
             svgPathGroupMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
         }
 
@@ -478,11 +469,14 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
         }
 
         setTimeout(function () {
-                if (options.locatorXmlID) {
-                    var locator = getFabricElementByXmlID(options.locatorXmlID);
-                    locator.reportMarkAvailable(svgPathGroupMark);
-                }
-            }, waitingTime);
+            if (options.locatorXmlID) {
+                var locator = getFabricElementByXmlID(options.locatorXmlID);
+                locator.reportMarkAvailable(svgPathGroupMark);
+            }
+            if (options.xmlID) {
+                svgPathGroupMark.executePendingConnections();
+            }
+        }, waitingTime);
 
         return svgPathGroupMark;
 

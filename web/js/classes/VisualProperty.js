@@ -479,124 +479,15 @@ var VisualProperty = function () {
 
                 } else {
 
-
-
-
-                    // The mouse up event is done over a blank section of the canvas
-                    /*var lastAddedConnector = getLastElementOfArray(theVisualProperty.outConnectors);
-                     
-                     var theValue = theVisualProperty.value;
-                     var destination = null;
-                     
-                     // First, we have to check if this is a collection
-                     if ($.isArray(theValue)) {
-                     
-                     destination = addVerticalCollection(coordX, coordY, theValue);
-                     
-                     } else {
-                     destination = CreateDataTypeFromValue(theValue);
-                     destination.top = coordY;
-                     destination.left = coordX;
-                     canvas.add(destination);
-                     }
-                     
-                     lastAddedConnector.setDestination(destination, true);
-                     
-                     if (destination.animateBirth) {
-                     destination.animateBirth(false, null, null, false);
-                     }
-                     
-                     return;*/
-
-
                     ////////////////////////////////////////////
                     // Click on a blank section of the canvas //
                     ////////////////////////////////////////////
 
-
-
-                    if (LOG)
-                        console.log("this.outConnectors:");
-                    if (LOG)
-                        console.log(this.outConnectors);
-
-                    if (LOG)
-                        console.log("this.inConnectors:");
-                    if (LOG)
-                        console.log(this.inConnectors);
-
                     // The mouse up event is done over a blank section of the canvas
                     var lastAddedConnector = getLastElementOfArray(theVisualProperty.outConnectors);
-
-                    var destination = null;
-                    var theValue = theVisualProperty.value;
-
-                    if (theValue) {
-
-                        if (LOG)
-                            console.log("A value already exists for this visual property");
-
-
-                        // First, we have to check if this is a collection
-                        if ($.isArray(theValue)) {
-
-                            destination = addVerticalCollection(coordX, coordY, theValue);
-
-                        } else {
-                            destination = CreateDataTypeFromValue(theValue);
-                            destination.top = coordY;
-                            destination.left = coordX;
-                            canvas.add(destination);
-                        }
-
-
-
-                    } else {
-
-                        if (LOG)
-                            console.log("Going to create a value");
-
-                        destination = this.createVisualDataType();
-
-                        destination.top = coordY;
-                        destination.left = coordX;
-                        canvas.add(destination);
-                    }
-
-                    if (LOG)
-                        console.log("This is the destination: ");
-                    if (LOG)
-                        console.log(destination);
-
-                    lastAddedConnector.setDestination(destination, true);
-
-                    if (destination.animateBirth) {
-                        destination.animateBirth(false, null, null, false);
-                    }
-
-
-//                    setTimeout(function () {
-//
-//                        if (theSource) {
-//                            theSource.bringToFront();
-//                        }
-//                        if (theDestination) {
-//                            theDestination.bringToFront();
-//                        }
-//                    }, 50);
-
-
-
+                    newConnectionReleasedOnCanvas(lastAddedConnector, coordX, coordY);
 
                 }
-
-
-//                    var connector = this.outConnectors.pop();
-//                        connector.remove();
-
-
-
-
 
             },
             'mousedown': function (option) {

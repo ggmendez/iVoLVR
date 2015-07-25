@@ -1,14 +1,69 @@
 var VerticalCollection = fabric.util.createClass(fabric.Rect, {
     isCollection: true,
     isVerticalCollection: true,
+    toXML: function () {
+
+        var theCollection = this;
+        var collectionNode = createXMLElement("verticalCollection");
+
+        addAttributeWithValue(collectionNode, "xmlID", theCollection.xmlID);
+        
+        var centerPoint = theCollection.typeIcon ? theCollection.typeIcon.getCenterPoint() : theCollection.getCenterPoint();
+        appendElementWithValue(collectionNode, "left", centerPoint.x);        
+        appendElementWithValue(collectionNode, "top", centerPoint.y);
+        appendElementWithValue(collectionNode, "isExpanded", !theCollection.isCompressed);
+
+        var valuesNode = createXMLElement("values");
+        addAttributeWithValue(valuesNode, "type", "array");
+        theCollection.visualValues.forEach(function (visualValue) {
+            var valueNode = visualValue.value.toXML();
+            addAttributeWithValue(valueNode, "relativeY", visualValue.relativeY);
+            addAttributeWithValue(valueNode, "xmlID", visualValue.xmlID);
+            valuesNode.append(valueNode);
+        });
+        collectionNode.append(valuesNode);
+
+        return collectionNode;
+    },
+    
+    executePendingConnections: function () {
+
+        var theCollection = this;
+
+        // Checking all the pending connections that might have not been executed before due to the loading order
+        executePendingConnections(theCollection.xmlID);
+
+        // The same is made for the visual properties of the mark, as they can also be connected
+        theCollection.visualValues.forEach(function (visualValue) {
+            executePendingConnections(visualValue.xmlID);
+        });
+
+    },
     initialize: function (options) {
+
         options || (options = {});
+        options.originX = 'center';
+        options.originY = 'center';
+        options.perPixelTargetFind = true;
+        options.lockScalingX = true;
+        options.lockScalingY = true;
+        options.lockRotation = true;
+        options.opacity = 1;
+        options.permanentOpacity = 1;
+        options.movingOpacity = 1;
+        options.hasRotatingPoint = false;
+        options.hasBorders = false;
+        options.hasControls = false;
+        options.rx = 20;
+        options.ry = options.rx;
+
         this.callSuper('initialize', options);
+
         this.inConnectors = new Array();
         this.outConnectors = new Array();
-        this.rx = 20;
-        this.lockRotation = true;
-        this.ry = this.rx;
+        this.values = new Array();
+        this.visualValues = new Array();
+
         this.width = 60;
         this.isCompressed = true;
         this.compressedHeight = 70;
@@ -17,8 +72,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
         this.valueScale = 0.75;
         this.iconName = null;
         this.typeIcon = null;
-        this.values = new Array();
-        this.visualValues = new Array();
+
         this.associateEvents();
     },
     removeTypeIcon: function () {
@@ -49,7 +103,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
     applyUnselectedStyle: function () {
         this.selected = false;
     },
-    addTypeIcon: function (iconName, blinkingFactor) {
+    addTypeIcon: function (iconName, blinkingFactor, doNotBlinkCollection) {
 
 
         var theCollection = this;
@@ -168,7 +222,10 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
         } else {
 
-            blink(theCollection, theCollection.isCompressed, 0.30);
+            if (!doNotBlinkCollection) {
+                blink(theCollection, theCollection.isCompressed, 0.30);
+            }
+            
 
             if (!theCollection.isCompressed) {
 
@@ -182,8 +239,8 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
         return (!this.values || !this.values.length);
     },
     getMinValue: function () {
-        
-        
+
+
 
         console.log("%c" + "++++++++ getMinValue FUNCTION", "background: black; color: green;");
 
@@ -198,22 +255,22 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 //        
 //        var minNumber = Math.min.apply(Math, mappedArray);
 //        var indexOfMin = ;
-        
+
 //        console.log("MMMMMMMIIIIIIIINNNNNNNN " + minNumber);
 
         var indexOfMinValue = array.reduce(function (indexOfMin, currentValue, index, theArray) {
 
             /*console.log("currentValue:");
-            console.log(currentValue);
-
-            console.log("index:");
-            console.log(index);
-
-            console.log("indexOfMin:");
-            console.log(indexOfMin);
-
-            console.log("theArray: ");
-            console.log(theArray);*/
+             console.log(currentValue);
+             
+             console.log("index:");
+             console.log(index);
+             
+             console.log("indexOfMin:");
+             console.log(indexOfMin);
+             
+             console.log("theArray: ");
+             console.log(theArray);*/
 
             return currentValue.value.number < theArray[indexOfMin].value.number ? index : indexOfMin;
         }, 0);
@@ -231,9 +288,9 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
     },
     getMaxValue: function () {
-        
+
         console.log("%c" + "++++++++ getMaxValue FUNCTION", "background: black; color: red;");
-        
+
         var theCollection = this;
         var array = theCollection.visualValues;
 //
@@ -242,11 +299,11 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 //        };
 //        var maxNumber = Math.max.apply(Math, array.map(f));
 //        console.log("MMMMMMMAAAAAAAAXXXXXXX " + maxNumber);
-        
-        
-        
 
-        
+
+
+
+
         var indexOfMaxValue = array.reduce(function (indexOfMax, currentValue, index, theArray) {
             return currentValue.value.number > theArray[indexOfMax].value.number ? index : indexOfMax;
         }, 0);
@@ -625,7 +682,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
                 bringConnectorsToFront(visualValue);
 
                 var y = firstY + j * space;
-                if (visualValue.relativeY) {
+                if ((typeof visualValue.relativeY !== 'undefined') && (visualValue.relativeY !== null)) {
                     var newTop = theCollection.top + newHeight / 2 - theCollection.height / 2;
                     theClone.height = newHeight;
                     theClone.top = newTop;
@@ -978,7 +1035,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
 
     },
-    setValues: function (valuesArray) {
+    setValues: function (valuesArray, doNotBlinkCollection) {
 
         var theCollection = this;
 
@@ -1005,6 +1062,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
             var value = valuesArray[j];
 
             var visualValue = CreateDataTypeFromValue(value);
+            visualValue.nonSerializable = true;
             visualValue.lockMovementX = true;
             visualValue.lockMovementY = true;
             visualValue.lockScalingX = true;
@@ -1018,7 +1076,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
         }
 
-        theCollection.addTypeIcon(valuesType);
+        theCollection.addTypeIcon(valuesType, null, doNotBlinkCollection);
 
         return true;
 
@@ -1471,6 +1529,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
         visualValue.lockScalingY = true;
         visualValue.lockRotation = true;
         visualValue.collection = theCollection;
+        visualValue.nonSerializable = true;
 
         if (theCollection.iconName) {
 
@@ -1690,35 +1749,78 @@ function addEmptyVerticalCollection(x, y) {
 
 }
 
-function addVerticalCollection(x, y, values) {
+function addVerticalCollection(options) {
 
-    var aCollection = new VerticalCollection({
-        left: x,
-        top: y,
-        originX: 'center',
-        originY: 'center',
-        stroke: 'black',
-        fill: rgb(226, 227, 227),
-        perPixelTargetFind: true,
-        lockScalingX: true,
-        lockScalingY: true,
-        opacity: 1,
-        permanentOpacity: 1,
-        movingOpacity: 1,
-        hasRotatingPoint: false,
-        hasBorders: false,
-        hasControls: false,
-    });
+    console.log("%cAdding NEW VERTICAL COLLECTION", "background: rgb(244,131,32); color: white;");
 
-    canvas.add(aCollection);
+    options.fill = rgb(226, 227, 227);
+    options.stroke = 'black';
 
-    if (values) {
-        aCollection.setValues(values);
+    var theCollection = new VerticalCollection(options);
+
+    canvas.add(theCollection);
+    
+    var values = options.values;
+
+    if (values && values.length > 0) {
+        
+        theCollection.setValues(values, options.doNotBlinkCollection);
+
+        if (options.relativeYs || options.xmlIDs) {
+            var i = 0;
+            theCollection.visualValues.forEach(function (visualValue) {
+                var xmlID = options.xmlIDs ? options.xmlIDs[i] : null;
+                var relativeY = options.relativeYs ? options.relativeYs[i] : null;
+                visualValue.xmlID = xmlID;
+                visualValue.relativeY = relativeY;
+                visualValue.left = theCollection.getCenterPoint().x;
+                visualValue.top = theCollection.getCenterPoint().y;
+                i++;
+            });
+        }
     }
 
-    return aCollection;
+    if (options.shouldExpand) {
+        theCollection.expand(true);
+    }
+
+    if (options.xmlID) {
+        theCollection.executePendingConnections();
+    }
+
+    return theCollection;
 
 }
+
+//function addVerticalCollection(x, y, values) {
+//
+//    var aCollection = new VerticalCollection({
+//        left: x,
+//        top: y,
+//        originX: 'center',
+//        originY: 'center',
+//        stroke: 'black',
+//        fill: rgb(226, 227, 227),
+//        perPixelTargetFind: true,
+//        lockScalingX: true,
+//        lockScalingY: true,
+//        opacity: 1,
+//        permanentOpacity: 1,
+//        movingOpacity: 1,
+//        hasRotatingPoint: false,
+//        hasBorders: false,
+//        hasControls: false,
+//    });
+//
+//    canvas.add(aCollection);
+//
+//    if (values) {
+//        aCollection.setValues(values);
+//    }
+//
+//    return aCollection;
+//
+//}
 
 function addVerticalCollectionWithVisualValues(x, y, visualValues) {
 
@@ -1728,7 +1830,87 @@ function addVerticalCollectionWithVisualValues(x, y, visualValues) {
             values.push(visualValue.value);
         });
 
-        return addVerticalCollection(x, y, values);
+        var options = {
+            top: y,
+            left: x,
+            values: values
+        };
+
+        return addVerticalCollection(options);
     }
+
+}
+
+
+function createVerticalCollectionFromXMLNode(collectionXmlNode) {
+
+//    console.clear();
+
+    var options = {
+        markAsSelected: false,
+        animateAtBirth: false,
+        xmlID: Number(collectionXmlNode.attr('xmlID'))        
+    };
+
+    var children = collectionXmlNode.children();
+    children.each(function () {
+        var child = $(this);
+        var tagName = this.tagName;
+
+        var value = child.text();
+        var type = child.attr('type');
+
+        console.log("%ctagName: " + tagName, "background: rgb(143,98,153); color: white;");
+
+        if (type === "array") {
+
+            var valuesArray = new Array();
+            var relativeYs = new Array();
+            var xmlIDs = new Array();
+
+            var elements = child.children('value');
+            elements.each(function () {
+                var valueNode = $(this);
+
+                var value = createValueFromXMLNode(valueNode);
+                valuesArray.push(value);
+
+                var relativeY = Number(valueNode.attr('relativeY'));
+                relativeYs.push(relativeY);
+
+                var xmlID = Number(valueNode.attr('xmlID'));
+                xmlIDs.push(xmlID);
+            });
+
+            options['values'] = valuesArray;
+            options['relativeYs'] = relativeYs;
+            options['xmlIDs'] = xmlIDs;
+
+        } else {
+
+            if (type === "number") {
+                value = Number(value);
+            } else if (type === "boolean") {
+                value = value === "true";
+            }
+
+            options[tagName] = value;
+
+        }
+
+    });
+
+    console.log("%coptions to create the saved VERTICAL COLLECTION", "background: rgb(255,192,36); color: white;");
+    console.log(options);
+
+    options.shouldExpand = options.isExpanded;
+    options.doNotBlinkCollection = options.isExpanded;
+    
+    var theCollection = addVerticalCollection(options);
+
+    console.log("%the added VERTICAL COLLECTION", "background: rgb(56,27,65); color: white;");
+    console.log(theCollection);        
+    
+    return theCollection;
 
 }

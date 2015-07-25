@@ -705,8 +705,9 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
 
                             // The mouse up event is done over a blank section of the canvas
                             var lastAddedConnector = getLastElementOfArray(theGenerator.outConnectors);
-                            var destination = addVerticalCollection(coordX, coordY, theGenerator.values);
-                            lastAddedConnector.setDestination(destination, true);
+                            newConnectionReleasedOnCanvas(lastAddedConnector, coordX, coordY);
+                            
+                            
 
                         }
 

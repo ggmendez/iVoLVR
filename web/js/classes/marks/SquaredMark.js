@@ -408,6 +408,9 @@ function addSquaredMarkToCanvas(options) {
             var locator = getFabricElementByXmlID(options.locatorXmlID);
             locator.reportMarkAvailable(squaredMark);
         }
+        if (options.xmlID) {
+            squaredMark.executePendingConnections();
+        }
     }, waitingTime);
 
     return squaredMark;

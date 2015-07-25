@@ -60,13 +60,35 @@ var Mark = function () {
         this.getVisualPropertyByAttributeName('label').value = labelValue;
     };
 
+    this.executePendingConnections = function () {
+
+        var theMark = this;
+
+        // Checking all the pending connections that might have not been executed before due to the loading order
+        console.log("%c" + "For the MARK", "background: rgb(81,195,183); color: white;");
+        executePendingConnections(theMark.xmlID);
+
+        // The same is made for the visual properties of the mark, as they can also be connected
+        theMark.visualProperties.forEach(function (visualProperty) {
+            console.log("%c" + "For one VISUAL PROPERTY", "background: rgb(81,195,183); color: white;");
+            executePendingConnections(visualProperty.xmlID);
+        });
+        
+        console.log("%c" + "For the two POSITION VISUAL PROPERTIES", "background: rgb(81,195,183); color: white;");
+
+        // And for the position visual properties of the mark
+        executePendingConnections(theMark.xVisualProperty.xmlID);
+        executePendingConnections(theMark.yVisualProperty.xmlID);
+
+    };
+
     this.setxmlIDs = function (xmlIDs) {
 
         var theMark = this;
         if (xmlIDs) {
-            
+
             for (var attribute in xmlIDs) {
-                
+
                 var xmlID = xmlIDs[attribute];
                 var visualProperty = theMark.getVisualPropertyByAttributeName(attribute);
                 if (visualProperty !== null) {
@@ -1576,9 +1598,9 @@ var Mark = function () {
 
 /* Function to add outputs to Canvas*/
 function addMarkToCanvas(markType, options) {
-    if (LOG) {
-        console.log("%cThe birth of this mark will be animated...", "background: red; color: white;");
-    }
+//    if (LOG) {
+//        console.log("%cThe birth of this mark will be animated...", "background: red; color: white;");
+//    }
     if (markType === CIRCULAR_MARK) {
         return addCircularMarkToCanvas(options);
     } else if (markType === SQUARED_MARK) {
@@ -1838,10 +1860,10 @@ function createMark(options) {
     options.markAsSelected = false;
     options.animateAtBirth = !isExpanded;
 
-    if (LOG) {
-        console.log("options:");
-        console.log(options);
-    }
+//    if (LOG) {
+//        console.log("options:");
+//        console.log(options);
+//    }
 
     options.shouldExpand = options.isExpanded;
     var theMark = addMarkToCanvas(markType, options);

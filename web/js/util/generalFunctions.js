@@ -2196,8 +2196,8 @@ function computeUntransformedProperties(widget) {
 
 
 
-    if (LOG)
-        console.log("%ccomputeUntransformedProperties", "background: #ff1ed3; color: black;");
+//    if (LOG)
+//        console.log("%ccomputeUntransformedProperties", "background: #ff1ed3; color: black;");
 
     var parentObject = widget.parentObject;
     var angleInDegrees = 360 - parentObject.getAngle();
@@ -2289,10 +2289,10 @@ function computeUntransformedProperties(widget) {
 
     } else if (widget.isMark && widget.parentObject.isLocator) {
 
-        if (LOG)
-            console.log("%cEEEEEEEEEEEEEEEEEEEEEEEE", "background: pink; color: blue;");
+//        if (LOG)
+//            console.log("%cEEEEEEEEEEEEEEEEEEEEEEEE", "background: pink; color: blue;");
 
-        if (LOG) {
+//        if (LOG) {
 //            console.log("rotatedWidgetCenter.x");
 //            console.log(rotatedWidgetCenter.x);
 //
@@ -2304,7 +2304,7 @@ function computeUntransformedProperties(widget) {
 //
 //            console.log("parentObject.getScaleX():");
 //            console.log(parentObject.getScaleX());
-        }
+//        }
 
 
         widget.untransformedX = (rotatedWidgetCenter.x - parentTopLeft.x - widget.getWidth() / 2 - 1.5) / parentObject.getScaleX();
@@ -4614,8 +4614,7 @@ function rectSelectionButtonClicked() {
 // If something weird happends, the function returns null
 function newConnectionReleasedOnCanvas(connection, coordX, coordY) {
 
-
-    console.log(connection);
+    console.log("%cNEW connection released on canvas", "background: rgb(56,27,65); color: white;");
 
     var theValue = connection.value;
     var destination = null;
@@ -4623,7 +4622,13 @@ function newConnectionReleasedOnCanvas(connection, coordX, coordY) {
     // First, we have to check if this is a collection
     if ($.isArray(theValue)) {
 
-        destination = addVerticalCollection(coordX, coordY, theValue);
+        var options = {
+            top: coordY,
+            left: coordX,
+            values: theValue,
+        }
+
+        destination = addVerticalCollection(options);
 
     } else {
         destination = CreateDataTypeFromValue(theValue);
@@ -4674,6 +4679,15 @@ function createXMLElement(elementName) {
     return node;
 }
 
+function createArrayNode(values, name) {    
+    var arrayNode = createXMLElement(name || "value");
+    addAttributeWithValue(arrayNode, "type", "array");
+    values.forEach(function (value) {
+        var valueNode = value.toXML();
+        arrayNode.append(valueNode);
+    });
+    return arrayNode;
+}
 
 function addAttributeWithValue(node, attributeName, value) {
     if (value === null || typeof value === 'undefined' || (typeof value === 'string' && isBlank(value))) {
@@ -5193,7 +5207,14 @@ function createVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
                     }
 
                     var values = createValuesFromArray(texts);
-                    addVerticalCollection(x, y, values);
+
+                    var options = {
+                        top: y,
+                        left: x,
+                        values: values
+                    };
+
+                    addVerticalCollection(options);
 
                 }
             }

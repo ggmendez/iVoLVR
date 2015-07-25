@@ -673,6 +673,9 @@ function addPathMarkToCanvas(path, options) {
             var locator = getFabricElementByXmlID(options.locatorXmlID);
             locator.reportMarkAvailable(svgPathMark);
         }
+        if (options.xmlID) {
+            svgPathMark.executePendingConnections();
+        }
     }, waitingTime);
 
     return svgPathMark;

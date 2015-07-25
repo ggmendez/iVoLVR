@@ -297,6 +297,9 @@ function addCircularMarkToCanvas(options) {
             var locator = getFabricElementByXmlID(options.locatorXmlID);
             locator.reportMarkAvailable(circularMark);
         }
+        if (options.xmlID) {
+            circularMark.executePendingConnections();
+        }
     }, waitingTime);
 
     return circularMark;

@@ -9,10 +9,10 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
         options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
-        
+
         options.rx = options.rx || options.values.rx.number;
         options.ry = options.ry || options.values.ry.number;
-        
+
         if (typeof options.rx !== 'undefined' && typeof options.ry !== 'undefined') {
             var area = Math.PI * Math.abs(options.rx) * Math.abs(options.ry);
             this.set('area', area);
@@ -65,7 +65,7 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
         this.createPositionProperties(options.values);
 
         this.setCoreVisualPropertiesValues(options.values);
-        
+
         this.setxmlIDs(options.xmlIDs);
 
     },
@@ -352,17 +352,20 @@ function addEllipticMarkToCanvas(options) {
         }
     }
     ellipticMark.associateEvents(ellipticMark);
-    
+
     if (options.shouldExpand) {
         ellipticMark.expand(true);
     }
-    
+
     setTimeout(function () {
         if (options.locatorXmlID) {
             var locator = getFabricElementByXmlID(options.locatorXmlID);
             locator.reportMarkAvailable(ellipticMark);
         }
+        if (options.xmlID) {
+            ellipticMark.executePendingConnections();
+        }
     }, waitingTime);
-    
+
     return ellipticMark;
 }

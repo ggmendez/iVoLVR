@@ -4,11 +4,11 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
     initialize: function (path, options) {
 
         options || (options = {});
-        
+
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
         options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : -0));
-        
+
         if (!options.values) {
             options.values = {};
         }
@@ -29,7 +29,7 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         this.set('shape', {shape: FILLEDPATH_MARK, path: this});
 
         this.createRectBackground();
-        
+
         if (options.targetWidth) {
             var theWidth = options.targetWidth / this.width;
             this.set('finalScaleX', theWidth);
@@ -47,7 +47,7 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         }
 
         var widthValue = null;
-        var heightValue = null;        
+        var heightValue = null;
         var angleValue = null;
 
         if (options.values) {
@@ -59,7 +59,7 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
             heightValue = createNumericValue(this.the_height || this.height, null, null, 'pixels');
             angleValue = createNumericValue(-this.angle, null, null, 'degrees');
         }
-        
+
         this.specificProperties.push({attribute: "width", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: widthValue});
         this.specificProperties.push({attribute: "height", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: heightValue});
         this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: angleValue});
@@ -70,11 +70,11 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         this.setCoords();
 
         this.associateLabelEvents();
-        
+
         this.setCoreVisualPropertiesValues(options.values);
 
         this.setxmlIDs(options.xmlIDs);
-        
+
 
 
         this.changeColors = function (fill, stroke) {
@@ -131,7 +131,6 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
             }
         }
     },
-    
     setProperty: function (property, propertyValue, theVisualProperty, shouldAnimate) {
         var theMark = this;
         if (property == 'shape') {
@@ -154,19 +153,21 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         } else if (property == 'fill') {
 
             this.setColorProperty(propertyValue);
-            
+
         } else if (property == 'fill') {
-            
+
             this.setWidthProperty(propertyValue);
 
         } else {
-            
+
             var theNumber = propertyValue.number;
 
             if (property == 'angle') {
-                if (LOG) console.log("Original value: " + theNumber);
+                if (LOG)
+                    console.log("Original value: " + theNumber);
                 theNumber = theNumber % 360;
-                if (LOG) console.log("Modified value: " + theNumber);
+                if (LOG)
+                    console.log("Modified value: " + theNumber);
             }
 
             var easing = fabric.util.ease['easeOutBack'];
@@ -256,9 +257,9 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         };
 
         if (newShapeType === SQUARED_MARK) {
-            
+
             options.area = (theMark.the_height || theMark.height) * (theMark.the_width || theMark.width);
-            
+
         } else if (newShapeType === RECTANGULAR_MARK) {
 
             // "the_" used for SVG paths and files, where the width and height properties do not take into account the scaling
@@ -315,32 +316,37 @@ SVGPathMark.async = true;
 Mark.call(SVGPathMark.prototype);
 
 function addSVGPathMarkToCanvas(path, options) {
-    
+
     path = path || ((options.values && options.values.shape) ? options.values.shape.path : '');
-    
+
     var svgPathMark = new SVGPathMark(path, options);
 
-    if (LOG) console.log("svgPathMark:");
-    if (LOG) console.log(svgPathMark);
+    if (LOG)
+        console.log("svgPathMark:");
+    if (LOG)
+        console.log(svgPathMark);
 
     canvas.add(svgPathMark);
 
     var waitingTime = 0;
-            if (options.animateAtBirth) {
-                waitingTime = 1250;
+    if (options.animateAtBirth) {
+        waitingTime = 1250;
         svgPathMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
     }
 
     svgPathMark.associateEvents(svgPathMark);
-    
+
     if (options.shouldExpand) {
         svgPathMark.expand(true);
     }
-    
+
     setTimeout(function () {
         if (options.locatorXmlID) {
             var locator = getFabricElementByXmlID(options.locatorXmlID);
             locator.reportMarkAvailable(svgPathMark);
+        }
+        if (options.xmlID) {
+            svgPathMark.executePendingConnections();
         }
     }, waitingTime);
 

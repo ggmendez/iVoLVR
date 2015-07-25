@@ -736,6 +736,11 @@ function createConnectorFromXMLNode(connectorNode) {
             strokeWidth: strokeWidth,
             opacity: opacity
         });
+        
+        console.log("%c source.left: " + source.left, "background: rgb(255,192,36); color: white;");
+        console.log("%c source.top: " + source.top, "background: rgb(255,192,36); color: white;");
+        console.log("%c destination.left: " + destination.left, "background: rgb(255,192,36); color: white;");
+        console.log("%c destination.top: " + destination.top, "background: rgb(255,192,36); color: white;");
 
         source.outConnectors.push(connector);
         destination.inConnectors.push(connector);
