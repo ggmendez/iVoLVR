@@ -7,9 +7,9 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
         var collectionNode = createXMLElement("verticalCollection");
 
         addAttributeWithValue(collectionNode, "xmlID", theCollection.xmlID);
-        
+
         var centerPoint = theCollection.typeIcon ? theCollection.typeIcon.getCenterPoint() : theCollection.getCenterPoint();
-        appendElementWithValue(collectionNode, "left", centerPoint.x);        
+        appendElementWithValue(collectionNode, "left", centerPoint.x);
         appendElementWithValue(collectionNode, "top", centerPoint.y);
         appendElementWithValue(collectionNode, "isExpanded", !theCollection.isCompressed);
 
@@ -25,7 +25,6 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
         return collectionNode;
     },
-    
     executePendingConnections: function () {
 
         var theCollection = this;
@@ -225,7 +224,7 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
             if (!doNotBlinkCollection) {
                 blink(theCollection, theCollection.isCompressed, 0.30);
             }
-            
+
 
             if (!theCollection.isCompressed) {
 
@@ -347,7 +346,11 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
         updateConnectorsPositions(theCollection);
     },
     positionTypeIcon: function () {
+        
+//        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ positionTypeIcon");
+        
         var theCollection = this;
+        theCollection.setCoords();
         if (theCollection.typeIcon && theCollection.typeIcon.canvas) {
             var topCenter = theCollection.getPointByOrigin('center', 'top');
             if (theCollection.iconName === "string" || theCollection.iconName === "dateAndTime") {
@@ -355,6 +358,9 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
             } else {
                 theCollection.typeIcon.setPositionByOrigin(new fabric.Point(topCenter.x, topCenter.y + 40), 'center', 'center');
             }
+            
+//            console.log(theCollection.typeIcon.getPointByOrigin('center', 'center'));
+            
             theCollection.typeIcon.setCoords();
         }
     },
@@ -1759,11 +1765,11 @@ function addVerticalCollection(options) {
     var theCollection = new VerticalCollection(options);
 
     canvas.add(theCollection);
-    
+
     var values = options.values;
 
     if (values && values.length > 0) {
-        
+
         theCollection.setValues(values, options.doNotBlinkCollection);
 
         if (options.relativeYs || options.xmlIDs) {
@@ -1841,15 +1847,12 @@ function addVerticalCollectionWithVisualValues(x, y, visualValues) {
 
 }
 
-
-function createVerticalCollectionFromXMLNode(collectionXmlNode) {
-
-//    console.clear();
+function createVerticalCollectionOptionsFromXMLNode(collectionXmlNode) {
 
     var options = {
         markAsSelected: false,
         animateAtBirth: false,
-        xmlID: Number(collectionXmlNode.attr('xmlID'))        
+        xmlID: Number(collectionXmlNode.attr('xmlID'))
     };
 
     var children = collectionXmlNode.children();
@@ -1900,17 +1903,25 @@ function createVerticalCollectionFromXMLNode(collectionXmlNode) {
 
     });
 
+    options.shouldExpand = options.isExpanded;
+    options.doNotBlinkCollection = options.isExpanded;
+
     console.log("%coptions to create the saved VERTICAL COLLECTION", "background: rgb(255,192,36); color: white;");
     console.log(options);
 
-    options.shouldExpand = options.isExpanded;
-    options.doNotBlinkCollection = options.isExpanded;
-    
+    return options;
+}
+
+
+function createVerticalCollectionFromXMLNode(collectionXmlNode) {
+
+    var options = createVerticalCollectionOptionsFromXMLNode(collectionXmlNode);
+
     var theCollection = addVerticalCollection(options);
 
     console.log("%the added VERTICAL COLLECTION", "background: rgb(56,27,65); color: white;");
-    console.log(theCollection);        
-    
+    console.log(theCollection);
+
     return theCollection;
 
 }

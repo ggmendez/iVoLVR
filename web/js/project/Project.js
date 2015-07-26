@@ -286,6 +286,10 @@ function processCanvasXMLNode(canvasNode) {
         } else if (tagName === "locator") {
 
             locators.push(child);
+            
+        } else if (tagName === "mapper") {
+
+            createMapperFromXMLNode(child);
 
         } else if (tagName === "connector") {
 

@@ -28,9 +28,9 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
             mapperNode.append(outCollectionNode);
         }
 
-        var inputPoint = theMapper.inputPoint;        
+        var inputPoint = theMapper.inputPoint;
         if (inputPoint) {
-            var value = inputPoint.value;            
+            var value = inputPoint.value;
             if (value) {
                 var inputValueNode = null;
                 if ($.isArray(value)) {
@@ -43,10 +43,10 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
                 mapperNode.append(inputValueNode);
             }
         }
-        
-        var outputPoint = theMapper.outputPoint;        
+
+        var outputPoint = theMapper.outputPoint;
         if (outputPoint) {
-            var value = outputPoint.value;            
+            var value = outputPoint.value;
             if (value) {
                 var outputValueNode = null;
                 if ($.isArray(value)) {
@@ -62,44 +62,73 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
         return mapperNode;
     },
+    executePendingConnections: function () {
+        var theMapper = this;
+        executePendingConnections(theMapper.xmlID);
+        executePendingConnections(theMapper.inputPoint.xmlID);
+        executePendingConnections(theMapper.outputPoint.xmlID);
+        executePendingConnections(theMapper.inCollection.executePendingConnections());
+        executePendingConnections(theMapper.outCollection.executePendingConnections());
+    },
     initialize: function (options) {
+
         options || (options = {});
 
-        this.compressedHeight = 100;
-        this.valueScale = 0.75;
+        options.originX = 'center';
+        options.originY = 'center';
+
+        options.width = options.width || 260;
+        options.height = options.height || 100;
+        options.fill = options.fill || rgb(204, 204, 204);
+        options.stroke = options.stroke || rgb(45, 45, 45);
+        options.strokeWidth = 3;
+
+        options.lockScalingX = true;
+        options.lockScalingY = true;
+        options.lockRotation = true;
+        options.hasRotatingPoint = false;
+        options.hasBorders = false;
+        options.hasControls = false;
+        options.transparentCorners = false;
+        options.perPixelTargetFind = true;
+
+        options.compressedHeight = 100;
+        options.valueScale = 0.75;
+        options.rx = 5;
+        options.ry = options.rx;
 
         this.callSuper('initialize', options);
 
-        this.set('lockScalingX', true);
-        this.set('lockScalingY', true);
-        this.set('lockRotation', true);
-
-        this.set('hasRotatingPoint', false);
-        this.set('hasBorders', false);
-        this.set('hasControls', false);
-        this.set('transparentCorners', false);
-        this.set('perPixelTargetFind', true);
-        this.set('width', options.width || 260);
-        this.set('height', options.height || 100);
-        this.set('fill', options.fill || rgb(204, 204, 204));
-        this.set('stroke', options.stroke || rgb(45, 45, 45));
-        this.set('strokeWidth', 3);
-
-        this.set('inputPosition', -1);
+        this.set('inputPosition', (typeof options.inputPosition) !== 'undefined' ? options.inputPosition : -1);
 
         this.set('isCompressed', true);
-        this.set('rx', 5);
-        this.set('ry', this.rx);
-
-        this.set('originX', 'center');
-        this.set('originY', 'center');
 
         this.set('topElements', new Array());
         this.addArrow();
-        this.addInOutPoints();
-        this.addCollections();
+
+        this.addInOutPoints(options);
+        this.addCollections(options);
         this.associateEvents();
-        this.positionElements(false);
+
+        var positionCollectionsElements = this.inCollection.values || this.outCollection.values;
+
+        this.positionElements(positionCollectionsElements);
+
+        if (options.inCollectionOptions) {
+            var theMapper = this;
+            setTimeout(function () {
+                theMapper.inCollection.typeIcon.bringToFront();
+            }, 50);
+        }
+
+        if (options.outCollectionOptions) {
+            var theMapper = this;
+            setTimeout(function () {
+                theMapper.outCollection.typeIcon.bringToFront();
+            }, 50);
+        }
+
+
 
     },
     bringTopElementsToFront: function () {
@@ -124,18 +153,20 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
     },
     updateInputPointMovementPermit: function () {
         var theMapper = this;
-        theMapper.inputPoint.lockMovementY = theMapper.inCollection.isEmpty();
+        if (theMapper.inputPoint && theMapper.inCollection) {
+            theMapper.inputPoint.lockMovementY = theMapper.inCollection.isEmpty();
+        }
     },
     updateInputOutputDataTypePropositions: function () {
 
         var theMapper = this;
 
-        if (!theMapper.inCollection.isEmpty()) {
+        if (theMapper.inCollection && !theMapper.inCollection.isEmpty()) {
             theMapper.inputPoint.dataTypeProposition = theMapper.inCollection.dataTypeProposition;
             theMapper.inputPoint[theMapper.inputPoint.dataTypeProposition] = true;
         }
 
-        if (!theMapper.outCollection.isEmpty()) {
+        if (theMapper.outCollection && !theMapper.outCollection.isEmpty()) {
             theMapper.outputPoint.dataTypeProposition = theMapper.outCollection.dataTypeProposition;
             theMapper.outputPoint[theMapper.outputPoint.dataTypeProposition] = true;
         }
@@ -145,7 +176,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
         var theMapper = this;
 
-        if (!theMapper.inCollection.isEmpty() && theMapper.inCollection.iconName) {
+        if (theMapper.inCollection && !theMapper.inCollection.isEmpty() && theMapper.inCollection.iconName) {
             theMapper.inputPoint.fill = icons[theMapper.inCollection.iconName].fill;
             theMapper.inputPoint.stroke = icons[theMapper.inCollection.iconName].stroke;
             if (!theMapper.inputPoint.opacity) {
@@ -164,7 +195,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
             theMapper.inputPoint.evented = false;
         }
 
-        if (!theMapper.outCollection.isEmpty() && theMapper.outCollection.iconName) {
+        if (theMapper.outCollection && !theMapper.outCollection.isEmpty() && theMapper.outCollection.iconName) {
             theMapper.outputPoint.fill = icons[theMapper.outCollection.iconName].fill;
             theMapper.outputPoint.stroke = icons[theMapper.outCollection.iconName].stroke;
 
@@ -203,53 +234,51 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         this.arrow = arrow;
         this.topElements.push(arrow);
     },
-    addCollections: function () {
+    addCollections: function (options) {
 
         var theMapper = this;
 
         var inCollection = new VerticalCollection({
             isMapperInCollection: true,
-            originX: 'center',
-            originY: 'center',
             stroke: theMapper.inputPoint.stroke,
             fill: theMapper.inputPoint.fill,
-            perPixelTargetFind: true,
             lockMovementX: true,
             lockMovementY: true,
-            lockScalingX: true,
-            lockScalingY: true,
-            opacity: 1,
-            permanentOpacity: 1,
-            movingOpacity: 1,
-            hasRotatingPoint: false,
-            hasBorders: false,
-            hasControls: false,
             mapper: theMapper,
             nonSerializable: true
         });
-
         theMapper.inCollection = inCollection;
         theMapper.topElements.push(inCollection);
         canvas.add(inCollection);
 
+        var inCollectionOptions = options.inCollectionOptions;
+        if (inCollectionOptions) {
+            var values = inCollectionOptions.values;
+            if (values && values.length > 0) {
+                inCollection.setValues(values, true);
+                if (inCollectionOptions.relativeYs || inCollectionOptions.xmlIDs) {
+                    var i = 0;
+                    inCollection.visualValues.forEach(function (visualValue) {
+                        var xmlID = inCollectionOptions.xmlIDs ? inCollectionOptions.xmlIDs[i] : null;
+                        var relativeY = inCollectionOptions.relativeYs ? inCollectionOptions.relativeYs[i] : null;
+                        visualValue.xmlID = xmlID;
+                        visualValue.relativeY = relativeY;
+                        visualValue.left = inCollection.getCenterPoint().x;
+                        visualValue.top = inCollection.getCenterPoint().y;
+                        i++;
+                    });
+                }
+            }
+        }
+
+
+
         var outCollection = new VerticalCollection({
             isMapperOutCollection: true,
-            originX: 'center',
-            originY: 'center',
-            strokeWidth: 3,
             stroke: theMapper.outputPoint.stroke,
             fill: theMapper.outputPoint.fill,
-            perPixelTargetFind: true,
             lockMovementX: true,
             lockMovementY: true,
-            lockScalingX: true,
-            lockScalingY: true,
-            opacity: 1,
-            permanentOpacity: 1,
-            movingOpacity: 1,
-            hasRotatingPoint: false,
-            hasBorders: false,
-            hasControls: false,
             mapper: theMapper,
             nonSerializable: true
         });
@@ -257,8 +286,29 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         theMapper.outCollection = outCollection;
         theMapper.topElements.push(outCollection);
         canvas.add(outCollection);
+
+        var outCollectionOptions = options.outCollectionOptions;
+        if (outCollectionOptions) {
+            var values = outCollectionOptions.values;
+            if (values && values.length > 0) {
+                outCollection.setValues(values, true);
+                if (outCollectionOptions.relativeYs || outCollectionOptions.xmlIDs) {
+                    var i = 0;
+                    outCollection.visualValues.forEach(function (visualValue) {
+                        var xmlID = outCollectionOptions.xmlIDs ? outCollectionOptions.xmlIDs[i] : null;
+                        var relativeY = outCollectionOptions.relativeYs ? outCollectionOptions.relativeYs[i] : null;
+                        visualValue.xmlID = xmlID;
+                        visualValue.relativeY = relativeY;
+                        visualValue.left = outCollection.getCenterPoint().x;
+                        visualValue.top = outCollection.getCenterPoint().y;
+                        i++;
+                    });
+                }
+            }
+        }
+
     },
-    addInOutPoints: function () {
+    addInOutPoints: function (options) {
 
         var inputPointPath = paths['input'].rw;
         var inputPoint = new MapperInput(inputPointPath, {
@@ -271,6 +321,10 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         canvas.add(inputPoint);
         this.inputPoint = inputPoint;
         this.topElements.push(inputPoint);
+        if (options) {
+            inputPoint.value = options.input;
+            inputPoint.xmlID = options.xmlIDs ? options.xmlIDs.input : null;
+        }
 
         var outputPointPath = paths['output'].r;
         var outputPoint = new MapperOutput(outputPointPath, {
@@ -283,6 +337,10 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         canvas.add(outputPoint);
         this.set('outputPoint', outputPoint);
         this.topElements.push(outputPoint);
+        if (options) {
+            outputPoint.value = options.output;
+            outputPoint.xmlID = options.xmlIDs ? options.xmlIDs.output : null;
+        }
 
     },
     positionElements: function (positionCollectionsElements) {
@@ -730,6 +788,8 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         });
     },
     moveInputPointTo: function (yCoordinate, shouldAnimate) {
+
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~moveInputPointTo ");
 
         var theMapper = this;
         var duration = 500;
@@ -1287,17 +1347,111 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
     }
 });
 
-function addMapper(x, y) {
-    var aMapper = new Mapper({
-        left: x,
-        top: y
-    });
-    canvas.add(aMapper);
-    setTimeout(aMapper.bringTopElementsToFront(), 50);
+function addMapper(options) {
 
-    blink(aMapper.arrow, false, 0.3);
-    blink(aMapper.inCollection, false, 0.3);
-    blink(aMapper.outCollection, false, 0.3);
-    blink(aMapper, true, 0.2);
+    console.log("%c" + "adding a MAPPER:", "background: rgb(235,34,41); color: white;");
+
+    var theMapper = new Mapper(options);
+    canvas.add(theMapper);
+    setTimeout(theMapper.bringTopElementsToFront(), 50);
+
+    if (options.animateAtBirth) {
+        blink(theMapper.arrow, false, 0.3);
+        blink(theMapper.inCollection, false, 0.3);
+        blink(theMapper.outCollection, false, 0.3);
+        blink(theMapper, true, 0.2);
+    }
+
+    if (options.shouldExpand) {
+        theMapper.expand(true);
+
+        setTimeout(function () {
+            if (options.inputPosition && options.inputPosition !== -1) {
+                theMapper.moveInputPointTo(options.inputPosition, true);
+            }
+        }, 750);
+    }
+
+    if (options.xmlID) {
+        theMapper.executePendingConnections();
+    }
+
+
+
+    return theMapper;
+
+}
+
+function createMapperOptionsFromXMLNode(mapperXmlNode) {
+
+    var options = {
+        markAsSelected: false,
+        xmlID: Number(mapperXmlNode.attr('xmlID')),
+        xmlIDs: {}
+    };
+
+    var children = mapperXmlNode.children();
+    children.each(function () {
+        var child = $(this);
+        var tagName = this.tagName;
+
+        var value = child.text();
+        var type = child.attr('type');
+
+        if (tagName === 'verticalCollection') {
+
+            var which = child.attr('which');
+            var xmlID = Number(child.attr('xmlID'));
+            var collection = createVerticalCollectionOptionsFromXMLNode(child);
+            options[which + "Options"] = collection;
+            options.xmlIDs[which] = xmlID;
+
+        } else if (tagName === 'value') {
+
+            var which = child.attr('which');
+            var xmlID = Number(child.attr('xmlID'));
+
+            if (type === 'array') {
+                value = createArrayFromXMLNode(child);
+            } else {
+                value = createValueFromXMLNode(child);
+            }
+
+            options[which] = value;
+            options.xmlIDs[which] = xmlID;
+
+        } else {
+
+            if (type === "number") {
+                value = Number(value);
+            } else if (type === "boolean") {
+                value = value === "true";
+            }
+
+            options[tagName] = value;
+        }
+    });
+
+    options.shouldExpand = options.isExpanded;
+    options.animateAtBirth = !options.isExpanded;
+
+    console.log("%c" + "Options to create the saved MAPPER:", "background: rgb(90,61,96); color: white;");
+    console.log(options);
+
+
+    return options;
+
+}
+
+function createMapperFromXMLNode(mapperXmlNode) {
+
+    var options = createMapperOptionsFromXMLNode(mapperXmlNode);
+
+    var theMapper = addMapper(options);
+
+    console.log("theMapper:");
+    console.log(theMapper);
+
+    return theMapper;
 
 }

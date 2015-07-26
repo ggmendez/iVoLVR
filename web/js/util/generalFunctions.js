@@ -4679,7 +4679,18 @@ function createXMLElement(elementName) {
     return node;
 }
 
-function createArrayNode(values, name) {    
+function createArrayFromXMLNode(arrayNode) {
+    var array = new Array();   
+    var elements = arrayNode.children('value');
+    elements.each(function () {
+        var valueNode = $(this);
+        var value = createValueFromXMLNode(valueNode);
+        array.push(value);
+    });
+    return array;
+}
+
+function createArrayNode(values, name) {
     var arrayNode = createXMLElement(name || "value");
     addAttributeWithValue(arrayNode, "type", "array");
     values.forEach(function (value) {
@@ -5478,8 +5489,14 @@ function canvasDropFunction(ev, ui) {
 
 
         } else if (id === "mapperWidget") {
+            
+            var options = {
+                top: y,
+                left: x,
+                animateAtBirth: true
+            };
 
-            addMapper(x, y);
+            addMapper(options);
 
         } else if (id === "collectionGetterWidget") {
 
