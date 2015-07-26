@@ -520,7 +520,8 @@ var VisualProperty = function () {
 //                if (!theVisualProperty.value || theVisualProperty.attribute === "colorValues") {
                 if (theVisualProperty.attribute === "colorValues") {
 
-                    alert("The visual property is going to create its own value");
+//                    alert("The visual property is going to create its own value");
+                    console.log("%c" + "The visual property is going to create its own value!!!", "background: rgb(33,128,213); color: black;");
 
                     var value = theVisualProperty.createValue();
                     theVisualProperty.set('value', value);

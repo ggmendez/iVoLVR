@@ -1,11 +1,35 @@
 SVGPathVixor = fabric.util.createClass(fabric.Path, {
     isSVGPathVixor: true,
-    initialize: function (path, options) {
+    
+    setCoreVisualPropertiesValues: function (values) {
 
+        var shapeValue = null;
+        var fillValue = null;        
+
+        if (values) {
+            shapeValue = values.shape || ((this.shape.svgPathGroupMark || this.shape.path) ? createShapeValue(this.shape.shape, this.shape.svgPathGroupMark || this.shape.path) : createShapeValue(this.shape));
+            fillValue = values.trueColor || createColorValue(new fabric.Color(this.trueColor));
+        } else {
+            shapeValue = this.shape.svgPathGroupMark || this.shape.path ? createShapeValue(this.shape.shape, this.shape.svgPathGroupMark || this.shape.path) : createShapeValue(this.shape);
+            fillValue = createColorValue(new fabric.Color(this.trueColor));
+        }
+
+        if (LOG) {
+            console.log("shapeValue:");
+            console.log(shapeValue);
+        }
+
+        this.getVisualPropertyByAttributeName('shape').value = shapeValue;
+        this.getVisualPropertyByAttributeName('fill').value = fillValue;
+    },
+    
+    initialize: function (path, options) {
+        
+        console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$ options");
+        console.log(options);
 
 
         options || (options = {});
-
 
         this.callSuper('initialize', path, options);
 
@@ -13,7 +37,11 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         this.set('originalStrokeWidth', options.strokeWidth || 2);
         this.set('perPixelTargetFind', true);
         
-        this.set('shape', {shape: FILLEDPATH_MARK, path: path});
+        if (!options.values) {
+            options.values = {};
+        }
+        options.values.shape = createShapeValue(FILLEDPATH_MARK, this);
+        this.set('shape', {shape: FILLEDPATH_MARK, path: this});
 
         this.set('lockScalingX', true);
         this.set('lockScalingY', true);
@@ -39,14 +67,36 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         this.set('visualPropertyFill', options.trueColor);
         this.set('visualPropertyStroke', options.trueColorDarker);
         
+        
+        
+        
+        var widthValue = null;
+        var heightValue = null;
+        var areaValue = null;        
+
+        if (options.values) {
+            widthValue = options.values.width || createNumericValue(this.width, null, null, 'pixels');
+            heightValue = options.values.height || createNumericValue(this.height, null, null, 'pixels');
+            areaValue = options.values.area || createNumericValue(this.area, null, null, 'pixels');
+        } else {
+            widthValue = createNumericValue(this.width, null, null, 'pixels');
+            heightValue = createNumericValue(this.height, null, null, 'pixels');
+            areaValue = createNumericValue(this.area, null, null, 'pixels');
+        }
+        
         this.specificProperties.push({attribute: "shape", readable: true, writable: false, types: ['string', 'object'], updatesTo: [], dataTypeProposition: 'isShapeData'});
         this.specificProperties.push({attribute: "fill", readable: true, writable: false, types: ['string'], updatesTo: [], dataTypeProposition: 'isColorData'});
-        this.specificProperties.push({attribute: "width", readable: true, writable: false, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData'});
-        this.specificProperties.push({attribute: "height", readable: true, writable: false, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData'});
-        this.specificProperties.push({attribute: "area", readable: true, writable: false, types: ['number'], updatesTo: ['width', 'height'], dataTypeProposition: 'isNumericData'});
+        
+        this.specificProperties.push({attribute: "width", readable: true, writable: false, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: widthValue});
+        this.specificProperties.push({attribute: "height", readable: true, writable: false, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: heightValue});
+        this.specificProperties.push({attribute: "area", readable: true, writable: false, types: ['number'], updatesTo: ['width', 'height'], dataTypeProposition: 'isNumericData', value: areaValue});
 
 
         this.createVisualProperties();
+        
+        
+        this.setCoreVisualPropertiesValues(options.values);
+        
 
         this.setCoords();
 

@@ -1,5 +1,18 @@
 var NumericFunction = fabric.util.createClass(fabric.Rect, {
     isNumericFunction: true,
+    
+    setXmlIDs: function (from) {
+        var theFunction = this;
+        theFunction.xmlID = from++;
+        theFunction.minX.xmlID = from++;
+        theFunction.maxX.xmlID = from++;
+        theFunction.minY.xmlID = from++;
+        theFunction.maxY.xmlID = from++;
+        theFunction.inputPoint.xmlID = from++;
+        theFunction.outputPoint.xmlID = from++;
+        return from;
+    },
+    
     toXML: function () {
 
         var theFunction = this;

@@ -4156,8 +4156,6 @@ function computeDeltaE2000(fabricColor1, fabricColor2) {
 
 }
 
-
-
 function updateConnectorsPositions(object) {
 
     object.setCoords();

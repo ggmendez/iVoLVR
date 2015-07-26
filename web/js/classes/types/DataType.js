@@ -18,6 +18,12 @@ var DataType = function () {
     this.set('scaleX', 1.2);
     this.set('scaleY', 1.2);
     
+    this.setXmlIDs = function (from) {
+        var theVisualValue = this;
+        theVisualValue.xmlID = from++;
+        return from;
+    };
+    
     this.toXML = function () {
         var visualValueNode = createXMLElement("visualValue");
         addAttributeWithValue(visualValueNode, "xmlID", this.xmlID);
@@ -629,6 +635,7 @@ function CreateDataType(options) {
 
 
 function CreateDataTypeFromValue(value) {
+    
     if (value.isNumericData) {
         
         console.log("--------------- ************************* value:");
@@ -827,7 +834,6 @@ function addVisualValueToCanvas(options) {
 function createVisualVariableFromXMLNode(visualValueXmlNode) {
 
     var options = {
-        markType: visualValueXmlNode.attr('shape'),
         xmlID: Number(visualValueXmlNode.attr('xmlID')),
         values: {}
     };

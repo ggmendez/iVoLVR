@@ -9,15 +9,15 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
 
-        options.radius = options.radius || options.values.radius.number;
-        if (typeof options.radius !== 'undefined') {
+        options.radius = options.radius ||((options.values && options.values.radius) ? options.values.radius.number : null);
+        if (options.radius !== null && typeof options.radius !== 'undefined') {
             this.set('radius', options.radius);
             this.set('area', Math.PI * Math.abs(this.radius) * Math.abs(this.radius));
         } else {
-            options.area = options.area || options.values.area.number;
+            options.area = options.area || ((options.values && options.values.area) ? options.values.area.number : null);
             this.set('area', options.area);
             var radius = Math.sqrt(options.area / Math.PI);
-            this.set('radius', Math.abs(radius));
+            options.radius = Math.abs(radius);
         }
 
         this.callSuper('initialize', options);

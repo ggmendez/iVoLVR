@@ -9,19 +9,18 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
         options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
+        
+        options.rx = options.rx ||((options.values && options.values.rx) ? options.values.rx.number : null);
+        options.ry = options.ry ||((options.values && options.values.ry) ? options.values.ry.number : null);
 
-        options.rx = options.rx || options.values.rx.number;
-        options.ry = options.ry || options.values.ry.number;
-
-        if (typeof options.rx !== 'undefined' && typeof options.ry !== 'undefined') {
+        if (options.rx !== null && options.ry !== null && typeof options.rx !== 'undefined' && typeof options.ry !== 'undefined') {
             var area = Math.PI * Math.abs(options.rx) * Math.abs(options.ry);
             this.set('area', area);
         } else {
-            options.area = options.area || options.values.area.number;
+            options.area = options.area || ((options.values && options.values.area) ? options.values.area.number : null);
             var side = Math.sqrt(options.area / Math.PI);
             options.rx = side;
             options.ry = side;
-            this.set('area', options.area);
         }
 
         this.callSuper('initialize', options);
@@ -125,7 +124,7 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
 
 
 
-                theMark.area = numericValue; // This value has to be updated as fabric does not know its link with the radius attribute
+                theMark.area = numericValue; // This value has to be updated as fabric does not know its link with the rx attribute
 
                 // Updating all the attributes that are affected by the modifications in the area property
 
@@ -298,7 +297,7 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
             stroke: theMark.colorForStroke || theMark.stroke,
             colorForStroke: theMark.colorForStroke || theMark.stroke,
             label: theMark.label,
-            angle: theMark.angle,
+            angle: -theMark.angle,
             markAsSelected: true,
             animateAtBirth: false
         };

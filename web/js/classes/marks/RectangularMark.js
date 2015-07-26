@@ -10,27 +10,21 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
         options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
 
-        options.width = options.width || options.values.width.number;
-        options.height = options.height || options.values.height.number;
+        options.width = options.width ||((options.values && options.values.width) ? options.values.width.number : null);
+        options.height = options.height ||((options.values && options.values.height) ? options.values.height.number : null);
 
-        if (typeof options.width !== 'undefined' && typeof options.height !== 'undefined') {
-            this.set('width', options.width);
-            this.set('height', options.height);
-            this.set('area', Math.abs(this.width) * Math.abs(this.height));
+        if (options.width !== null && options.height !== null && typeof options.width !== 'undefined' && typeof options.height !== 'undefined') {
+            options.area = Math.abs(this.width) * Math.abs(this.height);
         } else {
-            options.area = options.area || options.values.area.number;
-            this.set('area', options.area);
+            options.area = options.area ||((options.values && options.values.area) ? options.values.area.number : null);
             var side = Math.sqrt(options.area);
-            this.set('width', Math.abs(side));
-            this.set('height', Math.abs(side));
+            options.width = Math.abs(side);
+            options.height = options.width;
         }
 
         this.callSuper('initialize', options);
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', options.strokeWidth || 2);
-
-
-
         this.createVariables();
         this.createIText();
 
@@ -273,7 +267,7 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
         var objectCenter = this.getCenterPoint();
         var boundingRect = this.getBoundingRect();
 
-        // TODO: Eventually, this compensantion should not be necessary
+        // TODO: Eventually, this compensantion should not be necessaheight
         compensateBoundingRect(boundingRect);
 
         var boundingRectCenterBottom = new fabric.Point(this.left, objectCenter.y + (boundingRect.height / 2));
@@ -302,13 +296,13 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
             stroke: theMark.colorForStroke || theMark.stroke,
             colorForStroke: theMark.colorForStroke || theMark.stroke,
             label: theMark.label,
-            angle: theMark.angle,
+            angle: -theMark.angle,
         };
 
         if (newShapeType === ELLIPTIC_MARK) {
 
-            options.rx = theMark.width / 2;
-            options.ry = theMark.height / 2;
+            options.width = theMark.width / 2;
+            options.height = theMark.height / 2;
 
         } else if (newShapeType === CIRCULAR_MARK || newShapeType === ELLIPTIC_MARK || newShapeType === RECTANGULAR_MARK || newShapeType === SQUARED_MARK) {
 

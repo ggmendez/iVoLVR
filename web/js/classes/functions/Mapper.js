@@ -1,5 +1,22 @@
 var Mapper = fabric.util.createClass(fabric.Rect, {
     isMapper: true,
+    setXmlIDs: function (from) {
+
+        var theMapper = this;
+        var inCollection = theMapper.inCollection;
+        var outCollection = theMapper.outCollection;
+        var inputPoint = theMapper.inputPoint;
+        var outputPoint = theMapper.outputPoint;
+
+        theMapper.xmlID = from++;
+        inputPoint.xmlID = from++;
+        outputPoint.xmlID = from++;
+
+        from = inCollection.setXmlIDs(from++);
+        from = outCollection.setXmlIDs(from++);
+
+        return from;
+    },
     toXML: function () {
 
         var theMapper = this;
@@ -67,8 +84,8 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         executePendingConnections(theMapper.xmlID);
         executePendingConnections(theMapper.inputPoint.xmlID);
         executePendingConnections(theMapper.outputPoint.xmlID);
-        executePendingConnections(theMapper.inCollection.executePendingConnections());
-        executePendingConnections(theMapper.outCollection.executePendingConnections());
+        theMapper.inCollection.executePendingConnections();
+        theMapper.outCollection.executePendingConnections()
     },
     initialize: function (options) {
 
@@ -787,7 +804,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
             },
         });
     },
-    moveInputPointTo: function (yCoordinate, shouldAnimate) {
+    moveInputPointTo: function (yCoordinate, shouldAnimate, doNotComputeOutput) {
 
         console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~moveInputPointTo ");
 
@@ -827,9 +844,11 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
                     theInCollection.matchingY = theInputPoint.top - theInCollection.getPointByOrigin('center', 'top').y;
                     theOutCollection.matchingY = theInCollection.matchingY;
 
-                    var outputValue = theMapper.computeOutput();
-                    theMapper.outputPoint.setValue(outputValue, false);
-
+                    if (!doNotComputeOutput) {
+                        var outputValue = theMapper.computeOutput();
+                        theMapper.outputPoint.setValue(outputValue, false);
+                    }
+                    
                     theMapper.inputPoint.updateConnectorsPositions();
                     theMapper.outputPoint.updateConnectorsPositions();
                     canvas.renderAll();
@@ -1129,6 +1148,8 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
 
         var newDistance = getProportionalDistance(firstVisualValue.value.color, secondVisualValue.value.color, value.color);
+        
+        console.log("%c" + "newDistance: " + newDistance, "background: rgb(167,51,15); color: white;");
 
 //        console.log("newDistance:" + newDistance);
 
@@ -1173,15 +1194,13 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         /*drawRectAt(firstVisualValue.getCenterPoint(), 'green');
          drawRectAt(secondVisualValue.getCenterPoint(), 'red');*/
 
-
+         
+         console.log("%c" + "newYCoordinate: " + newYCoordinate, "background: rgb(167,51,15); color: white;");
 
         return newYCoordinate;
 
     },
     evaluate: function (value, shouldAnimate) {
-
-
-
 
         var theMapper = this;
 
@@ -1190,6 +1209,12 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
          console.log(value);*/
 
         if ($.isArray(value)) {
+
+            // Since a collection has been evaluated, the input point should be moved to its default location.
+            var mapperLocation = theMapper.getPointByOrigin('center', 'top');
+            var yCoordinate = mapperLocation.y + theMapper.compressedHeight / 2;
+            theMapper.moveInputPointTo(yCoordinate, shouldAnimate, true); // The output is NOT computed on this movement
+            theMapper.inputPosition = -1;
 
             // Each of the elements of the received array has to be evaluated. The output of this process should be an array of values
 
@@ -1205,6 +1230,8 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
                 var output = theMapper.computeOutput(currentEvaluationResult);
                 outputValues.push(output);
             });
+
+
 
             theMapper.outputPoint.setValue(outputValues, shouldAnimate);
 

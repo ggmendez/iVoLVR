@@ -565,7 +565,7 @@ PathMark = fabric.util.createClass(fabric.Path, {
             visualPropertyFill: fill,
             visualPropertyStroke: stroke,
             label: theMark.label,
-            angle: theMark.angle,
+            angle: -theMark.angle,
             markAsSelected: true,
             animateAtBirth: false
         };

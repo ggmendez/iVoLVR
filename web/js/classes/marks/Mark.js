@@ -34,6 +34,20 @@ var Mark = function () {
     this.set('lockScalingY', true);
     this.set('lockRotation', true);
 
+    this.setXmlIDs = function (from) {
+
+        var theMark = this;
+
+        theMark.xmlID = from++;
+        theMark.visualProperties.forEach(function (visualProperty) {
+            visualProperty.xmlID = from++;
+        });
+        theMark.xVisualProperty.xmlID = from++;
+        theMark.yVisualProperty.xmlID = from++;
+
+        return from;
+    };
+
     this.setCoreVisualPropertiesValues = function (values) {
 
         var shapeValue = null;
@@ -73,7 +87,7 @@ var Mark = function () {
             console.log("%c" + "For one VISUAL PROPERTY", "background: rgb(81,195,183); color: white;");
             executePendingConnections(visualProperty.xmlID);
         });
-        
+
         console.log("%c" + "For the two POSITION VISUAL PROPERTIES", "background: rgb(81,195,183); color: white;");
 
         // And for the position visual properties of the mark
@@ -1670,7 +1684,7 @@ function copyVisualPropertiesConnectors(fromMark, toMark) {
 function changeMarkShape(theMark, shapeValue) {
 
     if (LOG)
-        console.log("What the 'changeMarkShape' function gets as second parameter:");
+        console.log("%c" + "What the 'changeMarkShape' function gets as second parameter:", "background: rgb(33,128,213); color: black;");
     if (LOG)
         console.log(shapeValue);
 
@@ -1681,12 +1695,18 @@ function changeMarkShape(theMark, shapeValue) {
     var path = null;
     var svgPathGroupMark = null;
     var newShape = null;
-
-    if (shapeValue.path) {
-        path = shapeValue.path;
-    } else if (shapeValue.svgPathGroupMark) {
+    
+    if (shapeValue.shape === PATH_MARK || shapeValue.shape === FILLEDPATH_MARK) {
+        path = shapeValue.path.path;
+    } else if (shapeValue.shape === SVGPATHGROUP_MARK) {
         svgPathGroupMark = shapeValue.svgPathGroupMark;
     }
+
+//    if (shapeValue.path) {
+//        path = shapeValue.path;
+//    } else if (shapeValue.svgPathGroupMark) {
+//        svgPathGroupMark = shapeValue.svgPathGroupMark;
+//    }
 
     if (LOG)
         console.log("shapeValue:");

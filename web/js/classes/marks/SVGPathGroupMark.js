@@ -304,7 +304,7 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
             stroke: theMark.visualPropertyStroke,
             colorForStroke: theMark.visualPropertyStroke,
             label: theMark.label,
-            angle: theMark.angle,
+            angle: -theMark.angle,
             markAsSelected: true,
             animateAtBirth: false
         };

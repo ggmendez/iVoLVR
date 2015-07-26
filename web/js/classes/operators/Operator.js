@@ -3,6 +3,13 @@ var Operator = fabric.util.createClass(fabric.Circle, {
     xmlNodeName: 'operator',
     serializableProperties: ['type', 'top', 'left'],
     deserializer: addOperator,
+    
+    setXmlIDs: function (from) {
+        var theVisualValue = this;
+        theVisualValue.xmlID = from++;
+        return from;
+    },
+    
     initialize: function (options) {
         options || (options = {});
 

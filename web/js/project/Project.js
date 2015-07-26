@@ -141,17 +141,8 @@ function generateProjectXML() {
     // generating the ids of all the elements that are on the canvas
     var cont = 1;
     canvas.forEachObject(function (object) {
-        object.xmlID = cont++;
-        if (object.visualProperties) {
-            object.visualProperties.forEach(function (visualProperty) {
-                visualProperty.xmlID = cont++;
-            });
-        }
-        if (object.xVisualProperty) {
-            object.xVisualProperty.xmlID = cont++;
-        }
-        if (object.yVisualProperty) {
-            object.yVisualProperty.xmlID = cont++;
+        if (object.setXmlIDs) {
+            cont = object.setXmlIDs(cont);
         }
     });
 
@@ -286,7 +277,7 @@ function processCanvasXMLNode(canvasNode) {
         } else if (tagName === "locator") {
 
             locators.push(child);
-            
+
         } else if (tagName === "mapper") {
 
             createMapperFromXMLNode(child);
@@ -294,7 +285,7 @@ function processCanvasXMLNode(canvasNode) {
         } else if (tagName === "connector") {
 
             connectors.push(child);
-            
+
             pendingConnections.push(child);
 
         }
@@ -334,11 +325,11 @@ function executePendingConnections(objectXmlID) {
         if (objectXmlID === fromID || objectXmlID === toID) {
             if (createConnectorFromXMLNode(connectorNode)) { // We check if the connection was succesful. Only in that case the connection is removed from the array
                 fabric.util.removeFromArray(pendingConnections, connectorNode);
-                cont ++;
+                cont++;
             }
         }
     }
-    
+
     console.log("%c" + cont + " connections executed sucessfully for element with ID: " + objectXmlID, "background: rgb(81,195,183); color: white;");
 
     var totalPendingConnections = pendingConnections.length;

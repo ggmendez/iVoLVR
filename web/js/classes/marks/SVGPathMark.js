@@ -251,7 +251,7 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
             stroke: theMark.colorForStroke || theMark.stroke,
             colorForStroke: theMark.colorForStroke || theMark.stroke,
             label: theMark.label,
-            angle: theMark.angle,
+            angle: -theMark.angle,
             markAsSelected: true,
             animateAtBirth: false
         };

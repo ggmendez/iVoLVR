@@ -10,26 +10,24 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
         options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : -0));
 
-        options.side = options.side || options.values.side.number;
-        if (typeof options.side !== 'undefined') {
-            this.set('side', options.side || 0);
-            this.set('width', this.side);
-            this.set('height', this.side);
-            this.set('area', Math.abs(this.side) * Math.abs(this.side));
+        options.side = options.side ||((options.values && options.values.side) ? options.values.side.number : null);
+        
+        
+        if (options.side !== null && typeof options.side !== 'undefined') {
+            options.width = Math.abs(options.side);
+            options.height = options.width;
+            options.area = options.width * options.width;
         } else {
-            options.area = options.area || options.values.area.number;
+            options.area = options.area || ((options.values && options.values.area) ? options.values.area.number : null);
             var side = Math.sqrt(Math.abs(options.area));
-            this.set('side', Math.abs(side));
-            this.set('width', this.side);
-            this.set('height', this.side);
-            this.set('area', options.area);
+            options.side = side;
+            options.width = side;
+            options.height = side;
         }
 
         this.callSuper('initialize', options);
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', options.strokeWidth || 2);
-
-
 
         this.createVariables();
         this.createIText();
@@ -123,7 +121,7 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
                 if (LOG)
                     console.log("%cModifying " + changedVisualProperty.attribute + ". Value: " + propertyValue, "background:green; color:white;");
 
-                theMark.area = numericWidth; // This value has to be updated as fabric does not know its link with the radius attribute
+                theMark.area = numericWidth; // This value has to be updated as fabric does not know its link with the side attribute
 
                 // Updating all the attributes that are affected by the modifications in the area property
 
@@ -353,7 +351,7 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
             stroke: theMark.colorForStroke || theMark.stroke,
             colorForStroke: theMark.colorForStroke || theMark.stroke,
             label: theMark.label,
-            angle: theMark.angle,
+            angle: -theMark.angle,
         };
 
         if (newShapeType == ELLIPTIC_MARK) {
