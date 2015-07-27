@@ -123,7 +123,7 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
 
         this.setCoords();
 
-        this.setxmlIDs(options.xmlIDs);
+        this.applyXmlIDs(options.xmlIDs);
 
 
         this.toXML = function () {

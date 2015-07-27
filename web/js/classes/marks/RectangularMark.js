@@ -62,7 +62,7 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
 
         this.setCoreVisualPropertiesValues(options.values);
 
-        this.setxmlIDs(options.xmlIDs);
+        this.applyXmlIDs(options.xmlIDs);
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {

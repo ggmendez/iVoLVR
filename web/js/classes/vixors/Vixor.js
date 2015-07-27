@@ -29,6 +29,82 @@ var Vixor = function () {
 
 
 
+    this.toXML = function () {
+        var theExtractor = this;
+        var extractorNode = createXMLElement("extractor");
+
+        addAttributeWithValue(extractorNode, "xmlID", theExtractor.xmlID);
+        addAttributeWithValue(extractorNode, "type", theExtractor.getExtractorType());
+        appendElementWithValue(extractorNode, "left", theExtractor.left);
+        appendElementWithValue(extractorNode, "top", theExtractor.top);
+                
+        appendElementWithValue(extractorNode, "untransformedAngle", theExtractor.untransformedAngle);
+        appendElementWithValue(extractorNode, "untransformedX", theExtractor.untransformedX);
+        appendElementWithValue(extractorNode, "untransformedY", theExtractor.untransformedY);
+        appendElementWithValue(extractorNode, "untransformedScaleX", theExtractor.untransformedScaleX);
+        appendElementWithValue(extractorNode, "untransformedScaleY", theExtractor.untransformedScaleY);
+
+        appendElementWithValue(extractorNode, "trueColor", theExtractor.trueColor);
+        appendElementWithValue(extractorNode, "trueColorDarker", theExtractor.trueColorDarker);
+        appendElementWithValue(extractorNode, "fillColor", theExtractor.fillColor);
+
+        appendElementWithValue(extractorNode, "stroke", new fabric.Color(theExtractor.visualProperties[0].stroke).toRgba());
+        appendElementWithValue(extractorNode, "visualPropertyFill", new fabric.Color(theExtractor.visualProperties[0].fill).toRgba());
+        appendElementWithValue(extractorNode, "isExpanded", !theExtractor.isCompressed);
+        if (theExtractor.parentObject && theExtractor.parentObject.isImportedImage) {
+            appendElementWithValue(extractorNode, "imageXmlID", theExtractor.parentObject.xmlID);
+        }
+        theExtractor.visualProperties.forEach(function (visualProperty) {
+            var propertyNode = visualProperty.toXML();
+            extractorNode.append(propertyNode);
+        });
+        return extractorNode;
+    };
+
+    this.applyXmlIDs = function (xmlIDs) {
+        var theExtractor = this;
+        if (xmlIDs) {
+            for (var attribute in xmlIDs) {
+                
+                var xmlID = xmlIDs[attribute];
+                
+                console.log("attribute: " + attribute + " xmlID: " + xmlID);
+                 
+                var visualProperty = theExtractor.getVisualPropertyByAttributeName(attribute);
+                if (visualProperty !== null) {
+                    visualProperty.xmlID = xmlID;
+                } else {
+                    console.log("No visual property found with attribute " + attribute);
+                }
+            }
+        }
+    };
+
+    this.setXmlIDs = function (from) {
+
+        var theExtractor = this;
+
+        theExtractor.xmlID = from++;
+        theExtractor.visualProperties.forEach(function (visualProperty) {
+            visualProperty.xmlID = from++;
+        });
+
+        return from;
+    };
+
+    this.executePendingConnections = function () {
+
+        var theExtractor = this;
+
+        // The same is made for the visual properties of the mark, as they can also be connected
+        theExtractor.visualProperties.forEach(function (visualProperty) {
+            console.log("%c" + "For one VISUAL PROPERTY", "background: rgb(81,195,183); color: white;");
+            executePendingConnections(visualProperty.xmlID);
+        });
+
+    };
+
+
 
     this.createRectBackground = function () {
         var theVixor = this;
@@ -117,7 +193,8 @@ var Vixor = function () {
 
     };
     this.applySelectedStyle = function () {
-        if (LOG) console.log("At the vixor");
+        if (LOG)
+            console.log("At the vixor");
         this.stroke = widget_selected_stroke_color;
         this.strokeWidth = widget_selected_stroke_width;
         this.strokeDashArray = widget_selected_stroke_dash_array;
@@ -208,10 +285,10 @@ var Vixor = function () {
             easing: easing,
             onChange: function (value) {
                 visualProperty[prop] = value;
-                
-                
+
+
                 updateConnectorsPositions(visualProperty);
-                
+
                 // only render once
                 if (refreshCanvas) {
                     canvas.renderAll();
@@ -219,9 +296,9 @@ var Vixor = function () {
             },
             onComplete: function () {
                 visualProperty.setCoords();
-                
+
                 updateConnectorsPositions(visualProperty);
-                
+
                 if (removeAfterCompletion) {
                     visualProperty.remove();
                     canvas.renderAll();
@@ -290,165 +367,165 @@ var Vixor = function () {
         });
 
     };
-    
+
     /*this.expand = function (refreshCanvas) {
-
-        if (!this.isCompressed)
-            return;
-
-//        if (LOG) console.log("%cExpanding", "background:red; color:white");
-//        if (LOG) console.log("refreshCanvas: " + refreshCanvas + " - " + this.type);
-
-        var theMark = this;
-        theMark.setCoords();
-
-        // Disabling any event for this mark. This will be enabled once the animations of this method are done.
-        theMark.evented = false;
-        gestureSetEnabled(manager, 'pan1Finger', false);
-
-        var theBackground = this.backgroundRect;
-        var duration = 500;
-        var easing = fabric.util.ease['easeOutCubic'];
-
-        var boundingRect = theMark.getBoundingRect();
-        var objectCenter = theMark.getCenterPoint();
-
-        if (theMark.isCircularMark && (theMark.scaleX == theMark.scaleY)) {
-            var markRealRadius = theMark.radius * theMark.scaleX;
-            if (boundingRect.width / canvas.getZoom() < theMark.propertiesRadius) {
-                markRealRadius = theMark.propertiesRadius + 5;
-            }
-            var wh = 2 * markRealRadius;
-            boundingRect = {top: objectCenter.y - markRealRadius, left: objectCenter.x - markRealRadius, width: wh, height: wh};
-
-        } else if (theMark.isEllipticMark && (theMark.rx == theMark.ry) && (theMark.scaleX == theMark.scaleY)) {
-
-            var markRealRadius = theMark.rx * theMark.scaleX;
-            if (markRealRadius < theMark.propertiesRadius) {
-                markRealRadius = theMark.propertiesRadius + 5;
-            }
-            var wh = 2 * markRealRadius * canvas.getZoom();
-            boundingRect = {top: objectCenter.y - markRealRadius, left: objectCenter.x - markRealRadius, width: wh, height: (2 * this.ry * this.scaleY) * canvas.getZoom()};
-        }
-
-        // The dimensions of the bounding rectangle are absolute, thus, the zoom level has to be taken into account
-        if (boundingRect.width / canvas.getZoom() < theMark.propertiesRadius) {
-            boundingRect.width = 2 * theMark.propertiesRadius;
-        }
-
-        // TODO: Eventually, this compensantion should not be necessary
-        if (theMark.isFatFontMark || theMark.isSVGPathGroupMark || theMark.isSVGPathMark || theMark.isRectangularMark || theMark.isEllipticMark || theMark.isSquaredMark) {
-            compensateBoundingRect(boundingRect);
-        }
-
-        var newHeight = theMark.visualProperties.length * (2 * theMark.propertiesRadius + 15) + boundingRect.height + 2 * theMark.indent;
-        if (this.iText && this.iText.text != '') {
-            newHeight += (2 * theMark.labelGap);
-        }
-
-        var newWidth = boundingRect.width + 2 * theMark.indent;
-        var newTop = theMark.top + (newHeight / 2 - boundingRect.height / 2 - theMark.indent);
-
-        theBackground.width = newWidth;
-        theBackground.height = 0;
-        theBackground.left = theMark.left;
-        theBackground.top = theMark.top;
-        theBackground.stroke = theMark.visualPropertyStroke || theMark.colorForStroke;
-
-        theBackground.strokeWidth = 1;
-
-        theBackground.bringToFront();
-        theMark.bringToFront();
-        if (theMark.iText) {
-            theMark.iText.bringToFront();
-        }
-
-        var boundingRectCenterBottom = new fabric.Point(theMark.left, objectCenter.y + boundingRect.height / 2);
-//        var boundingRectCenterBottom = new fabric.Point(theMark.left, boundingRect.top + boundingRect.height);
-//        drawRectAt(boundingRectCenterBottom, "green");
-        boundingRectCenterBottom.y += theMark.propertiesGap;
-        if (this.iText && this.iText.text != '') {
-            boundingRectCenterBottom.y += (2 * theMark.labelGap);
-        }
-
-        theBackground.opacity = 1;
-
-        // In the animation of the background, the canvas is not redrawn, as this is done while the visual properties are being moved
-        theBackground.animate('top', newTop, {
-            easing: easing,
-            duration: duration,
-        });
-        theBackground.animate('height', newHeight, {
-            duration: duration,
-            easing: easing,
-            onChange: function () {
-                theBackground.setGradient('fill', {
-                    type: 'linear',
-                    x1: 0,
-                    y1: 0,
-                    x2: 0,
-                    y2: theBackground.getHeight(),
-                    colorStops: {
-                        0: 'rgb(255,255,255, 1)',
-                        0.5: 'rgba(242,242,242,0.75)',
-                        1: 'rgb(255,255,255, 1)'
-                    }
-                });
-            },
-            onComplete: function () {
-                theMark.isCompressed = false;
-//                drawRectAt(new fabric.Point(theBackground.left, theBackground.top), "black");
-            }
-        });
-
-        var positions = new Array();
-        var i = 0;
-        theMark.visualProperties.forEach(function (visualProperty) {
-
-            var x = theMark.left;
-            var y = boundingRectCenterBottom.y + i * theMark.propertiesSeparation;
-
-//            drawRectAt(new fabric.Point(x,y), generateRandomColor());
-
-            canvas.add(visualProperty);
-            visualProperty.bringForward(true);
-
-            visualProperty.outConnectors.forEach(function (connector) {
-                connector.bringToFront();
-            });
-
-            visualProperty.inConnectors.forEach(function (connector) {
-                connector.bringToFront();
-            });
-
-            visualProperty.left = theMark.left;
-            visualProperty.top = theMark.top;
-            visualProperty.scaleX = 0;
-            visualProperty.scaleY = 0;
-            visualProperty.opacity = 0;
-
-            positions.push({x: x, y: y});
-
-            i++;
-        });
-
-//        var easing = fabric.util.ease['easeInCubic'];
-        var easing = fabric.util.ease['easeOutQuad'];
-
-        for (var i = 0; i < theMark.visualProperties.length; i++) {
-
-            var isTheLastElement = i == theMark.visualProperties.length - 1;
-
-            theMark.animateVisualProperty(i, 'opacity', 1, duration, easing, false, false, false);
-            theMark.animateVisualProperty(i, 'scaleX', 1, duration, easing, false, false, false);
-            theMark.animateVisualProperty(i, 'scaleY', 1, duration, easing, false, false, false);
-            theMark.animateVisualProperty(i, 'left', positions[i].x, duration, easing, false, false, false);
-            theMark.animateVisualProperty(i, 'top', positions[i].y, duration, easing, false, false, false);
-            theMark.animateVisualProperty(i, 'top', positions[i].y, duration, easing, refreshCanvas && isTheLastElement, false, isTheLastElement, isTheLastElement);
-
-        }
-
-    };*/
+     
+     if (!this.isCompressed)
+     return;
+     
+     //        if (LOG) console.log("%cExpanding", "background:red; color:white");
+     //        if (LOG) console.log("refreshCanvas: " + refreshCanvas + " - " + this.type);
+     
+     var theMark = this;
+     theMark.setCoords();
+     
+     // Disabling any event for this mark. This will be enabled once the animations of this method are done.
+     theMark.evented = false;
+     gestureSetEnabled(manager, 'pan1Finger', false);
+     
+     var theBackground = this.backgroundRect;
+     var duration = 500;
+     var easing = fabric.util.ease['easeOutCubic'];
+     
+     var boundingRect = theMark.getBoundingRect();
+     var objectCenter = theMark.getCenterPoint();
+     
+     if (theMark.isCircularMark && (theMark.scaleX == theMark.scaleY)) {
+     var markRealRadius = theMark.radius * theMark.scaleX;
+     if (boundingRect.width / canvas.getZoom() < theMark.propertiesRadius) {
+     markRealRadius = theMark.propertiesRadius + 5;
+     }
+     var wh = 2 * markRealRadius;
+     boundingRect = {top: objectCenter.y - markRealRadius, left: objectCenter.x - markRealRadius, width: wh, height: wh};
+     
+     } else if (theMark.isEllipticMark && (theMark.rx == theMark.ry) && (theMark.scaleX == theMark.scaleY)) {
+     
+     var markRealRadius = theMark.rx * theMark.scaleX;
+     if (markRealRadius < theMark.propertiesRadius) {
+     markRealRadius = theMark.propertiesRadius + 5;
+     }
+     var wh = 2 * markRealRadius * canvas.getZoom();
+     boundingRect = {top: objectCenter.y - markRealRadius, left: objectCenter.x - markRealRadius, width: wh, height: (2 * this.ry * this.scaleY) * canvas.getZoom()};
+     }
+     
+     // The dimensions of the bounding rectangle are absolute, thus, the zoom level has to be taken into account
+     if (boundingRect.width / canvas.getZoom() < theMark.propertiesRadius) {
+     boundingRect.width = 2 * theMark.propertiesRadius;
+     }
+     
+     // TODO: Eventually, this compensantion should not be necessary
+     if (theMark.isFatFontMark || theMark.isSVGPathGroupMark || theMark.isSVGPathMark || theMark.isRectangularMark || theMark.isEllipticMark || theMark.isSquaredMark) {
+     compensateBoundingRect(boundingRect);
+     }
+     
+     var newHeight = theMark.visualProperties.length * (2 * theMark.propertiesRadius + 15) + boundingRect.height + 2 * theMark.indent;
+     if (this.iText && this.iText.text != '') {
+     newHeight += (2 * theMark.labelGap);
+     }
+     
+     var newWidth = boundingRect.width + 2 * theMark.indent;
+     var newTop = theMark.top + (newHeight / 2 - boundingRect.height / 2 - theMark.indent);
+     
+     theBackground.width = newWidth;
+     theBackground.height = 0;
+     theBackground.left = theMark.left;
+     theBackground.top = theMark.top;
+     theBackground.stroke = theMark.visualPropertyStroke || theMark.colorForStroke;
+     
+     theBackground.strokeWidth = 1;
+     
+     theBackground.bringToFront();
+     theMark.bringToFront();
+     if (theMark.iText) {
+     theMark.iText.bringToFront();
+     }
+     
+     var boundingRectCenterBottom = new fabric.Point(theMark.left, objectCenter.y + boundingRect.height / 2);
+     //        var boundingRectCenterBottom = new fabric.Point(theMark.left, boundingRect.top + boundingRect.height);
+     //        drawRectAt(boundingRectCenterBottom, "green");
+     boundingRectCenterBottom.y += theMark.propertiesGap;
+     if (this.iText && this.iText.text != '') {
+     boundingRectCenterBottom.y += (2 * theMark.labelGap);
+     }
+     
+     theBackground.opacity = 1;
+     
+     // In the animation of the background, the canvas is not redrawn, as this is done while the visual properties are being moved
+     theBackground.animate('top', newTop, {
+     easing: easing,
+     duration: duration,
+     });
+     theBackground.animate('height', newHeight, {
+     duration: duration,
+     easing: easing,
+     onChange: function () {
+     theBackground.setGradient('fill', {
+     type: 'linear',
+     x1: 0,
+     y1: 0,
+     x2: 0,
+     y2: theBackground.getHeight(),
+     colorStops: {
+     0: 'rgb(255,255,255, 1)',
+     0.5: 'rgba(242,242,242,0.75)',
+     1: 'rgb(255,255,255, 1)'
+     }
+     });
+     },
+     onComplete: function () {
+     theMark.isCompressed = false;
+     //                drawRectAt(new fabric.Point(theBackground.left, theBackground.top), "black");
+     }
+     });
+     
+     var positions = new Array();
+     var i = 0;
+     theMark.visualProperties.forEach(function (visualProperty) {
+     
+     var x = theMark.left;
+     var y = boundingRectCenterBottom.y + i * theMark.propertiesSeparation;
+     
+     //            drawRectAt(new fabric.Point(x,y), generateRandomColor());
+     
+     canvas.add(visualProperty);
+     visualProperty.bringForward(true);
+     
+     visualProperty.outConnectors.forEach(function (connector) {
+     connector.bringToFront();
+     });
+     
+     visualProperty.inConnectors.forEach(function (connector) {
+     connector.bringToFront();
+     });
+     
+     visualProperty.left = theMark.left;
+     visualProperty.top = theMark.top;
+     visualProperty.scaleX = 0;
+     visualProperty.scaleY = 0;
+     visualProperty.opacity = 0;
+     
+     positions.push({x: x, y: y});
+     
+     i++;
+     });
+     
+     //        var easing = fabric.util.ease['easeInCubic'];
+     var easing = fabric.util.ease['easeOutQuad'];
+     
+     for (var i = 0; i < theMark.visualProperties.length; i++) {
+     
+     var isTheLastElement = i == theMark.visualProperties.length - 1;
+     
+     theMark.animateVisualProperty(i, 'opacity', 1, duration, easing, false, false, false);
+     theMark.animateVisualProperty(i, 'scaleX', 1, duration, easing, false, false, false);
+     theMark.animateVisualProperty(i, 'scaleY', 1, duration, easing, false, false, false);
+     theMark.animateVisualProperty(i, 'left', positions[i].x, duration, easing, false, false, false);
+     theMark.animateVisualProperty(i, 'top', positions[i].y, duration, easing, false, false, false);
+     theMark.animateVisualProperty(i, 'top', positions[i].y, duration, easing, refreshCanvas && isTheLastElement, false, isTheLastElement, isTheLastElement);
+     
+     }
+     
+     };*/
 
     this.expand = function (refreshCanvas) {
 
@@ -485,15 +562,19 @@ var Vixor = function () {
 
         var newHeight = theVixor.visualProperties.length * (2 * theVixor.propertiesRadius + 15) + boundingRect.height + 2 * theVixor.indent - 20;
 
-        if (LOG) console.log("newHeight:");
-        if (LOG) console.log(newHeight);
+        if (LOG)
+            console.log("newHeight:");
+        if (LOG)
+            console.log(newHeight);
 
         var newWidth = boundingRect.width + 2 * theVixor.indent;
-        
+
         var newTop = objectCenter.y + (newHeight / 2 - boundingRect.height / 2 - theVixor.indent);
 
-        if (LOG) console.log("newWidth:");
-        if (LOG) console.log(newWidth);                
+        if (LOG)
+            console.log("newWidth:");
+        if (LOG)
+            console.log(newWidth);
 
         theBackground.width = newWidth;
         theBackground.height = 0;
@@ -502,8 +583,8 @@ var Vixor = function () {
         theBackground.stroke = theVixor.visualPropertyStroke || theVixor.colorForStroke;
 
         theBackground.strokeWidth = 1;
-        
-        
+
+
 
         theBackground.bringToFront();
         theVixor.bringToFront();
@@ -594,14 +675,14 @@ var Vixor = function () {
             duration: duration,
             easing: easing,
             onChange: function () {
-                
+
                 theBackground.setCoords();
-                
+
                 /*if (LOG) console.log("theBackground.width");
-                if (LOG) console.log(theBackground.width);*/
-                
+                 if (LOG) console.log(theBackground.width);*/
+
                 theBackground.width = newWidth;
-                
+
                 if (refreshCanvas) {
                     canvas.renderAll();
                 }
@@ -640,7 +721,7 @@ var Vixor = function () {
 
 //      var objectCenter = theVixor.getCenterPoint();
 
-        
+
 
         var objectCenter = theVixor.getCompressedMassPoint();
 
@@ -888,20 +969,36 @@ var Vixor = function () {
 
 /* Function to add outputs to Canvas*/
 function addVixorToCanvas(vixorType, options) {
-    if (vixorType == CIRCULAR_VIXOR) {
-        return addCircularVixorToCanvas(options);
-    } else if (vixorType == RECTANGULAR_VIXOR) {
+    if (vixorType === RECTANGULAR_VIXOR) {
         return addRectangularVixorToCanvas(options);
-    } else if (vixorType == ELLIPTIC_VIXOR) {
-        return addEllipticVixorToCanvas(options);
-    } else if (vixorType == FATFONT_VIXOR) {
-        return addFatFontVixorToCanvas(options);
-    } else if (vixorType == SVGPATH_VIXOR) {
+    } else if (vixorType === COLOR_REGION_EXTRACTOR) {
         return addSVGPathVixorToCanvas(options.thePath, options);
-    } else if (vixorType == SVGPATHGROUP_VIXOR) {
-        return addSVGPathGroupVixorToCanvas(options.thePaths, options);
-    } else if (vixorType == SAMPLER_VIXOR) {
+    } else if (vixorType === SAMPLER_VIXOR) {
         return addSamplerVixorToCanvas(options.thePath, options);
     }
 }
 
+
+function createExtractorFromXMLNode(extractorXmlNode) {
+
+    var extractorType = extractorXmlNode.attr('type');
+
+    if (extractorType === RECTANGULAR_VIXOR) {
+        
+//        createExtractorFromXMLNode(extractorXmlNode);
+
+    } else if (extractorType === TEXT_RECOGNIZER) {
+        
+//        createExtractorFromXMLNode(extractorXmlNode);
+
+    } else if (extractorType === COLOR_REGION_EXTRACTOR) {
+        
+        return createColorRegionOptionsExtractorFromXMLNode(extractorXmlNode);
+
+    } else if (extractorType === SAMPLER_VIXOR) {
+        
+//        createExtractorFromXMLNode(extractorXmlNode);
+
+    }
+
+}

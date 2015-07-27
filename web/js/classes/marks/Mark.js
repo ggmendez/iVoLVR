@@ -96,7 +96,7 @@ var Mark = function () {
 
     };
 
-    this.setxmlIDs = function (xmlIDs) {
+    this.applyXmlIDs = function (xmlIDs) {
 
         var theMark = this;
         if (xmlIDs) {
@@ -131,7 +131,6 @@ var Mark = function () {
         if (theMark.parentObject && theMark.parentObject.isLocator) {
             appendElementWithValue(markNode, "locatorXmlID", theMark.parentObject.xmlID);
         }
-
 
         theMark.visualProperties.forEach(function (visualProperty) {
             var propertyNode = visualProperty.toXML();

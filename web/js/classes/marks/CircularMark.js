@@ -1,8 +1,8 @@
 var CircularMark = fabric.util.createClass(fabric.Circle, {
     type: 'circularMark',
     isCircularMark: true,
-    serializableProperties: ['left', 'top', 'fill', 'colorForStroke', 'radius', 'label', 'isCompressed'],
-    deserializer: addCircularMarkToCanvas,
+    
+    
     initialize: function (options) {
         options || (options = {});
 
@@ -11,14 +11,15 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
 
         options.radius = options.radius ||((options.values && options.values.radius) ? options.values.radius.number : null);
         if (options.radius !== null && typeof options.radius !== 'undefined') {
-            this.set('radius', options.radius);
-            this.set('area', Math.PI * Math.abs(this.radius) * Math.abs(this.radius));
+            options.area = Math.PI * Math.abs(options.radius) * Math.abs(options.radius);
         } else {
             options.area = options.area || ((options.values && options.values.area) ? options.values.area.number : null);
-            this.set('area', options.area);
             var radius = Math.sqrt(options.area / Math.PI);
             options.radius = Math.abs(radius);
         }
+        
+        console.log("0000000000000000000000000000000000000000000000000000 CIRCULAR MARK options:");
+        console.log(options);
 
         this.callSuper('initialize', options);
         this.set('strokeWidth', options.strokeWidth || 2);
@@ -56,7 +57,7 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
 
         this.setCoreVisualPropertiesValues(options.values);
 
-        this.setxmlIDs(options.xmlIDs);
+        this.applyXmlIDs(options.xmlIDs);
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {

@@ -939,7 +939,7 @@ function objectDoubleTap(theEvent, targetObject) {
                                 trueColorDarker: darkenrgb(r, g, b),
                             };
 
-                            var theVixor = addVixorToCanvas(SVGPATH_VIXOR, vixorOptions);
+                            var theVixor = addVixorToCanvas(COLOR_REGION_EXTRACTOR, vixorOptions);
                             targetObject.widgets.push(theVixor);
 
 

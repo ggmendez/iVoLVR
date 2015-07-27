@@ -1,6 +1,11 @@
 var RectangularVixor = fabric.util.createClass(fabric.Rect, {
     type: 'rectangularVixor',
     isRectangularVixor: true,
+    
+    getExtractorType: function () {
+        return RECTANGULAR_VIXOR;
+    },
+    
     initialize: function (options) {
         options || (options = {});
         this.callSuper('initialize', options);

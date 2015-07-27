@@ -1,6 +1,11 @@
 var TextualVixor = fabric.util.createClass(fabric.Rect, {
     type: 'textExtractorVixor',
     isTextualVixor: true,
+    
+    getExtractorType: function () {
+        return TEXT_RECOGNIZER;
+    },
+    
     initialize: function (options) {
         options || (options = {});
         this.callSuper('initialize', options);

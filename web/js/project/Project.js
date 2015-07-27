@@ -233,6 +233,7 @@ function processCanvasXMLNode(canvasNode) {
     var connectors = new Array();
     var marks = new Array();
     var locators = new Array();
+    var images = new Array();
 
 //     Refreshing the canvas so that all the loaders do not do it
 //    fabric.util.animate({
@@ -274,6 +275,10 @@ function processCanvasXMLNode(canvasNode) {
 
             createVerticalCollectionFromXMLNode(child);
 
+        } else if (tagName === "importedImage") {
+                        
+            images.push(child);
+            
         } else if (tagName === "locator") {
 
             locators.push(child);
@@ -292,7 +297,11 @@ function processCanvasXMLNode(canvasNode) {
 
     });
 
-    // locators need to refer to objects that might not be in the canvas yet. That's a problem
+    
+    images.forEach(function (imageNode) {
+        var image = importImageFromXMLNode(imageNode);
+    });
+    
     locators.forEach(function (locatorNode) {
         var locator = createLocatorFromXMLNode(locatorNode);
     });
@@ -370,8 +379,10 @@ function makeConnections($rootElement) {
         var value = $connectorNode.find('destination').text(); // TODO: the value could be a composite data, so, this should be another structured XML element
         var color = $connectorNode.find('arrowColor').text();
 
-        var sourceElement = getElementBySerialID(sourceID);
-        var destinationElement = getElementBySerialID(destinationID);
+//        var sourceElement = getElementBySerialID(sourceID);
+//        var destinationElement = getElementBySerialID(destinationID);
+        var sourceElement = getFabricElementByXmlID(sourceID);
+        var destinationElement = getFabricElementByXmlID(destinationID);
 
         console.log("sourceElement:");
         console.log(sourceElement);
@@ -430,6 +441,23 @@ function getFabricElementByXmlID(xmlID) {
                     }
 
 
+
+                }
+
+
+            } else if (object.isVixor) { // If this object is a mark, we also have to look in its position visual properties and, if it is compressed in its all other one
+
+                if (object.isCompressed) {
+
+                    var visualProperties = object.visualProperties;
+
+                    for (var j = 0; j < visualProperties.length; j++) {
+                        var visualProperty = visualProperties[j];
+                        if (visualProperty && visualProperty.xmlID === xmlID) {
+                            return visualProperty;
+                        }
+
+                    }
 
                 }
 

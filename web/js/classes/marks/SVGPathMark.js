@@ -73,7 +73,7 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
 
         this.setCoreVisualPropertiesValues(options.values);
 
-        this.setxmlIDs(options.xmlIDs);
+        this.applyXmlIDs(options.xmlIDs);
 
 
 

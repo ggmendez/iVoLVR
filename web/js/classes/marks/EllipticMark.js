@@ -65,7 +65,7 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
 
         this.setCoreVisualPropertiesValues(options.values);
 
-        this.setxmlIDs(options.xmlIDs);
+        this.applyXmlIDs(options.xmlIDs);
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {

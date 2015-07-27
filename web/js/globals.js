@@ -45,15 +45,11 @@ FILLEDPATH_MARK = 'FilledPath';
 SVGPATHGROUP_MARK = 'SVGPathGroup';
 
 
-CIRCULAR_VIXOR = 'CircleVixor';
+
 RECTANGULAR_VIXOR = 'RectangleVixor';
-ELLIPTIC_VIXOR = 'EllipseVixor';
-FATFONT_VIXOR = 'FatFontVixor';
-SVGPATH_VIXOR = 'SVGPathVixor';
-SVGPATHGROUP_VIXOR = 'SVGPathGroupVixor';
+TEXT_RECOGNIZER = 'TextRecognizer';
+COLOR_REGION_EXTRACTOR = 'ColorRegionExtractor';
 SAMPLER_VIXOR = 'SamplerVixor';
-
-
 
 rectangular_output_default_width = 30;
 rectangular_output_default_height = 30;

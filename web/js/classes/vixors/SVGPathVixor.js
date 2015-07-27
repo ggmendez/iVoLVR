@@ -1,10 +1,12 @@
 SVGPathVixor = fabric.util.createClass(fabric.Path, {
     isSVGPathVixor: true,
-    
+    getExtractorType: function () {
+        return COLOR_REGION_EXTRACTOR;
+    },
     setCoreVisualPropertiesValues: function (values) {
 
         var shapeValue = null;
-        var fillValue = null;        
+        var fillValue = null;
 
         if (values) {
             shapeValue = values.shape || ((this.shape.svgPathGroupMark || this.shape.path) ? createShapeValue(this.shape.shape, this.shape.svgPathGroupMark || this.shape.path) : createShapeValue(this.shape));
@@ -22,12 +24,10 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         this.getVisualPropertyByAttributeName('shape').value = shapeValue;
         this.getVisualPropertyByAttributeName('fill').value = fillValue;
     },
-    
     initialize: function (path, options) {
-        
+
         console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$ options");
         console.log(options);
-
 
         options || (options = {});
 
@@ -36,7 +36,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', options.strokeWidth || 2);
         this.set('perPixelTargetFind', true);
-        
+
         if (!options.values) {
             options.values = {};
         }
@@ -53,6 +53,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         this.set('hasBorders', false);
         this.set('hasRotatingPoint', false);
 
+        this.set('nonSerializable', true);
+
         this.set('colorForStroke', options.colorForStroke || this.stroke);
 
         this.createRectBackground();
@@ -66,13 +68,10 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
         this.set('visualPropertyFill', options.trueColor);
         this.set('visualPropertyStroke', options.trueColorDarker);
-        
-        
-        
-        
+
         var widthValue = null;
         var heightValue = null;
-        var areaValue = null;        
+        var areaValue = null;
 
         if (options.values) {
             widthValue = options.values.width || createNumericValue(this.width, null, null, 'pixels');
@@ -83,49 +82,21 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
             heightValue = createNumericValue(this.height, null, null, 'pixels');
             areaValue = createNumericValue(this.area, null, null, 'pixels');
         }
-        
+
         this.specificProperties.push({attribute: "shape", readable: true, writable: false, types: ['string', 'object'], updatesTo: [], dataTypeProposition: 'isShapeData'});
         this.specificProperties.push({attribute: "fill", readable: true, writable: false, types: ['string'], updatesTo: [], dataTypeProposition: 'isColorData'});
-        
+
         this.specificProperties.push({attribute: "width", readable: true, writable: false, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: widthValue});
         this.specificProperties.push({attribute: "height", readable: true, writable: false, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: heightValue});
         this.specificProperties.push({attribute: "area", readable: true, writable: false, types: ['number'], updatesTo: ['width', 'height'], dataTypeProposition: 'isNumericData', value: areaValue});
 
-
         this.createVisualProperties();
-        
-        
+
         this.setCoreVisualPropertiesValues(options.values);
         
+        this.applyXmlIDs(options.xmlIDs);
 
         this.setCoords();
-
-
-//        this.applySelectedStyle = function (selectConnectorsToo) {
-//            var theVixor = this;
-//            if (LOG) console.log("SVGPathVixor applySelectedStyle");
-//            theVixor.stroke = widget_selected_stroke_color;
-//            theVixor.strokeWidth = widget_selected_stroke_width;
-//            theVixor.strokeDashArray = widget_selected_stroke_dash_array;
-//            if (selectConnectorsToo) {
-////                this.connectors.forEach(function (connector) {
-////                    connector.applySelectedStyle(false, false);
-////                });
-//            }
-//        };
-//
-//        this.applyUnselectedStyle = function (unSelectConnectorsToo) {
-//            var theVixor = this;
-//            if (LOG) console.log("SVGPathVixor applyUnselectedStyle");
-//            theVixor.stroke = widget_stroke_color;
-//            theVixor.strokeWidth = widget_stroke_width;
-//            theVixor.strokeDashArray = widget_stroke_dash_array;
-//            if (unSelectConnectorsToo) {
-////                theVixor.outConnectors.forEach(function (connector) {
-////                    connector.applyUnselectedStyle(false, false);
-////                });
-//            }
-//        }
 
         this.set('permanentOpacity', 1);
         this.set('movingOpacity', 1);
@@ -134,7 +105,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
             var theVixor = this;
 
-            if (LOG) console.log("widgetMouseup");
+            if (LOG)
+                console.log("widgetMouseup");
 
             if (theVixor.permanentOpacity) {
                 theVixor.opacity = theVixor.permanentOpacity;
@@ -148,18 +120,22 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
                 if (theEvent) {
 
-                    if (LOG) console.log(theEvent);
+                    if (LOG)
+                        console.log(theEvent);
 
                     var canvasCoords = getCanvasCoordinates(theEvent);
                     var coordX = canvasCoords.x;
                     var coordY = canvasCoords.y;
 
-                    if (LOG) console.log("%c" + canvasCoords, "background: gray");
+                    if (LOG)
+                        console.log("%c" + canvasCoords, "background: gray");
 
                     var targetObject = getObjectContaining(canvasCoords);
 
-                    if (LOG) console.log("targetObject: ");
-                    if (LOG) console.log(targetObject);
+                    if (LOG)
+                        console.log("targetObject: ");
+                    if (LOG)
+                        console.log(targetObject);
 
 
                     if (targetObject) {
@@ -217,7 +193,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
                             top: coordY,
                             fill: lastAddedConnector.arrowColor,
                             stroke: theVixor.trueColorDarker,
-                            area: lastAddedConnector.value,
+                            area: theVixor.getVisualPropertyByAttributeName('area').value.number,
                             label: '',
                             animateAtBirth: true,
                             markAsSelected: false,
@@ -253,7 +229,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
             var theVixor = this;
 
-            if (LOG) console.log("widgetMousedown");
+            if (LOG)
+                console.log("widgetMousedown");
 
             var theEvent = options;
             theEvent = options['e'];
@@ -264,7 +241,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
                 var coordX = canvasCoords.x;
                 var coordY = canvasCoords.y;
 
-                if (LOG) console.log("theVixor.area: " + theVixor.area);
+                if (LOG)
+                    console.log("theVixor.area: " + theVixor.area);
 
                 var newConnector = new Connector({source: theVixor, x2: coordX, y2: coordY, arrowColor: theVixor.trueColor, filledArrow: true, value: theVixor.area});
                 newConnector.widget = theVixor;
@@ -273,8 +251,10 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
                 canvas.add(newConnector);
                 canvas.renderAll();
 
-                if (LOG) console.log("Created connector: ");
-                if (LOG) console.log(newConnector);
+                if (LOG)
+                    console.log("Created connector: ");
+                if (LOG)
+                    console.log(newConnector);
 
             }
 
@@ -283,7 +263,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
             var theVixor = this;
 
-            if (LOG) console.log("widgetMoving");
+            if (LOG)
+                console.log("widgetMoving");
             theVixor.moving = true;
 
             var theEvent = options;
@@ -312,11 +293,15 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
         this.animateBirth = function (markAsSelected) {
 
-            if (LOG) console.log("this.initialOptions:");
-            if (LOG) console.log(this.initialOptions);
+            if (LOG)
+                console.log("this.initialOptions:");
+            if (LOG)
+                console.log(this.initialOptions);
 
-            if (LOG) console.log("this.finalOptions:");
-            if (LOG) console.log(this.finalOptions);
+            if (LOG)
+                console.log("this.finalOptions:");
+            if (LOG)
+                console.log(this.finalOptions);
 
             var theVixor = this;
             var scaleX = this.scaleX;
@@ -361,7 +346,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
 
         };
-   },
+    },
     associateInteractionEvents: function () {
         var theVixor = this;
         theVixor.on({
@@ -406,7 +391,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
 
 
-                if (LOG) console.log("%cModifying " + changedVisualProperty.attribute + ". Value: " + value, "background:green; color:white;");
+                if (LOG)
+                    console.log("%cModifying " + changedVisualProperty.attribute + ". Value: " + value, "background:green; color:white;");
 
 
 
@@ -418,7 +404,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
                     var visualProperty = theVixor.getVisualPropertyByAttributeName(attributeName);
                     var updatedValue = theVixor.computeUpdatedValueOf(property, value, attributeName);
 
-                    if (LOG) console.log("%cAfecting " + attributeName + ". Value: " + updatedValue, "background:red; color:white;");
+                    if (LOG)
+                        console.log("%cAfecting " + attributeName + ". Value: " + updatedValue, "background:red; color:white;");
 
 
                     var easing = fabric.util.ease['easeOutBack'];
@@ -438,7 +425,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
             } else if (property == 'rx' || property == 'ry') {
 
-                if (LOG) console.log("Modifying " + property + ". Value: " + value);
+                if (LOG)
+                    console.log("Modifying " + property + ". Value: " + value);
 
                 var easing = fabric.util.ease['easeOutBack'];
                 if (value < 15) {
@@ -454,7 +442,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
                     var visualProperty = theVixor.getVisualPropertyByAttributeName(attributeName);
                     var updatedValue = theVixor.computeUpdatedValueOf(property, value, attributeName);
 
-                    if (LOG) console.log("%cAfecting " + attributeName + ". Value: " + updatedValue, "background:red; color:white;");
+                    if (LOG)
+                        console.log("%cAfecting " + attributeName + ". Value: " + updatedValue, "background:red; color:white;");
 
                     var easing = fabric.util.ease['easeOutBack'];
                     if ((attributeName == 'rx' || attributeName == 'ry') && updatedValue < 15) {
@@ -486,9 +475,11 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         } else {
 
             if (property == 'angle') {
-                if (LOG) console.log("Original value: " + value);
+                if (LOG)
+                    console.log("Original value: " + value);
                 value = value % 360;
-                if (LOG) console.log("Modified value: " + value);
+                if (LOG)
+                    console.log("Modified value: " + value);
             }
 
             var easing = fabric.util.ease['easeOutBack'];
@@ -515,15 +506,74 @@ Vixor.call(SVGPathVixor.prototype);
 
 function addSVGPathVixorToCanvas(path, options) {
 
-    var svgPathVixor = new SVGPathVixor(path, options);
 
-    if (LOG) console.log("svgPathGroupVixor:");
-    if (LOG) console.log(svgPathVixor);
+    console.log("%c addSVGPathVixorToCanvas OPTIONS: ", "background: rgb(143,98,153); color: white;");
+    console.log(options);
 
-    canvas.add(svgPathVixor);
+    var colorRegionExtractor = new SVGPathVixor(path, options);
 
-    svgPathVixor.animateBirth(options.markAsSelected);
-    svgPathVixor.associateEvents(svgPathVixor);
+    if (LOG)
+        console.log("colorRegionExtractor:");
+    if (LOG)
+        console.log(colorRegionExtractor);
 
-    return svgPathVixor;
+    canvas.add(colorRegionExtractor);
+
+    colorRegionExtractor.animateBirth(options.markAsSelected);
+    colorRegionExtractor.associateEvents(colorRegionExtractor);
+
+    return colorRegionExtractor;
+}
+
+
+function createColorRegionOptionsExtractorFromXMLNode(extractorXmlNode) {
+
+    var options = {
+        extractorType: extractorXmlNode.attr('type'),
+        xmlID: Number(extractorXmlNode.attr('xmlID')),
+        imageXmlID: Number(extractorXmlNode.attr('imageXmlID')),
+        xmlIDs: {},
+        values: {}
+    };
+
+    var children = extractorXmlNode.children();
+    children.each(function () {
+        var child = $(this);
+        var tagName = this.tagName;
+
+        if (tagName === "property") {
+
+            var valueXmlNode = $(child.find('value')[0]);
+            var propertyValue = createValueFromXMLNode(valueXmlNode);
+
+            var xmlID = Number(child.attr('xmlID'));
+            var attribute = child.attr('attribute');
+
+            if (LOG) {
+                console.log(attribute + ":");
+                console.log(propertyValue);
+            }
+
+            options.values[attribute] = propertyValue;
+            options.xmlIDs[attribute] = xmlID;
+
+        } else {
+
+            var value = child.text();
+            var type = child.attr('type');
+
+            if (type === "number") {
+                value = Number(value);
+            } else if (type === "boolean") {
+                value = value === "true";
+            }
+
+            options[tagName] = value;
+
+        }
+
+    });
+
+    return options;
+
 }

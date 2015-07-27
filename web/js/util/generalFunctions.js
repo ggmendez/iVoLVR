@@ -883,9 +883,9 @@ function showCameraSignal() {
     });
 
     importToCanvasButton.click(function () {
-        Webcam.snap(function (pictureData) {
+        Webcam.snap(function (imageData) {
             Webcam.reset();
-            importImageToCanvas(pictureData);
+            importImageToCanvas({imageData: imageData});
             $("#openCameraButton").tooltipster('hide');
             document.getElementById('preTakeButtons').style.display = '';
             document.getElementById('postTakeButtons').style.display = 'none';
@@ -1276,9 +1276,9 @@ function duplicateObject() {
             }
 
             var copy = null;
-            if (activeObject.type == "importedImage") {
-                var src = activeObject.getSrc();
-                importImageToCanvas(src);
+            if (activeObject.type === "importedImage") {
+                var imageData = activeObject.getSrc();
+                importImageToCanvas({imageData: imageData});
                 return;
             } else if (activeObject.clone) {
                 copy = activeObject.clone();
@@ -1545,9 +1545,8 @@ function handleImageFiles(files) {
 }
 
 function onImageFileReadComplete(event) {
-
-    var src = event.target.result;
-    importImageToCanvas(src);
+    var imageData = event.target.result;
+    importImageToCanvas({imageData: imageData});
 }
 
 function downloadImageToServer(url, outFileName) {
@@ -1561,17 +1560,19 @@ function downloadImageToServer(url, outFileName) {
 }
 
 
-function importImageToCanvas(src, x, y) {
+function importImageToCanvas(options) {
 
     var img = new Image();
 
     img.onload = function () {
 
-        console.log("-------------- img.onload FUNCTION + x: " + x + " y: " + y);
-
         var imgInstance = new fabric.Image(this, {
             originX: 'center',
             originY: 'center',
+            angle: options.angle || 0,
+            scaleX: options.scaleX || 1,
+            scaleY: options.scaleY || 1,
+            xmlID: options.xmlID || null
         });
 
         imgInstance.img = img;
@@ -1584,11 +1585,6 @@ function importImageToCanvas(src, x, y) {
 
         imgInstance.downTouchs = 0;
         imgInstance.widgets = new Array();
-
-        // TODO: If a widget is dragged out of its parent, this should be removed from its parent's widgets list
-        // and its parentObject property should be updated correspondingly
-        // Also, if a widget is dragged from one object to another, it should updated properly: angle, position
-        // and the corresponding properties ob both
 
         imgInstance.set({
             borderColor: '#CC3333',
@@ -1607,32 +1603,19 @@ function importImageToCanvas(src, x, y) {
 
         canvas.add(imgInstance);
 
+        var canvasActualCenter = getActualCanvasCenter();
+        options.left = options.left || canvasActualCenter.x;
+        options.top = options.top || canvasActualCenter.y;
 
-        // imgInstance.center();
-
-        if (x && x !== null && y && y !== null) {
-            imgInstance.left = x;
-            imgInstance.top = y;
-        } else {
-            var canvasActualCenter = getActualCanvasCenter();
-            imgInstance.left = canvasActualCenter.x;
-            imgInstance.top = canvasActualCenter.y;
-        }
-
-        console.log("imgInstance.left:");
-        console.log(imgInstance.left);
-
-        console.log("imgInstance.top:");
-        console.log(imgInstance.top);
-
+        imgInstance.left = options.left;
+        imgInstance.top = options.top;
 
         imgInstance.setCoords();
 
         var d = new Date();
         var df = d.getMonth() + '_' + d.getDate() + '_' + d.getYear() + '_' + (d.getHours() + 1) + '_' + d.getMinutes() + '_' + d.getSeconds() + '_' + d.getMilliseconds();
 
-        imgInstance.id = df;
-
+        imgInstance.id = options.id || df;
 
         if (isValidURL(img.src)) { // this means that the src attribute of the given image does not store the data itself, but a URL 
 
@@ -1654,18 +1637,14 @@ function importImageToCanvas(src, x, y) {
                     img.src + "\r\n" +
                     "--" + boundary + "--\r\n";
 
-
-            if (LOG)
-                console.log(imgInstance.toDataURL({multiplier: 1}));
-
+//            if (LOG)
+//                console.log(imgInstance.toDataURL({multiplier: 1}));
 
             request.onreadystatechange = function () {
-                if (request.readyState == 4) { // has the data arrived?
-                    if (request.status == 200) { // is everything OK?
+                if (request.readyState === 4) { // has the data arrived?
+                    if (request.status === 200) { // is everything OK?
                         var textResponse = request.responseText; // getting the result
-
                         imgInstance.set({stroke: '#CC3333'});
-                        alertify.log(textResponse, "", 2000);
                     }
                 }
             };
@@ -1673,10 +1652,6 @@ function importImageToCanvas(src, x, y) {
             request.send(multipart);
 
         }
-
-
-
-
 
         imgInstance.on('mouseup', function (option) {
             objectMouseup(option, imgInstance);
@@ -1698,6 +1673,80 @@ function importImageToCanvas(src, x, y) {
             objectSelected(option, imgInstance);
         });
 
+        imgInstance.setXmlIDs = function (from) {
+            imgInstance.xmlID = from++;
+            imgInstance.widgets.forEach(function (widget) {
+                if (widget.isSVGPathVixor) {
+                    from = widget.setXmlIDs(from);
+                }
+            });
+            return from;
+        };
+
+        imgInstance.toXML = function () {
+            var imageNode = createXMLElement("importedImage");
+            addAttributeWithValue(imageNode, "xmlID", imgInstance.xmlID);
+            addAttributeWithValue(imageNode, "id", imgInstance.id);
+
+            appendElementWithValue(imageNode, "left", imgInstance.left);
+            appendElementWithValue(imageNode, "top", imgInstance.top);
+            appendElementWithValue(imageNode, "scaleX", imgInstance.scaleX);
+            appendElementWithValue(imageNode, "scaleY", imgInstance.scaleY);
+            appendElementWithValue(imageNode, "angle", imgInstance.angle);
+            appendElementWithValue(imageNode, "imageData", imgInstance.img.src);
+
+            if (imgInstance.widgets && imgInstance.widgets.length > 0) {
+                var extractorsNode = createXMLElement("extractorsOptions");
+                addAttributeWithValue(extractorsNode, "type", "array");
+                imgInstance.widgets.forEach(function (widget) {
+                    if (widget.isSVGPathVixor || widget.isTextualVixor) {
+                        var extractorNode = widget.toXML();
+                        extractorsNode.append(extractorNode);
+                    }
+                });
+                imageNode.append(extractorsNode);
+            }
+            return imageNode;
+        };
+
+        imgInstance.executePendingConnections = function () {
+            imgInstance.widgets.forEach(function (widget) {
+                if (widget.isSVGPathVixor) {
+                    widget.executePendingConnections();
+                }
+            });
+        };
+
+        var extractors = options.extractorsOptions;
+        if (extractors) {
+            extractors.forEach(function (extractorOptions) {
+
+                console.log("%c extractorOptions", "background: rgb(90,61,96); color: white;");
+                console.log(extractorOptions);
+
+                extractorOptions.fill = extractorOptions.fillColor;
+                extractorOptions.finalOptions = {left: extractorOptions.left, top: extractorOptions.top, scaleX: imgInstance.getScaleX(), scaleY: imgInstance.getScaleY()};
+                extractorOptions.parentObject = imgInstance;
+                extractorOptions.thePath = extractorOptions.values.shape.path;
+                extractorOptions.angle = imgInstance.getAngle();
+
+                var theVixor = addVixorToCanvas(extractorOptions.extractorType, extractorOptions);
+                imgInstance.widgets.push(theVixor);
+
+            });
+        }
+        
+        if (typeof options.xmlID !== 'undefined') {
+            imgInstance.executePendingConnections();
+        }
+
+
+
+
+
+
+
+
 
         disableDrawingMode();
 
@@ -1715,7 +1764,7 @@ function importImageToCanvas(src, x, y) {
 
 
     };
-    img.src = src;
+    img.src = options.imageData;
 
 }
 
@@ -4678,7 +4727,7 @@ function createXMLElement(elementName) {
 }
 
 function createArrayFromXMLNode(arrayNode) {
-    var array = new Array();   
+    var array = new Array();
     var elements = arrayNode.children('value');
     elements.each(function () {
         var valueNode = $(this);
@@ -5240,7 +5289,13 @@ function createVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
 
             console.log(htmlElement.src);
 
-            importImageToCanvas(htmlElement.src, x, y);
+            var options = {
+                imageData: htmlElement.src,
+                left: x,
+                top: y
+            };
+
+            importImageToCanvas(options);
 
 //                    } else if (elementType === "A" || elementType === "SPAN" || elementType === "H2") {
         } else {
@@ -5487,7 +5542,7 @@ function canvasDropFunction(ev, ui) {
 
 
         } else if (id === "mapperWidget") {
-            
+
             var options = {
                 top: y,
                 left: x,
@@ -5631,4 +5686,72 @@ function printXML(object) {
     // var bautifiedString = vkbeautify.xml(xmlString);
     var bautifiedString = formatXml(xmlString);
     console.log(bautifiedString);
+}
+
+function createImportedImageOptionsFromXMLNode(imageXmlNode) {
+
+    var options = {
+        id: imageXmlNode.attr('id'),
+        xmlID: Number(imageXmlNode.attr('xmlID')),
+    };
+
+    var children = imageXmlNode.children();
+    children.each(function () {
+        var child = $(this);
+        var tagName = this.tagName;
+
+        var value = child.text();
+        var type = child.attr('type');
+
+        console.log("%ctagName: " + tagName, "background: rgb(143,98,153); color: white;");
+
+        if (type === "array") {
+
+            var extractors = new Array();
+            var xmlIDs = new Array();
+
+            var elements = child.children('extractor');
+            elements.each(function () {
+                var valueNode = $(this);
+
+                var extractor = createExtractorFromXMLNode(valueNode);
+                extractors.push(extractor);
+
+                var xmlID = Number(valueNode.attr('xmlID'));
+                xmlIDs.push(xmlID);
+            });
+
+            options['extractorsOptions'] = extractors;
+            options['xmlIDs'] = xmlIDs;
+
+        } else {
+
+            if (type === "number") {
+                value = Number(value);
+            } else if (type === "boolean") {
+                value = value === "true";
+            }
+
+            options[tagName] = value;
+
+        }
+
+    });
+
+    console.log("%coptions to create the saved IMPORTED IMAGE", "background: rgb(90,61,96); color: white;");
+    console.log(options);
+
+    return options;
+
+}
+
+function importImageFromXMLNode(imageXmlNode) {
+
+    var options = createImportedImageOptionsFromXMLNode(imageXmlNode);
+
+    var importedImage = importImageToCanvas(options);
+
+    console.log("importedImage:");
+    console.log(importedImage);
+
 }
