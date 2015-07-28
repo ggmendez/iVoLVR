@@ -952,35 +952,4 @@ function objectDoubleTap(theEvent, targetObject) {
 
     request.send("x=" + rotatedPoint.x + "&y=" + rotatedPoint.y + "&imageId=" + targetObject.id + "&widgetID=" + widgetID); // sending the data to the server
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

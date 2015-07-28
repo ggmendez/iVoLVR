@@ -467,19 +467,3 @@ public class ObjectFinder {
     }
 
 }
-
-class ContourComparator implements Comparator<MatOfPoint> {
-
-    @Override
-    public int compare(MatOfPoint a, MatOfPoint b) {
-        double area1 = Imgproc.contourArea(a);
-        double area2 = Imgproc.contourArea(b);
-        if (area1 > area2) {
-            return 1;
-        } else if (area1 < area2) {
-            return -1;
-        } else {
-            return 0;
-        }
-    }
-}

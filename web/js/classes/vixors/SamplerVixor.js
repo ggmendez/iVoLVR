@@ -315,8 +315,8 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
             request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
             request.onreadystatechange = function () {
 
-                if (request.readyState == 4) { // has the data arrived?
-                    if (request.status == 200) { // is everything OK?
+                if (request.readyState === 4) { // has the data arrived?
+                    if (request.status === 200) { // is everything OK?
 
                         var textResponse = request.responseText; // getting the result
 

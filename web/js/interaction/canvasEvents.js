@@ -192,6 +192,14 @@ function canvasPathCreated(options) {
         createSampleVixorFromPath(drawnPath, false);
 
         drawnPath.remove();
+        
+    } else if (canvas.isScribbleMode) {
+
+        var drawnPath = options.path;
+
+        processScribbleFromPath(drawnPath);
+
+        drawnPath.remove();
 
     } else if (canvas.isTransmogrificationMode) {
 

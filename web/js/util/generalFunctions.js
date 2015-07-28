@@ -1735,7 +1735,7 @@ function importImageToCanvas(options) {
 
             });
         }
-        
+
         if (typeof options.xmlID !== 'undefined') {
             imgInstance.executePendingConnections();
         }
@@ -2205,7 +2205,7 @@ function repositionWidget(parent, child) {
     // Relocating all the widgets associated to this object
 
 
-    var newWidgetLocation = computeWidgetPosition(child);
+    var newWidgetLocation = computeWidgetPosition(child, parent);
 
 //        widget.scaleX = targetObject.scaleX;
 //        widget.scaleY = targetObject.scaleY;
@@ -2238,20 +2238,20 @@ function repositionWidget(parent, child) {
 
 }
 
-function computeUntransformedProperties(widget) {
+function computeUntransformedProperties(child, parent) {
 
     console.log("widget:");
-    console.log(widget);
+    console.log(child);
 
 
 
 //    if (LOG)
 //        console.log("%ccomputeUntransformedProperties", "background: #ff1ed3; color: black;");
 
-    var parentObject = widget.parentObject;
-    var angleInDegrees = 360 - parentObject.getAngle();
+    parent = parent || child.parentObject;
+    var angleInDegrees = 360 - parent.getAngle();
     var angleInRadians = fabric.util.degreesToRadians(angleInDegrees);
-    var parentTopLeft = parentObject.getPointByOrigin('left', 'top');
+    var parentTopLeft = parent.getPointByOrigin('left', 'top');
 
     /*console.log("parentObject:");
      console.log(parentObject);
@@ -2278,13 +2278,13 @@ function computeUntransformedProperties(widget) {
 //    }));
 
 //    var widgetCenter = widget.getPointByOrigin('center', 'center');
-    var widgetCenter = widget.getCenterPoint();
+    var widgetCenter = child.getCenterPoint();
 
 //    console.log("widgetCenter:");
 //    console.log(widgetCenter);
 
 
-    var widgetTopLeft = widget.getPointByOrigin('left', 'top');
+    var widgetTopLeft = child.getPointByOrigin('left', 'top');
 
 //    drawRectAt(widgetTopLeft, 'pink');
 //    if (LOG) console.log("widgetTopLeft:");
@@ -2305,7 +2305,7 @@ function computeUntransformedProperties(widget) {
 //    var rotatedWidgetTopLeft = fabric.util.rotatePoint(widgetTopLeft, topLeft, fabric.util.degreesToRadians(-parentObject.getAngle()));
 
 
-    var rotatedWidgetTopLeft = fabric.util.rotatePoint(new fabric.Point(widgetTopLeft.x, widgetTopLeft.y), parentTopLeft, fabric.util.degreesToRadians(360 - parentObject.getAngle()));
+    var rotatedWidgetTopLeft = fabric.util.rotatePoint(new fabric.Point(widgetTopLeft.x, widgetTopLeft.y), parentTopLeft, fabric.util.degreesToRadians(360 - parent.getAngle()));
 
 //    drawRectAt(rotatedWidgetCenter, 'green');
 //    drawRectAt(rotatedWidgetTopLeft, 'purple');
@@ -2319,24 +2319,24 @@ function computeUntransformedProperties(widget) {
 //    if (LOG) console.log(topLeft);
 
 
-    if (widget.type === "path" || widget.isTextualVixor || widget.isEllipticMark || widget.isSamplerVixor) {
+    if (child.type === "path" || child.isTextualVixor || child.isEllipticMark || child.isSamplerVixor) {
 
 //        if (LOG) console.log("%c REPOSITIONING A PATH: ", "background: blue; color: white;");
 //        if (LOG) console.log("%cAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "background: blue; color: white;");
 
-        widget.untransformedX = (rotatedWidgetCenter.x - parentTopLeft.x - widget.getWidth() / 2 - parentObject.strokeWidth / 2) / parentObject.getScaleX();
-        widget.untransformedY = (rotatedWidgetCenter.y - parentTopLeft.y - widget.getHeight() / 2 - parentObject.strokeWidth / 2) / parentObject.getScaleY();
+        child.untransformedX = (rotatedWidgetCenter.x - parentTopLeft.x - child.getWidth() / 2 - parent.strokeWidth / 2) / parent.getScaleX();
+        child.untransformedY = (rotatedWidgetCenter.y - parentTopLeft.y - child.getHeight() / 2 - parent.strokeWidth / 2) / parent.getScaleY();
 
-    } else if (widget.figureType === "Rectangle") {
+    } else if (child.figureType === "Rectangle") {
 
 //        if (LOG) console.log("%c HERE: ", "background: blue; color: white;");
 //        if (LOG) console.log("%cBBBBBBBBBBBBBBBBBBBBBBBBBBB", "background: blue; color: white;");
 
-        widget.untransformedX = (rotatedWidgetCenter.x - parentTopLeft.x - widget.getWidth()) / parentObject.getScaleX();
-        widget.untransformedY = (rotatedWidgetCenter.y - parentTopLeft.y - widget.getHeight()) / parentObject.getScaleY();
+        child.untransformedX = (rotatedWidgetCenter.x - parentTopLeft.x - child.getWidth()) / parent.getScaleX();
+        child.untransformedY = (rotatedWidgetCenter.y - parentTopLeft.y - child.getHeight()) / parent.getScaleY();
 
 
-    } else if (widget.isMark && widget.parentObject.isLocator) {
+    } else if (child.isMark && child.parentObject.isLocator) {
 
 //        if (LOG)
 //            console.log("%cEEEEEEEEEEEEEEEEEEEEEEEE", "background: pink; color: blue;");
@@ -2356,16 +2356,16 @@ function computeUntransformedProperties(widget) {
 //        }
 
 
-        widget.untransformedX = (rotatedWidgetCenter.x - parentTopLeft.x - widget.getWidth() / 2 - 1.5) / parentObject.getScaleX();
-        widget.untransformedY = (rotatedWidgetCenter.y - parentTopLeft.y - widget.getHeight() / 2 - 1.5) / parentObject.getScaleY();
+        child.untransformedX = (rotatedWidgetCenter.x - parentTopLeft.x - child.getWidth() / 2 - 1.5) / parent.getScaleX();
+        child.untransformedY = (rotatedWidgetCenter.y - parentTopLeft.y - child.getHeight() / 2 - 1.5) / parent.getScaleY();
 
-    } else if (widget.figureType === "functionSlider") {
+    } else if (child.figureType === "functionSlider") {
 
 //        if (LOG) console.log("%cCCCCCCCCCCCCCCCCCCCCC", "background: red; color: white;");
 //       if (LOG) console.log("%c AQUIIIIIIIIIIII", "background: red; color: white;");
 
-        widget.untransformedX = (rotatedWidgetCenter.x - parentTopLeft.x - widget.getWidth() / 2 - 1.5) / parentObject.getScaleX();
-        widget.untransformedY = (rotatedWidgetCenter.y - parentTopLeft.y - widget.getHeight() / 2 - 1.5) / parentObject.getScaleY();
+        child.untransformedX = (rotatedWidgetCenter.x - parentTopLeft.x - child.getWidth() / 2 - 1.5) / parent.getScaleX();
+        child.untransformedY = (rotatedWidgetCenter.y - parentTopLeft.y - child.getHeight() / 2 - 1.5) / parent.getScaleY();
 
 
 
@@ -2388,16 +2388,16 @@ function computeUntransformedProperties(widget) {
 
 //        drawRectAt(rotatedWidgetTopLeft, 'yellow');
 
-        var untransformedX = (rotatedWidgetTopLeft.x - parentTopLeft.x - parentObject.strokeWidth / 2 + widget.strokeWidth / 2) / parentObject.getScaleX();
-        var untransformedY = (rotatedWidgetTopLeft.y - parentTopLeft.y - parentObject.strokeWidth / 2 + widget.strokeWidth / 2) / parentObject.getScaleY();
+        var untransformedX = (rotatedWidgetTopLeft.x - parentTopLeft.x - parent.strokeWidth / 2 + child.strokeWidth / 2) / parent.getScaleX();
+        var untransformedY = (rotatedWidgetTopLeft.y - parentTopLeft.y - parent.strokeWidth / 2 + child.strokeWidth / 2) / parent.getScaleY();
 //        if (LOG) console.log("%c untransformedX: " + untransformedX, "background: brown; color: white;");
 //        if (LOG) console.log("%c untransformedY: " + untransformedY, "background: brown; color: white;");
 
 
 
 
-        widget.untransformedX = untransformedX;
-        widget.untransformedY = untransformedY;
+        child.untransformedX = untransformedX;
+        child.untransformedY = untransformedY;
 
 //        drawRectAt(new fabric.Point(untransformedX, untransformedY), "blue");
 
@@ -2414,7 +2414,7 @@ function computeUntransformedProperties(widget) {
 
     }
 
-    widget.untransformedAngle = widget.getAngle() - parentObject.getAngle();
+    child.untransformedAngle = child.getAngle() - parent.getAngle();
 
 //    if (LOG) console.log("widget.untransformedAngle:");
 //    if (LOG) console.log(widget.untransformedAngle);
@@ -2423,14 +2423,14 @@ function computeUntransformedProperties(widget) {
 
 
     var rotatedRect = new fabric.Rect({
-        left: widget.untransformedX + (widget.getWidth() / parentObject.getScaleX()) / 2,
-        top: widget.untransformedY + (widget.getHeight() / parentObject.getScaleY()) / 2,
+        left: child.untransformedX + (child.getWidth() / parent.getScaleX()) / 2,
+        top: child.untransformedY + (child.getHeight() / parent.getScaleY()) / 2,
         originX: 'center',
         originY: 'center',
         fill: generateRandomColor(),
-        width: widget.getWidth() / parentObject.getScaleX(),
-        height: widget.getHeight() / parentObject.getScaleY(),
-        angle: widget.getAngle() - parentObject.getAngle()
+        width: child.getWidth() / parent.getScaleX(),
+        height: child.getHeight() / parent.getScaleY(),
+        angle: child.getAngle() - parent.getAngle()
     });
 
 
@@ -2441,7 +2441,7 @@ function computeUntransformedProperties(widget) {
 
     var rotatedRectTopLeft = rotatedRect.getPointByOrigin('left', 'top');
 
-    widget.roi = {x: rotatedRectTopLeft.x, y: rotatedRectTopLeft.y, width: widget.getWidth() / parentObject.getScaleX(), height: widget.getHeight() / parentObject.getScaleY(), angle: rotatedRect.angle};
+    child.roi = {x: rotatedRectTopLeft.x, y: rotatedRectTopLeft.y, width: child.getWidth() / parent.getScaleX(), height: child.getHeight() / parent.getScaleY(), angle: rotatedRect.angle};
 
 
 
@@ -2455,7 +2455,7 @@ function computeUntransformedProperties(widget) {
 
 }
 
-function computeWidgetPosition(widget) {
+function computeWidgetPosition(widget, parent) {
 
     var x = widget.untransformedX;
     var y = widget.untransformedY;
@@ -2464,7 +2464,7 @@ function computeWidgetPosition(widget) {
 //    drawRectAt(p, "purple");
 
 
-    var parent = widget.parentObject;
+    parent = parent || widget.parentObject;
 
 //    if (LOG) console.log("targetObject:");
 //    if (LOG) console.log(targetObject);
@@ -3058,6 +3058,71 @@ function deActivateLineSamplingMode() {
     }
 }
 
+
+function activateScribbleMode() {
+
+    canvas.currentPan1FingerendOperation = canvas.activePanningMode ? PANNING_OPERATION : DISCONNECTION_OPERATION;
+
+    canvas.forEachObject(function (object) {
+        object.previousSelectableState = object.selectable;
+        object.previousEventedState = object.evented;
+        object.selectable = false;
+        object.evented = false;
+    });
+
+    deActivateTransmogrificationMode();
+    deActivateSamplingMode();
+
+    canvas.activePanningMode = false;
+    canvas.defaultCursor = "default";
+
+    canvas.isDrawingMode = true;
+
+
+    canvas.isSamplingLineMode = false;
+
+    canvas.isScribbleMode = true;
+
+    canvas.defaultCursor = 'crosshair';
+
+    $("#scribbleModeActivatorLink").css("background-color", "");
+    $("#scribbleModeActivatorLink").css("border-color", "");
+
+    $("#scribbleModeDeactivatorLink").css("background-color", "#fefefe");
+    $("#scribbleModeDeactivatorLink").css("border-color", "#000");
+
+}
+
+function deactivateScribbleMode() {
+
+    canvas.forEachObject(function (object) {
+        if (object.previousSelectableState && object.previousEventedState) {
+            object.selectable = object.previousSelectableState;
+            object.evented = object.previousEventedState;
+        }
+    });
+
+    canvas.isScribbleMode = false;
+    canvas.isDrawingMode = false;
+
+    $("#scribbleModeDeactivatorLink").css("background-color", "");
+    $("#scribbleModeDeactivatorLink").css("border-color", "");
+
+    $("#scribbleModeActivatorLink").css("background-color", "#fefefe");
+    $("#scribbleModeActivatorLink").css("border-color", "#000");
+
+    canvas.defaultCursor = 'default';
+
+    if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
+        activatePanningMode();
+    } else {
+        deActivatePanningMode();
+    }
+}
+
+
+
+
 function activateFreeSelectionMode() {
     canvas.isDrawingMode = true;
     canvas.isFreeSelectionMode = true;
@@ -3338,11 +3403,10 @@ function pathToPolyline2(svgPathPoints) {
 
 function pathToPolyline(svgPathPoints, doNotCheckForReversion) {
 
-
-    if (LOG)
-        console.log("svgPathPoints:");
-    if (LOG)
-        console.log(svgPathPoints);
+//    if (LOG) {
+//        console.log("svgPathPoints:");
+//        console.log(svgPathPoints);
+//    }
 
     var polyline = new Array();
     var x, y, i;
@@ -3778,6 +3842,284 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
      if (LOG) console.log("%c" + samplerVixor.parentObject.scaleX, "color: white; background: red;");
      if (LOG) console.log("samplerVixor.parentObject.scaleY");
      if (LOG) console.log("%c" + samplerVixor.parentObject.scaleY, "color: white; background: red;");*/
+
+}
+
+
+function processScribbleFromPath(drawnPath) {
+
+    var simplifiedPolyline = drawnPath;
+
+    var points = drawnPath.path;
+
+    // converting the user-traced path to a polyline representation
+    var polyline = pathToPolyline(points, true);
+
+    // simplifying the user-trced polyline
+    var tolerance = 1;
+    var highQuality = true;
+    simplifiedPolyline = simplify(polyline, tolerance, highQuality);
+
+
+    // The variable translatedPoints contains the information of the approximation polyline relative to its first point (which, relative to itself, is located at the poit (0,0) )
+    // this points are used to resample the approximation polyline traced by the user and they are needed because, after manipulation (translation, rotation and scaling), the original points traced by the user
+    // are not part of the path anymore
+    var translatedPoints = new Array();
+    simplifiedPolyline.forEach(function (point) {
+        translatedPoints.push({x: point.x - simplifiedPolyline[0].x, y: point.y - simplifiedPolyline[0].y});
+    });
+
+    // computing the sampling positions over the simplified path
+    var samplingDistance = 30;
+    var samplingPoints = samplePolyline(simplifiedPolyline, samplingDistance);
+    var totalLength = computePolylineLength(simplifiedPolyline);
+    var trajectory = computePolylineTrajectory(simplifiedPolyline);
+
+    // generating the offset polygon of the SIMPLIFIED polyline
+    var offsetDistance = 30;
+    var offsetPolygonPoints = generateOffsetPolygon(simplifiedPolyline, offsetDistance);
+
+    var offsetJSTSPolygon = buildJSTSPolygon(offsetPolygonPoints);
+
+    // removing self intersections that can be found in the offset polygon
+    var cleanedPolygon = removeSelfIntersections(offsetJSTSPolygon);
+
+    var cleanedCoordinates = cleanedPolygon.getCoordinates();
+
+    if ((!cleanedCoordinates || !cleanedCoordinates.length) && drawnPath.remove) {
+        drawnPath.remove();
+        canvas.renderAll();
+        return;
+    }
+
+    var svgPathString = JSTSPolygonToSVGPath(cleanedPolygon);
+
+    if (!svgPathString || svgPathString === '') {
+        if (drawnPath.remove) {
+            drawnPath.remove();
+            canvas.renderAll();
+        }
+        return;
+    }
+
+    var userDefinedPath = null;
+
+
+    userDefinedPath = getSVGPathString(drawnPath);
+
+
+    var offsetPath = new fabric.Path(svgPathString, {fill: rgb(198, 198, 198), stroke: '#000000', colorForStroke: '#000000', opacity: 0.75, strokeWidth: 1, originalStrokeWidth: 1});
+    var userPath = new fabric.Path(userDefinedPath, {fill: '', stroke: 'black', strokeWidth: 3});
+
+    var objects = [offsetPath, userPath];
+
+    var firstPoint = new fabric.Point(samplingPoints[0].x, samplingPoints[0].y);
+    var parentObject = getImportedImageContaining(firstPoint);
+
+    var untransformedPoints = new Array();
+
+    samplingPoints.forEach(function (point) {
+
+        var rect = new fabric.Rect({
+            left: point.x,
+            top: point.y,
+            strokeWidth: 0,
+            width: 10,
+            height: 10
+        });
+
+        console.log("BEFORE");
+        console.log("rect.left: " + rect.left);
+        console.log("rect.top: " + rect.top);
+
+        computeUntransformedProperties(rect, parentObject);
+        repositionWidget(parentObject, rect);
+
+        console.log("AFTER");
+        console.log("rect.left: " + rect.left);
+        console.log("rect.top: " + rect.top);
+
+        console.log("%c rect.untransformedX: " + rect.untransformedX, "background: rgb(20,79,132); color: white;");
+        console.log("%c rect.untransformedY: " + rect.untransformedY, "background: rgb(20,79,132); color: white;");
+
+        untransformedPoints.push({x: rect.untransformedX, y: rect.untransformedY});
+
+
+    });
+
+
+
+
+
+
+    var request = new XMLHttpRequest();
+    request.open("POST", "processScribble", true);
+    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+    request.onreadystatechange = function () {
+
+        if (request.readyState === 4) {
+            if (request.status === 200) {
+
+                var textResponse = request.responseText;
+
+                console.log("%c" + "textResponse:", "background: rgb(47,136,127); color: white;");
+                console.log(textResponse);
+
+                if (textResponse.trim().length > 0) {
+
+                    var response = JSON.parse(textResponse);
+
+                    console.log("%c" + "response", "background: rgb(47,136,127); color: white;");
+                    console.log(response);
+
+                    if (response) {
+
+                        var pathString = response['path'];
+                        if (pathString) {
+
+                            var color = response['meanColor'];
+                            var b = parseFloat(color['val'][0]).toFixed(0);
+                            var g = parseFloat(color['val'][1]).toFixed(0);
+                            var r = parseFloat(color['val'][2]).toFixed(0);
+
+                            var massCenter = response['massCenter'];
+                            var x = massCenter['x'];
+                            var y = massCenter['y'];
+                            
+                            
+                            
+                            var path = new fabric.Path(pathString);
+                            
+                            path.originX = 'center';
+                            path.originY = 'center';
+                            
+                            path.untransformedX = x;
+                            path.untransformedY = y;
+                            path.untransformedAngle = 0;
+                            path.untransformedScaleX = 1;
+                            path.untransformedScaleY = 1;
+                            repositionWidget(parentObject, path);
+                            
+                            path.setCoords();
+                            
+                            var area = parseInt(response['contourArea']);
+                            
+                            var fillColor = 'rgba(' + (r * 1.5).toFixed(0) + ',  ' + (g * 1.5).toFixed(0) + ', ' + (b * 1.5).toFixed(0) + ', ' + 0.75 + ')';
+                            
+                            var vixorOptions = {                                
+                                finalOptions: {left: path.left, top: path.top, scaleX: parentObject.getScaleX(), scaleY: parentObject.getScaleY()},
+                                left: path.left,
+                                top: path.top,
+                                fillColor: fillColor,
+                                fill: fillColor,
+                                stroke: darkenrgb(r, g, b),
+                                markAsSelected: true,
+                                thePath: pathString,
+                                opacity: 1,
+                                permanentOpacity: 1,
+                                movingOpacity: 0.3,
+                                isWidget: true,
+                                parentObject: parentObject,
+                                angle: parentObject.getAngle(),
+                                untransformedAngle: 0,
+                                untransformedX: x,
+                                untransformedY: y,
+                                untransformedScaleX: 1,
+                                untransformedScaleY: 1,
+                                area: area,
+                                trueColor: rgb(r, g, b),
+                                trueColorDarker: darkenrgb(r, g, b),
+                            };
+
+                            var theVixor = addVixorToCanvas(COLOR_REGION_EXTRACTOR, vixorOptions);
+                            parentObject.widgets.push(theVixor);
+                                                        
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                           
+                            
+                            
+                            
+
+
+                        }
+
+
+
+                    }
+                }
+
+            }
+        }
+
+    };
+
+    var imageForTextRecognition = parentObject.id;
+
+
+    console.log("%c" + "samplingPoints:", "background: rgb(47,136,127); color: white;");
+    console.log(samplingPoints);
+
+    console.log("%c" + "untransformedPoints:", "background: rgb(47,136,127); color: white;");
+    console.log(untransformedPoints);
+
+    request.send("samplingPoints=" + JSON.stringify(untransformedPoints) + "&imageForTextRecognition=" + imageForTextRecognition);  // sending the data to the server
+
+
+//    var samplerOptions = {
+//        originX: 'center',
+//        originY: 'center',
+//        hasBorders: false,
+//        hasControls: false,
+//        hasRotatingPoint: false,
+//        lockScalingX: true,
+//        lockScalingY: true,
+//        lockRotation: true,
+//        lockMovementX: true,
+//        lockMovementY: true,
+//        perPixelTargetFind: true,
+//        samplingFrequency: 5,
+//        samplingPoints: samplingPoints,
+//        length: parentObject ? totalLength / parentObject.scaleX : totalLength,
+//        trajectory: parentObject ? trajectory / parentObject.scaleX : trajectory,
+//        simplifiedPolyline: simplifiedPolyline,
+//        translatedPoints: translatedPoints,
+//        samplingDistance: samplingDistance,
+//        totalSamplingPoints: samplingPoints.length,
+//        fill: rgb(153, 153, 153),
+//        parentObject: parentObject,
+//        untransformedX: 0,
+//        untransformedY: 0,
+//        untransformedScaleX: 1,
+//        untransformedScaleY: 1,
+//        untransformedAngle: parentObject ? 360 - parentObject.getAngle() : 0,
+//    };
+//
+//    var samplerVixor = addSamplerVixorToCanvas(objects, samplerOptions);
+//
+//    samplerVixor.samplingMarks.forEach(function (sampligMark) {
+//        blink(sampligMark, false);
+//    });
+//    blink(samplerVixor, true, 0.1);
+//
+//    if (parentObject) {
+//        parentObject.widgets.push(samplerVixor);
+//        computeUntransformedProperties(samplerVixor);
+//
+//        samplerVixor.untransformedScaleX = 1 / parentObject.getScaleX();
+//        samplerVixor.untransformedScaleY = 1 / parentObject.getScaleY();
+//
+//        samplerVixor.sampleColors(true);
+//    }
+
+    deactivateScribbleMode();
 
 }
 

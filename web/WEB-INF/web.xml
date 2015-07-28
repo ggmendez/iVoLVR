@@ -44,6 +44,10 @@
         <servlet-name>DownloadImageFromURL</servlet-name>
         <servlet-class>servlets.DownloadImageFromURL</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>processScribble</servlet-name>
+        <servlet-class>servlets.processScribble</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>FaceDetector</servlet-name>
         <url-pattern>/FaceDetector</url-pattern>
@@ -87,6 +91,10 @@
     <servlet-mapping>
         <servlet-name>DownloadImageFromURL</servlet-name>
         <url-pattern>/DownloadImageFromURL</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>processScribble</servlet-name>
+        <url-pattern>/processScribble</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
