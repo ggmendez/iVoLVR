@@ -9,10 +9,10 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         var fillValue = null;
 
         if (values) {
-            shapeValue = values.shape || ((this.shape.svgPathGroupMark || this.shape.path) ? createShapeValue(this.shape.shape, this.shape.svgPathGroupMark || this.shape.path) : createShapeValue(this.shape));
+            shapeValue = values.shape || createShapeValue(FILLEDPATH_MARK, this.path);
             fillValue = values.trueColor || createColorValue(new fabric.Color(this.trueColor));
         } else {
-            shapeValue = this.shape.svgPathGroupMark || this.shape.path ? createShapeValue(this.shape.shape, this.shape.svgPathGroupMark || this.shape.path) : createShapeValue(this.shape);
+            shapeValue = createShapeValue(FILLEDPATH_MARK, this.path);
             fillValue = createColorValue(new fabric.Color(this.trueColor));
         }
 
@@ -40,8 +40,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         if (!options.values) {
             options.values = {};
         }
-        options.values.shape = createShapeValue(FILLEDPATH_MARK, this);
-        this.set('shape', {shape: FILLEDPATH_MARK, path: this});
+        options.values.shape = createShapeValue(FILLEDPATH_MARK, path);
+//        this.set('shape', {shape: FILLEDPATH_MARK, path: path});
 
         this.set('lockScalingX', true);
         this.set('lockScalingY', true);
@@ -93,7 +93,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         this.createVisualProperties();
 
         this.setCoreVisualPropertiesValues(options.values);
-        
+
         this.applyXmlIDs(options.xmlIDs);
 
         this.setCoords();
@@ -518,8 +518,26 @@ function addSVGPathVixorToCanvas(path, options) {
         console.log(colorRegionExtractor);
 
     canvas.add(colorRegionExtractor);
+    
+    
 
-    colorRegionExtractor.animateBirth(options.markAsSelected);
+    if (options.animateAtBirth) {
+        colorRegionExtractor.animateBirth(options.markAsSelected);
+    } else {
+        // If the birth of the object is not animated, its scaling properties should be set directly
+        if (typeof options.scaleX !== 'undefined') {
+            colorRegionExtractor.scaleX = options.scaleX;
+        }
+        if (typeof options.scaleY !== 'undefined') {
+            colorRegionExtractor.scaleY = options.scaleY;
+        }
+    }
+
+    if (options.shouldExpand) {
+        colorRegionExtractor.expand(true);
+    }
+
+
     colorRegionExtractor.associateEvents(colorRegionExtractor);
 
     return colorRegionExtractor;
@@ -573,6 +591,9 @@ function createColorRegionOptionsExtractorFromXMLNode(extractorXmlNode) {
         }
 
     });
+    
+    options.animateAtBirth = !options.isExpanded;
+    options.shouldExpand = options.isExpanded;
 
     return options;
 

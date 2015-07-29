@@ -3986,30 +3986,30 @@ function processScribbleFromPath(drawnPath) {
                             var x = massCenter['x'];
                             var y = massCenter['y'];
                             
-                            
+//                            console.log("%c" + "massCenter", "background: red; color: white;");
+//                            console.log(massCenter);                                                        
                             
                             var path = new fabric.Path(pathString);
                             
-                            path.originX = 'center';
-                            path.originY = 'center';
-                            
+                            path.isColorSelector = true;
                             path.untransformedX = x;
                             path.untransformedY = y;
                             path.untransformedAngle = 0;
                             path.untransformedScaleX = 1;
                             path.untransformedScaleY = 1;
-                            repositionWidget(parentObject, path);
-                            
-                            path.setCoords();
+                                                                                    
+                            var widgetPosition = computeWidgetPosition(path, parentObject);
+                            var finalX = widgetPosition.x;
+                            var finalY = widgetPosition.y;                                                     
                             
                             var area = parseInt(response['contourArea']);
                             
                             var fillColor = 'rgba(' + (r * 1.5).toFixed(0) + ',  ' + (g * 1.5).toFixed(0) + ', ' + (b * 1.5).toFixed(0) + ', ' + 0.75 + ')';
                             
-                            var vixorOptions = {                                
-                                finalOptions: {left: path.left, top: path.top, scaleX: parentObject.getScaleX(), scaleY: parentObject.getScaleY()},
-                                left: path.left,
-                                top: path.top,
+                            var vixorOptions = {
+                                finalOptions: {left: finalX, top: finalY, scaleX: parentObject.getScaleX(), scaleY: parentObject.getScaleY()},
+                                left: finalX,
+                                top: finalY,
                                 fillColor: fillColor,
                                 fill: fillColor,
                                 stroke: darkenrgb(r, g, b),
@@ -4029,6 +4029,7 @@ function processScribbleFromPath(drawnPath) {
                                 area: area,
                                 trueColor: rgb(r, g, b),
                                 trueColorDarker: darkenrgb(r, g, b),
+                                animateAtBirth: true,
                             };
 
                             var theVixor = addVixorToCanvas(COLOR_REGION_EXTRACTOR, vixorOptions);

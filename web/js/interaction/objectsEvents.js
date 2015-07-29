@@ -1,12 +1,15 @@
 function objectAdded(option, targetObject) {
-    if (LOG) console.log("objectAdded");
+    if (LOG)
+        console.log("objectAdded");
 }
 function objectRemoved(option, targetObject) {
-    if (LOG) console.log("objectRemoved");
+    if (LOG)
+        console.log("objectRemoved");
 }
 function objectSelected(option, targetObject) {
 
-    if (LOG) console.log("objectSelected");
+    if (LOG)
+        console.log("objectSelected");
 
 
 
@@ -24,7 +27,8 @@ function objectSelected(option, targetObject) {
 }
 
 function objectModified(option, targetObject) {
-    if (LOG) console.log("objectModified");
+    if (LOG)
+        console.log("objectModified");
     if (targetObject.type == "importedImage") {
         repositionAllWidgets(targetObject);
     }
@@ -33,21 +37,23 @@ function objectRotating(option, targetObject) {
 
 
 
-    if (LOG) console.log("objectRotating");
+    if (LOG)
+        console.log("objectRotating");
     if (targetObject.type == "importedImage") {
         repositionAllWidgets(targetObject);
     }
 }
 
 function objectScaling(option, targetObject) {
-    if (LOG) console.log("objectScaling");
+    if (LOG)
+        console.log("objectScaling");
     if (targetObject.type == "importedImage") {
         repositionAllWidgets(targetObject);
     }
 }
 
 function objectMoving(option, targetObject, parentGroup) {
-   
+
 //   if (LOG) console.log("objectMoving");
 
     targetObject.setCoords();
@@ -79,7 +85,8 @@ function objectMoving(option, targetObject, parentGroup) {
 }
 
 function objectMousedown(option, targetObject) {
-    if (LOG) console.log("objectMousedown");
+    if (LOG)
+        console.log("objectMousedown");
 }
 
 
@@ -87,7 +94,8 @@ function objectMousedown(option, targetObject) {
 
 function objectMouseup(option, targetObject) {
 
-    if (LOG) console.log("objectMouseup");
+    if (LOG)
+        console.log("objectMouseup");
 
     if (targetObject.permanentOpacity != 'undefined') {
         targetObject.opacity = targetObject.permanentOpacity;
@@ -465,7 +473,8 @@ function objectMouseup(option, targetObject) {
 
 function performTextRecognition(widget, meanColor) {
 
-    if (LOG) console.log("performTextRecognition");
+    if (LOG)
+        console.log("performTextRecognition");
 
     var b = parseFloat(meanColor['val'][0]).toFixed(0);
     var g = parseFloat(meanColor['val'][1]).toFixed(0);
@@ -488,7 +497,8 @@ function performTextRecognition(widget, meanColor) {
 
                     if (response) {
 
-                        if (LOG) console.log(response);
+                        if (LOG)
+                            console.log(response);
                         widget.recognizedStrings = response;
 
                     }
@@ -518,7 +528,8 @@ function disableObjectEvents() {
 }
 
 function enableObjectEvents() {
-   if (LOG) console.log("%cActivating objects events...", "background:red; color:white;");
+    if (LOG)
+        console.log("%cActivating objects events...", "background:red; color:white;");
     canvas.getObjects().forEach(function (object) {
         if (object.isImage || object.isWidget || object.isMark) {
             object.evented = true;
@@ -534,9 +545,11 @@ function objectDoubleTap(theEvent, targetObject) {
 
 
 
-    if (LOG) console.log("objectDoubleTap");
+    if (LOG)
+        console.log("objectDoubleTap");
 
-    if (LOG) console.log(theEvent);
+    if (LOG)
+        console.log(theEvent);
 
     if (!theEvent.pointers)
         return;
@@ -544,11 +557,15 @@ function objectDoubleTap(theEvent, targetObject) {
     var viewportLeft = canvas.viewportTransform[4];
     var viewportTop = canvas.viewportTransform[5];
 
-    if (LOG) console.log("viewportLeft:");
-    if (LOG) console.log(viewportLeft);
+    if (LOG)
+        console.log("viewportLeft:");
+    if (LOG)
+        console.log(viewportLeft);
 
-    if (LOG) console.log("viewportTop:");
-    if (LOG) console.log(viewportTop);
+    if (LOG)
+        console.log("viewportTop:");
+    if (LOG)
+        console.log(viewportTop);
 
 //    var x = (theEvent.pointers[0].pageX - viewportLeft - $('#theCanvas').offset().left ) / canvas.getZoom();
 //    var y = (theEvent.pointers[0].pageY - viewportTop - $('#theCanvas').offset().top ) / canvas.getZoom();
@@ -560,14 +577,18 @@ function objectDoubleTap(theEvent, targetObject) {
 
 
     var canvasOffset = canvas.calcOffset();
-    if (LOG) console.log("canvasOffset:");
-    if (LOG) console.log(canvasOffset);
+    if (LOG)
+        console.log("canvasOffset:");
+    if (LOG)
+        console.log(canvasOffset);
 
     var topLeft = targetObject.getPointByOrigin('left', 'top');
 //    drawRectAt(topLeft, 'red');
 
-    if (LOG) console.log("Image topLeft at after zoom of : " + canvas.getZoom());
-    if (LOG) console.log(topLeft);
+    if (LOG)
+        console.log("Image topLeft at after zoom of : " + canvas.getZoom());
+    if (LOG)
+        console.log(topLeft);
 
     var x = (theEvent.pointers[0].pageX - viewportLeft - $('#theCanvas').offset().left) / canvas.getZoom();
     var y = (theEvent.pointers[0].pageY - viewportTop - $('#theCanvas').offset().top) / canvas.getZoom();
@@ -576,7 +597,8 @@ function objectDoubleTap(theEvent, targetObject) {
 //    drawRectAt(globalPointer, 'green');
 
     var localPointer = new fabric.Point(globalPointer.x - topLeft.x, globalPointer.y - topLeft.y);
-    if (LOG) console.log(localPointer);
+    if (LOG)
+        console.log(localPointer);
 
 
 
@@ -591,27 +613,34 @@ function objectDoubleTap(theEvent, targetObject) {
     var relativeX = localPointer.x;
     var relativeY = localPointer.y;
 
-    if (LOG) console.log("X coordinate relative to the object clicked: " + relativeX);
-    if (LOG) console.log("Y coordinate relative to the object clicked: " + relativeY);
+    if (LOG)
+        console.log("X coordinate relative to the object clicked: " + relativeX);
+    if (LOG)
+        console.log("Y coordinate relative to the object clicked: " + relativeY);
 
 //                if (LOG) console.log("targetObject.angle: " + targetObject.angle);
 //                if (LOG) console.log("targetObject.getAngle(): " + targetObject.getAngle());
 //                if (LOG) console.log("targetObject.get('angle'): " + targetObject.get('angle'));
 
     var angleInDegrees = 360 - targetObject.getAngle();
-    if (LOG) console.log("angle: " + angleInDegrees);
+    if (LOG)
+        console.log("angle: " + angleInDegrees);
 
     var scaleX = targetObject.getScaleX();
     var scaleY = targetObject.getScaleY();
 
-    if (LOG) console.log("scaleX: " + scaleX);
-    if (LOG) console.log("scaleY: " + scaleY);
+    if (LOG)
+        console.log("scaleX: " + scaleX);
+    if (LOG)
+        console.log("scaleY: " + scaleY);
 
     var rotationCenter = new fabric.Point(targetObject.getLeft() - targetObject.getWidth() / 2, targetObject.getTop() - targetObject.getHeight() / 2);
 
     var thePoint = new fabric.Point(rotationCenter.x + relativeX, rotationCenter.y + relativeY);
-    if (LOG) console.log("thePoint: ");
-    if (LOG) console.log(thePoint);
+    if (LOG)
+        console.log("thePoint: ");
+    if (LOG)
+        console.log(thePoint);
 
     var angleInRadians = fabric.util.degreesToRadians(angleInDegrees);
 
@@ -624,8 +653,10 @@ function objectDoubleTap(theEvent, targetObject) {
     rotatedPoint.x = rotatedPoint.x / scaleX;
     rotatedPoint.y = rotatedPoint.y / scaleY;
 
-    if (LOG) console.log("Rotated point: ");
-    if (LOG) console.log(rotatedPoint);
+    if (LOG)
+        console.log("Rotated point: ");
+    if (LOG)
+        console.log(rotatedPoint);
 
 
 
@@ -677,7 +708,8 @@ function objectDoubleTap(theEvent, targetObject) {
 
 
 
-
+                            console.log("%c" + "massCenter", "background: red; color: white;");
+                            console.log(massCenter);
 
 
 
@@ -717,21 +749,24 @@ function objectDoubleTap(theEvent, targetObject) {
                             var initialX = globalPointer.x;
                             var initialY = globalPointer.y;
 
-                            
+
 
                             widget.filledArea = parseInt(response['filledArea']);
                             widget.contourArea = parseInt(response['contourArea']);
-                            
+
                             var area = parseInt(response['filledArea']);
 
-                            if (LOG) console.log("widget.filledArea: " + widget.filledArea);
-                            if (LOG) console.log("widget.contourArea: " + widget.contourArea);
+                            if (LOG)
+                                console.log("widget.filledArea: " + widget.filledArea);
+                            if (LOG)
+                                console.log("widget.contourArea: " + widget.contourArea);
 
 
                             widget.value = widget.filledArea;
 
                             widget.applyUnselectedStyle = function (unSelectConnectorsToo) {
-                                if (LOG) console.log("widget.applyUnselectedStyle");
+                                if (LOG)
+                                    console.log("widget.applyUnselectedStyle");
                                 this.stroke = widget_stroke_color;
                                 this.strokeWidth = widget_stroke_width;
                                 this.strokeDashArray = widget_stroke_dash_array;
@@ -743,7 +778,8 @@ function objectDoubleTap(theEvent, targetObject) {
                             };
 
                             widget.applySelectedStyle = function (selectConnectorsToo) {
-                                if (LOG) console.log("widget.applySelectedStyle");
+                                if (LOG)
+                                    console.log("widget.applySelectedStyle");
                                 this.stroke = widget_selected_stroke_color;
                                 this.strokeWidth = widget_selected_stroke_width;
                                 this.strokeDashArray = widget_selected_stroke_dash_array;
@@ -757,20 +793,24 @@ function objectDoubleTap(theEvent, targetObject) {
                             widget.on({
                                 'inConnectionRemoved': function (options) {
                                     var removedConnection = options.connector;
-                                    if (LOG) console.log("%cAn IN connection has been removed from this vixor", "background: LightPink");
+                                    if (LOG)
+                                        console.log("%cAn IN connection has been removed from this vixor", "background: LightPink");
 //                                    fabric.util.removeFromArray(this.inConnectors, removedConnection);
                                 },
                                 'outConnectionRemoved': function (options) {
                                     var removedConnection = options.connector;
-                                    if (LOG) console.log("%cAn OUT connection has been removed from this vixor", "background: LightPink");
+                                    if (LOG)
+                                        console.log("%cAn OUT connection has been removed from this vixor", "background: LightPink");
 //                                    fabric.util.removeFromArray(this.outConnectors, removedConnection);
                                     fabric.util.removeFromArray(this.connectors, removedConnection);
                                 }
                             });
 
 
-                            if (LOG) console.log("widget.value: " + widget.value);
-                            if (LOG) console.log("typeof widget.filledArea: " + typeof widget.filledArea);
+                            if (LOG)
+                                console.log("widget.value: " + widget.value);
+                            if (LOG)
+                                console.log("typeof widget.filledArea: " + typeof widget.filledArea);
 
                             widget.set({left: initialX, top: initialY, originX: 'center', originY: 'center', scaleX: 0, scaleY: 0});
 
@@ -914,7 +954,7 @@ function objectDoubleTap(theEvent, targetObject) {
 
 //                            var fillColor = 'rgba(' + (r * 1.5).toFixed(0) + ',  ' + (g * 1.5).toFixed(0) + ', ' + (b * 1.5).toFixed(0) + ', ' + widget_fill_opacity + ')';
                             var fillColor = 'rgba(' + (r * 1.5).toFixed(0) + ',  ' + (g * 1.5).toFixed(0) + ', ' + (b * 1.5).toFixed(0) + ', ' + 0.75 + ')';
-                            var vixorOptions = {                                
+                            var vixorOptions = {
                                 finalOptions: {left: finalX, top: finalY, scaleX: targetObject.getScaleX(), scaleY: targetObject.getScaleY()},
                                 left: initialX,
                                 top: initialY,
@@ -937,6 +977,7 @@ function objectDoubleTap(theEvent, targetObject) {
                                 area: area,
                                 trueColor: rgb(r, g, b),
                                 trueColorDarker: darkenrgb(r, g, b),
+                                animateAtBirth: true,
                             };
 
                             var theVixor = addVixorToCanvas(COLOR_REGION_EXTRACTOR, vixorOptions);

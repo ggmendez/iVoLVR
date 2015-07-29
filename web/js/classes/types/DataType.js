@@ -17,18 +17,18 @@ var DataType = function () {
 
     this.set('scaleX', 1.2);
     this.set('scaleY', 1.2);
-    
+
     this.setXmlIDs = function (from) {
         var theVisualValue = this;
         theVisualValue.xmlID = from++;
         return from;
     };
-    
+
     this.toXML = function () {
         var visualValueNode = createXMLElement("visualValue");
         addAttributeWithValue(visualValueNode, "xmlID", this.xmlID);
         appendElementWithValue(visualValueNode, "left", this.left);
-        appendElementWithValue(visualValueNode, "top", this.top);        
+        appendElementWithValue(visualValueNode, "top", this.top);
         visualValueNode.append(this.value.toXML());
         return visualValueNode;
     };
@@ -635,9 +635,9 @@ function CreateDataType(options) {
 
 
 function CreateDataTypeFromValue(value) {
-    
+
     if (value.isNumericData) {
-        
+
         console.log("--------------- ************************* value:");
         console.log(value);
 
@@ -667,6 +667,16 @@ function CreateDataTypeFromValue(value) {
     } else if (value.isShapeData) {
 
         var options = {theShape: value.shape};
+
+        var shape = value.shape;
+        var attribute = null;
+        if (shape === PATH_MARK || shape === FILLEDPATH_MARK) {
+            attribute = 'path';
+        } else {
+            attribute = 'svgPathGroupMark';
+        }
+        options[attribute] = value[attribute];
+
         return new ShapeData(options);
 
     } else {
@@ -721,8 +731,8 @@ function addVisualVariableToCollection(visualValue, collection, connector, useTh
 
     if (collection.isValueAllowed(value)) {
 
-        var newVisualValue = visualValue;        
-        
+        var newVisualValue = visualValue;
+
         if (!useTheGivenVisualValue) {
             newVisualValue = CreateDataTypeFromValue(value);
         }
@@ -788,10 +798,10 @@ function addVisualValueToCanvas(options) {
              console.log(visualValue);
              
              visualValue.animateBirth(false, null, null, false);*/
-            
+
             options.thePaths = objects;
             options.shape = CIRCULAR_MARK;
-            
+
 
             options = $.extend(true, {}, options, options2);
 
@@ -835,16 +845,16 @@ function createVisualVariableFromXMLNode(visualValueXmlNode) {
 
     var options = {
         xmlID: Number(visualValueXmlNode.attr('xmlID')),
-        values: {}
+//        values: {}
     };
-    
+
     var children = visualValueXmlNode.children();
     children.each(function () {
         var child = $(this);
         var tagName = this.tagName;
 
         if (tagName === "value") {
-            
+
             options.value = createValueFromXMLNode(child);
 
         } else {
@@ -859,22 +869,22 @@ function createVisualVariableFromXMLNode(visualValueXmlNode) {
             }
 
             options[tagName] = value;
-            
+
         }
 
     });
-    
+
     console.log("options to create a new DATATYPE from an XML node");
     console.log(options);
 
     var visualValue = CreateDataTypeFromValue(options.value);
-    
+
     visualValue.xmlID = options.xmlID;
     visualValue.top = options.top;
     visualValue.left = options.left;
-    
+
     canvas.add(visualValue);
     visualValue.animateBirth(false, null, null, true);
-    
+
     return visualValue;
 }

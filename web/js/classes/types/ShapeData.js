@@ -15,7 +15,10 @@ var ShapeData = fabric.util.createClass(fabric.Path, {
         console.log("Creating SHAPE DATA with the following options: ");
         console.log(options);
 
-        this.set('value', createShapeValue(options.shape || CIRCULAR_MARK, options.svgPathGroupMark || null));
+        this.set('value', createShapeValue(options.theShape || CIRCULAR_MARK, (options.path || options.svgPathGroupMark) || null));
+        
+        
+        
 //        this.set('value', this.createValue(CIRCULAR_MARK, null));
 
         /*this.set('fill', options.fill || rgb(150, 82, 182));
@@ -303,6 +306,14 @@ var ShapeData = fabric.util.createClass(fabric.Path, {
 DataType.call(ShapeData.prototype);
 
 function createShapeValue(shape, svgPathGroupMark) {
+    
+    console.log("####################################################################################################");
+    console.log("####################################################################################################");
+    console.log("####################################################################################################");
+    console.log("####################################################################################################");
+    console.log("####################################################################################################");
+    console.log(shape);
+    console.log(svgPathGroupMark);
 
     var theValue = new Value({isShapeData: true, shape: shape});
     if (shape === PATH_MARK || shape === FILLEDPATH_MARK) {
@@ -313,6 +324,10 @@ function createShapeValue(shape, svgPathGroupMark) {
 //    console.log("svgPathGroupMark:");
 //    console.log(svgPathGroupMark);
 //    return new Value({isShapeData: true, shape: shape, svgPathGroupMark: svgPathGroupMark});
+
+    console.log("Crated value:");
+    console.log("Crated value:");
+    
 
     return theValue;
 }

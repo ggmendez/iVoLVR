@@ -10,13 +10,13 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
         options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
 
-        options.width = options.width ||((options.values && options.values.width) ? options.values.width.number : null);
-        options.height = options.height ||((options.values && options.values.height) ? options.values.height.number : null);
+        options.width = options.width || ((options.values && options.values.width) ? options.values.width.number : null);
+        options.height = options.height || ((options.values && options.values.height) ? options.values.height.number : null);
 
         if (options.width !== null && options.height !== null && typeof options.width !== 'undefined' && typeof options.height !== 'undefined') {
-            options.area = Math.abs(this.width) * Math.abs(this.height);
+            options.area = Math.abs(options.width) * Math.abs(options.height);
         } else {
-            options.area = options.area ||((options.values && options.values.area) ? options.values.area.number : null);
+            options.area = options.area || ((options.values && options.values.area) ? options.values.area.number : null);
             var side = Math.sqrt(options.area);
             options.width = Math.abs(side);
             options.height = options.width;
@@ -287,6 +287,9 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
     },
     generateOptionsForShape: function (newShapeType) {
 
+        console.log("%c" + "newShapeType: ", "background: rgb(90,61,96); color: white;");
+        console.log(newShapeType);
+
         var theMark = this;
 
         var options = {
@@ -305,6 +308,9 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
             options.height = theMark.height / 2;
 
         } else if (newShapeType === CIRCULAR_MARK || newShapeType === ELLIPTIC_MARK || newShapeType === RECTANGULAR_MARK || newShapeType === SQUARED_MARK) {
+
+            console.log("%c" + "theMark.area", "background: rgb(90,61,96); color: white;");
+            console.log(theMark.area);
 
             options.area = theMark.area;
 

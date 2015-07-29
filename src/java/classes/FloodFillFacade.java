@@ -191,8 +191,8 @@ public class FloodFillFacade {
         Scalar lowerDifference = new Scalar(lowerDiff, lowerDiff, lowerDiff);
         Scalar upperDifference = new Scalar(upperDiff, upperDiff, upperDiff);
         if (range == NULL_RANGE) {
-            lowerDifference = new Scalar(35, 35, 35);
-            upperDifference = new Scalar(35, 35, 35);
+            lowerDifference = new Scalar(0,0,0);
+            upperDifference = new Scalar(0,0,0);
         }
         int flags = connectivity + (newMaskVal << 8) + ((range == FIXED_RANGE ? Imgproc.FLOODFILL_FIXED_RANGE : 0) | 0);//Imgproc.FLOODFILL_MASK_ONLY);
         int area = 0;

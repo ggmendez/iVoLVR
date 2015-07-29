@@ -12,7 +12,7 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         if (!options.values) {
             options.values = {};
         }
-        options.values.shape = createShapeValue(FILLEDPATH_MARK, this);
+        options.values.shape = createShapeValue(FILLEDPATH_MARK, path);
 
         this.callSuper('initialize', path, options);
 
@@ -26,7 +26,7 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
 
         this.createIText();
 
-        this.set('shape', {shape: FILLEDPATH_MARK, path: this});
+//        this.set('shape', {shape: FILLEDPATH_MARK, path: this});
 
         this.createRectBackground();
 
@@ -74,6 +74,14 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         this.setCoreVisualPropertiesValues(options.values);
 
         this.applyXmlIDs(options.xmlIDs);
+        
+        this.toXML = function () {
+            // Calling the nomal expand method from the prototype definition
+            var markNode = SVGPathMark.prototype.toXML.call(this);
+            appendElementWithValue(markNode, "finalScaleX", this.finalScaleX);
+            appendElementWithValue(markNode, "finalScaleY", this.finalScaleY);
+            return markNode;
+        };
 
 
 
@@ -331,7 +339,7 @@ function addSVGPathMarkToCanvas(path, options) {
     var waitingTime = 0;
     if (options.animateAtBirth) {
         waitingTime = 1250;
-        svgPathMark.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
+        svgPathMark.animateBirth(options.markAsSelected, options.finalScaleX, options.finalScaleY, options.doNotRefreshCanvas);
     }
 
     svgPathMark.associateEvents(svgPathMark);

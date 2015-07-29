@@ -43,6 +43,9 @@ var Vixor = function () {
         appendElementWithValue(extractorNode, "untransformedY", theExtractor.untransformedY);
         appendElementWithValue(extractorNode, "untransformedScaleX", theExtractor.untransformedScaleX);
         appendElementWithValue(extractorNode, "untransformedScaleY", theExtractor.untransformedScaleY);
+        
+        appendElementWithValue(extractorNode, "scaleX", theExtractor.getScaleX());
+        appendElementWithValue(extractorNode, "scaleY", theExtractor.getScaleY());
 
         appendElementWithValue(extractorNode, "trueColor", theExtractor.trueColor);
         appendElementWithValue(extractorNode, "trueColorDarker", theExtractor.trueColorDarker);

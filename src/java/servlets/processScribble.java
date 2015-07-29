@@ -60,8 +60,6 @@ public class processScribble extends HttpServlet {
 
             String samplingPoints = request.getParameter("samplingPoints");
 
-            ArrayList<int[]> results = new ArrayList<>();
-
             Gson gson = new Gson();
             Point[] userPoints = gson.fromJson(samplingPoints, Point[].class);
 
@@ -120,6 +118,9 @@ public class processScribble extends HttpServlet {
             Imgproc.drawContours(image, arrayList, 0, newVal, -1);
 
             Imgproc.resize(mask, mask, image.size());
+            
+            
+            Scalar meanColor = Core.mean(original, mask);
 
 //            Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\the_convexHull.png", image);
             ImageUtils.saveImage(image, "the_convexHull.png", request);
@@ -165,13 +166,10 @@ public class processScribble extends HttpServlet {
             System.out.println("path:");
             System.out.println(path);
 
-            Moments mom = Imgproc.moments(biggestContour);
-            Point center = new Point(mom.get_m10() / mom.get_m00(), mom.get_m01() / mom.get_m00());
-
             Rect computedSearchWindow = Imgproc.boundingRect(biggestContour);
             Point massCenter = computedSearchWindow.tl();
 
-            FindingResponse findingResponse = new FindingResponse(path, new Scalar(255, 255, 255), massCenter, -1, contourArea);
+            FindingResponse findingResponse = new FindingResponse(path, meanColor, massCenter, -1, contourArea);
             String jsonResponse = gson.toJson(findingResponse, FindingResponse.class);
 
             out.println(jsonResponse);

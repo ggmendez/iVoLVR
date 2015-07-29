@@ -121,7 +121,7 @@ var Mark = function () {
         var theMark = this;
         var markNode = createXMLElement("mark");
         addAttributeWithValue(markNode, "xmlID", theMark.xmlID);
-        addAttributeWithValue(markNode, "shape", theMark.shape.shape || theMark.shape);
+        addAttributeWithValue(markNode, "shape", theMark.getVisualPropertyByAttributeName('shape').value.shape);
         appendElementWithValue(markNode, "left", theMark.left);
         appendElementWithValue(markNode, "top", theMark.top);
         appendElementWithValue(markNode, "stroke", new fabric.Color(theMark.visualProperties[0].stroke).toRgba());
@@ -1696,7 +1696,7 @@ function changeMarkShape(theMark, shapeValue) {
     var newShape = null;
     
     if (shapeValue.shape === PATH_MARK || shapeValue.shape === FILLEDPATH_MARK) {
-        path = shapeValue.path.path;
+        path = shapeValue.path;
     } else if (shapeValue.shape === SVGPATHGROUP_MARK) {
         svgPathGroupMark = shapeValue.svgPathGroupMark;
     }

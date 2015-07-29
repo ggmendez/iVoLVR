@@ -141,7 +141,7 @@ function Value(options) {
 
         } else if (this.isShapeData) {
 
-            appendElementWithValue(valueNode, "shape", this.shape.shape || this.shape);
+            appendElementWithValue(valueNode, "shape", this.shape);
 
             if (LOG) {
                 console.log("this: ++++++++++++++++++++++++++++");
@@ -151,7 +151,7 @@ function Value(options) {
 
 
             if (this.shape === PATH_MARK || this.shape === FILLEDPATH_MARK) {
-                appendCDATAWithValue(valueNode, "path", this.path.path);
+                appendCDATAWithValue(valueNode, "path", this.path);
             } else if (this.shape === SVGPATHGROUP_MARK) {
                 appendCDATAWithValue(valueNode, "svgPathGroupMark", this.svgPathGroupMark.SVGString);
             }
@@ -682,6 +682,10 @@ function createValueFromXMLNode(valueXmlNode) {
 
         options[property] = value;
     });
+    
+    console.log("%c Options to create a new VALUE from and XML Node: ", "background: rgb(143,98,153); color: white;");
+    console.log(options);
+    
 
     return createValue(options);
 }
