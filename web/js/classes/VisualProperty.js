@@ -31,7 +31,15 @@ var VisualProperty = function () {
         var value = this.value;
         if (value) {
             if ($.isArray(this.value)) {
-                var arrayNode = createXMLElement("array");
+                
+                console.log("**************************************************************", "background: red; color: white;");
+                console.log("***************************** Alert!!!!! Saving an ARRAY value", "background: red; color: white;");
+                console.log("**************************************************************", "background: red; color: white;");
+                
+//                var arrayNode = createXMLElement("array"); // TODO: It would be better if the created node is still a value one, but with type array
+                var arrayNode = createXMLElement("value"); // TODO: It would be better if the created node is still a value one, but with type array
+                addAttributeWithValue(arrayNode, "type", "array");
+                
                 theVisualProperty.value.forEach(function (value) {
                     var valueNode = value.toXML();
                     arrayNode.append(valueNode);

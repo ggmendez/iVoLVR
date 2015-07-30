@@ -38,7 +38,7 @@ public class FloodFillFacade {
 
     public static int cont = 0;
 
-    static {
+    /*static {
         System.load("C:/Users/Gonzalo/Documents/NetBeansProjects/iVoLVR/lib/opencv_java249_64.dll");
     }
 
@@ -131,7 +131,7 @@ public class FloodFillFacade {
 
         Imgproc.drawContours(image, arrayList, 0, newVal, -1);
 
-        Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\the_convexHull.png", image);
+//        Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\the_convexHull.png", image);
 
         newVal = new Scalar(255, 255, 0);
 
@@ -140,12 +140,12 @@ public class FloodFillFacade {
         floodFillFacade.fill(image, mask, 211, 194, newVal);
 
         Core.circle(image, new Point(211, 194), 5, new Scalar(0, 0, 0), -1);
-        Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\final.png", image);
+//        Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\final.png", image);
 
         Mat element = new Mat(3, 3, CvType.CV_8U, new Scalar(1));
         Imgproc.morphologyEx(mask, mask, Imgproc.MORPH_CLOSE, element, new Point(-1, -1), 3);
 
-        Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\final_mask_dilated.png", mask);
+//        Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\final_mask_dilated.png", mask);
 
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
         Imgproc.findContours(mask.clone(), contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
@@ -171,7 +171,7 @@ public class FloodFillFacade {
         System.out.println("path:");
         System.out.println(path);
 
-    }
+    }*/
 
     @Override
     public String toString() {
@@ -202,8 +202,8 @@ public class FloodFillFacade {
             area = Imgproc.floodFill(image, new Mat(), seedPoint, newVal, rect, lowerDifference, upperDifference, flags);
         }
 
-        Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\image_after_flood_" + cont + ".png", image);
-        Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\mask_" + cont + ".png", mask);
+//        Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\image_after_flood_" + cont + ".png", image);
+//        Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\mask_" + cont + ".png", mask);
 
         System.out.println("area: " + area);
 

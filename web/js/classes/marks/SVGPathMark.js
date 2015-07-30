@@ -74,7 +74,7 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         this.setCoreVisualPropertiesValues(options.values);
 
         this.applyXmlIDs(options.xmlIDs);
-        
+
         this.toXML = function () {
             // Calling the nomal expand method from the prototype definition
             var markNode = SVGPathMark.prototype.toXML.call(this);
@@ -340,6 +340,11 @@ function addSVGPathMarkToCanvas(path, options) {
     if (options.animateAtBirth) {
         waitingTime = 1250;
         svgPathMark.animateBirth(options.markAsSelected, options.finalScaleX, options.finalScaleY, options.doNotRefreshCanvas);
+    } else {
+        if (typeof options.finalScaleX !== 'undefined' && typeof options.finalScaleY !== 'undefined') {
+            svgPathMark.scaleX = options.finalScaleX;
+            svgPathMark.scaleY = options.finalScaleY;
+        }
     }
 
     svgPathMark.associateEvents(svgPathMark);

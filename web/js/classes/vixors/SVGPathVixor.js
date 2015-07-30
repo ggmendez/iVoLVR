@@ -1,5 +1,39 @@
 SVGPathVixor = fabric.util.createClass(fabric.Path, {
     isSVGPathVixor: true,
+    toXML: function () {
+        var theExtractor = this;
+        var extractorNode = createXMLElement("extractor");
+
+        addAttributeWithValue(extractorNode, "xmlID", theExtractor.xmlID);
+        addAttributeWithValue(extractorNode, "type", theExtractor.getExtractorType());
+        appendElementWithValue(extractorNode, "left", theExtractor.left);
+        appendElementWithValue(extractorNode, "top", theExtractor.top);
+
+        appendElementWithValue(extractorNode, "untransformedAngle", theExtractor.untransformedAngle);
+        appendElementWithValue(extractorNode, "untransformedX", theExtractor.untransformedX);
+        appendElementWithValue(extractorNode, "untransformedY", theExtractor.untransformedY);
+        appendElementWithValue(extractorNode, "untransformedScaleX", theExtractor.untransformedScaleX);
+        appendElementWithValue(extractorNode, "untransformedScaleY", theExtractor.untransformedScaleY);
+
+        appendElementWithValue(extractorNode, "scaleX", theExtractor.getScaleX());
+        appendElementWithValue(extractorNode, "scaleY", theExtractor.getScaleY());
+
+        appendElementWithValue(extractorNode, "trueColor", theExtractor.trueColor);
+        appendElementWithValue(extractorNode, "trueColorDarker", theExtractor.trueColorDarker);
+        appendElementWithValue(extractorNode, "fillColor", theExtractor.fillColor);
+
+        appendElementWithValue(extractorNode, "stroke", new fabric.Color(theExtractor.visualProperties[0].stroke).toRgba());
+        appendElementWithValue(extractorNode, "visualPropertyFill", new fabric.Color(theExtractor.visualProperties[0].fill).toRgba());
+        appendElementWithValue(extractorNode, "isExpanded", !theExtractor.isCompressed);
+        if (theExtractor.parentObject && theExtractor.parentObject.isImportedImage) {
+            appendElementWithValue(extractorNode, "imageXmlID", theExtractor.parentObject.xmlID);
+        }
+        theExtractor.visualProperties.forEach(function (visualProperty) {
+            var propertyNode = visualProperty.toXML();
+            extractorNode.append(propertyNode);
+        });
+        return extractorNode;
+    },
     getExtractorType: function () {
         return COLOR_REGION_EXTRACTOR;
     },
@@ -41,7 +75,6 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
             options.values = {};
         }
         options.values.shape = createShapeValue(FILLEDPATH_MARK, path);
-//        this.set('shape', {shape: FILLEDPATH_MARK, path: path});
 
         this.set('lockScalingX', true);
         this.set('lockScalingY', true);
@@ -293,15 +326,12 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
         this.animateBirth = function (markAsSelected) {
 
-            if (LOG)
-                console.log("this.initialOptions:");
-            if (LOG)
-                console.log(this.initialOptions);
-
-            if (LOG)
-                console.log("this.finalOptions:");
-            if (LOG)
-                console.log(this.finalOptions);
+            /*if (LOG) {
+             console.log("this.initialOptions:");
+             console.log(this.initialOptions);
+             console.log("this.finalOptions:");
+             console.log(this.finalOptions);
+             }*/
 
             var theVixor = this;
             var scaleX = this.scaleX;
@@ -339,7 +369,9 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
                 easing: easing,
                 onComplete: function () {
                     theVixor.associateInteractionEvents();
-                    canvas.setActiveObject(theVixor);
+                    if (markAsSelected) {
+                        canvas.setActiveObject(theVixor);
+                    }
                 }
             });
 
@@ -506,7 +538,6 @@ Vixor.call(SVGPathVixor.prototype);
 
 function addSVGPathVixorToCanvas(path, options) {
 
-
     console.log("%c addSVGPathVixorToCanvas OPTIONS: ", "background: rgb(143,98,153); color: white;");
     console.log(options);
 
@@ -518,8 +549,6 @@ function addSVGPathVixorToCanvas(path, options) {
         console.log(colorRegionExtractor);
 
     canvas.add(colorRegionExtractor);
-    
-    
 
     if (options.animateAtBirth) {
         colorRegionExtractor.animateBirth(options.markAsSelected);
@@ -537,8 +566,11 @@ function addSVGPathVixorToCanvas(path, options) {
         colorRegionExtractor.expand(true);
     }
 
-
     colorRegionExtractor.associateEvents(colorRegionExtractor);
+
+    if (options.xmlID) {
+        colorRegionExtractor.executePendingConnections();
+    }
 
     return colorRegionExtractor;
 }
@@ -591,7 +623,7 @@ function createColorRegionOptionsExtractorFromXMLNode(extractorXmlNode) {
         }
 
     });
-    
+
     options.animateAtBirth = !options.isExpanded;
     options.shouldExpand = options.isExpanded;
 

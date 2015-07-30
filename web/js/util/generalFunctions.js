@@ -1572,7 +1572,13 @@ function importImageToCanvas(options) {
             angle: options.angle || 0,
             scaleX: options.scaleX || 1,
             scaleY: options.scaleY || 1,
-            xmlID: options.xmlID || null
+            xmlID: options.xmlID || null,
+            
+//            lockScalingX: true,
+//            lockScalingY: true,
+            lockRotation: true,
+            hasControls: false,
+            hasRotatingPoint: false,
         });
 
         imgInstance.img = img;
@@ -1699,7 +1705,7 @@ function importImageToCanvas(options) {
                 var extractorsNode = createXMLElement("extractorsOptions");
                 addAttributeWithValue(extractorsNode, "type", "array");
                 imgInstance.widgets.forEach(function (widget) {
-                    if (widget.isSVGPathVixor || widget.isTextualVixor) {
+                    if (widget.isSVGPathVixor || widget.isTextualVixor || widget.isSamplerVixor) {
                         var extractorNode = widget.toXML();
                         extractorsNode.append(extractorNode);
                     }
@@ -1724,13 +1730,27 @@ function importImageToCanvas(options) {
                 console.log("%c extractorOptions", "background: rgb(90,61,96); color: white;");
                 console.log(extractorOptions);
 
-                extractorOptions.fill = extractorOptions.fillColor;
-                extractorOptions.finalOptions = {left: extractorOptions.left, top: extractorOptions.top, scaleX: imgInstance.getScaleX(), scaleY: imgInstance.getScaleY()};
-                extractorOptions.parentObject = imgInstance;
-                extractorOptions.thePath = extractorOptions.values.shape.path;
-                extractorOptions.angle = imgInstance.getAngle();
+                var extractorType = extractorOptions.extractorType;
+                var theVixor = null;
 
-                var theVixor = addVixorToCanvas(extractorOptions.extractorType, extractorOptions);
+                extractorOptions.parentObject = imgInstance;
+
+                if (extractorType === COLOR_REGION_EXTRACTOR) {
+
+                    extractorOptions.fill = extractorOptions.fillColor;
+                    extractorOptions.finalOptions = {left: extractorOptions.left, top: extractorOptions.top, scaleX: imgInstance.getScaleX(), scaleY: imgInstance.getScaleY()};
+                    extractorOptions.thePath = extractorOptions.values.shape.path;
+                    extractorOptions.angle = imgInstance.getAngle();
+
+                    theVixor = addVixorToCanvas(extractorOptions.extractorType, extractorOptions);
+
+
+                } else if (extractorType === SAMPLER_VIXOR) {
+
+                    theVixor = buildAndAddSamplerColor(extractorOptions);
+
+                }
+
                 imgInstance.widgets.push(theVixor);
 
             });
@@ -1739,14 +1759,6 @@ function importImageToCanvas(options) {
         if (typeof options.xmlID !== 'undefined') {
             imgInstance.executePendingConnections();
         }
-
-
-
-
-
-
-
-
 
         disableDrawingMode();
 
@@ -2240,10 +2252,8 @@ function repositionWidget(parent, child) {
 
 function computeUntransformedProperties(child, parent) {
 
-    console.log("widget:");
-    console.log(child);
-
-
+//    console.log("widget:");
+//    console.log(child);
 
 //    if (LOG)
 //        console.log("%ccomputeUntransformedProperties", "background: #ff1ed3; color: black;");
@@ -3774,62 +3784,79 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
     }
 
 
-    var offsetPath = new fabric.Path(svgPathString, {fill: rgb(198, 198, 198), stroke: '#000000', colorForStroke: '#000000', opacity: 0.75, strokeWidth: 1, originalStrokeWidth: 1});
-    var userPath = new fabric.Path(userDefinedPath, {fill: '', stroke: 'black', strokeWidth: 3});
-
-    var objects = [offsetPath, userPath];
+    /*var offsetPath = new fabric.Path(svgPathString, {fill: rgb(198, 198, 198), stroke: '#000000', colorForStroke: '#000000', opacity: 0.75, strokeWidth: 1, originalStrokeWidth: 1});
+     var userPath = new fabric.Path(userDefinedPath, {fill: '', stroke: 'black', strokeWidth: 3});
+     
+     var objects = [offsetPath, userPath];
+     
+     var firstPoint = new fabric.Point(samplingPoints[0].x, samplingPoints[0].y);
+     var parentObject = getImportedImageContaining(firstPoint);
+     
+     var samplerOptions = {
+     originX: 'center',
+     originY: 'center',
+     hasBorders: false,
+     hasControls: false,
+     hasRotatingPoint: false,
+     lockScalingX: true,
+     lockScalingY: true,
+     lockRotation: true,
+     perPixelTargetFind: true,
+     samplingFrequency: 5,
+     samplingPoints: samplingPoints,
+     length: parentObject ? totalLength / parentObject.scaleX : totalLength,
+     trajectory: parentObject ? trajectory / parentObject.scaleX : trajectory,
+     simplifiedPolyline: simplifiedPolyline,
+     translatedPoints: translatedPoints,
+     samplingDistance: samplingDistance,
+     totalSamplingPoints: samplingPoints.length,
+     fill: rgb(153, 153, 153),
+     parentObject: parentObject,
+     untransformedX: 0,
+     untransformedY: 0,
+     untransformedScaleX: 1,
+     untransformedScaleY: 1,
+     untransformedAngle: parentObject ? 360 - parentObject.getAngle() : 0,
+     offsetPolygonPath: svgPathString,
+     userTracedPath: userDefinedPath,
+     };
+     
+     var samplerVixor = addSamplerVixorToCanvas(objects, samplerOptions);
+     
+     samplerVixor.samplingMarks.forEach(function (sampligMark) {
+     blink(sampligMark, false);
+     });
+     blink(samplerVixor, true, 0.1);
+     
+     if (parentObject) {
+     parentObject.widgets.push(samplerVixor);
+     computeUntransformedProperties(samplerVixor);
+     
+     samplerVixor.untransformedScaleX = 1 / parentObject.getScaleX();
+     samplerVixor.untransformedScaleY = 1 / parentObject.getScaleY();
+     
+     samplerVixor.sampleColors(true);
+     }*/
 
     var firstPoint = new fabric.Point(samplingPoints[0].x, samplingPoints[0].y);
     var parentObject = getImportedImageContaining(firstPoint);
 
-    var samplerOptions = {
-        originX: 'center',
-        originY: 'center',
-        hasBorders: false,
-        hasControls: false,
-        hasRotatingPoint: false,
-        lockScalingX: true,
-        lockScalingY: true,
-        lockRotation: true,
-        /*lockMovementX: true,
-         lockMovementY: true,*/
-
-        perPixelTargetFind: true,
-        samplingFrequency: 5,
+    var options = {
+        offsetPolygonPath: svgPathString,
+        userTracedPath: userDefinedPath,
         samplingPoints: samplingPoints,
-        length: parentObject ? totalLength / parentObject.scaleX : totalLength,
-        trajectory: parentObject ? trajectory / parentObject.scaleX : trajectory,
+        totalLength: totalLength,
         simplifiedPolyline: simplifiedPolyline,
         translatedPoints: translatedPoints,
         samplingDistance: samplingDistance,
-        totalSamplingPoints: samplingPoints.length,
-        fill: rgb(153, 153, 153),
-        parentObject: parentObject,
-        untransformedX: 0,
-        untransformedY: 0,
-        untransformedScaleX: 1,
-        untransformedScaleY: 1,
-        untransformedAngle: parentObject ? 360 - parentObject.getAngle() : 0,
+        trajectory: trajectory,
+        parentObject: parentObject
     };
-
-    var samplerVixor = addSamplerVixorToCanvas(objects, samplerOptions);
-
-    samplerVixor.samplingMarks.forEach(function (sampligMark) {
-        blink(sampligMark, false);
-    });
-    blink(samplerVixor, true, 0.1);
+    var samplerVixor = buildAndAddSamplerColor(options);
 
     if (parentObject) {
         parentObject.widgets.push(samplerVixor);
-        computeUntransformedProperties(samplerVixor);
-
-        samplerVixor.untransformedScaleX = 1 / parentObject.getScaleX();
-        samplerVixor.untransformedScaleY = 1 / parentObject.getScaleY();
-
-        samplerVixor.sampleColors(true);
     }
-
-
 
     deActivateSamplingMode();
     deActivateLineSamplingMode();
@@ -3845,6 +3872,115 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
 
 }
 
+
+function buildAndAddSamplerColor(options) {
+
+    console.log("%c Going to build and add a sample color with the following options:", "background: rgb(97,121,77); color: white;");
+    console.log(options);
+
+    var offsetPath = new fabric.Path(options.offsetPolygonPath, {fill: rgb(198, 198, 198), stroke: '#000000', colorForStroke: '#000000', opacity: 0.75, strokeWidth: 1, originalStrokeWidth: 1});
+    var userPath = new fabric.Path(options.userTracedPath, {fill: '', stroke: 'black', strokeWidth: 3});
+
+    var objects = [offsetPath, userPath];
+
+    var parentObject = options.parentObject || null;
+
+    var samplerOptions = {
+        originX: 'center',
+        originY: 'center',
+        hasBorders: false,
+        hasControls: false,
+        hasRotatingPoint: false,
+        lockScalingX: true,
+        lockScalingY: true,
+        lockRotation: true,
+        perPixelTargetFind: true,
+        samplingFrequency: options.samplingFrequency || 5,
+        angle: options.angle || 0,
+        scaleX: options.scaleX || 1,
+        scaleY: options.scaleY || 1,
+        samplingPoints: options.samplingPoints,
+        length: options.values ? options.values.length.number : (parentObject ? options.totalLength / parentObject.scaleX : options.totalLength),
+        trajectory: options.values ? options.values.trajectory.number : (parentObject ? options.trajectory / parentObject.scaleX : options.trajectory),
+        simplifiedPolyline: options.simplifiedPolyline,
+        translatedPoints: options.translatedPoints,
+        samplingDistance: options.values ? options.values.samplingDistance.number : options.samplingDistance,
+        totalSamplingPoints: options.samplingPoints.length,
+        fill: rgb(153, 153, 153),
+        parentObject: parentObject,
+        untransformedX: options.untransformedX || 0,
+        untransformedY: options.untransformedY || 0,
+        untransformedScaleX: options.untransformedScaleX || 1,
+        untransformedScaleY: options.untransformedScaleY || 1,
+        untransformedAngle: options.untransformedAngle || (parentObject ? 360 - parentObject.getAngle() : 0),
+        offsetPolygonPath: options.offsetPolygonPath,
+        userTracedPath: options.userTracedPath,
+        nonSerializable: parentObject !== null,
+        xmlIDs: options.xmlIDs,
+        values: options.values
+    };
+
+
+    if (options.left) {
+        samplerOptions.left = options.left;
+    }
+    if (options.top) {
+        samplerOptions.top = options.top;
+    }
+
+    var samplerVixor = addSamplerVixorToCanvas(objects, samplerOptions);
+
+    samplerVixor.samplingMarks.forEach(function (sampligMark) {
+        blink(sampligMark, false);
+    });
+    blink(samplerVixor, true, 0.1);
+
+    var colorValues = options.values ? options.values.colorValues : null;
+
+    if (parentObject && !colorValues) {
+        computeUntransformedProperties(samplerVixor);
+
+        samplerVixor.untransformedScaleX = 1 / parentObject.getScaleX();
+        samplerVixor.untransformedScaleY = 1 / parentObject.getScaleY();
+
+        samplerVixor.sampleColors(true);
+    } else if (colorValues) {
+        var i = 0;
+        var strokes = options.samplingMarksStrokes;
+        colorValues.forEach(function (colorValue) {
+            samplerVixor.samplingMarks[i].fill = colorValue.color.toRgba();
+            samplerVixor.samplingMarks[i].stroke = strokes[i];
+            i++;
+        });
+    }
+
+    var samplingMarksPositions = options.samplingMarksPositions;
+    if (samplingMarksPositions) {
+        var j = 0;
+        samplingMarksPositions.forEach(function (point) {
+            console.log("point:");
+            console.log(point);
+//            samplerVixor.samplingMarks[j].setPositionByOrigin(new fabric.Point(point.x, point.y), 'center', 'center');
+            samplerVixor.samplingMarks[j].left = point.x;
+            samplerVixor.samplingMarks[j].top = point.y;
+            computeUntransformedProperties(samplerVixor.samplingMarks[j]);
+            j++;
+        });
+    }
+
+    if (options.xmlIDs) {
+        samplerVixor.executePendingConnections();
+    }
+
+    if (options.shouldExpand) {
+        samplerVixor.expand(true);
+    }
+
+
+
+    return samplerVixor;
+
+}
 
 function processScribbleFromPath(drawnPath) {
 
@@ -3916,6 +4052,10 @@ function processScribbleFromPath(drawnPath) {
     var firstPoint = new fabric.Point(samplingPoints[0].x, samplingPoints[0].y);
     var parentObject = getImportedImageContaining(firstPoint);
 
+    if (!parentObject) {
+        return;
+    }
+
     var untransformedPoints = new Array();
 
     samplingPoints.forEach(function (point) {
@@ -3985,27 +4125,27 @@ function processScribbleFromPath(drawnPath) {
                             var massCenter = response['massCenter'];
                             var x = massCenter['x'];
                             var y = massCenter['y'];
-                            
+
 //                            console.log("%c" + "massCenter", "background: red; color: white;");
 //                            console.log(massCenter);                                                        
-                            
+
                             var path = new fabric.Path(pathString);
-                            
+
                             path.isColorSelector = true;
                             path.untransformedX = x;
                             path.untransformedY = y;
                             path.untransformedAngle = 0;
                             path.untransformedScaleX = 1;
                             path.untransformedScaleY = 1;
-                                                                                    
+
                             var widgetPosition = computeWidgetPosition(path, parentObject);
                             var finalX = widgetPosition.x;
-                            var finalY = widgetPosition.y;                                                     
-                            
+                            var finalY = widgetPosition.y;
+
                             var area = parseInt(response['contourArea']);
-                            
+
                             var fillColor = 'rgba(' + (r * 1.5).toFixed(0) + ',  ' + (g * 1.5).toFixed(0) + ', ' + (b * 1.5).toFixed(0) + ', ' + 0.75 + ')';
-                            
+
                             var vixorOptions = {
                                 finalOptions: {left: finalX, top: finalY, scaleX: parentObject.getScaleX(), scaleY: parentObject.getScaleY()},
                                 left: finalX,
@@ -4034,20 +4174,20 @@ function processScribbleFromPath(drawnPath) {
 
                             var theVixor = addVixorToCanvas(COLOR_REGION_EXTRACTOR, vixorOptions);
                             parentObject.widgets.push(theVixor);
-                                                        
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                           
-                            
-                            
-                            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
                         }
@@ -4072,53 +4212,6 @@ function processScribbleFromPath(drawnPath) {
     console.log(untransformedPoints);
 
     request.send("samplingPoints=" + JSON.stringify(untransformedPoints) + "&imageForTextRecognition=" + imageForTextRecognition);  // sending the data to the server
-
-
-//    var samplerOptions = {
-//        originX: 'center',
-//        originY: 'center',
-//        hasBorders: false,
-//        hasControls: false,
-//        hasRotatingPoint: false,
-//        lockScalingX: true,
-//        lockScalingY: true,
-//        lockRotation: true,
-//        lockMovementX: true,
-//        lockMovementY: true,
-//        perPixelTargetFind: true,
-//        samplingFrequency: 5,
-//        samplingPoints: samplingPoints,
-//        length: parentObject ? totalLength / parentObject.scaleX : totalLength,
-//        trajectory: parentObject ? trajectory / parentObject.scaleX : trajectory,
-//        simplifiedPolyline: simplifiedPolyline,
-//        translatedPoints: translatedPoints,
-//        samplingDistance: samplingDistance,
-//        totalSamplingPoints: samplingPoints.length,
-//        fill: rgb(153, 153, 153),
-//        parentObject: parentObject,
-//        untransformedX: 0,
-//        untransformedY: 0,
-//        untransformedScaleX: 1,
-//        untransformedScaleY: 1,
-//        untransformedAngle: parentObject ? 360 - parentObject.getAngle() : 0,
-//    };
-//
-//    var samplerVixor = addSamplerVixorToCanvas(objects, samplerOptions);
-//
-//    samplerVixor.samplingMarks.forEach(function (sampligMark) {
-//        blink(sampligMark, false);
-//    });
-//    blink(samplerVixor, true, 0.1);
-//
-//    if (parentObject) {
-//        parentObject.widgets.push(samplerVixor);
-//        computeUntransformedProperties(samplerVixor);
-//
-//        samplerVixor.untransformedScaleX = 1 / parentObject.getScaleX();
-//        samplerVixor.untransformedScaleY = 1 / parentObject.getScaleY();
-//
-//        samplerVixor.sampleColors(true);
-//    }
 
     deactivateScribbleMode();
 
@@ -6050,21 +6143,21 @@ function createImportedImageOptionsFromXMLNode(imageXmlNode) {
 
         if (type === "array") {
 
-            var extractors = new Array();
+            var extractorsOptions = new Array();
             var xmlIDs = new Array();
 
             var elements = child.children('extractor');
             elements.each(function () {
                 var valueNode = $(this);
 
-                var extractor = createExtractorFromXMLNode(valueNode);
-                extractors.push(extractor);
+                var extractor = createExtractorOptionsFromXMLNode(valueNode);
+                extractorsOptions.push(extractor);
 
                 var xmlID = Number(valueNode.attr('xmlID'));
                 xmlIDs.push(xmlID);
             });
 
-            options['extractorsOptions'] = extractors;
+            options['extractorsOptions'] = extractorsOptions;
             options['xmlIDs'] = xmlIDs;
 
         } else {

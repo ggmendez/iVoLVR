@@ -29,40 +29,40 @@ var Vixor = function () {
 
 
 
-    this.toXML = function () {
-        var theExtractor = this;
-        var extractorNode = createXMLElement("extractor");
-
-        addAttributeWithValue(extractorNode, "xmlID", theExtractor.xmlID);
-        addAttributeWithValue(extractorNode, "type", theExtractor.getExtractorType());
-        appendElementWithValue(extractorNode, "left", theExtractor.left);
-        appendElementWithValue(extractorNode, "top", theExtractor.top);
-                
-        appendElementWithValue(extractorNode, "untransformedAngle", theExtractor.untransformedAngle);
-        appendElementWithValue(extractorNode, "untransformedX", theExtractor.untransformedX);
-        appendElementWithValue(extractorNode, "untransformedY", theExtractor.untransformedY);
-        appendElementWithValue(extractorNode, "untransformedScaleX", theExtractor.untransformedScaleX);
-        appendElementWithValue(extractorNode, "untransformedScaleY", theExtractor.untransformedScaleY);
-        
-        appendElementWithValue(extractorNode, "scaleX", theExtractor.getScaleX());
-        appendElementWithValue(extractorNode, "scaleY", theExtractor.getScaleY());
-
-        appendElementWithValue(extractorNode, "trueColor", theExtractor.trueColor);
-        appendElementWithValue(extractorNode, "trueColorDarker", theExtractor.trueColorDarker);
-        appendElementWithValue(extractorNode, "fillColor", theExtractor.fillColor);
-
-        appendElementWithValue(extractorNode, "stroke", new fabric.Color(theExtractor.visualProperties[0].stroke).toRgba());
-        appendElementWithValue(extractorNode, "visualPropertyFill", new fabric.Color(theExtractor.visualProperties[0].fill).toRgba());
-        appendElementWithValue(extractorNode, "isExpanded", !theExtractor.isCompressed);
-        if (theExtractor.parentObject && theExtractor.parentObject.isImportedImage) {
-            appendElementWithValue(extractorNode, "imageXmlID", theExtractor.parentObject.xmlID);
-        }
-        theExtractor.visualProperties.forEach(function (visualProperty) {
-            var propertyNode = visualProperty.toXML();
-            extractorNode.append(propertyNode);
-        });
-        return extractorNode;
-    };
+//    this.toXML = function () {
+//        var theExtractor = this;
+//        var extractorNode = createXMLElement("extractor");
+//
+//        addAttributeWithValue(extractorNode, "xmlID", theExtractor.xmlID);
+//        addAttributeWithValue(extractorNode, "type", theExtractor.getExtractorType());
+//        appendElementWithValue(extractorNode, "left", theExtractor.left);
+//        appendElementWithValue(extractorNode, "top", theExtractor.top);
+//                
+//        appendElementWithValue(extractorNode, "untransformedAngle", theExtractor.untransformedAngle);
+//        appendElementWithValue(extractorNode, "untransformedX", theExtractor.untransformedX);
+//        appendElementWithValue(extractorNode, "untransformedY", theExtractor.untransformedY);
+//        appendElementWithValue(extractorNode, "untransformedScaleX", theExtractor.untransformedScaleX);
+//        appendElementWithValue(extractorNode, "untransformedScaleY", theExtractor.untransformedScaleY);
+//        
+//        appendElementWithValue(extractorNode, "scaleX", theExtractor.getScaleX());
+//        appendElementWithValue(extractorNode, "scaleY", theExtractor.getScaleY());
+//
+//        appendElementWithValue(extractorNode, "trueColor", theExtractor.trueColor);
+//        appendElementWithValue(extractorNode, "trueColorDarker", theExtractor.trueColorDarker);
+//        appendElementWithValue(extractorNode, "fillColor", theExtractor.fillColor);
+//
+//        appendElementWithValue(extractorNode, "stroke", new fabric.Color(theExtractor.visualProperties[0].stroke).toRgba());
+//        appendElementWithValue(extractorNode, "visualPropertyFill", new fabric.Color(theExtractor.visualProperties[0].fill).toRgba());
+//        appendElementWithValue(extractorNode, "isExpanded", !theExtractor.isCompressed);
+//        if (theExtractor.parentObject && theExtractor.parentObject.isImportedImage) {
+//            appendElementWithValue(extractorNode, "imageXmlID", theExtractor.parentObject.xmlID);
+//        }
+//        theExtractor.visualProperties.forEach(function (visualProperty) {
+//            var propertyNode = visualProperty.toXML();
+//            extractorNode.append(propertyNode);
+//        });
+//        return extractorNode;
+//    };
 
     this.applyXmlIDs = function (xmlIDs) {
         var theExtractor = this;
@@ -370,165 +370,6 @@ var Vixor = function () {
         });
 
     };
-
-    /*this.expand = function (refreshCanvas) {
-     
-     if (!this.isCompressed)
-     return;
-     
-     //        if (LOG) console.log("%cExpanding", "background:red; color:white");
-     //        if (LOG) console.log("refreshCanvas: " + refreshCanvas + " - " + this.type);
-     
-     var theMark = this;
-     theMark.setCoords();
-     
-     // Disabling any event for this mark. This will be enabled once the animations of this method are done.
-     theMark.evented = false;
-     gestureSetEnabled(manager, 'pan1Finger', false);
-     
-     var theBackground = this.backgroundRect;
-     var duration = 500;
-     var easing = fabric.util.ease['easeOutCubic'];
-     
-     var boundingRect = theMark.getBoundingRect();
-     var objectCenter = theMark.getCenterPoint();
-     
-     if (theMark.isCircularMark && (theMark.scaleX == theMark.scaleY)) {
-     var markRealRadius = theMark.radius * theMark.scaleX;
-     if (boundingRect.width / canvas.getZoom() < theMark.propertiesRadius) {
-     markRealRadius = theMark.propertiesRadius + 5;
-     }
-     var wh = 2 * markRealRadius;
-     boundingRect = {top: objectCenter.y - markRealRadius, left: objectCenter.x - markRealRadius, width: wh, height: wh};
-     
-     } else if (theMark.isEllipticMark && (theMark.rx == theMark.ry) && (theMark.scaleX == theMark.scaleY)) {
-     
-     var markRealRadius = theMark.rx * theMark.scaleX;
-     if (markRealRadius < theMark.propertiesRadius) {
-     markRealRadius = theMark.propertiesRadius + 5;
-     }
-     var wh = 2 * markRealRadius * canvas.getZoom();
-     boundingRect = {top: objectCenter.y - markRealRadius, left: objectCenter.x - markRealRadius, width: wh, height: (2 * this.ry * this.scaleY) * canvas.getZoom()};
-     }
-     
-     // The dimensions of the bounding rectangle are absolute, thus, the zoom level has to be taken into account
-     if (boundingRect.width / canvas.getZoom() < theMark.propertiesRadius) {
-     boundingRect.width = 2 * theMark.propertiesRadius;
-     }
-     
-     // TODO: Eventually, this compensantion should not be necessary
-     if (theMark.isFatFontMark || theMark.isSVGPathGroupMark || theMark.isSVGPathMark || theMark.isRectangularMark || theMark.isEllipticMark || theMark.isSquaredMark) {
-     compensateBoundingRect(boundingRect);
-     }
-     
-     var newHeight = theMark.visualProperties.length * (2 * theMark.propertiesRadius + 15) + boundingRect.height + 2 * theMark.indent;
-     if (this.iText && this.iText.text != '') {
-     newHeight += (2 * theMark.labelGap);
-     }
-     
-     var newWidth = boundingRect.width + 2 * theMark.indent;
-     var newTop = theMark.top + (newHeight / 2 - boundingRect.height / 2 - theMark.indent);
-     
-     theBackground.width = newWidth;
-     theBackground.height = 0;
-     theBackground.left = theMark.left;
-     theBackground.top = theMark.top;
-     theBackground.stroke = theMark.visualPropertyStroke || theMark.colorForStroke;
-     
-     theBackground.strokeWidth = 1;
-     
-     theBackground.bringToFront();
-     theMark.bringToFront();
-     if (theMark.iText) {
-     theMark.iText.bringToFront();
-     }
-     
-     var boundingRectCenterBottom = new fabric.Point(theMark.left, objectCenter.y + boundingRect.height / 2);
-     //        var boundingRectCenterBottom = new fabric.Point(theMark.left, boundingRect.top + boundingRect.height);
-     //        drawRectAt(boundingRectCenterBottom, "green");
-     boundingRectCenterBottom.y += theMark.propertiesGap;
-     if (this.iText && this.iText.text != '') {
-     boundingRectCenterBottom.y += (2 * theMark.labelGap);
-     }
-     
-     theBackground.opacity = 1;
-     
-     // In the animation of the background, the canvas is not redrawn, as this is done while the visual properties are being moved
-     theBackground.animate('top', newTop, {
-     easing: easing,
-     duration: duration,
-     });
-     theBackground.animate('height', newHeight, {
-     duration: duration,
-     easing: easing,
-     onChange: function () {
-     theBackground.setGradient('fill', {
-     type: 'linear',
-     x1: 0,
-     y1: 0,
-     x2: 0,
-     y2: theBackground.getHeight(),
-     colorStops: {
-     0: 'rgb(255,255,255, 1)',
-     0.5: 'rgba(242,242,242,0.75)',
-     1: 'rgb(255,255,255, 1)'
-     }
-     });
-     },
-     onComplete: function () {
-     theMark.isCompressed = false;
-     //                drawRectAt(new fabric.Point(theBackground.left, theBackground.top), "black");
-     }
-     });
-     
-     var positions = new Array();
-     var i = 0;
-     theMark.visualProperties.forEach(function (visualProperty) {
-     
-     var x = theMark.left;
-     var y = boundingRectCenterBottom.y + i * theMark.propertiesSeparation;
-     
-     //            drawRectAt(new fabric.Point(x,y), generateRandomColor());
-     
-     canvas.add(visualProperty);
-     visualProperty.bringForward(true);
-     
-     visualProperty.outConnectors.forEach(function (connector) {
-     connector.bringToFront();
-     });
-     
-     visualProperty.inConnectors.forEach(function (connector) {
-     connector.bringToFront();
-     });
-     
-     visualProperty.left = theMark.left;
-     visualProperty.top = theMark.top;
-     visualProperty.scaleX = 0;
-     visualProperty.scaleY = 0;
-     visualProperty.opacity = 0;
-     
-     positions.push({x: x, y: y});
-     
-     i++;
-     });
-     
-     //        var easing = fabric.util.ease['easeInCubic'];
-     var easing = fabric.util.ease['easeOutQuad'];
-     
-     for (var i = 0; i < theMark.visualProperties.length; i++) {
-     
-     var isTheLastElement = i == theMark.visualProperties.length - 1;
-     
-     theMark.animateVisualProperty(i, 'opacity', 1, duration, easing, false, false, false);
-     theMark.animateVisualProperty(i, 'scaleX', 1, duration, easing, false, false, false);
-     theMark.animateVisualProperty(i, 'scaleY', 1, duration, easing, false, false, false);
-     theMark.animateVisualProperty(i, 'left', positions[i].x, duration, easing, false, false, false);
-     theMark.animateVisualProperty(i, 'top', positions[i].y, duration, easing, false, false, false);
-     theMark.animateVisualProperty(i, 'top', positions[i].y, duration, easing, refreshCanvas && isTheLastElement, false, isTheLastElement, isTheLastElement);
-     
-     }
-     
-     };*/
 
     this.expand = function (refreshCanvas) {
 
@@ -975,16 +816,21 @@ function addVixorToCanvas(vixorType, options) {
     if (vixorType === RECTANGULAR_VIXOR) {
         return addRectangularVixorToCanvas(options);
     } else if (vixorType === COLOR_REGION_EXTRACTOR) {
+        
         return addSVGPathVixorToCanvas(options.thePath, options);
+        
     } else if (vixorType === SAMPLER_VIXOR) {
+        
         return addSamplerVixorToCanvas(options.thePath, options);
     }
 }
 
 
-function createExtractorFromXMLNode(extractorXmlNode) {
+function createExtractorOptionsFromXMLNode(extractorXmlNode) {
 
     var extractorType = extractorXmlNode.attr('type');
+    
+    
 
     if (extractorType === RECTANGULAR_VIXOR) {
         
@@ -1000,7 +846,31 @@ function createExtractorFromXMLNode(extractorXmlNode) {
 
     } else if (extractorType === SAMPLER_VIXOR) {
         
+        return createColorSamplerOptionsFromXMLNode(extractorXmlNode);
+
+    }
+
+}
+
+function createExtractorFromXMLNode(extractorXmlNode) {
+
+    var extractorType = extractorXmlNode.attr('type');
+
+    if (extractorType === RECTANGULAR_VIXOR) {
+        
 //        createExtractorFromXMLNode(extractorXmlNode);
+
+    } else if (extractorType === TEXT_RECOGNIZER) {
+        
+//        createExtractorFromXMLNode(extractorXmlNode);
+
+    } else if (extractorType === COLOR_REGION_EXTRACTOR) {
+        
+        return createColorRegionExtractorFromXMLNode(extractorXmlNode);
+
+    } else if (extractorType === SAMPLER_VIXOR) {
+        
+        return createColorSamplerFromXMLNode(extractorXmlNode);
 
     }
 

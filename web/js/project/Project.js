@@ -234,6 +234,7 @@ function processCanvasXMLNode(canvasNode) {
     var marks = new Array();
     var locators = new Array();
     var images = new Array();
+    var colorSamplers = new Array();
 
 //     Refreshing the canvas so that all the loaders do not do it
 //    fabric.util.animate({
@@ -279,6 +280,14 @@ function processCanvasXMLNode(canvasNode) {
                         
             images.push(child);
             
+        } else if (tagName === "extractor") {
+                        
+            var type = child.attr('type');
+            if (type === SAMPLER_VIXOR) {
+                
+                colorSamplers.push(child);
+            }
+            
         } else if (tagName === "locator") {
 
             locators.push(child);
@@ -302,13 +311,21 @@ function processCanvasXMLNode(canvasNode) {
         var image = importImageFromXMLNode(imageNode);
     });
     
+    console.log("%c" + "All IMAGES loaded and added to the canvas", "background: #0afff9; color: black;");
+    
     locators.forEach(function (locatorNode) {
         var locator = createLocatorFromXMLNode(locatorNode);
-    });
+    });        
 
     marks.forEach(function (markNode) {
         var mark = createMarkFromXMLNode(markNode);
     });
+    
+    colorSamplers.forEach(function (colorSamplerNode){
+        createColorSamplerFromXMLNode(colorSamplerNode);
+    });
+    
+    console.log("%c" + "All COLOR SAMPLERS loaded and added to the canvas", "background: #0afff9; color: black;");
 
     // the same happens for connectors (for instance, connections to position visual properties of marks)
 //    connectors.forEach(function (connectorNode) {
@@ -321,6 +338,10 @@ function processCanvasXMLNode(canvasNode) {
 }
 
 function executePendingConnections(objectXmlID) {
+    
+    if (!pendingConnections || pendingConnections.length === 0) {
+        return;
+    }
 
     console.log("%c" + "Executing pending connections for element with ID: " + objectXmlID, "background: rgb(81,195,183); color: white;");
     var cont = 0;

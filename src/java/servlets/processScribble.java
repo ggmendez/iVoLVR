@@ -123,7 +123,7 @@ public class processScribble extends HttpServlet {
             Scalar meanColor = Core.mean(original, mask);
 
 //            Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\the_convexHull.png", image);
-            ImageUtils.saveImage(image, "the_convexHull.png", request);
+            ImageUtils.saveImage(image, imageForTextRecognition + "_the_convexHull.png", request);
 
             newVal = new Scalar(255, 255, 0);
 
@@ -132,7 +132,7 @@ public class processScribble extends HttpServlet {
             floodFillFacade.fill(image, mask, 211, 194, newVal);
 
             Core.circle(image, new Point(211, 194), 5, new Scalar(0, 0, 0), -1);
-            ImageUtils.saveImage(image, "final.png", request);
+            ImageUtils.saveImage(image, imageForTextRecognition + "_final.png", request);
 //            Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\final.png", image);
 
             Mat element = new Mat(3, 3, CvType.CV_8U, new Scalar(1));
@@ -140,7 +140,7 @@ public class processScribble extends HttpServlet {
 
             Imgproc.resize(mask, mask, image.size());
 
-            ImageUtils.saveImage(mask, "final_mask_dilated.png", request);
+//            ImageUtils.saveImage(mask, "final_mask_dilated.png", request);
 //            Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\final_mask_dilated.png", mask);
 
             List<MatOfPoint> contours = new ArrayList<MatOfPoint>();

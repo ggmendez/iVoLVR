@@ -661,31 +661,43 @@ function createValue(options) {
 
 function createValueFromXMLNode(valueXmlNode) {
 
+    var valueType = valueXmlNode.attr('type')
+
     var options = {
-        type: valueXmlNode.attr('type')
+        type: valueType
     };
 
-    var children = valueXmlNode.children();
-    children.each(function () {
-        var child = $(this);
-        var property = this.tagName;
-        var value = child.text();
-        var type = child.attr('type');
+    if (valueType === "array") {
+        
+        return createArrayFromXMLNode(valueXmlNode);
 
-        if (type === "number") {
-            value = Number(value);
-        } else if (type === "boolean") {
-            value = value === "true";
-        }
+    } else {
 
-        value = replaceAll(value, CDATA_END_REPLACE, CDATA_END);
+        var children = valueXmlNode.children();
+        children.each(function () {
+            var child = $(this);
+            var property = this.tagName;
+            var value = child.text();
+            var type = child.attr('type');
 
-        options[property] = value;
-    });
-    
-    console.log("%c Options to create a new VALUE from and XML Node: ", "background: rgb(143,98,153); color: white;");
-    console.log(options);
-    
+            if (type === "number") {
+                value = Number(value);
+            } else if (type === "boolean") {
+                value = value === "true";
+            }
 
-    return createValue(options);
+            value = replaceAll(value, CDATA_END_REPLACE, CDATA_END);
+
+            options[property] = value;
+        });
+
+        console.log("%c Options to create a new VALUE from an XML Node: ", "background: rgb(143,98,153); color: white;");
+        console.log(options);
+
+
+        return createValue(options);
+        
+    }
+
+
 }

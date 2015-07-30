@@ -1,9 +1,97 @@
 var SamplerVixor = fabric.util.createClass(fabric.Group, {
-//   type: 'samplerVixor',
     isSamplerVixor: true,
-    initialize: function (paths, options) {
+    getExtractorType: function () {
+        return SAMPLER_VIXOR;
+    },
+    toXML: function () {
+        var theExtractor = this;
+        var extractorNode = createXMLElement("extractor");
+
+        addAttributeWithValue(extractorNode, "xmlID", theExtractor.xmlID);
+        addAttributeWithValue(extractorNode, "type", theExtractor.getExtractorType());
+        appendElementWithValue(extractorNode, "left", theExtractor.left);
+        appendElementWithValue(extractorNode, "top", theExtractor.top);
+        appendElementWithValue(extractorNode, "angle", theExtractor.angle);
+        appendElementWithValue(extractorNode, "untransformedAngle", theExtractor.untransformedAngle);
+        appendElementWithValue(extractorNode, "untransformedX", theExtractor.untransformedX);
+        appendElementWithValue(extractorNode, "untransformedY", theExtractor.untransformedY);
+        appendElementWithValue(extractorNode, "untransformedScaleX", theExtractor.untransformedScaleX);
+        appendElementWithValue(extractorNode, "untransformedScaleY", theExtractor.untransformedScaleY);
+        appendElementWithValue(extractorNode, "scaleX", theExtractor.getScaleX());
+        appendElementWithValue(extractorNode, "scaleY", theExtractor.getScaleY());
+        appendElementWithValue(extractorNode, "isExpanded", !theExtractor.isCompressed);
+        if (theExtractor.parentObject && theExtractor.parentObject.isImportedImage) {
+            appendElementWithValue(extractorNode, "imageXmlID", theExtractor.parentObject.xmlID);
+        }
+        theExtractor.visualProperties.forEach(function (visualProperty) {
+            var propertyNode = visualProperty.toXML();
+            extractorNode.append(propertyNode);
+        });
+        appendElementWithValue(extractorNode, "offsetPolygonPath", theExtractor.offsetPolygonPath);
+        appendElementWithValue(extractorNode, "userTracedPath", theExtractor.userTracedPath);
+
+        var createArrayNodeOfPoints = function (nodeName, array, keys) {
+            var pointsNode = createXMLElement(nodeName);
+            addAttributeWithValue(pointsNode, "type", "array");
+            array.forEach(function (point) {
+                var pointNode = createXMLElement("point");
+                keys.forEach(function (key) {
+                    addAttributeWithValue(pointNode, key, point[key]);
+                });
+                pointsNode.append(pointNode);
+            });
+            return pointsNode;
+        };
+
+        var samplingPointsNode = createArrayNodeOfPoints("samplingPoints", theExtractor.samplingPoints, ['x', 'y']);
+        var simplifiedPolylineNode = createArrayNodeOfPoints("simplifiedPolyline", theExtractor.simplifiedPolyline, ['x', 'y']);
+        var translatedPointsNode = createArrayNodeOfPoints("translatedPoints", theExtractor.translatedPoints, ['x', 'y']);
+        var samplingMarksPositionsNode = createArrayNodeOfPoints("samplingMarksPositions", theExtractor.samplingMarks, ['left', 'top']);
+        var samplingMarksStrokesNode = createArrayNodeOfPoints("samplingMarksStrokes", theExtractor.samplingMarks, ['stroke']);
+
+        extractorNode.append(samplingPointsNode);
+        extractorNode.append(simplifiedPolylineNode);
+        extractorNode.append(translatedPointsNode);
+        extractorNode.append(samplingMarksPositionsNode);
+        extractorNode.append(samplingMarksStrokesNode);
+
+
+        return extractorNode;
+    },
+    initialize: function (objects, options) {
+
+        console.log("%c" + "Creation options for Color Sampler:", "background: red; color: white;");
+        console.log(options);
+
+
+
+
         options || (options = {});
-        this.callSuper('initialize', paths, options);
+        this.callSuper('initialize', objects, options);
+
+
+
+        var totalSamplingPointsValue = null;
+        var samplingDistanceValue = null;
+        var lengthValue = null;
+        var trajectoryValue = null;
+
+
+        if (options.values) {
+            totalSamplingPointsValue = options.values.totalSamplingPoints || createNumericValue(this.totalSamplingPoints, null, null, 'points');
+            samplingDistanceValue = options.values.samplingDistance || createNumericValue(this.samplingDistance, null, null, 'pixels');
+
+            lengthValue = options.values.length || createNumericValue(this.length, null, null, 'pixels');
+            trajectoryValue = options.values.trajectory || createNumericValue(this.trajectory, null, null, 'pixels');
+
+        } else {
+            totalSamplingPointsValue = createNumericValue(this.totalSamplingPoints, null, null, 'points');
+            samplingDistanceValue = createNumericValue(this.samplingDistance, null, null, 'pixels');
+            lengthValue = createNumericValue(this.length, null, null, 'pixels');
+            trajectoryValue = createNumericValue(this.trajectory, null, null, 'pixels');
+        }
+
+
 
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('originalStrokeWidth', options.strokeWidth || 2);
@@ -20,8 +108,8 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
         this.set('specificProperties', new Array());
 
 
-        this.specificProperties.push({attribute: "totalSamplingPoints", readable: true, writable: true, types: ['number'], updatesTo: ['samplingDistance'], dataTypeProposition: 'isNumericData'});
-        this.specificProperties.push({attribute: "samplingDistance", readable: true, writable: true, types: ['number'], updatesTo: ['totalSamplingPoints'], dataTypeProposition: 'isNumericData'});
+        this.specificProperties.push({attribute: "totalSamplingPoints", readable: true, writable: true, types: ['number'], updatesTo: ['samplingDistance'], dataTypeProposition: 'isNumericData', value: totalSamplingPointsValue});
+        this.specificProperties.push({attribute: "samplingDistance", readable: true, writable: true, types: ['number'], updatesTo: ['totalSamplingPoints'], dataTypeProposition: 'isNumericData', value: samplingDistanceValue});
 
         /*this.specificProperties.push({attribute: "samplingDistance", readable: true, writable: true, types: ['number'], updatesTo: ['totalSamplingPoints', 'samplingDistanceX']});
          this.specificProperties.push({attribute: "samplingDistanceX", readable: true, writable: true, types: ['number'], updatesTo: ['totalSamplingPoints', 'samplingDistance']});*/
@@ -31,24 +119,18 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
         /*this.specificProperties.push({attribute: "x", readable: true, writable: false, types: ['object'], updatesTo: []});
          this.specificProperties.push({attribute: "y", readable: true, writable: false, types: ['object'], updatesTo: []});*/
 
-        this.specificProperties.push({attribute: "length", readable: true, writable: false, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData'});
-        this.specificProperties.push({attribute: "trajectory", readable: true, writable: false, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData'});
+        this.specificProperties.push({attribute: "length", readable: true, writable: false, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: lengthValue});
+        this.specificProperties.push({attribute: "trajectory", readable: true, writable: false, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: trajectoryValue});
 
         this.createVisualProperties();
+
+        this.applyXmlIDs(options.xmlIDs);
 
 
         // Assigning the values to the created visual properties
 
-
-
-        var totalSamplingPointsVisualProperty = this.getVisualPropertyByAttributeName('totalSamplingPoints');
-        totalSamplingPointsVisualProperty.value = createNumericValue(options.totalSamplingPoints, null, null, 'points');
-
-
-
-
-
-
+//        var totalSamplingPointsVisualProperty = this.getVisualPropertyByAttributeName('totalSamplingPoints');
+//        totalSamplingPointsVisualProperty.value = createNumericValue(options.totalSamplingPoints, null, null, 'points');
 
         this.applyUnselectedStyle = function () {
 
@@ -60,7 +142,8 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 
         this.applySelectedStyle = function () {
 
-            if (LOG) console.log("SAMPLER selected");
+            if (LOG)
+                console.log("SAMPLER selected");
 
             var offsetPath = this.item(0);
             offsetPath.stroke = widget_selected_stroke_color;
@@ -154,13 +237,38 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
     },
     bringSamplingMarksToFront: function () {
         var theVixor = this;
-        theVixor.samplingMarks.forEach(function (widget) {
-            widget.bringToFront();
+        theVixor.samplingMarks.forEach(function (samplingMark) {
+            samplingMark.bringToFront();
         });
     },
+    bringElementsToFront: function () {
+
+        console.log("%c" + "bringElementsToFront function at COLOR SAMPLER class", "background: #def659; color: black;");
+
+        var theSampler = this;
+        if (!theSampler.isCompressed) {
+            theSampler.backgroundRect.bringToFront();
+            theSampler.visualProperties.forEach(function (visualProperty) {
+                if (visualProperty.canvas) {
+                    visualProperty.bringToFront();
+
+                    visualProperty.inConnectors.forEach(function (inConnection) {
+                        inConnection.bringToFront();
+                    });
+                    visualProperty.outConnectors.forEach(function (outConnection) {
+                        outConnection.bringToFront();
+                    });
+                }
+            });
+            if (theSampler.iText) {
+                theSampler.iText.bringToFront();
+            }
+        }
+        theSampler.bringToFront();
+        theSampler.bringSamplingMarksToFront();
+    },
     onMouseDown: function (options) {
-        var theVixor = this;
-//        theVixor.bringSamplingMarksToFront(); // I just disabled this for efficiency
+        this.bringElementsToFront();
     },
     onMouseUp: function (options) {
 
@@ -171,14 +279,19 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
         var fullyContainerElement = findContainerElement(this, ['isImportedImage']);
         if (fullyContainerElement) {
             newParentObject = fullyContainerElement;
-            if (LOG) console.log("%cReleased over this element:", "background: green; color:white;");
+            if (LOG)
+                console.log("%cReleased over this element:", "background: green; color:white;");
+            console.log(fullyContainerElement);
         } else {
             var intersectorElement = findIntersectorElement(this, ['isImportedImage']);
             if (intersectorElement) {
                 newParentObject = intersectorElement;
-                if (LOG) console.log("%cNot fully contained by an imported image:", "background: yellow; color:black;");
+                if (LOG)
+                    console.log("%cNot fully contained by an imported image:", "background: yellow; color:black;");
             } else {
-                if (LOG) console.log("%cReleased over the canvas", "background: red; color:white;");
+                if (LOG)
+                    console.log("%cReleased over the canvas", "background: red; color:white;");
+
                 intersectorElement = null;
 
                 // This vixor should be removed from the list of widgets of its previous parent
@@ -190,22 +303,40 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 
         if (parentChanged) {
 
+            theVixor.nonSerializable = true;
+
             // This is, indeed, a new parent, and it exists
-            if (LOG) console.log("%cThe vixor has a NEW parent", "background: pink; color:blue;");
+            if (LOG)
+                console.log("%cThe parent of the COLOR SAMPLER has changed", "background: pink; color:blue;");
+
+
+//                console.log("BEFORE removal");
+//                console.log(theVixor.parentObject.widgets);
 
             // The old parent has to forget this vixor as part of its widgets
             if (theVixor.parentObject) {
                 fabric.util.removeFromArray(theVixor.parentObject.widgets, theVixor);
             }
 
+//            console.log("AFTER removal");
+//                console.log(theVixor.parentObject.widgets);
+
             theVixor.parentObject = newParentObject;
 
             if (newParentObject) {
+
+                console.log("%cThe new parent of the COLOR SAMPLER is:", "background: pink; color:blue;");
+                console.log(newParentObject);
+
                 newParentObject.widgets.push(theVixor);
                 computeUntransformedProperties(theVixor);
                 theVixor.untransformedScaleX = 1 / newParentObject.scaleX;
                 theVixor.untransformedScaleY = 1 / newParentObject.scaleY;
+
             } else {
+
+                console.log("%cThe COLOR SAMPLER is now on the canvas! It has no parent :( ", "background: pink; color:blue;");
+
 //                 The vixor has been dropped on the canvas, so it becomes parentless
                 theVixor.parentObject = null;
 
@@ -218,13 +349,19 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
                     mark.colorForStroke = darkColor;
                 });
 
+                theVixor.nonSerializable = false;
+
                 canvas.renderAll();
 
             }
 
         } else {
+
+            theVixor.nonSerializable = true;
+
             // The parent has not changed
-            if (LOG) console.log("%cSAME parent", "background: blue; color:white;");
+            if (LOG)
+                console.log("%cSAME parent", "background: blue; color:white;");
             if (newParentObject) {
                 computeUntransformedProperties(theVixor);
             } else {
@@ -237,40 +374,45 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 
     },
     areTheSameColors: function (colors1, colors2) {
-        
-        console.log("areTheSameColors FUNCTION");        
-        
+
+        console.log("areTheSameColors FUNCTION");
+
         if (!colors1 || !colors2 || colors1.length !== colors2.length) {
             return false;
         }
 
         for (var i = 0; i < colors1.length; i++) {
             if (colors1[i] != colors2[i]) {
-                
-                if (LOG) console.log("colors1[i]:");
-                if (LOG) console.log(colors1[i]);
-                
-                if (LOG) console.log("colors2[i]:");
-                if (LOG) console.log(colors2[i]);
-                
+
+                if (LOG)
+                    console.log("colors1[i]:");
+                if (LOG)
+                    console.log(colors1[i]);
+
+                if (LOG)
+                    console.log("colors2[i]:");
+                if (LOG)
+                    console.log(colors2[i]);
+
                 return false;
             }
         }
-        
+
         return true;
     },
     setColorValues: function (colorValues) {
-        
+
         var theVixor = this;
-        
+
         if (theVixor.areTheSameColors(colorValues, theVixor.colorValues)) {
             console.log("%c areTheSameColors returned true", "background: white; color: red;");
             return;
         }
 
-        if (LOG) console.log("%csetting color values of sample vixor (areTheSameColors returned false) ", "background: white; color: blue;");
+        if (LOG)
+            console.log("%csetting color values of sample vixor (areTheSameColors returned false) ", "background: white; color: blue;");
 
-        
+
         theVixor.set('colorValues', colorValues);
 
         var colorValuesVisualProperty = theVixor.getVisualPropertyByAttributeName('colorValues');
@@ -280,18 +422,21 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
         colorValues.forEach(function (color) {
             fabricColors.push(createColorValue(new fabric.Color(color)));
         });
-        
-        
 
-        if (LOG) console.log("fabricColors:");
-        if (LOG) console.log(fabricColors);
+
+
+        if (LOG)
+            console.log("fabricColors:");
+        if (LOG)
+            console.log(fabricColors);
 
         colorValuesVisualProperty.value = fabricColors; // setting the value of the colorValues visual properties
 
 
         // updating the value of all the out going connectors
         colorValuesVisualProperty.outConnectors.forEach(function (outConnector) {
-            if (LOG) console.log("setting value of out going connector");
+            if (LOG)
+                console.log("setting value of out going connector");
             outConnector.setValue(fabricColors, false, true);
         });
 
@@ -301,7 +446,8 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
         var theVixor = this;
         var colorValues = new Array();
 
-        if (LOG) console.log("%cAttempting to sample colors in the image associated to this SAMPLER vixor", "background:#184f52; color:white;");
+        if (LOG)
+            console.log("%cAttempting to sample colors in the image associated to this SAMPLER vixor", "background:#184f52; color:white;");
 
         if (theVixor.parentObject) {
 
@@ -327,8 +473,10 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 
                             if (response) {
 
-                                if (LOG) console.log("response:");
-                                if (LOG) console.log(response);
+                                if (LOG)
+                                    console.log("response:");
+                                if (LOG)
+                                    console.log(response);
 
                                 var m = 0;
 
@@ -394,8 +542,10 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 
             var actualSamplingPoints = new Array();
 
-            if (LOG) console.log("theVixor.parentObject.left:");
-            if (LOG) console.log(theVixor.parentObject.left);
+            if (LOG)
+                console.log("theVixor.parentObject.left:");
+            if (LOG)
+                console.log(theVixor.parentObject.left);
 
 //            var parentTopLeft = theVixor.parentObject.getPointByOrigin('left', 'top');
 //            drawRectAt(parentTopLeft, 'red');
@@ -410,7 +560,8 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
                 computeUntransformedProperties(theCopy); // This computes the position of the mark relative to the image, which is the parent object of the vixor
 
                 if (firstTime) {
-                    if (LOG) console.log("First time the color sampling is done by this vixor!!!");
+                    if (LOG)
+                        console.log("First time the color sampling is done by this vixor!!!");
                 } else {
                     // For some reason, this increment IS necessary
 //                    theCopy.untransformedX += theCopy.radius + 0.5;
@@ -423,7 +574,8 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 
             });
 
-            if (LOG) console.log(actualSamplingPoints);
+            if (LOG)
+                console.log(actualSamplingPoints);
 
             request.send("samplingPoints=" + JSON.stringify(actualSamplingPoints) + "&imageForTextRecognition=" + imageForTextRecognition);  // sending the data to the server
 
@@ -450,14 +602,17 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
     },
     setProperty: function (property, propertyValue, sourceVisualProperty, shouldAnimate) {
 
-        if (LOG) console.log("Llamando a set property");
+        if (LOG)
+            console.log("Llamando a set property");
 
         var theVixor = this;
 
         var value = propertyValue.number;
 
-        if (LOG) console.log("%c" + "value:", "background: red; color: white;");
-        if (LOG) console.log(value);
+        if (LOG)
+            console.log("%c" + "value:", "background: red; color: white;");
+        if (LOG)
+            console.log(value);
 
         if (property === 'samplingDistance' || property === 'totalSamplingPoints') {
 
@@ -473,16 +628,16 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
                 theVixor.samplingDistance = value;
 
             } else if (property === 'totalSamplingPoints') {
-                
-                
+
+
 
                 theVixor.totalSamplingPoints = Number(value.toFixed(0)); // of this is not cast to Number, the result is a concatenation (if value is 10, the concatenation would return 101)
-                
+
                 console.log("%c" + "theVixor.totalSamplingPoints: ", "background: green; color: black;");
                 console.log(theVixor.totalSamplingPoints);
-                
-                theVixor.samplingDistance = Number((theVixor.length / (theVixor.totalSamplingPoints - 1)).toFixed(2)) ;
-                
+
+                theVixor.samplingDistance = Number((theVixor.length / (theVixor.totalSamplingPoints - 1)).toFixed(2));
+
                 console.log("%c" + "theVixor.samplingDistance: ", "background: green; color: black;");
                 console.log(theVixor.samplingDistance);
 
@@ -495,8 +650,10 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
                 absolutePolyline.push(rotatedPoint);
             });
 
-            if (LOG) console.log("absolutePolyline:");
-            if (LOG) console.log(absolutePolyline);
+            if (LOG)
+                console.log("absolutePolyline:");
+            if (LOG)
+                console.log(absolutePolyline);
 
             var tolerance = 1;
             var highQuality = true;
@@ -549,8 +706,10 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
                 absolutePolyline.push(rotatedPoint);
             });
 
-            if (LOG) console.log("absolutePolyline:");
-            if (LOG) console.log(absolutePolyline);
+            if (LOG)
+                console.log("absolutePolyline:");
+            if (LOG)
+                console.log(absolutePolyline);
 
             var leftDistance = 0;
 
@@ -822,6 +981,98 @@ function addSamplerVixorToCanvas(objects, options) {
     samplerVixor.setColorValues(colorValues);
 
     return samplerVixor;
+}
+
+function createColorSamplerFromXMLNode(colorSamplerXmlNode) {
+
+    var options = createColorSamplerOptionsFromXMLNode(colorSamplerXmlNode);
+
+    var samplerVixor = buildAndAddSamplerColor(options);
+
+    samplerVixor.executePendingConnections();
+
+    return samplerVixor;
+}
+
+
+function createColorSamplerOptionsFromXMLNode(colorSamplerXmlNode) {
+
+    console.log("createColorSamplerOptionsFromXMLNode function", "background: black; color: white;");
+
+    var options = {
+        extractorType: colorSamplerXmlNode.attr('type'),
+        xmlID: Number(colorSamplerXmlNode.attr('xmlID')),
+        imageXmlID: Number(colorSamplerXmlNode.attr('imageXmlID')),
+        xmlIDs: {},
+        values: {}
+    };
+
+    var children = colorSamplerXmlNode.children();
+    children.each(function () {
+        var child = $(this);
+        var tagName = this.tagName;
+        var tagType = child.attr('type');
+
+        if (tagName === "property") {
+
+            var valueXmlNode = $(child.find('value')[0]);
+            var propertyValue = createValueFromXMLNode(valueXmlNode);
+
+            var xmlID = Number(child.attr('xmlID'));
+            var attribute = child.attr('attribute');
+
+//            if (LOG) {
+//                console.log(attribute + ":");
+//                console.log(propertyValue);
+//            }
+
+            options.values[attribute] = propertyValue;
+            options.xmlIDs[attribute] = xmlID;
+
+        } else if (tagType === "array") {
+
+            var array = new Array();
+            var pointElements = child.children('point');
+            pointElements.each(function () {
+                var elementNode = $(this);
+                var x = Number(elementNode.attr('x') || elementNode.attr('left'));
+                var y = Number(elementNode.attr('y') || elementNode.attr('top'));
+
+                if (!isNaN(x) && !isNaN(y)) {
+                    var loadedPoint = {x: x, y: y};
+                    array.push(loadedPoint);
+                } else {
+                    array.push(elementNode.attr('stroke'));
+                }
+
+
+            });
+            options[tagName] = array;
+
+        } else {
+
+            var value = child.text();
+            var type = child.attr('type');
+
+            if (type === "number") {
+                value = Number(value);
+            } else if (type === "boolean") {
+                value = value === "true";
+            }
+
+            options[tagName] = value;
+
+        }
+
+    });
+
+    options.animateAtBirth = !options.isExpanded;
+    options.shouldExpand = options.isExpanded;
+
+    console.log("%c Options to create a new COLOR SAMPLER from an XML Node: ", "background: rgb(143,98,153); color: white;");
+    console.log(options);
+
+    return options;
 
 
 }

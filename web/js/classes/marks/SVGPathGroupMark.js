@@ -418,6 +418,11 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
             if (options.animateAtBirth) {
                 waitingTime = 1250;
                 svgPathGroupMark.animateBirth(options.markAsSelected, options.finalScaleX, options.finalScaleY, options.doNotRefreshCanvas);
+            } else {
+                if (typeof options.finalScaleX !== 'undefined' && typeof options.finalScaleY !== 'undefined') {
+                    svgPathGroupMark.scaleX = options.finalScaleX;
+                    svgPathGroupMark.scaleY = options.finalScaleY;
+                }
             }
 
             svgPathGroupMark.associateEvents(svgPathGroupMark);
