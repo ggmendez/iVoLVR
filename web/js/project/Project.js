@@ -138,19 +138,38 @@ function generateProjectXML() {
     addAttributeWithValue(root, "panY", -canvas.viewportTransform[5]);
     addAttributeWithValue(root, "connectorsHidden", canvas.connectorsHidden);
 
+    var reversedObjects = new Array();
+
     // generating the ids of all the elements that are on the canvas
     var cont = 1;
     canvas.forEachObject(function (object) {
+        reversedObjects.push(object);
         if (object.setXmlIDs) {
             cont = object.setXmlIDs(cont);
         }
     });
 
-    canvas.forEachObject(function (object) {
+    reversedObjects = reversedObjects.reverse();
+
+    reversedObjects.forEach(function (object) {
+
+        if (object.isTextualVixor) {
+            console.log("----------object");
+            console.log(object);
+        }
+
+
+
         if (!object.nonSerializable && object.toXML) {
             root.append(object.toXML());
         }
     });
+
+//    canvas.forEachObject(function (object) {
+//        if (!object.nonSerializable && object.toXML) {
+//            root.append(object.toXML());
+//        }
+//    });
 
     var xmlText = (new XMLSerializer()).serializeToString(root[0]);
 
@@ -277,17 +296,22 @@ function processCanvasXMLNode(canvasNode) {
             createVerticalCollectionFromXMLNode(child);
 
         } else if (tagName === "importedImage") {
-                        
+
             images.push(child);
-            
+
         } else if (tagName === "extractor") {
-                        
+
             var type = child.attr('type');
             if (type === SAMPLER_VIXOR) {
-                
-                colorSamplers.push(child);
+
+                createColorSamplerFromXMLNode(child);
+
+            } else if (type === TEXT_RECOGNIZER) {
+
+                createTextRecogniserFromXMLNode(child);
+
             }
-            
+
         } else if (tagName === "locator") {
 
             locators.push(child);
@@ -306,25 +330,21 @@ function processCanvasXMLNode(canvasNode) {
 
     });
 
-    
+
     images.forEach(function (imageNode) {
         var image = importImageFromXMLNode(imageNode);
     });
-    
+
     console.log("%c" + "All IMAGES loaded and added to the canvas", "background: #0afff9; color: black;");
-    
+
     locators.forEach(function (locatorNode) {
         var locator = createLocatorFromXMLNode(locatorNode);
-    });        
+    });
 
     marks.forEach(function (markNode) {
         var mark = createMarkFromXMLNode(markNode);
     });
-    
-    colorSamplers.forEach(function (colorSamplerNode){
-        createColorSamplerFromXMLNode(colorSamplerNode);
-    });
-    
+
     console.log("%c" + "All COLOR SAMPLERS loaded and added to the canvas", "background: #0afff9; color: black;");
 
     // the same happens for connectors (for instance, connections to position visual properties of marks)
@@ -338,7 +358,7 @@ function processCanvasXMLNode(canvasNode) {
 }
 
 function executePendingConnections(objectXmlID) {
-    
+
     if (!pendingConnections || pendingConnections.length === 0) {
         return;
     }

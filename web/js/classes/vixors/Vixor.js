@@ -838,7 +838,7 @@ function createExtractorOptionsFromXMLNode(extractorXmlNode) {
 
     } else if (extractorType === TEXT_RECOGNIZER) {
         
-//        createExtractorFromXMLNode(extractorXmlNode);
+        return createTextRecogniserOptionsFromXMLNode(extractorXmlNode);
 
     } else if (extractorType === COLOR_REGION_EXTRACTOR) {
         

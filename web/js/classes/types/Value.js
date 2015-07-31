@@ -691,8 +691,8 @@ function createValueFromXMLNode(valueXmlNode) {
             options[property] = value;
         });
 
-        console.log("%c Options to create a new VALUE from an XML Node: ", "background: rgb(143,98,153); color: white;");
-        console.log(options);
+//        console.log("%c Options to create a new VALUE from an XML Node: ", "background: rgb(143,98,153); color: white;");
+//        console.log(options);
 
 
         return createValue(options);

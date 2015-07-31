@@ -1,3 +1,16 @@
+function createArrayNodeOfPoints(nodeName, array, keys) {
+    var pointsNode = createXMLElement(nodeName);
+    addAttributeWithValue(pointsNode, "type", "array");
+    array.forEach(function (point) {
+        var pointNode = createXMLElement("element");
+        keys.forEach(function (key) {
+            addAttributeWithValue(pointNode, key, point[key]);
+        });
+        pointsNode.append(pointNode);
+    });
+    return pointsNode;
+}
+
 function escapeRegExp(string) {
     return string.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }
@@ -196,27 +209,37 @@ function drawTextualVixor(textExtractorType, element) {
             fill: 'rgba(' + 255 + ',  ' + 255 + ', ' + 255 + ', ' + widget_fill_opacity + ')',
             opacity: 1,
             movingOpacity: 0.3,
-            radius: 0,
-            isWidget: true,
-            hasControls: false,
-            hasBorders: false,
-            hasRotatingPoint: false,
-            selectable: true,
             figureType: textExtractorType,
-            cornerColor: '#ffbd00',
-            transparentCorners: false,
-            isTextRecognizer: true,
-            trueColor: 'rgba(255, 255, 255, 0)',
-            fillColor: 'rgba(' + 255 + ',  ' + 255 + ', ' + 255 + ', ' + widget_fill_opacity + ')',
-            parentObject: parentObject
+            hasControls: false,            
+//            isWidget: true,
+
+//            hasBorders: false,
+//            hasRotatingPoint: false,
+//            selectable: true,
+//            cornerColor: '#ffbd00',
+//            transparentCorners: false,
+//            isTextRecognizer: true,
+//            trueColor: 'rgba(255, 255, 255, 0)',
+//            fillColor: 'rgba(' + 255 + ',  ' + 255 + ', ' + 255 + ', ' + widget_fill_opacity + ')',
+
+            parentObject: parentObject,
+            nonSerializable: parentObject !== null,
         });
+
+
+
+
         theVixor.permanentOpacity = theVixor.opacity;
         theVixor.set('originX', 'center');
         theVixor.set('originY', 'center');
         canvas.add(theVixor);
         canvas.setActiveObject(theVixor);
-        if (LOG)
+
+        if (LOG) {
+            console.log("Created text recogniser: ");
             console.log(theVixor);
+        }
+
         theVixor.applySelectedStyle();
         theVixor.associateEvents();
         theVixor.associateInteractionEvents();
@@ -241,7 +264,7 @@ function drawTextualVixor(textExtractorType, element) {
             var diffY = currentY - startY;
             var width = Math.abs(diffX);
             var height = Math.abs(diffY);
-            if (textExtractorType == "blockExtractor") {
+            if (textExtractorType === "blockExtractor") {
                 diffX > 0 ? theVixor.set('originX', 'left') : theVixor.set('originX', 'right');
                 diffY > 0 ? theVixor.set('originY', 'top') : theVixor.set('originY', 'bottom');
                 if (theVixor.parentObject) {
@@ -250,7 +273,7 @@ function drawTextualVixor(textExtractorType, element) {
                 }
                 theVixor.set('width', width);
                 theVixor.set('height', height);
-            } else if (textExtractorType == "lineExtractor") {
+            } else if (textExtractorType === "lineExtractor") {
 
                 var x1 = startX;
                 var y1 = startY;
@@ -305,7 +328,7 @@ function drawTextualVixor(textExtractorType, element) {
 
                 parentObject.widgets.push(theVixor);
                 theVixor.parentObject = parentObject;
-                if (textExtractorType == "blockExtractor") {
+                if (textExtractorType === "blockExtractor") {
                     var centerPoint = theVixor.getPointByOrigin('center', 'center');
                     theVixor.originX = 'center';
                     theVixor.originY = 'center';
@@ -1573,7 +1596,6 @@ function importImageToCanvas(options) {
             scaleX: options.scaleX || 1,
             scaleY: options.scaleY || 1,
             xmlID: options.xmlID || null,
-            
 //            lockScalingX: true,
 //            lockScalingY: true,
             lockRotation: true,
@@ -3071,6 +3093,9 @@ function deActivateLineSamplingMode() {
 
 function activateScribbleMode() {
 
+    canvas.freeDrawingBrush.color = rgb(238, 189, 62);
+    canvas.freeDrawingBrush.width = 5;
+
     canvas.currentPan1FingerendOperation = canvas.activePanningMode ? PANNING_OPERATION : DISCONNECTION_OPERATION;
 
     canvas.forEachObject(function (object) {
@@ -3949,7 +3974,7 @@ function buildAndAddSamplerColor(options) {
         var strokes = options.samplingMarksStrokes;
         colorValues.forEach(function (colorValue) {
             samplerVixor.samplingMarks[i].fill = colorValue.color.toRgba();
-            samplerVixor.samplingMarks[i].stroke = strokes[i];
+            samplerVixor.samplingMarks[i].stroke = strokes[i].stroke;
             i++;
         });
     }
@@ -3957,12 +3982,12 @@ function buildAndAddSamplerColor(options) {
     var samplingMarksPositions = options.samplingMarksPositions;
     if (samplingMarksPositions) {
         var j = 0;
-        samplingMarksPositions.forEach(function (point) {
+        samplingMarksPositions.forEach(function (object) {
             console.log("point:");
-            console.log(point);
+            console.log(object);
 //            samplerVixor.samplingMarks[j].setPositionByOrigin(new fabric.Point(point.x, point.y), 'center', 'center');
-            samplerVixor.samplingMarks[j].left = point.x;
-            samplerVixor.samplingMarks[j].top = point.y;
+            samplerVixor.samplingMarks[j].left = object.left;
+            samplerVixor.samplingMarks[j].top = object.top;
             computeUntransformedProperties(samplerVixor.samplingMarks[j]);
             j++;
         });
@@ -4008,8 +4033,6 @@ function processScribbleFromPath(drawnPath) {
     // computing the sampling positions over the simplified path
     var samplingDistance = 30;
     var samplingPoints = samplePolyline(simplifiedPolyline, samplingDistance);
-    var totalLength = computePolylineLength(simplifiedPolyline);
-    var trajectory = computePolylineTrajectory(simplifiedPolyline);
 
     // generating the offset polygon of the SIMPLIFIED polyline
     var offsetDistance = 30;
@@ -4044,15 +4067,11 @@ function processScribbleFromPath(drawnPath) {
     userDefinedPath = getSVGPathString(drawnPath);
 
 
-    var offsetPath = new fabric.Path(svgPathString, {fill: rgb(198, 198, 198), stroke: '#000000', colorForStroke: '#000000', opacity: 0.75, strokeWidth: 1, originalStrokeWidth: 1});
-    var userPath = new fabric.Path(userDefinedPath, {fill: '', stroke: 'black', strokeWidth: 3});
-
-    var objects = [offsetPath, userPath];
-
     var firstPoint = new fabric.Point(samplingPoints[0].x, samplingPoints[0].y);
     var parentObject = getImportedImageContaining(firstPoint);
 
     if (!parentObject) {
+        deactivateScribbleMode();
         return;
     }
 

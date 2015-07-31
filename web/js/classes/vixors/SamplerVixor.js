@@ -3,6 +3,7 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
     getExtractorType: function () {
         return SAMPLER_VIXOR;
     },
+    
     toXML: function () {
         var theExtractor = this;
         var extractorNode = createXMLElement("extractor");
@@ -30,19 +31,6 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
         appendElementWithValue(extractorNode, "offsetPolygonPath", theExtractor.offsetPolygonPath);
         appendElementWithValue(extractorNode, "userTracedPath", theExtractor.userTracedPath);
 
-        var createArrayNodeOfPoints = function (nodeName, array, keys) {
-            var pointsNode = createXMLElement(nodeName);
-            addAttributeWithValue(pointsNode, "type", "array");
-            array.forEach(function (point) {
-                var pointNode = createXMLElement("point");
-                keys.forEach(function (key) {
-                    addAttributeWithValue(pointNode, key, point[key]);
-                });
-                pointsNode.append(pointNode);
-            });
-            return pointsNode;
-        };
-
         var samplingPointsNode = createArrayNodeOfPoints("samplingPoints", theExtractor.samplingPoints, ['x', 'y']);
         var simplifiedPolylineNode = createArrayNodeOfPoints("simplifiedPolyline", theExtractor.simplifiedPolyline, ['x', 'y']);
         var translatedPointsNode = createArrayNodeOfPoints("translatedPoints", theExtractor.translatedPoints, ['x', 'y']);
@@ -58,6 +46,7 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 
         return extractorNode;
     },
+    
     initialize: function (objects, options) {
 
         console.log("%c" + "Creation options for Color Sampler:", "background: red; color: white;");
@@ -260,9 +249,7 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
                     });
                 }
             });
-            if (theSampler.iText) {
-                theSampler.iText.bringToFront();
-            }
+
         }
         theSampler.bringToFront();
         theSampler.bringSamplingMarksToFront();
@@ -884,6 +871,9 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
         for (var i = 0; i < totalPoints; i++) {
 
             var point = theVixor.samplingPoints[i];
+            
+            console.log(" ****** point");
+            console.log(point);
 
             var hexColor = rgb(145, 145, 145);
             var darkColor = darkenrgb(145, 145, 145);
@@ -1021,31 +1011,41 @@ function createColorSamplerOptionsFromXMLNode(colorSamplerXmlNode) {
             var xmlID = Number(child.attr('xmlID'));
             var attribute = child.attr('attribute');
 
-//            if (LOG) {
-//                console.log(attribute + ":");
-//                console.log(propertyValue);
-//            }
-
             options.values[attribute] = propertyValue;
             options.xmlIDs[attribute] = xmlID;
 
         } else if (tagType === "array") {
 
             var array = new Array();
-            var pointElements = child.children('point');
+            var pointElements = child.children('element');
             pointElements.each(function () {
+                
                 var elementNode = $(this);
-                var x = Number(elementNode.attr('x') || elementNode.attr('left'));
-                var y = Number(elementNode.attr('y') || elementNode.attr('top'));
-
-                if (!isNaN(x) && !isNaN(y)) {
-                    var loadedPoint = {x: x, y: y};
-                    array.push(loadedPoint);
-                } else {
-                    array.push(elementNode.attr('stroke'));
+                var attributes = null;
+                var isNumber = null;
+                
+                if (tagName === "samplingPoints" || tagName === "simplifiedPolyline" || tagName === "translatedPoints") {
+                    attributes = ['x', 'y'];
+                    isNumber = [true, true];
+                } else if (tagName === "samplingMarksPositions") {
+                    attributes = ['left', 'top'];
+                    isNumber = [true, true];
+                } else if (tagName === "samplingMarksStrokes") {
+                    attributes = ['stroke'];
+                    isNumber = [false];
                 }
-
-
+                                
+                var loadedObject = {};
+                attributes.forEach(function (attribute, index) {
+                    var value = elementNode.attr(attribute);
+                    if (isNumber[index]) {
+                        value = Number(value);
+                    }
+                    loadedObject[attribute] = value;
+                });
+                
+                array.push(loadedObject);
+                
             });
             options[tagName] = array;
 
