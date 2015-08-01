@@ -1,21 +1,24 @@
 var Connector = fabric.util.createClass(fabric.Line, {
     type: 'connector',
+    
+    
     toXML: function () {
 
         var theConnector = this;
 
         var source = theConnector.source;
         var destination = theConnector.destination;
+        
+        var sourceID = source ? source.xmlID : -1;
+        var destinationID = destination ? destination.xmlID : -1;
 
-        var connectorNode = createXMLElement("connector");
-        addAttributeWithValue(connectorNode, "from", source.xmlID);
-        addAttributeWithValue(connectorNode, "to", destination.xmlID);
+        var connectorNode = createXMLElement("connector");                        
+        addAttributeWithValue(connectorNode, "from", sourceID);
+        addAttributeWithValue(connectorNode, "to", destinationID);
         addAttributeWithValue(connectorNode, "arrowColor", theConnector.arrowColor);
         addAttributeWithValue(connectorNode, "strokeWidth", 1);
         addAttributeWithValue(connectorNode, "filledArrow", theConnector.filledArrow);
         addAttributeWithValue(connectorNode, "opacity", theConnector.opacity);
-
-
 
         return connectorNode;
     },
