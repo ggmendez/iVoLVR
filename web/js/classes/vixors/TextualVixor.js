@@ -40,8 +40,6 @@ var TextualVixor = fabric.util.createClass(fabric.Rect, {
     initialize: function (options) {
 
         options.isWidget = true;
-        options.hasBorders = false;
-        options.hasRotatingPoint = false;
         options.selectable = true;
         options.cornerColor = '#ffbd00';
         options.transparentCorners = false;
@@ -60,12 +58,12 @@ var TextualVixor = fabric.util.createClass(fabric.Rect, {
         this.set('visualPropertyStroke', options.visualPropertyStroke || rgb(86, 86, 86));
         this.set('colorForStroke', options.visualPropertyStroke || rgb(86, 86, 86));
 
-//        this.setControlsVisibility({
-//            bl: false, // middle top disable
-//            br: false, // midle bottom
-//            tl: false, // middle left
-//            tr: false, // I think you get it
-//        });
+        this.setControlsVisibility({
+            bl: false, // middle top disable
+            br: false, // midle bottom
+            tl: false, // middle left
+            tr: false, // I think you get it
+        });
 
         this.createRectBackground();
 
@@ -132,7 +130,6 @@ var TextualVixor = fabric.util.createClass(fabric.Rect, {
             });
         };
 
-        this.initializeVisualPropertiesValues();
 
     },
     initializeVisualPropertiesValues: function () {
@@ -534,12 +531,12 @@ var TextualVixor = fabric.util.createClass(fabric.Rect, {
                                         dateAndTime.isTime = true;
                                         dateAndTimeVisualProperty.evented = true;
                                         printDateAndTime(dateAndTime, '#483D8B', 'white');
-                                    } /*else {
+                                    } else {
                                      dateAndTimeVisualProperty.evented = false;
-                                     dateAndTimeVisualProperty.outConnectors.forEach(function (outConnector) {
-                                     outConnector.contract();
-                                     });
-                                     }*/
+//                                     dateAndTimeVisualProperty.outConnectors.forEach(function (outConnector) {
+//                                     outConnector.contract();
+//                                     });
+                                     }
 
                                     /*theVixor.time = dateAndTime;
                                      dateAndTimeVisualProperty.value = dateAndTime;*/
@@ -705,9 +702,6 @@ var TextualVixor = fabric.util.createClass(fabric.Rect, {
 
 
 
-
-
-
 //            var easing = fabric.util.ease['easeOutBack'];
 //            if (property == 'radius' && value < 15) {
 //                easing = fabric.util.ease['easeOutCirc'];
@@ -735,20 +729,20 @@ var TextualVixor = fabric.util.createClass(fabric.Rect, {
         theVixor.setCoords();
 
     },
-    _render: function (ctx) {
-        ctx.save();
-
-
-//      this.rotatingPointOffset = this.valueForRotatingPointOffset * canvas.getZoom()/2;
-//      this.cornerSize = this.valueForcornerSize * canvas.getZoom()/2;
-
-        this.rotatingPointOffset = this.valueForRotatingPointOffset;
-        this.cornerSize = this.valueForcornerSize;
-
-        this.callSuper('_render', ctx);
-
-        ctx.restore();
-    }
+//    _render: function (ctx) {
+//        ctx.save();
+//
+//
+////      this.rotatingPointOffset = this.valueForRotatingPointOffset * canvas.getZoom()/2;
+////      this.cornerSize = this.valueForcornerSize * canvas.getZoom()/2;
+//
+//        this.rotatingPointOffset = this.valueForRotatingPointOffset;
+//        this.cornerSize = this.valueForcornerSize;
+//
+//        this.callSuper('_render', ctx);
+//
+//        ctx.restore();
+//    }
 });
 Vixor.call(TextualVixor.prototype);
 
@@ -772,6 +766,7 @@ Vixor.call(TextualVixor.prototype);
 function addTextualVixorToCanvas(options) {
 
     var textRecogniser = new TextualVixor(options);
+    
     canvas.add(textRecogniser);
 
     textRecogniser.associateEvents();
@@ -784,8 +779,6 @@ function addTextualVixorToCanvas(options) {
             textRecogniser.animateBirth(options.markAsSelected, null, null, options.doNotRefreshCanvas);
         }
     }
-
-    textRecogniser.associateEvents();
 
     if (options.shouldExpand) {
         textRecogniser.expand(true);
@@ -812,13 +805,11 @@ function addTextualVixorToCanvas(options) {
 function createTextRecogniserFromXMLNode(colorSamplerXmlNode) {
 
     var options = createTextRecogniserOptionsFromXMLNode(colorSamplerXmlNode);
-
-    options.hasControls = true;
-
     var textRecogniser = addTextualVixorToCanvas(options);
-
-
-
+    
+    canvas.setActiveObject(textRecogniser);
+    
+    textRecogniser.hasControls = true;
     return textRecogniser;
 }
 
@@ -869,6 +860,15 @@ function createTextRecogniserOptionsFromXMLNode(colorSamplerXmlNode) {
 
     options.animateAtBirth = !options.isExpanded;
     options.shouldExpand = options.isExpanded;
+    
+    options.hasControls = true;
+    options.hasRotatingPoint = true;
+    options.hasBorders = true;
+    options.padding = -2;
+    options.cornerSize = 20;
+    options.rotatingPointOffset = 50;
+    options.stroke = widget_selected_stroke_color;
+    options.borderColor = options.stroke;
 
     console.log("%c Options to create a new TEXT RECOGNISER from an XML Node: ", "background: rgb(241,202,100); color: black;");
     console.log(options);

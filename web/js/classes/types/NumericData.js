@@ -38,10 +38,10 @@ var NumericData = fabric.util.createClass(fabric.Path, {
         
         this.set('value', value);
 
-        if (LOG)
+        /*if (LOG) {
             console.log("value:");
-        if (LOG)
             console.log(value);
+        }*/
 
         this.set('inConnectors', new Array());
         this.set('outConnectors', new Array());

@@ -731,6 +731,12 @@ function createConnectorFromXMLNode(connectorNode) {
 
     var source = getFabricElementByXmlID(fromID);
     var destination = getFabricElementByXmlID(toID);
+    
+    console.log("%c" + "source:", "background: black; color: rgb(240,205,90);");
+    console.log(source);
+    
+    console.log("%c" + "destination:", "background: black; color: rgb(240,205,90);");
+    console.log(destination);
 
     if (source !== null && destination !== null) {
 

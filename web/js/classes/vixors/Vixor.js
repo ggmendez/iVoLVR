@@ -813,8 +813,11 @@ var Vixor = function () {
 
 /* Function to add outputs to Canvas*/
 function addVixorToCanvas(vixorType, options) {
-    if (vixorType === RECTANGULAR_VIXOR) {
-        return addRectangularVixorToCanvas(options);
+    
+    if (vixorType === TEXT_RECOGNIZER) {
+        
+        return addTextualVixorToCanvas(options);
+        
     } else if (vixorType === COLOR_REGION_EXTRACTOR) {
         
         return addSVGPathVixorToCanvas(options.thePath, options);

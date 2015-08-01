@@ -210,11 +210,10 @@ function drawTextualVixor(textExtractorType, element) {
             opacity: 1,
             movingOpacity: 0.3,
             figureType: textExtractorType,
-            hasControls: false,            
-//            isWidget: true,
-
-//            hasBorders: false,
-//            hasRotatingPoint: false,
+            hasControls: false,
+            hasBorders: false,
+            hasRotatingPoint: false,
+            
 //            selectable: true,
 //            cornerColor: '#ffbd00',
 //            transparentCorners: false,
@@ -1739,7 +1738,7 @@ function importImageToCanvas(options) {
 
         imgInstance.executePendingConnections = function () {
             imgInstance.widgets.forEach(function (widget) {
-                if (widget.isSVGPathVixor) {
+                if (widget.isSVGPathVixor || widget.isTextualVixor || widget.isSamplerVixor) {
                     widget.executePendingConnections();
                 }
             });
@@ -1771,7 +1770,12 @@ function importImageToCanvas(options) {
 
                     theVixor = buildAndAddSamplerColor(extractorOptions);
 
+                } else if (extractorType === TEXT_RECOGNIZER) {
+                    
+                    theVixor = addVixorToCanvas(extractorOptions.extractorType, extractorOptions);
+                    
                 }
+
 
                 imgInstance.widgets.push(theVixor);
 
@@ -6019,8 +6023,15 @@ function canvasDropFunction(ev, ui) {
             addEmptyVerticalCollection(x, y);
 
         } else if (id === "collectionGenerator") {
-
-            addNumericCollectionGenerator(x, y);
+            
+            var options = {
+                left: x,
+                top: y,
+                from: 0,
+                to: 100,
+                step: 10
+            };
+            addNumericCollectionGeneratorToCanvas(options);
 
         } else if (id === "numberGenerator") {
 

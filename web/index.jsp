@@ -160,7 +160,7 @@
             <!--------------->
             <!-- IMPORTING -->
             <!--------------->
-            <li class=""><a href="javascript:onLoad();"><i class="icon-picture fa-2x"></i></a></li>
+            <li class=""><a href="javascript:void(0);" onclick="onLoad();"><i class="icon-picture fa-2x"></i></a></li>
             <li> <input type="file" id="imageFileInput" name="someFile" onchange="handleImageFiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
             <li class="verticalLeftDivider"><a href="javascript:void(0);" onclick="showCameraSignal();"><i id="openCameraButton" class="fa fa-camera fa-2x"></i></a></li>
             <li class="verticalLeftDivider"><a href="javascript:readSVGFileAsData();"><i class="fa fa-file-code-o fa-2x"></i></a></li>

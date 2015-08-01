@@ -1,4 +1,4 @@
-var VerticalCollection = fabric.util.createClass(fabric.Rect, {
+ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
     isCollection: true,
     isVerticalCollection: true,
     setXmlIDs: function (from) {
@@ -1916,7 +1916,7 @@ function createVerticalCollectionOptionsFromXMLNode(collectionXmlNode) {
     options.shouldExpand = options.isExpanded;
     options.doNotBlinkCollection = options.isExpanded;
 
-    console.log("%coptions to create the saved VERTICAL COLLECTION", "background: rgb(255,192,36); color: white;");
+    console.log("%c" + "options to create the saved VERTICAL COLLECTION", "background: rgb(255,192,36); color: white;");
     console.log(options);
 
     return options;
@@ -1929,7 +1929,7 @@ function createVerticalCollectionFromXMLNode(collectionXmlNode) {
 
     var theCollection = addVerticalCollection(options);
 
-    console.log("%the added VERTICAL COLLECTION", "background: rgb(56,27,65); color: white;");
+    console.log("%c" + "the added VERTICAL COLLECTION", "background: rgb(56,27,65); color: white;");
     console.log(theCollection);
 
     return theCollection;
