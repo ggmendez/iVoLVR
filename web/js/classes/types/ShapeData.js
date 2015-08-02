@@ -305,15 +305,7 @@ var ShapeData = fabric.util.createClass(fabric.Path, {
 });
 DataType.call(ShapeData.prototype);
 
-function createShapeValue(shape, svgPathGroupMark) {
-    
-    console.log("####################################################################################################");
-    console.log("####################################################################################################");
-    console.log("####################################################################################################");
-    console.log("####################################################################################################");
-    console.log("####################################################################################################");
-    console.log(shape);
-    console.log(svgPathGroupMark);
+function createShapeValue(shape, svgPathGroupMark) {    
 
     var theValue = new Value({isShapeData: true, shape: shape});
     if (shape === PATH_MARK || shape === FILLEDPATH_MARK) {
@@ -321,13 +313,5 @@ function createShapeValue(shape, svgPathGroupMark) {
     } else {
         theValue.svgPathGroupMark = svgPathGroupMark;
     }
-//    console.log("svgPathGroupMark:");
-//    console.log(svgPathGroupMark);
-//    return new Value({isShapeData: true, shape: shape, svgPathGroupMark: svgPathGroupMark});
-
-    console.log("Crated value:");
-    console.log("Crated value:");
-    
-
     return theValue;
 }

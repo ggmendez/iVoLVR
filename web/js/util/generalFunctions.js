@@ -1615,6 +1615,7 @@ function importImageToCanvas(options) {
         imgInstance.widgets = new Array();
         
         imgInstance.applySelectedStyle = function () {
+            console.log("++++++++++++++++ applySelectedStyle");
             imgInstance.stroke = widget_selected_stroke_color;
             imgInstance.strokeDashArray = widget_selected_stroke_dash_array;
             imgInstance.strokeWidth = widget_selected_stroke_width;
@@ -1624,9 +1625,13 @@ function importImageToCanvas(options) {
         };
         
         imgInstance.applyUnselectedStyle = function () {
+            console.log("++++++++++++++++ applyUnselectedStyle");
             imgInstance.stroke = '#CC3333';
             imgInstance.strokeDashArray = [];
             imgInstance.strokeWidth = 1;
+            imgInstance.widgets.forEach(function (widget) {
+                widget.applyUnselectedStyle();
+            });
         };
 
         imgInstance.set({
@@ -1644,7 +1649,7 @@ function importImageToCanvas(options) {
 
         imgInstance.selectable = true;
 
-        canvas.add(imgInstance);
+        
 
         var canvasActualCenter = getActualCanvasCenter();
         options.left = options.left || canvasActualCenter.x;
@@ -1653,7 +1658,7 @@ function importImageToCanvas(options) {
         imgInstance.left = options.left;
         imgInstance.top = options.top;
 
-        imgInstance.setCoords();
+        
 
         var d = new Date();
         var df = d.getMonth() + '_' + d.getDate() + '_' + d.getYear() + '_' + (d.getHours() + 1) + '_' + d.getMinutes() + '_' + d.getSeconds() + '_' + d.getMilliseconds();
@@ -1686,8 +1691,8 @@ function importImageToCanvas(options) {
             request.onreadystatechange = function () {
                 if (request.readyState === 4) { // has the data arrived?
                     if (request.status === 200) { // is everything OK?
-                        var textResponse = request.responseText; // getting the result
-                        imgInstance.set({stroke: '#CC3333'});
+//                        var textResponse = request.responseText; // getting the result
+//                        imgInstance.set({stroke: '#CC3333'});
                     }
                 }
             };
@@ -1797,6 +1802,11 @@ function importImageToCanvas(options) {
 
             });
         }
+        
+        canvas.add(imgInstance);
+        imgInstance.setCoords();
+        imgInstance.applySelectedStyle();
+        canvas.setActiveObject(imgInstance);
 
         if (typeof options.xmlID !== 'undefined') {
             imgInstance.executePendingConnections();
@@ -1805,15 +1815,15 @@ function importImageToCanvas(options) {
         disableDrawingMode();
 
 
-        canvas.setActiveObject(imgInstance);
+        
 
 
 
-        var topLeft = imgInstance.getPointByOrigin('left', 'top');
-        if (LOG)
-            console.log("Image topLeft at before zoom:");
-        if (LOG)
-            console.log(topLeft);
+//        var topLeft = imgInstance.getPointByOrigin('left', 'top');
+//        if (LOG)
+//            console.log("Image topLeft at before zoom:");
+//        if (LOG)
+//            console.log(topLeft);
 
 
 

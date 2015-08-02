@@ -324,20 +324,24 @@ var VisualProperty = function () {
         var theVisualProperty = this;
         this.on({
             'doubleTap': function (options) {
+                
+                if (theVisualProperty.parentObject && theVisualProperty.parentObject.isSVGPathVixor) {
+                    return;
+                }
 
                 //TODO: IMPORTANT: Instead of checking the name of the property here, it should be cheked the type of their values
 
-                if (theVisualProperty.attribute == "fill") {
+                if (theVisualProperty.attribute === "fill") {
 
                     showColorChooser(theVisualProperty);
 
-                } else if (theVisualProperty.attribute == "label") {
+                } else if (theVisualProperty.attribute === "label") {
 
 //                    showLabelModifier(theVisualProperty);
 
                     showStringValue(theVisualProperty, true);
 
-                } else if (theVisualProperty.attribute == "shape") {
+                } else if (theVisualProperty.attribute === "shape") {
 
                     showShapeSelector(theVisualProperty);
 
