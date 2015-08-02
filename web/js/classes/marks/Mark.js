@@ -529,12 +529,51 @@ var Mark = function () {
 
     };
     this.remove = function () {
-        if (LOG)
-            console.log("%cRemoving MARK", "background: MediumSpringGreen");
-        if (this.iText) {
-            this.iText.remove();
+
+        var theMark = this;
+        var iText = theMark.iText;
+        var visualProperties = theMark.visualProperties;
+        var backgroundRect = theMark.backgroundRect;
+
+        var waitingTime = 0;
+
+        // Only the last visual property should be able to check whether or not to refresh the canvas
+        var totalVisualProperties = visualProperties.length;
+        for (var i = 0; i < totalVisualProperties; i++) {
+            var visualProperty = visualProperties[i];
+            visualProperty.disconnect((i === totalVisualProperties - 1) && theMark.isCompressed, true);
         }
-        this.callSuper('remove');
+
+        if (!theMark.isCompressed) {
+            waitingTime = 550;
+            theMark.compress(true);
+        }
+
+        setTimeout(function () {
+
+            var secondWaiting = 350;
+            hideWithAnimation(theMark, true);
+
+            setTimeout(function () {
+
+                if (iText && iText.canvas) {
+                    iText.remove();
+                }
+
+                if (backgroundRect && backgroundRect.canvas) {
+                    backgroundRect.remove();
+                }
+
+                if (theMark && theMark.canvas) {
+                    theMark.callSuper('remove');
+                }
+
+            }, secondWaiting);
+
+
+        }, waitingTime);
+
+
     };
 
     this.getDefaultModifiableVisualPropertyByType = function (value) {
@@ -1694,7 +1733,7 @@ function changeMarkShape(theMark, shapeValue) {
     var path = null;
     var svgPathGroupMark = null;
     var newShape = null;
-    
+
     if (shapeValue.shape === PATH_MARK || shapeValue.shape === FILLEDPATH_MARK) {
         path = shapeValue.path;
     } else if (shapeValue.shape === SVGPATHGROUP_MARK) {

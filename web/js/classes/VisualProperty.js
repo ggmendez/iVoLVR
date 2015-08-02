@@ -20,6 +20,34 @@ var VisualProperty = function () {
     this.set('hasControls', false);
     this.set('hasRotatingPoint', false);
 
+    this.disconnect = function (refreshCanvas, removeAfterDisconnection) {
+        var theVisualProperty = this;
+        theVisualProperty.inConnectors.forEach(function (inConnection) {
+            inConnection.contract(false, false, true);
+        });
+        theVisualProperty.outConnectors.forEach(function (outConnection) {
+            outConnection.contract(true, false, true);
+        });
+        var waitingTime = 50;
+        if (refreshCanvas) {
+            var duration = 600;
+            waitingTime += duration;
+            fabric.util.animate({
+                duration: duration,
+                onChange: canvas.renderAll.bind(canvas),
+                onComplete: function () {
+                    canvas.renderAll();
+                }
+            });
+        }
+        if (removeAfterDisconnection) {
+            setTimeout(function () {
+                theVisualProperty.remove();
+            }, waitingTime);
+        }
+
+    };
+
     this.toXML = function () {
 
         var theVisualProperty = this;
@@ -31,15 +59,15 @@ var VisualProperty = function () {
         var value = this.value;
         if (value) {
             if ($.isArray(this.value)) {
-                
+
                 console.log("**************************************************************", "background: red; color: white;");
                 console.log("***************************** Alert!!!!! Saving an ARRAY value", "background: red; color: white;");
                 console.log("**************************************************************", "background: red; color: white;");
-                
+
 //                var arrayNode = createXMLElement("array"); // TODO: It would be better if the created node is still a value one, but with type array
                 var arrayNode = createXMLElement("value"); // TODO: It would be better if the created node is still a value one, but with type array
                 addAttributeWithValue(arrayNode, "type", "array");
-                
+
                 theVisualProperty.value.forEach(function (value) {
                     var valueNode = value.toXML();
                     arrayNode.append(valueNode);
@@ -296,8 +324,8 @@ var VisualProperty = function () {
         var theVisualProperty = this;
         this.on({
             'doubleTap': function (options) {
-                
-               //TODO: IMPORTANT: Instead of checking the name of the property here, it should be cheked the type of their values
+
+                //TODO: IMPORTANT: Instead of checking the name of the property here, it should be cheked the type of their values
 
                 if (theVisualProperty.attribute == "fill") {
 

@@ -92,70 +92,70 @@ var Connector = fabric.util.createClass(fabric.Line, {
 
         var connector = this;
 
-//        if (this.source) {
-//            this.source.on('moving', function (options) {
-//                var massCenter = this.getPointByOrigin('center', 'center');
-//                if (this.getCompressedMassPoint) {
-//                    massCenter = this.getCompressedMassPoint();
+        if (this.source) {
+            this.source.on('moving', function (options) {
+                var massCenter = this.getPointByOrigin('center', 'center');
+                if (this.getCompressedMassPoint) {
+                    massCenter = this.getCompressedMassPoint();
+                }
+                connector.set({'x1': massCenter.x, 'y1': massCenter.y});
+                connector.setCoords();
+            });
+            this.source.on('scaling', function (options) {
+                var massCenter = this.getPointByOrigin('center', 'center');
+                if (this.getCompressedMassPoint) {
+                    massCenter = this.getCompressedMassPoint();
+                }
+                connector.set({'x1': massCenter.x, 'y1': massCenter.y});
+                connector.setCoords();
+                if (LOG)
+                    console.log("connector source scaling");
 //                }
-//                connector.set({'x1': massCenter.x, 'y1': massCenter.y});
-//                connector.setCoords();
-//            });
-//            this.source.on('scaling', function (options) {
-//                var massCenter = this.getPointByOrigin('center', 'center');
-//                if (this.getCompressedMassPoint) {
-//                    massCenter = this.getCompressedMassPoint();
-//                }
-//                connector.set({'x1': massCenter.x, 'y1': massCenter.y});
-//                connector.setCoords();
-//                if (LOG)
-//                    console.log("connector source scaling");
-////                }
-//            });
-//            this.source.on('modified', function (options) {
-//                var massCenter = this.getPointByOrigin('center', 'center');
-//                if (this.getCompressedMassPoint) {
-//                    massCenter = this.getCompressedMassPoint();
-//                }
-//                connector.set({'x1': massCenter.x, 'y1': massCenter.y});
-//                connector.setCoords();
-//                if (LOG)
-//                    console.log("connector source modified");
-//            });
-//        }
+            });
+            this.source.on('modified', function (options) {
+                var massCenter = this.getPointByOrigin('center', 'center');
+                if (this.getCompressedMassPoint) {
+                    massCenter = this.getCompressedMassPoint();
+                }
+                connector.set({'x1': massCenter.x, 'y1': massCenter.y});
+                connector.setCoords();
+                if (LOG)
+                    console.log("connector source modified");
+            });
+        }
         
-//        if (this.destination) {
-//            this.destination.on('moving', function (options) {
-//                var massCenter = this.getPointByOrigin('center', 'center');
-//                if (this.getCompressedMassPoint) {
-//                    massCenter = this.getCompressedMassPoint();
-//                }
-//                connector.set({'x2': massCenter.x, 'y2': massCenter.y});
-//                connector.setCoords();
-//                if (LOG)
-//                    console.log("connector destination moving");
-//            });
-//            this.destination.on('scaling', function (options) {
-//                var massCenter = this.getPointByOrigin('center', 'center');
-//                if (this.getCompressedMassPoint) {
-//                    massCenter = this.getCompressedMassPoint();
-//                }
-//                connector.set({'x2': massCenter.x, 'y2': massCenter.y});
-//                connector.setCoords();
-//                if (LOG)
-//                    console.log("connector destination scaling");
-//            });
-//            this.destination.on('modified', function (options) {
-//                var massCenter = this.getPointByOrigin('center', 'center');
-//                if (this.getCompressedMassPoint) {
-//                    massCenter = this.getCompressedMassPoint();
-//                }
-//                connector.set({'x2': massCenter.x, 'y2': massCenter.y});
-//                connector.setCoords();
-//                if (LOG)
-//                    console.log("connector destination modified");
-//            });
-//        }
+        if (this.destination) {
+            this.destination.on('moving', function (options) {
+                var massCenter = this.getPointByOrigin('center', 'center');
+                if (this.getCompressedMassPoint) {
+                    massCenter = this.getCompressedMassPoint();
+                }
+                connector.set({'x2': massCenter.x, 'y2': massCenter.y});
+                connector.setCoords();
+                if (LOG)
+                    console.log("connector destination moving");
+            });
+            this.destination.on('scaling', function (options) {
+                var massCenter = this.getPointByOrigin('center', 'center');
+                if (this.getCompressedMassPoint) {
+                    massCenter = this.getCompressedMassPoint();
+                }
+                connector.set({'x2': massCenter.x, 'y2': massCenter.y});
+                connector.setCoords();
+                if (LOG)
+                    console.log("connector destination scaling");
+            });
+            this.destination.on('modified', function (options) {
+                var massCenter = this.getPointByOrigin('center', 'center');
+                if (this.getCompressedMassPoint) {
+                    massCenter = this.getCompressedMassPoint();
+                }
+                connector.set({'x2': massCenter.x, 'y2': massCenter.y});
+                connector.setCoords();
+                if (LOG)
+                    console.log("connector destination modified");
+            });
+        }
 
 //        this.positionTriangles();
     },
@@ -232,7 +232,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
 
 
     },
-    contract: function (toDestination, doNotRemoveOnComplete) {
+    contract: function (toDestination, doNotRemoveOnComplete, doNotRefreshCanvas) {
 
         var theConnector = this;
         var endX = theConnector.source.left;
@@ -259,7 +259,9 @@ var Connector = fabric.util.createClass(fabric.Line, {
             easing: easing,
             onChange: function () {
                 theConnector.positionTriangles();
-                canvas.renderAll();
+                if (!doNotRefreshCanvas) {
+                    canvas.renderAll();
+                }
             },
             onComplete: function () {
                 if (!doNotRemoveOnComplete) {
