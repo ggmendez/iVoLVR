@@ -232,7 +232,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
 
 
     },
-    contract: function (toDestination, doNotRemoveOnComplete) {
+    contract: function (toDestination, doNotRemoveOnComplete, doNotRefreshCanvas) {
 
         var theConnector = this;
         var endX = theConnector.source.left;
@@ -259,7 +259,9 @@ var Connector = fabric.util.createClass(fabric.Line, {
             easing: easing,
             onChange: function () {
                 theConnector.positionTriangles();
-                canvas.renderAll();
+                if (!doNotRefreshCanvas) {
+                    canvas.renderAll();
+                }
             },
             onComplete: function () {
                 if (!doNotRemoveOnComplete) {

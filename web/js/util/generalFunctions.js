@@ -1599,6 +1599,7 @@ function importImageToCanvas(options) {
 //            lockScalingY: true,
             lockRotation: true,
             hasControls: false,
+            hasBorders: false,
             hasRotatingPoint: false,
         });
 
@@ -1612,14 +1613,29 @@ function importImageToCanvas(options) {
 
         imgInstance.downTouchs = 0;
         imgInstance.widgets = new Array();
+        
+        imgInstance.applySelectedStyle = function () {
+            imgInstance.stroke = widget_selected_stroke_color;
+            imgInstance.strokeDashArray = widget_selected_stroke_dash_array;
+            imgInstance.strokeWidth = widget_selected_stroke_width;
+            imgInstance.widgets.forEach(function (widget) {
+                widget.applySelectedStyle();
+            });
+        };
+        
+        imgInstance.applyUnselectedStyle = function () {
+            imgInstance.stroke = '#CC3333';
+            imgInstance.strokeDashArray = [];
+            imgInstance.strokeWidth = 1;
+        };
 
         imgInstance.set({
-            borderColor: '#CC3333',
+            
             //borderColor: canvas.backgroundColor,
 
             cornerColor: '#FFCC00',
             transparentCorners: false,
-            cornerSize: 25,
+//            cornerSize: 25,
             padding: 0,
             movingOpacity: 0.65,
             permanentOpacity: 1,
@@ -4511,7 +4527,7 @@ function capitalizeFirstLetter(string) {
 }
 
 function hideWithAnimation(object, refreshCanvas) {
-    var duration = 100;
+    var duration = 300;
     var easing = fabric.util.ease['easeInCubic'];
     object.animate('opacity', 0, {
         duration: duration,
@@ -4534,6 +4550,7 @@ function hideWithAnimation(object, refreshCanvas) {
         }
     });
 }
+
 
 function blink(object, refreshCanvas, increment) {
     if (!increment) {
@@ -4875,7 +4892,7 @@ function parseStringAsMomentDate(string) {
     } else {
         return null;
     }
-
+ 
 }
 
 function animateProperty(object, property, startValue, endValue, easing, duration, refreshCanvas, onCompleteFunction) {
