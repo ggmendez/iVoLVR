@@ -1,10 +1,53 @@
 var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
     isCollection: true,
     isNumericCollectionGenerator: true,
+    executePendingConnections: function () {
+        var theGenerator = this;
+        console.log("%c" + "Executing pending connections of loaded NumericCollectionGenerator. xmlID = " + theGenerator.xmlID, "background: rgb(243,128,146); color: black;");
+        executePendingConnections(theGenerator.xmlID);
+        theGenerator.visualProperties.forEach(function (visualProperty) {
+            
+            console.log("%c" + "\t visualProperty.xmlID = " + visualProperty.xmlID, "background: rgb(243,128,146); color: black;");
+            
+            executePendingConnections(visualProperty.xmlID);
+        });
+    },
+    setXmlIDs: function (from) {
+        var theGenerator = this;
+        theGenerator.xmlID = from++;
+        theGenerator.visualProperties.forEach(function (visualProperty) {
+            visualProperty.xmlID = from++;
+        });
+        return from;
+    },
+    applyXmlIDs: function (xmlIDs) {
+        var theGenerator = this;
+        if (xmlIDs) {
+            for (var attribute in xmlIDs) {
+                var xmlID = xmlIDs[attribute];
+                var visualProperty = theGenerator.getVisualPropertyByAttributeName(attribute);
+                if (visualProperty !== null) {
+                    visualProperty.xmlID = xmlID;
+                }
+            }
+        }
+    },
+    toXML: function () {
+        var theGenerator = this;
+        var markNode = createXMLElement("numericCollectionGenerator");
+        addAttributeWithValue(markNode, "xmlID", theGenerator.xmlID);
+        appendElementWithValue(markNode, "left", theGenerator.left);
+        appendElementWithValue(markNode, "top", theGenerator.top);
+        appendElementWithValue(markNode, "isExpanded", !theGenerator.isCompressed);
+        theGenerator.visualProperties.forEach(function (visualProperty) {
+            var propertyNode = visualProperty.toXML();
+            markNode.append(propertyNode);
+        });
+        return markNode;
+    },
     initialize: function (options) {
         options || (options = {});
         this.callSuper('initialize', options);
-        this.inConnectors = new Array();
         this.outConnectors = new Array();
         this.rx = 20;
         this.lockRotation = true;
@@ -18,32 +61,39 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
         this.typeIcon = null;
         this.values = new Array();
 
-        this.from = createNumericValue(0);
-        this.to = createNumericValue(100);
-        this.step = createNumericValue(10);
-        this.generateValues();
-
         this.visualPropertyFill = icons['number'].fill;
         this.visualPropertyStroke = icons['number'].stroke;
 
         this.visualProperties = new Array();
-        this.createVisualProperties();
+        this.createVisualProperties(options.values);
+        this.applyXmlIDs(options.xmlIDs);
+
+        this.generateValues();
 
         this.associateEvents();
 
         var theGenerator = this;
 
         setTimeout(function () {
-            theGenerator.addTypeIcon("autoNumber");
+            theGenerator.addTypeIcon("autoNumber", null, options.doNotBlinkCollection);
         }, 50);
 
+    },
+    getVisualPropertyByAttributeName: function (attributeName) {
+        var theGenerator = this;
+        for (var i = 0; i < theGenerator.visualProperties.length; i++) {
+            if (theGenerator.visualProperties[i].attribute === attributeName) {
+                return theGenerator.visualProperties[i];
+            }
+        }
+        return null;
     },
     generateValues: function () {
 
         var theGenerator = this;
-        var from = theGenerator.from.number;
-        var to = theGenerator.to.number;
-        var step = theGenerator.step.number;
+        var from = theGenerator.getVisualPropertyByAttributeName('from').value.number;
+        var to = theGenerator.getVisualPropertyByAttributeName('to').value.number;
+        var step = theGenerator.getVisualPropertyByAttributeName('step').value.number;
         theGenerator.values = new Array();
 
         for (var i = from; i <= to; i = i + step) {
@@ -58,14 +108,37 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
 
     },
     // The left and top are used for the SVGPathGroupMark, as, when loaded, its position is always set to the point 0,0
-    createVisualProperties: function () {
+    createVisualProperties: function (values) {
 
         var theGenerator = this;
 
+        var fromValue = null;
+        var toValue = null;
+        var stepValue = null;
+
+        if (values) {
+            fromValue = values.from || createNumericValue(theGenerator.from);
+            toValue = values.to || createNumericValue(theGenerator.to);
+            stepValue = values.step || createNumericValue(theGenerator.step);
+        } else {
+            fromValue = createNumericValue(theGenerator.from);
+            toValue = createNumericValue(theGenerator.to);
+            stepValue = createNumericValue(theGenerator.step);
+        }
+
+        console.log("fromValue: ");
+        console.log(fromValue);
+
+        console.log("toValue: ");
+        console.log(toValue);
+
+        console.log("stepValue: ");
+        console.log(stepValue);
+
         theGenerator.specificProperties = new Array();
-        theGenerator.specificProperties.push({attribute: "from", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: theGenerator.from});
-        theGenerator.specificProperties.push({attribute: "to", readable: true, writable: true, types: ['number'], updatesTo: ['radius'], dataTypeProposition: 'isNumericData', value: theGenerator.to});
-        theGenerator.specificProperties.push({attribute: "step", readable: true, writable: true, types: ['number'], updatesTo: ['radius'], dataTypeProposition: 'isNumericData', value: theGenerator.step});
+        theGenerator.specificProperties.push({attribute: "from", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: fromValue});
+        theGenerator.specificProperties.push({attribute: "to", readable: true, writable: true, types: ['number'], updatesTo: ['radius'], dataTypeProposition: 'isNumericData', value: toValue});
+        theGenerator.specificProperties.push({attribute: "step", readable: true, writable: true, types: ['number'], updatesTo: ['radius'], dataTypeProposition: 'isNumericData', value: stepValue});
 
         for (var i = 0; i < theGenerator.specificProperties.length; i++) {
             var visualProperty = CreateVisualProperty(theGenerator.specificProperties[i], theGenerator, theGenerator.left, theGenerator.top);
@@ -87,7 +160,8 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
         if (theCollection.visualProperties) {
             theCollection.visualProperties.forEach(function (value) {
                 if (value.canvas) {
-                    if (LOG) console.log(value);
+                    if (LOG)
+                        console.log(value);
                     value.remove();
                     value = null;
                 }
@@ -177,22 +251,8 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
         return visualValue;
     },
     positionConnectors: function () {
-
-        if (LOG) console.log("positionConnectors:");
-
-        var theCollection = this;
-        updateConnectorsPositions(theCollection);
-
-
-        /*var massCenter = theCollection.getCompressedMassPoint();
-         theCollection.inConnectors.forEach(function (inConnector) {
-         inConnector.bringToFront();
-         inConnector.set({'x2': massCenter.x, 'y2': massCenter.y});
-         });
-         theCollection.outConnectors.forEach(function (outConnector) {
-         outConnector.bringToFront();
-         outConnector.set({'x1': massCenter.x, 'y1': massCenter.y});
-         });*/
+        var theGenerator = this;
+        updateConnectorsPositions(theGenerator);
     },
     positionTypeIcon: function () {
         var theCollection = this;
@@ -240,8 +300,11 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
             var j = 0;
             var x = theCollection.left;
 
-            if (LOG) console.log("theCollection.visualProperties:");
-            if (LOG) console.log(theCollection.visualProperties);
+            /*if (LOG) {
+                console.log("theCollection.visualProperties:");
+                console.log(theCollection.visualProperties);
+            }*/
+            
 
             theCollection.visualProperties.forEach(function (visualValue) {
 
@@ -386,7 +449,8 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
             return;
         }
 
-        if (LOG) console.log("Starting collection expansion...");
+        if (LOG)
+            console.log("Starting collection expansion...");
 
         if (theCollection.typeIcon) {
             theCollection.typeIcon.bringToFront();
@@ -412,8 +476,10 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
         var newHeight = theCollection.compressedHeight + intendedNumberOfElements * ((valueUnscaledHeight + 10) * valuesFinalScale);
 
 
-        if (LOG) console.log("%c theCollection.height: " + theCollection.height, "background: blue; color: white;");
-        if (LOG) console.log("%c newHeight: " + newHeight, "background: blue; color: white;");
+        if (LOG)
+            console.log("%c theCollection.height: " + theCollection.height, "background: blue; color: white;");
+        if (LOG)
+            console.log("%c newHeight: " + newHeight, "background: blue; color: white;");
 
         var theClone = fabric.util.object.clone(theCollection);
 
@@ -461,14 +527,20 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
             }
 
 
-            if (LOG) console.log("firstY:");
-            if (LOG) console.log(firstY);
+            if (LOG)
+                console.log("firstY:");
+            if (LOG)
+                console.log(firstY);
 
-            if (LOG) console.log("intendedNumberOfElements:");
-            if (LOG) console.log(intendedNumberOfElements);
+            if (LOG)
+                console.log("intendedNumberOfElements:");
+            if (LOG)
+                console.log(intendedNumberOfElements);
 
-            if (LOG) console.log("space:");
-            if (LOG) console.log(space);
+            if (LOG)
+                console.log("space:");
+            if (LOG)
+                console.log(space);
 
             theCollection.visualProperties.forEach(function (visualProperty) {
 
@@ -586,7 +658,8 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
 
                 var theCollection = this;
 
-                if (LOG) console.log("Collection pressed...");
+                if (LOG)
+                    console.log("Collection pressed...");
 
                 if (!theCollection.mapper && !theCollection.isEmpty()) {
 
@@ -596,14 +669,18 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
                     blink(theCollection.typeIcon, false, 0.45);
                     blink(theCollection, true, 0.45);
 
-                    if (LOG) console.log("theCollection.values:");
-                    if (LOG) console.log(theCollection.values);
+                    if (LOG)
+                        console.log("theCollection.values:");
+                    if (LOG)
+                        console.log(theCollection.values);
 
 
                     var newConnector = new Connector({source: theCollection, value: theCollection.values, x2: theCollection.left, y2: theCollection.top, arrowColor: theCollection.stroke, filledArrow: true, strokeWidth: 1});
 
-                    if (LOG) console.log("newConnector.value:");
-                    if (LOG) console.log(newConnector.value);
+                    if (LOG)
+                        console.log("newConnector.value:");
+                    if (LOG)
+                        console.log(newConnector.value);
 
                     theCollection.outConnectors.push(newConnector);
                     canvas.add(newConnector);
@@ -639,7 +716,8 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
 
                 var theGenerator = this;
 
-                if (LOG) console.log("Mouse UP over a collection... ");
+                if (LOG)
+                    console.log("Mouse UP over a collection... ");
 
                 if (theGenerator.lockMovementX && theGenerator.lockMovementY) {
 
@@ -664,9 +742,9 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
                                     connector.setDestination(targetObject, true);
 
                                 } else if (targetObject.isVerticalCollection) {
-                                    
+
                                     connector.setDestination(targetObject, true);
-                                    
+
                                 } else if (targetObject.isNumericCollectionGenerator) {
 
                                     connector.setDestination(targetObject, true);
@@ -706,8 +784,8 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
                             // The mouse up event is done over a blank section of the canvas
                             var lastAddedConnector = getLastElementOfArray(theGenerator.outConnectors);
                             newConnectionReleasedOnCanvas(lastAddedConnector, coordX, coordY);
-                            
-                            
+
+
 
                         }
 
@@ -753,31 +831,41 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
             },
             'inConnectionRemoved': function (options) {
 
-                if (LOG) console.log("%cIN CONNECTOR", "background:pink; color:black;");
+                if (LOG)
+                    console.log("%cIN CONNECTOR", "background:pink; color:black;");
 
-                if (LOG) console.log("Before: ");
-                if (LOG) console.log(this.inConnectors);
+                if (LOG)
+                    console.log("Before: ");
+                if (LOG)
+                    console.log(this.inConnectors);
 
                 var removedConnection = options.connector;
                 fabric.util.removeFromArray(this.inConnectors, removedConnection);
 
-                if (LOG) console.log("After: ");
-                if (LOG) console.log(this.inConnectors);
+                if (LOG)
+                    console.log("After: ");
+                if (LOG)
+                    console.log(this.inConnectors);
 
             },
             'outConnectionRemoved': function (options) {
 
-                if (LOG) console.log("OUT CONNECTOR");
+                if (LOG)
+                    console.log("OUT CONNECTOR");
 
-                if (LOG) console.log("Before: ");
-                if (LOG) console.log(this.outConnectors);
+                if (LOG)
+                    console.log("Before: ");
+                if (LOG)
+                    console.log(this.outConnectors);
 
                 var removedConnection = options.connector;
                 fabric.util.removeFromArray(this.outConnectors, removedConnection);
 
-                if (LOG) console.log("After: ");
-                if (LOG) console.log(this.outConnectors);
-            },            
+                if (LOG)
+                    console.log("After: ");
+                if (LOG)
+                    console.log(this.outConnectors);
+            },
         });
     },
     // Checks if the given value is allowed to be added to the current collection based on the fact that collections should be honogeneous
@@ -824,8 +912,10 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
 
                 if (theMapper) {
 
-                    if (LOG) console.log("theCollection.getTotalValues():");
-                    if (LOG) console.log(theCollection.getTotalValues());
+                    if (LOG)
+                        console.log("theCollection.getTotalValues():");
+                    if (LOG)
+                        console.log(theCollection.getTotalValues());
 
                     var totalInValues = theMapper.inCollection.getTotalValues();
                     var totalOutValues = theMapper.outCollection.getTotalValues();
@@ -958,54 +1048,89 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
 
 });
 
+function addNumericCollectionGeneratorToCanvas(options) {
 
-function addEmptyNumericCollectionGenerator(x, y) {
+    options = options || {};
 
-    var aCollection = new NumericCollectionGenerator({
-        left: x,
-        top: y,
-        originX: 'center',
-        originY: 'center',
-        stroke: 'black',
-        fill: rgb(226, 227, 227),
-        perPixelTargetFind: true,
-        lockScalingX: true,
-        lockScalingY: true,
-        opacity: 1,
-        permanentOpacity: 1,
-        movingOpacity: 1,
-        hasRotatingPoint: false,
-        hasBorders: false,
-        hasControls: false,
-    });
+    options.originX = 'center';
+    options.originY = 'center';
+    options.stroke = 'black';
+    options.fill = rgb(226, 227, 227);
+    options.perPixelTargetFind = true;
+    options.lockScalingX = true;
+    options.lockScalingY = true;
+    options.opacity = 1;
+    options.permanentOpacity = 1;
+    options.movingOpacity = 1;
+    options.hasRotatingPoint = false;
+    options.hasBorders = false;
+    options.hasControls = false;
 
-    canvas.add(aCollection);
-    blink(aCollection, true, 0.3);
+    var theCollectionGenerator = new NumericCollectionGenerator(options);
+
+    canvas.add(theCollectionGenerator);
+
+    if (options.xmlID) {
+        theCollectionGenerator.executePendingConnections();
+    }
+
+    if (options.shouldExpand) {
+        theCollectionGenerator.expand(true);
+    }
+
+    return theCollectionGenerator;
 
 }
 
-function addNumericCollectionGenerator(x, y) {
+function createNumericCollectionGeneratorFromXMLNode(markXmlNode) {
 
-    var aCollection = new NumericCollectionGenerator({
-        left: x,
-        top: y,
-        originX: 'center',
-        originY: 'center',
-        stroke: 'black',
-        fill: rgb(226, 227, 227),
-        perPixelTargetFind: true,
-        lockScalingX: true,
-        lockScalingY: true,
-        opacity: 1,
-        permanentOpacity: 1,
-        movingOpacity: 1,
-        hasRotatingPoint: false,
-        hasBorders: false,
-        hasControls: false,
+    var options = {
+        markAsSelected: false,
+        animateAtBirth: false,
+        xmlID: Number(markXmlNode.attr('xmlID')),
+        xmlIDs: {},
+        values: {}
+    };
+
+    var children = markXmlNode.children();
+    children.each(function () {
+        var child = $(this);
+        var tagName = this.tagName;
+
+        if (tagName === "property") {
+
+            var valueXmlNode = $(child.find('value')[0]);
+            var propertyValue = createValueFromXMLNode(valueXmlNode);
+
+            var xmlID = Number(child.attr('xmlID'));
+            var attribute = child.attr('attribute');
+
+            options.values[attribute] = propertyValue;
+            options.xmlIDs[attribute] = xmlID;
+
+        } else {
+
+            var value = child.text();
+            var type = child.attr('type');
+
+            if (type === "number") {
+                value = Number(value);
+            } else if (type === "boolean") {
+                value = value === "true";
+            }
+
+            options[tagName] = value;
+
+        }
+
     });
 
-    canvas.add(aCollection);
+    options.animateAtBirth = !options.isExpanded;
+    options.shouldExpand = options.isExpanded;
+    options.doNotBlinkCollection = options.isExpanded;
 
-    return aCollection;
+    console.log("%c" + "options to create a new NUMERIC COLLECTION GENERATOR from an XML node", "background: rgb(231,242,109); color: black;");
+    console.log(options);
 
+    return addNumericCollectionGeneratorToCanvas(options);
 }

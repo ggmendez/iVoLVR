@@ -253,7 +253,6 @@ function processCanvasXMLNode(canvasNode) {
     var marks = new Array();
     var locators = new Array();
     var images = new Array();
-    var colorSamplers = new Array();
 
 //     Refreshing the canvas so that all the loaders do not do it
 //    fabric.util.animate({
@@ -294,6 +293,10 @@ function processCanvasXMLNode(canvasNode) {
         } else if (tagName === "verticalCollection") {
 
             createVerticalCollectionFromXMLNode(child);
+
+        } else if (tagName === "numericCollectionGenerator") {
+
+            createNumericCollectionGeneratorFromXMLNode(child);
 
         } else if (tagName === "importedImage") {
 
@@ -358,12 +361,15 @@ function processCanvasXMLNode(canvasNode) {
 }
 
 function executePendingConnections(objectXmlID) {
+    
+    console.log("%c" + "Executing pending connections for element with ID: " + objectXmlID, "background: rgb(81,195,183); color: white;");
 
     if (!pendingConnections || pendingConnections.length === 0) {
+        console.log("%c" + "There are not pending connections at the moment!!!: " + objectXmlID, "background: rgb(81,195,183); color: white;");
         return;
     }
 
-    console.log("%c" + "Executing pending connections for element with ID: " + objectXmlID, "background: rgb(81,195,183); color: white;");
+    
     var cont = 0;
 
     for (var i = pendingConnections.length - 1; i >= 0; i--) { // We iterate in reverse, as the removal of elements from the array will change its size
@@ -513,11 +519,23 @@ function getFabricElementByXmlID(xmlID) {
                     }
                 }
 
+            } else if (object.isNumericCollectionGenerator && object.isCompressed) {
+
+                var visualProperties = object.visualProperties;
+
+                for (var j = 0; j < visualProperties.length; j++) {
+                    var visualProperty = visualProperties[j];                                        
+                    
+                    if (visualProperty && visualProperty.xmlID === xmlID) {                                                                        
+                        return visualProperty;
+                    }
+
+                }
             }
         }
     }
 
-    console.log("xmlID " + xmlID + " not FOUND!!!");
-
+    console.log("%c" + "!!!!!!!!!!!! xmlID " + xmlID + " not FOUND!!!", "background: red; color: yellow;");
+    
     return null;
 }

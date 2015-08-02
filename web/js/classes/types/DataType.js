@@ -23,6 +23,11 @@ var DataType = function () {
         theVisualValue.xmlID = from++;
         return from;
     };
+    
+    this.executePendingConnections = function () {
+        var theDataType = this;
+        executePendingConnections(theDataType.xmlID);
+    };
 
     this.toXML = function () {
         var visualValueNode = createXMLElement("visualValue");
@@ -638,8 +643,8 @@ function CreateDataTypeFromValue(value) {
 
     if (value.isNumericData) {
 
-        console.log("--------------- ************************* value:");
-        console.log(value);
+        /*console.log("--------------- ************************* value:");
+        console.log(value);*/
 
         var options = {unscaledValue: value.unscaledValue, inPrefix: value.inPrefix, outPrefix: value.outPrefix, units: value.units};
         return new NumericData(options);
@@ -845,7 +850,6 @@ function createVisualVariableFromXMLNode(visualValueXmlNode) {
 
     var options = {
         xmlID: Number(visualValueXmlNode.attr('xmlID')),
-//        values: {}
     };
 
     var children = visualValueXmlNode.children();
@@ -885,6 +889,8 @@ function createVisualVariableFromXMLNode(visualValueXmlNode) {
 
     canvas.add(visualValue);
     visualValue.animateBirth(false, null, null, true);
+    
+    visualValue.executePendingConnections();
 
     return visualValue;
 }

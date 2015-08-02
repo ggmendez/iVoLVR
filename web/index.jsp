@@ -160,10 +160,12 @@
             <!--------------->
             <!-- IMPORTING -->
             <!--------------->
-            <li class=""><a href="javascript:onLoad();"><i class="icon-picture fa-2x"></i></a></li>
+            <li class=""><a href="javascript:void(0);" onclick="onLoad();"><i class="icon-picture fa-2x"></i></a></li>
             <li> <input type="file" id="imageFileInput" name="someFile" onchange="handleImageFiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
-            <li class="verticalLeftDivider"><a href="javascript:void(0);" onclick="showCameraSignal();"><i id="openCameraButton" class="fa fa-camera fa-2x"></i></a></li>
-            <li class="verticalLeftDivider"><a href="javascript:readSVGFileAsData();"><i class="fa fa-file-code-o fa-2x"></i></a></li>
+            
+<!--            <li class="verticalLeftDivider"><a href="javascript:void(0);" onclick="showCameraSignal();"><i id="openCameraButton" class="fa fa-camera fa-2x"></i></a></li>
+            <li class="verticalLeftDivider"><a href="javascript:readSVGFileAsData();"><i class="fa fa-file-code-o fa-2x"></i></a></li>-->
+            
             <li> <input type="file" id="dataSVGFileInput" name="someSVGDataFile" onchange="handleSVGFiles(this.files, false)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
             <li class="verticalLeftDivider"><a href="javascript:loadDatafile();"><i class="icon-table fa-2x"></i></a></li>
             <li> <input type="file" id="dataimageFileInput" name="someDatafile" onchange="handleDatafiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
@@ -184,8 +186,8 @@
             <!--------------------->
             <!-- COLOR REGIONS EXTRACTORS -->
             <!--------------------->
-            <li class=""><a id="scribbleModeActivatorLink" href="javascript:void(0);" onclick="deactivateScribbleMode();"><i class="fa fa-magic fa-2x"></i></a></li>
-            <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a id="scribbleModeDeactivatorLink" href="javascript:void(0);" onclick="activateScribbleMode();"><i class="fa fa-pencil fa-2x"></i></a></li>
+<!--            <li class=""><a id="scribder verticalRightbleModeActivatorLink" href="javascript:void(0);" onclick="deactivateScribbleMode();"><i class="fa fa-magic fa-2x"></i></a></li>
+            <li class="verticalLeftDiviDivider verticalRightDivider2"><a id="scribbleModeDeactivatorLink" href="javascript:void(0);" onclick="activateScribbleMode();"><i class="fa fa-pencil fa-2x"></i></a></li>-->
             
             <!--------------------->
             <!-- TEXT EXTRACTORS -->
