@@ -296,6 +296,8 @@ var VisualProperty = function () {
         var theVisualProperty = this;
         this.on({
             'doubleTap': function (options) {
+                
+               //TODO: IMPORTANT: Instead of checking the name of the property here, it should be cheked the type of their values
 
                 if (theVisualProperty.attribute == "fill") {
 
@@ -311,7 +313,7 @@ var VisualProperty = function () {
 
                     showShapeSelector(theVisualProperty);
 
-                } else {
+                } else if (!$.isArray(theVisualProperty.value)) {
 
                     showNumericValue(theVisualProperty, true);
 
