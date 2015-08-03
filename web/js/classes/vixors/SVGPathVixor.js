@@ -370,7 +370,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
                 onComplete: function () {
                     theVixor.associateInteractionEvents();
                     if (markAsSelected) {
-                        canvas.setActiveObject(theVixor);
+                        theVixor.applySelectedStyle();
+//                        canvas.setActiveObject(theVixor);
                     }
                 }
             });

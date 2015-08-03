@@ -163,13 +163,13 @@
             <li class=""><a href="javascript:void(0);" onclick="onLoad();"><i class="icon-picture fa-2x"></i></a></li>
             <li> <input type="file" accept=".jpeg, .png, .jpg"  id="imageFileInput" name="someFile" onchange="handleImageFiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
 
-<!--            <li class="verticalLeftDivider"><a href="javascript:void(0);" onclick="showCameraSignal();"><i id="openCameraButton" class="fa fa-camera fa-2x"></i></a></li>
-            <li class="verticalLeftDivider"><a href="javascript:readSVGFileAsData();"><i class="fa fa-file-code-o fa-2x"></i></a></li>
-            <li> <input type="file" accept=".svg" id="dataSVGFileInput" name="someSVGDataFile" onchange="handleSVGFiles(this.files, false)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>-->
-            
+            <!--            <li class="verticalLeftDivider"><a href="javascript:void(0);" onclick="showCameraSignal();"><i id="openCameraButton" class="fa fa-camera fa-2x"></i></a></li>
+                        <li class="verticalLeftDivider"><a href="javascript:readSVGFileAsData();"><i class="fa fa-file-code-o fa-2x"></i></a></li>
+                        <li> <input type="file" accept=".svg" id="dataSVGFileInput" name="someSVGDataFile" onchange="handleSVGFiles(this.files, false)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>-->
+
             <li class="verticalLeftDivider"><a href="javascript:loadDatafile();"><i class="icon-table fa-2x"></i></a></li>
             <li> <input type="file" accept=".csv, .json" id="dataimageFileInput" name="someDatafile" onchange="handleDatafiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
-            
+
             <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a href="javascript:void(0);" onclick="showWebPage();"><i id="openWebPageButton" class="fa fa-globe fa-2x"></i></a></li>
 
             <!---------->
@@ -187,8 +187,9 @@
             <!--------------------->
             <!-- COLOR REGIONS EXTRACTORS -->
             <!--------------------->
-            <!--            <li class=""><a id="scribder verticalRightbleModeActivatorLink" href="javascript:void(0);" onclick="deactivateScribbleMode();"><i class="fa fa-magic fa-2x"></i></a></li>
-                        <li class="verticalLeftDiviDivider verticalRightDivider2"><a id="scribbleModeDeactivatorLink" href="javascript:void(0);" onclick="activateScribbleMode();"><i class="fa fa-pencil fa-2x"></i></a></li>-->
+            <li class="verticalRightDivider"><a id="scribbleDectivator" href="javascript:void(0);" onclick="deactivateScribbleMode();"><i class="fa fa-magic fa-2x"></i></a></li>
+            <li class="verticalLeftDiviDivider verticalRightDivider"><a id="scribbleActivator1" href="javascript:void(0);" onclick="activateScribbleMode(false);"><i class="fa fa-pencil fa-2x"></i></a></li>
+            <li class="verticalLeftDiviDivider verticalRightDivider2"><a id="scribbleActivator2" href="javascript:void(0);" onclick="activateScribbleMode(true);"><i class="fa fa-paint-brush fa-2x"></i></a></li>
 
             <!--------------------->
             <!-- TEXT EXTRACTORS -->

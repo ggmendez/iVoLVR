@@ -162,7 +162,7 @@ var Vixor = function () {
             visualProperty.setCoords();
         }
     };
-    this.animateBirth = function (vixorAsSelected) {
+    this.animateBirth = function (markAsSelected) {
 
         var theVixor = this;
         var scaleX = this.scaleX;
@@ -170,7 +170,7 @@ var Vixor = function () {
         this.set('scaleX', 0);
         this.set('scaleY', 0);
 
-        if (vixorAsSelected) {
+        if (markAsSelected) {
             this.applySelectedStyle(false);
         }
 

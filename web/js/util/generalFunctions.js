@@ -213,7 +213,6 @@ function drawTextualVixor(textExtractorType, element) {
             hasControls: false,
             hasBorders: false,
             hasRotatingPoint: false,
-            
 //            selectable: true,
 //            cornerColor: '#ffbd00',
 //            transparentCorners: false,
@@ -1613,7 +1612,7 @@ function importImageToCanvas(options) {
 
         imgInstance.downTouchs = 0;
         imgInstance.widgets = new Array();
-        
+
         imgInstance.applySelectedStyle = function () {
             console.log("++++++++++++++++ applySelectedStyle");
             imgInstance.stroke = widget_selected_stroke_color;
@@ -1623,7 +1622,7 @@ function importImageToCanvas(options) {
                 widget.applySelectedStyle();
             });
         };
-        
+
         imgInstance.applyUnselectedStyle = function () {
             console.log("++++++++++++++++ applyUnselectedStyle");
             imgInstance.stroke = '#CC3333';
@@ -1635,7 +1634,6 @@ function importImageToCanvas(options) {
         };
 
         imgInstance.set({
-            
             //borderColor: canvas.backgroundColor,
 
             cornerColor: '#FFCC00',
@@ -1649,7 +1647,7 @@ function importImageToCanvas(options) {
 
         imgInstance.selectable = true;
 
-        
+
 
         var canvasActualCenter = getActualCanvasCenter();
         options.left = options.left || canvasActualCenter.x;
@@ -1658,7 +1656,7 @@ function importImageToCanvas(options) {
         imgInstance.left = options.left;
         imgInstance.top = options.top;
 
-        
+
 
         var d = new Date();
         var df = d.getMonth() + '_' + d.getDate() + '_' + d.getYear() + '_' + (d.getHours() + 1) + '_' + d.getMinutes() + '_' + d.getSeconds() + '_' + d.getMilliseconds();
@@ -1792,9 +1790,9 @@ function importImageToCanvas(options) {
                     theVixor = buildAndAddSamplerColor(extractorOptions);
 
                 } else if (extractorType === TEXT_RECOGNIZER) {
-                    
+
                     theVixor = addVixorToCanvas(extractorOptions.extractorType, extractorOptions);
-                    
+
                 }
 
 
@@ -1802,7 +1800,7 @@ function importImageToCanvas(options) {
 
             });
         }
-        
+
         canvas.add(imgInstance);
         imgInstance.setCoords();
         imgInstance.applySelectedStyle();
@@ -1815,7 +1813,7 @@ function importImageToCanvas(options) {
         disableDrawingMode();
 
 
-        
+
 
 
 
@@ -3121,7 +3119,9 @@ function deActivateLineSamplingMode() {
 }
 
 
-function activateScribbleMode() {
+function activateScribbleMode(makeSingleRegion) {
+
+    canvas.makeSingleRegion = makeSingleRegion;
 
     canvas.freeDrawingBrush.color = rgb(238, 189, 62);
     canvas.freeDrawingBrush.width = 5;
@@ -3150,11 +3150,23 @@ function activateScribbleMode() {
 
     canvas.defaultCursor = 'crosshair';
 
-    $("#scribbleModeActivatorLink").css("background-color", "");
-    $("#scribbleModeActivatorLink").css("border-color", "");
+//    $("#scribbleModeActivatorLink").css("background-color", "");
+//    $("#scribbleModeActivatorLink").css("border-color", "");
+//
+//    $("#scribbleModeDeactivatorLink").css("background-color", "#fefefe");
+//    $("#scribbleModeDeactivatorLink").css("border-color", "#000");
+//    
+    applyInactiveMenuButtonStyle($("#scribbleDectivator"));
 
-    $("#scribbleModeDeactivatorLink").css("background-color", "#fefefe");
-    $("#scribbleModeDeactivatorLink").css("border-color", "#000");
+    if (makeSingleRegion) {
+        applyActiveMenuButtonStyle($("#scribbleActivator2"));
+        applyInactiveMenuButtonStyle($("#scribbleActivator1"));
+    } else {
+        applyActiveMenuButtonStyle($("#scribbleActivator1"));
+        applyInactiveMenuButtonStyle($("#scribbleActivator2"));
+    }
+
+
 
 }
 
@@ -3170,12 +3182,16 @@ function deactivateScribbleMode() {
     canvas.isScribbleMode = false;
     canvas.isDrawingMode = false;
 
-    $("#scribbleModeDeactivatorLink").css("background-color", "");
-    $("#scribbleModeDeactivatorLink").css("border-color", "");
+    /*$("#scribbleModeDeactivatorLink").css("background-color", "");
+     $("#scribbleModeDeactivatorLink").css("border-color", "");
+     
+     $("#scribbleModeActivatorLink").css("background-color", "#fefefe");
+     $("#scribbleModeActivatorLink").css("border-color", "#000");*/
 
-    $("#scribbleModeActivatorLink").css("background-color", "#fefefe");
-    $("#scribbleModeActivatorLink").css("border-color", "#000");
-
+    applyActiveMenuButtonStyle($("#scribbleDectivator"));
+    applyInactiveMenuButtonStyle($("#scribbleActivator1"));
+    applyInactiveMenuButtonStyle($("#scribbleActivator2"));
+    
     canvas.defaultCursor = 'default';
 
     if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
@@ -3215,16 +3231,12 @@ function deActivateRectSelectionMode() {
 
 
 function applyActiveMenuButtonStyle(button) {
-    if (LOG)
-        console.log("11");
     button.css("background-color", "#fefefe");
     button.css("border-color", "#000");
     button.data('isActive', true);
 }
 
 function applyInactiveMenuButtonStyle(button) {
-    if (LOG)
-        console.log("22");
     button.css("background-color", "");
     button.css("border-color", "");
     button.data('isActive', false);
@@ -4061,7 +4073,7 @@ function processScribbleFromPath(drawnPath) {
     });
 
     // computing the sampling positions over the simplified path
-    var samplingDistance = 30;
+    var samplingDistance = 5;
     var samplingPoints = samplePolyline(simplifiedPolyline, samplingDistance);
 
     // generating the offset polygon of the SIMPLIFIED polyline
@@ -4142,7 +4154,8 @@ function processScribbleFromPath(drawnPath) {
 
 
     var request = new XMLHttpRequest();
-    request.open("POST", "processScribble", true);
+//    request.open("POST", "processScribble", true);
+    request.open("POST", "FillAreaByScribble", true);
     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
     request.onreadystatechange = function () {
 
@@ -4163,83 +4176,95 @@ function processScribbleFromPath(drawnPath) {
 
                     if (response) {
 
-                        var pathString = response['path'];
-                        if (pathString) {
+                        var k = 0;
 
-                            var color = response['meanColor'];
-                            var b = parseFloat(color['val'][0]).toFixed(0);
-                            var g = parseFloat(color['val'][1]).toFixed(0);
-                            var r = parseFloat(color['val'][2]).toFixed(0);
+                        response.forEach(function (findingObject) {
 
-                            var massCenter = response['massCenter'];
-                            var x = massCenter['x'];
-                            var y = massCenter['y'];
+                            var waitingTime = k * 125;
+
+                            setTimeout(function () {
+
+                                console.log("%c" + "findingObject:", "background: rgb(47,136,127); color: white;");
+                                console.log(findingObject);
+
+
+
+                                var pathString = findingObject['path'];
+                                if (pathString) {
+
+                                    var color = findingObject['meanColor'];
+                                    var b = parseFloat(color['val'][0]).toFixed(0);
+                                    var g = parseFloat(color['val'][1]).toFixed(0);
+                                    var r = parseFloat(color['val'][2]).toFixed(0);
+
+                                    var massCenter = findingObject['massCenter'];
+                                    var x = massCenter['x'];
+                                    var y = massCenter['y'];
 
 //                            console.log("%c" + "massCenter", "background: red; color: white;");
 //                            console.log(massCenter);                                                        
 
-                            var path = new fabric.Path(pathString);
+                                    var path = new fabric.Path(pathString);
 
-                            path.isColorSelector = true;
-                            path.untransformedX = x;
-                            path.untransformedY = y;
-                            path.untransformedAngle = 0;
-                            path.untransformedScaleX = 1;
-                            path.untransformedScaleY = 1;
+                                    path.isColorSelector = true;
+                                    path.untransformedX = x;
+                                    path.untransformedY = y;
+                                    path.untransformedAngle = 0;
+                                    path.untransformedScaleX = 1;
+                                    path.untransformedScaleY = 1;
 
-                            var widgetPosition = computeWidgetPosition(path, parentObject);
-                            var finalX = widgetPosition.x;
-                            var finalY = widgetPosition.y;
+                                    var widgetPosition = computeWidgetPosition(path, parentObject);
+                                    var finalX = widgetPosition.x;
+                                    var finalY = widgetPosition.y;
 
-                            var area = parseInt(response['contourArea']);
+                                    var area = parseInt(findingObject['contourArea']);
 
-                            var fillColor = 'rgba(' + (r * 1.5).toFixed(0) + ',  ' + (g * 1.5).toFixed(0) + ', ' + (b * 1.5).toFixed(0) + ', ' + 0.75 + ')';
+                                    var fillColor = 'rgba(' + (r * 1.5).toFixed(0) + ',  ' + (g * 1.5).toFixed(0) + ', ' + (b * 1.5).toFixed(0) + ', ' + 0.75 + ')';
 
-                            var vixorOptions = {
-                                finalOptions: {left: finalX, top: finalY, scaleX: parentObject.getScaleX(), scaleY: parentObject.getScaleY()},
-                                left: finalX,
-                                top: finalY,
-                                fillColor: fillColor,
-                                fill: fillColor,
-                                stroke: darkenrgb(r, g, b),
-                                markAsSelected: true,
-                                thePath: pathString,
-                                opacity: 1,
-                                permanentOpacity: 1,
-                                movingOpacity: 0.3,
-                                isWidget: true,
-                                parentObject: parentObject,
-                                angle: parentObject.getAngle(),
-                                untransformedAngle: 0,
-                                untransformedX: x,
-                                untransformedY: y,
-                                untransformedScaleX: 1,
-                                untransformedScaleY: 1,
-                                area: area,
-                                trueColor: rgb(r, g, b),
-                                trueColorDarker: darkenrgb(r, g, b),
-                                animateAtBirth: true,
-                            };
+                                    var vixorOptions = {
+                                        finalOptions: {left: finalX, top: finalY, scaleX: parentObject.getScaleX(), scaleY: parentObject.getScaleY()},
+                                        left: finalX,
+                                        top: finalY,
+                                        fillColor: fillColor,
+                                        fill: fillColor,
+                                        stroke: darkenrgb(r, g, b),
+                                        thePath: pathString,
+                                        opacity: 1,
+                                        permanentOpacity: 1,
+                                        movingOpacity: 0.3,
+                                        isWidget: true,
+                                        parentObject: parentObject,
+                                        angle: parentObject.getAngle(),
+                                        untransformedAngle: 0,
+                                        untransformedX: x,
+                                        untransformedY: y,
+                                        untransformedScaleX: 1,
+                                        untransformedScaleY: 1,
+                                        area: area,
+                                        trueColor: rgb(r, g, b),
+                                        trueColorDarker: darkenrgb(r, g, b),
+                                        animateAtBirth: true,
+                                        markAsSelected: true,
+                                    };
 
-                            var theVixor = addVixorToCanvas(COLOR_REGION_EXTRACTOR, vixorOptions);
-                            parentObject.widgets.push(theVixor);
+                                    var theVixor = addVixorToCanvas(COLOR_REGION_EXTRACTOR, vixorOptions);
+                                    parentObject.widgets.push(theVixor);
 
-
-
-
+                                }
 
 
 
+                            }, waitingTime);
 
 
 
+                            k++;
 
 
 
+                        });
 
 
-
-                        }
 
 
 
@@ -4260,7 +4285,8 @@ function processScribbleFromPath(drawnPath) {
     console.log("%c" + "untransformedPoints:", "background: rgb(47,136,127); color: white;");
     console.log(untransformedPoints);
 
-    request.send("samplingPoints=" + JSON.stringify(untransformedPoints) + "&imageForTextRecognition=" + imageForTextRecognition);  // sending the data to the server
+//    request.send("samplingPoints=" + JSON.stringify(untransformedPoints) + "&imageForTextRecognition=" + imageForTextRecognition);  // sending the data to the server
+    request.send("isSingleRegion=" + canvas.makeSingleRegion + "&samplingPoints=" + JSON.stringify(untransformedPoints) + "&imageForTextRecognition=" + imageForTextRecognition);  // sending the data to the server
 
     deactivateScribbleMode();
 
@@ -4902,7 +4928,7 @@ function parseStringAsMomentDate(string) {
     } else {
         return null;
     }
- 
+
 }
 
 function animateProperty(object, property, startValue, endValue, easing, duration, refreshCanvas, onCompleteFunction) {
@@ -6050,7 +6076,7 @@ function canvasDropFunction(ev, ui) {
             addEmptyVerticalCollection(x, y);
 
         } else if (id === "collectionGenerator") {
-            
+
             var options = {
                 left: x,
                 top: y,
