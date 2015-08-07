@@ -72,7 +72,7 @@ var DivisionOperator = fabric.util.createClass(Operator, {
         ctx.save();
         this.callSuper('_render', ctx);
         ctx.font = '55px Verdana';
-        ctx.fillStyle = OPERATOR_TEXT_FILL;
+        ctx.fillStyle = 'black';
 
         ctx.beginPath();
         ctx.strokeStyle = 'black';

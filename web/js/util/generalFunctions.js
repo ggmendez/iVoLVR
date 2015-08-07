@@ -1258,26 +1258,42 @@ function deleteObject() {
             }
         });
     } else if (canvas.getActiveObject()) {
-        // confirm dialog
-        alertify.confirm("Are you sure you want to remove the selected object?", function (e) {
-            if (e) {
-                var obj = canvas.getActiveObject();
-                // If we are removing a widget, we should also remove the connectors associated to it
-                if (obj.isWidget) {
-                    removeWidget(obj);
-                } else if (obj.isOutput) {
-                    removeOutput(obj, null);
-                } else if (obj.isConnector) {
-                    removeConnector(obj);
-                } else {
-                    //                                canvas.remove(obj);                                
-                    obj.remove();
-                }
 
-                canvas.renderAll();
-                alertify.log("Object removed", "", 3000);
-            }
-        });
+        var obj = canvas.getActiveObject();
+        if (obj && !obj.nonRemovable) {
+
+            // confirm dialog
+            alertify.confirm("Are you sure you want to remove the selected object?", function (e) {
+                if (e) {
+                    obj.remove();
+                    canvas.renderAll();
+                    alertify.log("Object removed", "", 3000);
+                }
+            });
+
+        }
+
+
+        // confirm dialog
+//        alertify.confirm("Are you sure you want to remove the selected object?", function (e) {
+//            if (e) {
+//                var obj = canvas.getActiveObject();
+//                // If we are removing a widget, we should also remove the connectors associated to it
+//                if (obj.isWidget) {
+//                    removeWidget(obj);
+//                } else if (obj.isOutput) {
+//                    removeOutput(obj, null);
+//                } else if (obj.isConnector) {
+//                    removeConnector(obj);
+//                } else {
+//                    //                                canvas.remove(obj);                                
+//                    obj.remove();
+//                }
+//
+//                canvas.renderAll();
+//                alertify.log("Object removed", "", 3000);
+//            }
+//        });
     } else {
         alertify.error("No objects selected");
     }
@@ -1701,10 +1717,13 @@ function importImageToCanvas(options) {
 
         imgInstance.on('mouseup', function (option) {
             objectMouseup(option, imgInstance);
+            console.log("%c" + "imgInstance.getWidth(): " + imgInstance.getWidth(), "background: yellow; color: black;");
+            console.log("%c" + "imgInstance.getHeight(): " + imgInstance.getHeight(), "background: yellow; color: black;");
         });
 
         imgInstance.on('modified', function (option) {
             objectModified(option, imgInstance);
+
         });
         imgInstance.on('moving', function (option) {
             objectMoving(option, imgInstance);
@@ -1717,6 +1736,8 @@ function importImageToCanvas(options) {
         });
         imgInstance.on('selected', function (option) {
             objectSelected(option, imgInstance);
+            console.log("%c" + "imgInstance.getWidth(): " + imgInstance.getWidth(), "background: purple; color: white;");
+            console.log("%c" + "imgInstance.getHeight(): " + imgInstance.getHeight(), "background: purple; color: white;");
         });
 
         imgInstance.setXmlIDs = function (from) {
@@ -2300,6 +2321,7 @@ function repositionWidget(parent, child) {
 
 }
 
+
 function computeUntransformedProperties(child, parent) {
 
 //    console.log("widget:");
@@ -2696,15 +2718,17 @@ function drawRectAt(point, color, noRefresh) {
     }
 //    if (LOG) console.log("FUNCTION drawRectAt");
     var rect = new fabric.Rect({
-        originX: 'center',
-        originY: 'center',
-        left: point.x,
-        top: point.y,
         fill: color,
-        width: 8,
-        height: 8
+        width: 3,
+        height: 3,
+        opacity: 0.35,
+        stroke: 'transparent',
     });
     canvas.add(rect);
+
+
+    rect.setPositionByOrigin(new fabric.Point(point.x, point.y), 'center', 'center');
+
     if (!noRefresh) {
         canvas.bringToFront(rect);
         canvas.renderAll();
@@ -3191,7 +3215,7 @@ function deactivateScribbleMode() {
     applyActiveMenuButtonStyle($("#scribbleDectivator"));
     applyInactiveMenuButtonStyle($("#scribbleActivator1"));
     applyInactiveMenuButtonStyle($("#scribbleActivator2"));
-    
+
     canvas.defaultCursor = 'default';
 
     if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
@@ -3481,13 +3505,18 @@ function pathToPolyline2(svgPathPoints) {
 function pathToPolyline(svgPathPoints, doNotCheckForReversion) {
 
 //    if (LOG) {
-//        console.log("svgPathPoints:");
-//        console.log(svgPathPoints);
+//    console.log("svgPathPoints:");
+//    console.log(svgPathPoints);
 //    }
 
     var polyline = new Array();
     var x, y, i;
     var n = svgPathPoints.length;
+
+    x = svgPathPoints[0][1];
+    y = svgPathPoints[0][2];
+    polyline.push({x: x, y: y});
+
     for (i = 1; i < n - 2; i++) {
         x = svgPathPoints[i][3];
         y = svgPathPoints[i][4];
@@ -3503,8 +3532,10 @@ function pathToPolyline(svgPathPoints, doNotCheckForReversion) {
         }
     }
 
-
-
+//    if (LOG) {
+//    console.log("polyline:");
+//    console.log(polyline);
+//}
     return polyline;
 
 }
@@ -3711,34 +3742,99 @@ function removeNaNs(points) {
 
 function createSampleVixorFromPath(drawnPath, fromStraightLine) {
 
+    drawnPath.strokeWidth = 0;
+    drawnPath.stroke = 'black';
+    drawnPath.fill = 'transparent';
+    drawnPath.strokeLineCap = 'butt';
+    drawnPath.perPixelTargetFind = true;
+
     var simplifiedPolyline = drawnPath;
+
+//    var firstPathPoint = null;
+//    var lastPathPoint = null;
+//
+//    if (drawnPath.path) {
+//        var pos = drawnPath.path.length - 1;
+//        var first = drawnPath.path[0];
+//        var last = drawnPath.path[pos];
+//
+//        console.log("+++++++++++++++++ first:");
+//        console.log(first);
+//        console.log("+++++++++++++++++ last:");
+//        console.log(last);
+//
+//
+//
+//        var firstPathPoint = new fabric.Point(first[1], first[2]);
+//        var lastPathPoint = new fabric.Point(last[1], last[2]);
+//    }
+
+
+
 
     if (!fromStraightLine) {
 
         var points = drawnPath.path;
 
-        if (LOG)
-            console.log("points:");
-        if (LOG)
-            console.log(points);
+//        if (LOG) {
+//        console.log("points:");
+//        console.log(points);
+//        }
 
         // converting the user-traced path to a polyline representation
         var polyline = pathToPolyline(points, true);
-        if (LOG)
-            console.log("%cpolyline:", "color: #000000; background: #7FFF00;");
-        if (LOG)
-            console.log(polyline);
+//        if (LOG) {
+//        console.log("%cpolyline:", "color: #000000; background: #7FFF00;");
+//        console.log(polyline);
+//        }
+
+
+//
+//        polyline.forEach(function (point) {
+//            drawRectAt(new fabric.Point(point.x, point.y), "red");
+//        });
 
         // simplifying the user-trced polyline
         var tolerance = 1;
         var highQuality = true;
         simplifiedPolyline = simplify(polyline, tolerance, highQuality);
-        if (LOG)
-            console.log("%csimplifiedPolyline:", "color: #000000; background: #ADD8E6;");
-        if (LOG)
-            console.log(simplifiedPolyline);
+
+//        if (LOG) {
+//            console.log("%csimplifiedPolyline:", "color: #000000; background: #ADD8E6;");
+//            console.log(simplifiedPolyline);
+//        }
+
+        // It may happen that the first and last point are LOST after the simplification of the original path
+        // We check for that before going any further
+//        var firstOriginalPoint = polyline[0];
+//        var firstSimplifiedPoint = simplifiedPolyline[0];
+//
+//        var lastOriginalPoint = polyline[polyline.length - 1];
+//        var lastSimplifiedPoint = simplifiedPolyline[simplifiedPolyline.length - 1];
+
+
+
+//        console.log("%c" + "firstOriginalPoint:", "color: #000000; background: #ADD8E6;");
+//        console.log(firstOriginalPoint);
+//
+//        console.log("%c" + "firstSimplifiedPoint:", "color: #000000; background: #ADD8E6;");
+//        console.log(firstSimplifiedPoint);
+//
+//        console.log("\n");
+//
+//        console.log("%c" + "lastOriginalPoint:", "color: #000000; background: #ADD8E6;");
+//        console.log(lastOriginalPoint);
+//
+//        console.log("%c" + "lastSimplifiedPoint:", "color: #000000; background: #ADD8E6;");
+//        console.log(lastSimplifiedPoint);
+
+
 
     }
+
+
+
+//    console.log("simplifiedPolyline:");
 
 
     // The variable translatedPoints contains the information of the approximation polyline relative to its first point (which, relative to itself, is located at the poit (0,0) )
@@ -3746,25 +3842,60 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
     // are not part of the path anymore
     var translatedPoints = new Array();
     simplifiedPolyline.forEach(function (point) {
-        translatedPoints.push({x: point.x - simplifiedPolyline[0].x, y: point.y - simplifiedPolyline[0].y});
+
+//        console.log(point);
+
+        var translatedPoint = {x: point.x - simplifiedPolyline[0].x, y: point.y - simplifiedPolyline[0].y};
+
+        translatedPoints.push(translatedPoint);
+
+//        drawRectAt(point, "green");
+//        drawRectAt(translatedPoint, "yellow");
+
     });
-    if (LOG)
-        console.log("%ctranslatedPoints:", "color: #000000; background: #ADD8E6;");
-    if (LOG)
-        console.log(translatedPoints);
+
+//    if (LOG) {
+//        console.log("%ctranslatedPoints:", "color: #000000; background: #ADD8E6;");
+//        console.log(translatedPoints);
+//    }
+//
+//
+//    if (firstPathPoint) {
+//        drawRectAt(firstPathPoint, "purple");
+//    }
+//    if (lastPathPoint) {
+//        drawRectAt(lastPathPoint, "purple");
+//    }
+//    
+//    
+//
+//
+//
+//    console.log("+++++++++++++++++ first:");
+//    console.log(first);
+//    console.log("+++++++++++++++++ last:");
+//    console.log(last);
+
+
+
+
+
 
     // computing the sampling positions over the simplified path
     var samplingDistance = 30;
     var samplingPoints = samplePolyline(simplifiedPolyline, samplingDistance);
     var totalLength = computePolylineLength(simplifiedPolyline);
     var trajectory = computePolylineTrajectory(simplifiedPolyline);
-    if (LOG)
-        console.log("samplingPoints:");
-    if (LOG)
-        console.log(samplingPoints);
-    /*samplingPoints.forEach(function (point) {
-     drawRectAt(point, 'red');
-     });*/
+
+//    if (LOG) {
+//    console.log("samplingPoints:");
+//    console.log(samplingPoints);
+//    }
+
+
+//    samplingPoints.forEach(function (point) {
+//        drawRectAt(point, 'blue');
+//    });
 
 
     // generating the offset polygon of the SIMPLIFIED polyline
@@ -3846,9 +3977,13 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
 
     } else {
 
-        userDefinedPath = getSVGPathString(drawnPath);
+        userDefinedPath = drawnPath.path;
 
     }
+
+
+//    console.log("userDefinedPath:");
+//    console.log(userDefinedPath);
 
 
     /*var offsetPath = new fabric.Path(svgPathString, {fill: rgb(198, 198, 198), stroke: '#000000', colorForStroke: '#000000', opacity: 0.75, strokeWidth: 1, originalStrokeWidth: 1});
@@ -3906,6 +4041,10 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
      }*/
 
     var firstPoint = new fabric.Point(samplingPoints[0].x, samplingPoints[0].y);
+
+//    console.log("%c" + "firstPoint:", "background: rgb(33,128,213); color: black;");
+//    console.log("x: " + firstPoint.x + " y: " + firstPoint.y);
+
     var parentObject = getImportedImageContaining(firstPoint);
 
     var options = {
@@ -3984,7 +4123,7 @@ function buildAndAddSamplerColor(options) {
         userTracedPath: options.userTracedPath,
         nonSerializable: parentObject !== null,
         xmlIDs: options.xmlIDs,
-        values: options.values
+        values: options.values,
     };
 
 
@@ -4025,8 +4164,8 @@ function buildAndAddSamplerColor(options) {
     if (samplingMarksPositions) {
         var j = 0;
         samplingMarksPositions.forEach(function (object) {
-            console.log("point:");
-            console.log(object);
+//            console.log("point:");
+//            console.log(object);
 //            samplerVixor.samplingMarks[j].setPositionByOrigin(new fabric.Point(point.x, point.y), 'center', 'center');
             samplerVixor.samplingMarks[j].left = object.left;
             samplerVixor.samplingMarks[j].top = object.top;
@@ -4073,7 +4212,7 @@ function processScribbleFromPath(drawnPath) {
     });
 
     // computing the sampling positions over the simplified path
-    var samplingDistance = 5;
+    var samplingDistance = 8;
     var samplingPoints = samplePolyline(simplifiedPolyline, samplingDistance);
 
     // generating the offset polygon of the SIMPLIFIED polyline
@@ -5630,7 +5769,7 @@ function removeUselessTags(parsedHTML) {
 
 }
 
-function createVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
+function addVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
 
     print("addVisualElementFromHTML FUNCTION. x: " + x + " y: " + y);
     console.log("Received parsedHTML:");

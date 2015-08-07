@@ -160,12 +160,13 @@
             <!--------------->
             <!-- IMPORTING -->
             <!--------------->
-            <li class=""><a href="javascript:void(0);" onclick="onLoad();"><i class="icon-picture fa-2x"></i></a></li>
+            <li><a href="javascript:void(0);" onclick="onLoad();"><i class="icon-picture fa-2x"></i></a></li>
             <li> <input type="file" accept=".jpeg, .png, .jpg"  id="imageFileInput" name="someFile" onchange="handleImageFiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
-
-            <!--            <li class="verticalLeftDivider"><a href="javascript:void(0);" onclick="showCameraSignal();"><i id="openCameraButton" class="fa fa-camera fa-2x"></i></a></li>
-                        <li class="verticalLeftDivider"><a href="javascript:readSVGFileAsData();"><i class="fa fa-file-code-o fa-2x"></i></a></li>
-                        <li> <input type="file" accept=".svg" id="dataSVGFileInput" name="someSVGDataFile" onchange="handleSVGFiles(this.files, false)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>-->
+            
+            <li class="verticalLeftDivider"><a href="javascript:void(0);" onclick="showCameraSignal();"><i id="openCameraButton" class="fa fa-camera fa-2x"></i></a></li>
+            
+            <li class="verticalLeftDivider"><a href="javascript:readSVGFileAsData();"><i class="fa fa-file-code-o fa-2x"></i></a></li>
+            <li> <input type="file" accept=".svg" id="dataSVGFileInput" name="someSVGDataFile" onchange="handleSVGFiles(this.files, false)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
 
             <li class="verticalLeftDivider"><a href="javascript:loadDatafile();"><i class="icon-table fa-2x"></i></a></li>
             <li> <input type="file" accept=".csv, .json" id="dataimageFileInput" name="someDatafile" onchange="handleDatafiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
@@ -187,9 +188,9 @@
             <!--------------------->
             <!-- COLOR REGIONS EXTRACTORS -->
             <!--------------------->
-            <li class="verticalRightDivider"><a id="scribbleDectivator" href="javascript:void(0);" onclick="deactivateScribbleMode();"><i class="fa fa-magic fa-2x"></i></a></li>
-            <li class="verticalLeftDiviDivider verticalRightDivider"><a id="scribbleActivator1" href="javascript:void(0);" onclick="activateScribbleMode(false);"><i class="fa fa-pencil fa-2x"></i></a></li>
-            <li class="verticalLeftDiviDivider verticalRightDivider2"><a id="scribbleActivator2" href="javascript:void(0);" onclick="activateScribbleMode(true);"><i class="fa fa-paint-brush fa-2x"></i></a></li>
+            <li><a id="scribbleDectivator" href="javascript:void(0);" onclick="deactivateScribbleMode();"><i class="fa fa-magic fa-2x"></i></a></li>
+            <li class="verticalLeftDivider"><a id="scribbleActivator1" href="javascript:void(0);" onclick="activateScribbleMode(false);"><i class="fa fa-pencil fa-2x"></i></a></li>
+            <li class="verticalLeftDivider verticalRightDivider2"><a id="scribbleActivator2" href="javascript:void(0);" onclick="activateScribbleMode(true);"><i class="fa fa-paint-brush fa-2x"></i></a></li>
 
             <!--------------------->
             <!-- TEXT EXTRACTORS -->
@@ -1037,47 +1038,57 @@
                 var x = canvasCoords.x;
                 var y = canvasCoords.y;
 
-                var dataTransfer = e.dataTransfer;
-                var text = e.dataTransfer.getData('Text');
+                var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isOperator', 'isFunctionInput', 'isMark', 'isPlayer', 'isDataType', 'isVerticalCollection', 'isMapperInput', 'isMapperOutput', 'isFunctionValuesCollection']);
+                if (targetObject) {
 
-                /*console.log("dataTransfer:");
-                 console.log(dataTransfer);
-                 
-                 console.log("text:");
-                 console.log(text);*/
 
-                if (e.dataTransfer.types) {
-                    [].forEach.call(e.dataTransfer.types, function (type) {
+
+                } else {
+                    var dataTransfer = e.dataTransfer;
+                    var text = e.dataTransfer.getData('Text');
+
+                    /*console.log("dataTransfer:");
+                     console.log(dataTransfer);
+                     
+                     console.log("text:");
+                     console.log(text);*/
+
+                    if (e.dataTransfer.types) {
+                        [].forEach.call(e.dataTransfer.types, function (type) {
 //                        console.log("***" + entities(e.dataTransfer.getData(type) + ' (content-type: ' + type + ')'));
 //                        console.log("***" + e.dataTransfer.getData(type) + ' (content-type: ' + type + ')');
 
-                        var contentType = type;
-                        var dataString = e.dataTransfer.getData(type);
+                            var contentType = type;
+                            var dataString = e.dataTransfer.getData(type);
 
-                        print("content-type " + contentType);
+                            print("content-type " + contentType);
 
-                        if (contentType === "text/html") {
+                            if (contentType === "text/html") {
 
-                            var parsedHTML = $.parseHTML(dataString);
+                                var parsedHTML = $.parseHTML(dataString);
 
-                            print("***" + dataString, 'red', 'white');
+                                print("***" + dataString, 'red', 'white');
 
-                            createVisualElementFromHTML(parsedHTML, x, y, true);
+                                addVisualElementFromHTML(parsedHTML, x, y, true);
 
 
 
-                        } else {
+                            } else {
 //                            print("***" + dataString);
-                        }
+                            }
 
 
 
 
 
-                    });
-                } else {
-                    console.log(e.dataTransfer.getData('Text'));
+                        });
+                    } else {
+                        console.log(e.dataTransfer.getData('Text'));
+                    }
                 }
+
+
+
 
                 return false;
             });

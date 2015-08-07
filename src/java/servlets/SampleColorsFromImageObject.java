@@ -60,21 +60,28 @@ public class SampleColorsFromImageObject extends HttpServlet {
             Gson gson = new Gson();
             Point[] samplingPositions = gson.fromJson(samplingPoints, Point[].class);
             for (Point point : samplingPositions) {
-                
+
                 int row = (int) point.y;
                 int col = (int) point.x;
 
-                double[] color = image.get(row, col);
-                
-                int b = (int)color[0];
-                int g = (int)color[1];
-                int r = (int)color[2];
+//                int b = 153;
+//                int g = 153;
+//                int r = 153;
+                int b = 0;
+                int g = 0;
+                int r = 255;
+
+                if (row >= 0 && col >= 0) {
+                    double[] color = image.get(row, col);
+                    b = (int) color[0];
+                    g = (int) color[1];
+                    r = (int) color[2];
+                }
 
                 int[] intColor = {r, g, b};
-                
-                System.out.println("Color at: (" + row + ", " + col + "): " + r + " " +g + " " + b);
-                
                 results.add(intColor);
+
+                System.out.println("Color at: (" + row + ", " + col + "): " + r + " " + g + " " + b);
 
             }
 

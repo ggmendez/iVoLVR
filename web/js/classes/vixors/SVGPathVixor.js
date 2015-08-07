@@ -1,5 +1,61 @@
 SVGPathVixor = fabric.util.createClass(fabric.Path, {
     isSVGPathVixor: true,
+    remove: function () {
+
+        var theExtractor = this;
+        var iText = theExtractor.iText;
+        var visualProperties = theExtractor.visualProperties;
+        var backgroundRect = theExtractor.backgroundRect;
+
+        var waitingTime = 0;
+
+        // Only the last visual property should be able to check whether or not to refresh the canvas
+        var totalVisualProperties = visualProperties.length;
+        for (var i = 0; i < totalVisualProperties; i++) {
+            var visualProperty = visualProperties[i];
+            visualProperty.disconnect((i === totalVisualProperties - 1) && theExtractor.isCompressed, true);
+        }
+
+        theExtractor.fill = theExtractor.trueColor;
+        theExtractor.stroke = 'black';
+        theExtractor.strokeDashArray = [5, 5];
+        theExtractor.strokeWidth = 4;        
+        canvas.renderAll();
+
+        setTimeout(function () {
+
+            if (!theExtractor.isCompressed) {
+                waitingTime = 550;
+                theExtractor.compress(true);
+            }
+
+            setTimeout(function () {
+
+                var secondWaiting = 350;
+                hideWithAnimation(theExtractor, true);
+
+                setTimeout(function () {
+
+                    if (backgroundRect && backgroundRect.canvas) {
+                        backgroundRect.remove();
+                    }
+
+                    if (theExtractor && theExtractor.canvas) {
+                        theExtractor.callSuper('remove');
+                    }
+
+                }, secondWaiting);
+
+
+            }, waitingTime);
+
+
+        }, 350);
+
+
+
+
+    },
     toXML: function () {
         var theExtractor = this;
         var extractorNode = createXMLElement("extractor");

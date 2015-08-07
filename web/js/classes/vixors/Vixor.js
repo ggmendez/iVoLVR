@@ -259,9 +259,7 @@ var Vixor = function () {
             }
         });
     };
-    this.remove = function () {
-        this.callSuper('remove');
-    };
+    
     this.changeColors = function (fill, stroke) {
         this.fill = fill;
         this.stroke = stroke;

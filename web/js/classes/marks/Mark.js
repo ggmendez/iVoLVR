@@ -536,6 +536,9 @@ var Mark = function () {
         var backgroundRect = theMark.backgroundRect;
 
         var waitingTime = 0;
+                
+        theMark.xVisualProperty.disconnect(false, true);
+        theMark.yVisualProperty.disconnect(false, true);
 
         // Only the last visual property should be able to check whether or not to refresh the canvas
         var totalVisualProperties = visualProperties.length;

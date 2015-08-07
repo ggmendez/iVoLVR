@@ -961,7 +961,7 @@ function objectDoubleTap(theEvent, targetObject) {
                                 fillColor: fillColor,
                                 fill: fillColor,
                                 stroke: darkenrgb(r, g, b),
-                                markAsSelected: true,
+                                markAsSelected: true,                                
                                 thePath: pathString,
                                 opacity: 1,
                                 permanentOpacity: widget.opacity,

@@ -3,7 +3,6 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
     getExtractorType: function () {
         return SAMPLER_VIXOR;
     },
-    
     toXML: function () {
         var theExtractor = this;
         var extractorNode = createXMLElement("extractor");
@@ -46,14 +45,10 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 
         return extractorNode;
     },
-    
     initialize: function (objects, options) {
 
-        console.log("%c" + "Creation options for Color Sampler:", "background: red; color: white;");
-        console.log(options);
-
-
-
+//        console.log("%c" + "Creation options for Color Sampler:", "background: red; color: white;");
+//        console.log(options);
 
         options || (options = {});
         this.callSuper('initialize', objects, options);
@@ -428,7 +423,7 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
         });
 
     },
-    sampleColors: function (firstTime) {
+    sampleColors: function () {
 
         var theVixor = this;
         var colorValues = new Array();
@@ -492,6 +487,8 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
                                     var fillColor = rgb(r, g, b);
                                     var strokeColor = darkenrgb(r, g, b);
 
+//                                    theVixor.samplingMarks[m].opacity = 0.2; // TODO: IMPORTANT: JUST FOR DEBUGGING
+
                                     theVixor.samplingMarks[m].fill = fillColor;
                                     theVixor.samplingMarks[m].stroke = strokeColor;
                                     theVixor.samplingMarks[m].colorForStroke = strokeColor;
@@ -537,23 +534,36 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 //            var parentTopLeft = theVixor.parentObject.getPointByOrigin('left', 'top');
 //            drawRectAt(parentTopLeft, 'red');
 
+            var imageCopy = fabric.util.object.clone(theVixor.parentObject);
+            imageCopy.strokeWidth = 0;
+            imageCopy.setCoords();
+
             theVixor.samplingMarks.forEach(function (samplingMark) {
-
+                
+                samplingMark.setCoords();
+            
                 var theCopy = fabric.util.object.clone(samplingMark);
+                
+                theCopy.originX = 'left';
+                theCopy.originY = 'top';
+                theCopy.strokeWidth = 0;
+                theCopy.setCoords();
 
-//                if (LOG) console.log(theCopy);
+
+
+//                console.log("samplingMark:");
+//                console.log(samplingMark);
+//                
+//                console.log("theCopy:");
+//                console.log(theCopy);
+                
+                
 
                 theCopy.parentObject = theVixor.parentObject;
-                computeUntransformedProperties(theCopy); // This computes the position of the mark relative to the image, which is the parent object of the vixor
+                computeUntransformedProperties(theCopy, imageCopy); // This computes the position of the mark relative to the image, which is the parent object of the vixor
 
-                if (firstTime) {
-                    if (LOG)
-                        console.log("First time the color sampling is done by this vixor!!!");
-                } else {
-                    // For some reason, this increment IS necessary
-//                    theCopy.untransformedX += theCopy.radius + 0.5;
-//                    theCopy.untransformedY += theCopy.radius + 0.5;
-                }
+//                console.log("theCopy.untransformedX: " + theCopy.untransformedX);
+//                console.log("theCopy.untransformedY: " + theCopy.untransformedY);
 
                 actualSamplingPoints.push({x: theCopy.untransformedX, y: theCopy.untransformedY});
 
@@ -561,8 +571,8 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 
             });
 
-            if (LOG)
-                console.log(actualSamplingPoints);
+//            if (LOG)
+//                console.log(actualSamplingPoints);
 
             request.send("samplingPoints=" + JSON.stringify(actualSamplingPoints) + "&imageForTextRecognition=" + imageForTextRecognition);  // sending the data to the server
 
@@ -861,6 +871,15 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
     addSamplingPoints: function (finalScaleX, finalScaleY) {
 
         var theVixor = this;
+
+        var vixorCopy = fabric.util.object.clone(theVixor);
+        vixorCopy.scaleX = 1;
+        vixorCopy.scaleY = 1;
+        vixorCopy.strokeWidth = 0;
+        vixorCopy.setCoords();
+
+
+
         var samplingMarks = new Array();
 
         finalScaleX = finalScaleX ? finalScaleX : 1;
@@ -870,10 +889,13 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
         var totalPoints = theVixor.samplingPoints.length;
         for (var i = 0; i < totalPoints; i++) {
 
+//            console.log("theVixor.getWidth(): " + theVixor.getWidth());
+//            console.log("vixorCopy.getWidth(): " + vixorCopy.getWidth());
+
             var point = theVixor.samplingPoints[i];
-            
-            console.log(" ****** point");
-            console.log(point);
+
+//            console.log(" ****** point");
+//            console.log(point);
 
             var hexColor = rgb(145, 145, 145);
             var darkColor = darkenrgb(145, 145, 145);
@@ -900,21 +922,39 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
             };
 
 //            var circularMark = addMarkToCanvas(CIRCULAR_MARK, markOptions);
-            var circularMark = new fabric.Circle(markOptions);
-            circularMark.setPositionByOrigin(new fabric.Point(point.x + 1, point.y + 1), 'center', 'center');
+            var circle = new fabric.Circle(markOptions);
+//            circularMark.setPositionByOrigin(new fabric.Point(point.x + 1, point.y + 1), 'center', 'center');
+            circle.setPositionByOrigin(new fabric.Point(point.x, point.y), 'center', 'center');
 
-            canvas.add(circularMark);
+            canvas.add(circle);
 
 //            if (LOG) console.log(circularMark);
 
-            theVixor.widgets.push(circularMark);
-            samplingMarks.push(circularMark);
+            theVixor.widgets.push(circle);
+            samplingMarks.push(circle);
 
-            computeUntransformedProperties(circularMark);
+            computeUntransformedProperties(circle);
 
-            circularMark.untransformedX += circularMark.strokeWidth / 2;
-            circularMark.untransformedY += circularMark.strokeWidth / 2;
 
+
+
+            var circleCopy = fabric.util.object.clone(circle);
+            circleCopy.scaleX = 1;
+            circleCopy.scaleY = 1;
+            circleCopy.strokeWidth = 0;
+            circleCopy.setCoords();
+
+            computeUntransformedProperties(circleCopy, vixorCopy);
+
+
+//            console.log("circle.untransformedX: " + circle.untransformedX);
+//            console.log("circleCopy.untransformedX: " + circleCopy.untransformedX);
+//            
+//            console.log("circle.untransformedY: " + circle.untransformedY);
+//            console.log("circleCopy.untransformedY: " + circleCopy.untransformedY);
+
+            circle.untransformedX = circleCopy.untransformedX;
+            circle.untransformedY = circleCopy.untransformedY;
 
 
 //            var parentTopLeft = theVixor.parentObject.getPointByOrigin('left', 'top');
@@ -946,9 +986,6 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
     },
 });
 
-SamplerVixor.fromObject = function (object, callback) {
-    callback(new SamplerVixor(object));
-};
 
 SamplerVixor.async = true;
 
@@ -967,6 +1004,10 @@ function addSamplerVixorToCanvas(objects, options) {
     var colorValues = new Array();
     samplerVixor.samplingMarks.forEach(function (samplingMark) {
         colorValues.push(samplingMark.fill);
+
+
+//        samplingMark.opacity = 0.25;
+
     });
     samplerVixor.setColorValues(colorValues);
 
@@ -1019,11 +1060,11 @@ function createColorSamplerOptionsFromXMLNode(colorSamplerXmlNode) {
             var array = new Array();
             var pointElements = child.children('element');
             pointElements.each(function () {
-                
+
                 var elementNode = $(this);
                 var attributes = null;
                 var isNumber = null;
-                
+
                 if (tagName === "samplingPoints" || tagName === "simplifiedPolyline" || tagName === "translatedPoints") {
                     attributes = ['x', 'y'];
                     isNumber = [true, true];
@@ -1034,7 +1075,7 @@ function createColorSamplerOptionsFromXMLNode(colorSamplerXmlNode) {
                     attributes = ['stroke'];
                     isNumber = [false];
                 }
-                                
+
                 var loadedObject = {};
                 attributes.forEach(function (attribute, index) {
                     var value = elementNode.attr(attribute);
@@ -1043,9 +1084,9 @@ function createColorSamplerOptionsFromXMLNode(colorSamplerXmlNode) {
                     }
                     loadedObject[attribute] = value;
                 });
-                
+
                 array.push(loadedObject);
-                
+
             });
             options[tagName] = array;
 

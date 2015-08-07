@@ -2,6 +2,7 @@
 var VisualProperty = function () {
 
     this.set('nonSerializable', true);
+    this.set('nonRemovable', true);
 
     this.set('visualProperty', true);
     this.set('isVisualProperty', true);
@@ -42,7 +43,10 @@ var VisualProperty = function () {
         }
         if (removeAfterDisconnection) {
             setTimeout(function () {
-                theVisualProperty.remove();
+                if (theVisualProperty && theVisualProperty.canvas) {
+                    theVisualProperty.remove();
+                }
+                
             }, waitingTime);
         }
 

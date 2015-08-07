@@ -187,7 +187,7 @@ function canvasPathCreated(options) {
 
     } else if (canvas.isSamplingMode) {
 
-        var drawnPath = options.path;
+        var drawnPath = options.path;                
 
         createSampleVixorFromPath(drawnPath, false);
 
