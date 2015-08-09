@@ -107,15 +107,15 @@ function hideOpenTooltips() {
 
     allTooltips.each(function () {
 
-        console.log("this:");
-        console.log(this);
+//        console.log("this:");
+//        console.log(this);
 
         var tooltip = $(this);
-        console.log("tooltip:");
-        console.log(tooltip);
+//        console.log("tooltip:");
+//        console.log(tooltip);
 
-        console.log("tooltip.tooltipster('option', autoClose):");
-        console.log();
+//        console.log("tooltip.tooltipster('option', autoClose):");
+//        console.log();
 
         var autoClose = tooltip.tooltipster('option', 'autoClose');
         if (autoClose) {
@@ -1783,7 +1783,13 @@ function importImageToCanvas(options) {
                 }
             });
         };
-
+        
+        canvas.add(imgInstance);
+        imgInstance.setCoords();
+        imgInstance.applySelectedStyle();
+        canvas.setActiveObject(imgInstance);
+        
+        // Once the image has been added to the canvas, the extractor associated to id are added:
         var extractors = options.extractorsOptions;
         if (extractors) {
             extractors.forEach(function (extractorOptions) {
@@ -1822,10 +1828,8 @@ function importImageToCanvas(options) {
             });
         }
 
-        canvas.add(imgInstance);
-        imgInstance.setCoords();
-        imgInstance.applySelectedStyle();
-        canvas.setActiveObject(imgInstance);
+        
+        
 
         if (typeof options.xmlID !== 'undefined') {
             imgInstance.executePendingConnections();
@@ -3770,7 +3774,8 @@ function removeNaNs(points) {
     return cleanedPolygon;
 }
 
-function createSampleVixorFromPath(drawnPath, fromStraightLine, centerPoint) {
+//function createSampleVixorFromPath(drawnPath, fromStraightLine, centerPoint) {
+function createSampleVixorFromPath(drawnPath, fromStraightLine) {
 
     drawnPath.strokeWidth = 0;
     drawnPath.stroke = 'red';
@@ -3781,7 +3786,8 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine, centerPoint) {
 //    console.log("drawnPath.getWidth(): " + drawnPath.getWidth());
 //    console.log("drawnPath.getHeight(): " + drawnPath.getHeight());
 
-    var simplifiedPolyline = drawnPath;
+//    var simplifiedPolyline = drawnPath;
+    var simplifiedPolyline = null;
 
 //    var firstPathPoint = null;
 //    var lastPathPoint = null;
@@ -3803,9 +3809,20 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine, centerPoint) {
 //    }
 
 
+    if (fromStraightLine) {
 
+        var x1 = drawnPath.x1;
+        var y1 = drawnPath.y1;
+        var x2 = drawnPath.x2;
+        var y2 = drawnPath.y2;
 
-    if (!fromStraightLine) {
+        simplifiedPolyline = new Array();
+        var startPoint = {x: x1, y: y1};
+        var endPoint = {x: x2, y: y2}
+        simplifiedPolyline.push(startPoint);
+        simplifiedPolyline.push(endPoint);
+
+    } else {
 
         var points = drawnPath.path;
 
@@ -3920,7 +3937,7 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine, centerPoint) {
 
 
     // computing the sampling positions over the simplified path
-    var samplingDistance = 30;
+    var samplingDistance = 25;
     var samplingPoints = samplePolyline(simplifiedPolyline, samplingDistance);
     var totalLength = computePolylineLength(simplifiedPolyline);
     var trajectory = computePolylineTrajectory(simplifiedPolyline);
@@ -3937,7 +3954,7 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine, centerPoint) {
 
 
     // generating the offset polygon of the SIMPLIFIED polyline
-    var offsetDistance = 30;
+    var offsetDistance = 28;
     var offsetPolygonPoints = generateOffsetPolygon(simplifiedPolyline, offsetDistance);
 
     if (LOG) {
@@ -4003,28 +4020,28 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine, centerPoint) {
 
     var userDefinedPath = null;
 
-    if (fromStraightLine) {
-
-//        var x1 = drawnPath[0].x;
-//        var y1 = drawnPath[0].y;
-//        var x2 = drawnPath[1].x;
-//        var y2 = drawnPath[1].y;
+//    if (fromStraightLine) {
+//
+////        var x1 = drawnPath[0].x;
+////        var y1 = drawnPath[0].y;
+////        var x2 = drawnPath[1].x;
+////        var y2 = drawnPath[1].y;
+//////        userDefinedPath = 'M ' + x1 + ' ' + y1 + ' L ' + x2 + ' ' + y2;
 ////        userDefinedPath = 'M ' + x1 + ' ' + y1 + ' L ' + x2 + ' ' + y2;
-//        userDefinedPath = 'M ' + x1 + ' ' + y1 + ' L ' + x2 + ' ' + y2;
-
-        userDefinedPath = polylineToSVGPathString(drawnPath);
-
-    } else {
-
-//        userDefinedPath = drawnPath.path;
-
-
-        userDefinedPath = polylineToSVGPathString(simplifiedPolyline);
-
-    }
-
+//
+//        userDefinedPath = polylineToSVGPathString(drawnPath);
+//
+//    } else {
+//
+////        userDefinedPath = drawnPath.path;
+//
+//
+//        userDefinedPath = polylineToSVGPathString(simplifiedPolyline);
+//
+//    }
 
 
+    userDefinedPath = polylineToSVGPathString(simplifiedPolyline);
 
 
 //    console.log("userDefinedPath:");
@@ -4095,7 +4112,7 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine, centerPoint) {
     var options = {
         offsetPolygonPath: svgPathString,
         userTracedPath: userDefinedPath,
-        userTracedPathCenter: centerPoint,
+//        userTracedPathCenter: centerPoint,
         samplingPoints: samplingPoints,
         totalLength: totalLength,
         simplifiedPolyline: simplifiedPolyline,
@@ -4151,21 +4168,37 @@ function buildAndAddSamplerColor(options) {
 //    console.log("userPath.getWidth(): " + userPath.getWidth());
 //    console.log("userPath.getHeight(): " + userPath.getHeight());
 
+    var originalDrawnPath = options.originalDrawnPath;
+    var centerPoint = null;
+    var originalWidth = null;
+    var originalHeight = null;
+
+    if (originalDrawnPath) {
+        centerPoint = originalDrawnPath.getCenterPoint();
+        originalWidth = originalDrawnPath.getWidth();
+        originalHeight = originalDrawnPath.getHeight();
+    } else {
+        centerPoint = options.originalDrawnPathCenterPoint;
+        originalWidth = options.originalDrawnPathWidth;
+        originalHeight = options.originalDrawnPathHeight;
+    }
+
     if (options.isStraightLine) {
         offsetPath.originX = 'center';
         offsetPath.originY = 'center';
         userPath.originX = 'center';
         userPath.originY = 'center';
-        offsetPath.setPositionByOrigin(options.userTracedPathCenter, 'center', 'center');
-        userPath.setPositionByOrigin(options.userTracedPathCenter, 'center', 'center');
+
+        offsetPath.setPositionByOrigin(centerPoint, 'center', 'center');
+        userPath.setPositionByOrigin(centerPoint, 'center', 'center');
+//        offsetPath.setPositionByOrigin(options.userTracedPathCenter, 'center', 'center');
+//        userPath.setPositionByOrigin(options.userTracedPathCenter, 'center', 'center');
     } else {
 
-        var originalDrawnPath = options.originalDrawnPath;
-        var originalWidth = originalDrawnPath.getWidth();
-        var originalHeight = originalDrawnPath.getHeight();
-
-        offsetPath.setPositionByOrigin(originalDrawnPath.getCenterPoint(), 'center', 'center');
-        userPath.setPositionByOrigin(originalDrawnPath.getCenterPoint(), 'center', 'center');
+        offsetPath.setPositionByOrigin(centerPoint, 'center', 'center');
+        userPath.setPositionByOrigin(centerPoint, 'center', 'center');
+//        offsetPath.setPositionByOrigin(originalDrawnPath.getCenterPoint(), 'center', 'center');
+//        userPath.setPositionByOrigin(originalDrawnPath.getCenterPoint(), 'center', 'center');
 
         var diffWidth = Math.abs(originalWidth - userPath.getWidth());
         var diffheight = Math.abs(originalHeight - userPath.getHeight());
@@ -4230,6 +4263,11 @@ function buildAndAddSamplerColor(options) {
         nonSerializable: parentObject !== null,
         xmlIDs: options.xmlIDs,
         values: options.values,
+        originalDrawnPath: options.originalDrawnPath,
+        centerPoint: options.originalDrawnPathCenterPoint,
+        originalWidth: options.originalDrawnPathWidth,
+        originalHeight: options.originalDrawnPathHeight,
+        isStraightLine: options.isStraightLine
     };
 
 
@@ -4259,9 +4297,11 @@ function buildAndAddSamplerColor(options) {
     } else if (colorValues) {
         var i = 0;
         var strokes = options.samplingMarksStrokes;
+        var fills = options.samplingMarksFills;
         colorValues.forEach(function (colorValue) {
-            samplerVixor.samplingMarks[i].fill = colorValue.color.toRgba();
+            samplerVixor.samplingMarks[i].sampledColor = colorValue.color.toRgba();
             samplerVixor.samplingMarks[i].stroke = strokes[i].stroke;
+            samplerVixor.samplingMarks[i].fill = fills[i].fill;
             i++;
         });
     }

@@ -189,7 +189,8 @@ function canvasPathCreated(options) {
 
         var drawnPath = options.path;                
 
-        createSampleVixorFromPath(drawnPath, false, drawnPath.getCenterPoint());
+//        createSampleVixorFromPath(drawnPath, false, drawnPath.getCenterPoint());
+        createSampleVixorFromPath(drawnPath, false);
 
         drawnPath.remove();
         
@@ -1146,7 +1147,8 @@ function canvasMouseUp(option) {
             simplifiedPolyline.push(startPoint);
             simplifiedPolyline.push(endPoint);
 
-            createSampleVixorFromPath(simplifiedPolyline, true, centerPoint);
+//            createSampleVixorFromPath(simplifiedPolyline, true, centerPoint);
+            createSampleVixorFromPath(theSamplingLine, true);
 
             canvas.samplingLine.remove();
 

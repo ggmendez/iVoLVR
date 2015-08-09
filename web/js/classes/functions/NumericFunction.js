@@ -71,8 +71,10 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
                 xCoordinatesNode.append(valueNode);
             });
             functionNode.append(xCoordinatesNode);
+        } else {
+            alert("Error: A function with no coordinatesX is being saved!");
         }
-
+        
         var coordinatesY = theFunction.coordinatesY;
         if (typeof coordinatesY !== 'undefined') {
             var yCoordinatesNode = createXMLElement("array");
@@ -83,6 +85,8 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
                 yCoordinatesNode.append(valueNode);
             });
             functionNode.append(yCoordinatesNode);
+        } else {
+            alert("Error: A function with no coordinatesY is being saved!");
         }
 
         return functionNode;
@@ -204,7 +208,8 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
         var theFunction = this;
 
-        if (theFunction.xCoordinates && theFunction.yCoordinates) {
+//        if (theFunction.xCoordinates && theFunction.yCoordinates) {
+        if (theFunction.coordinatesX && theFunction.coordinatesY) {
 
             if (!theFunction.inputPoint.opacity) {
                 theFunction.inputPoint.opacity = 1;
@@ -390,12 +395,20 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
     },
     createFunctionPath: function () {
         var theFunction = this;
-        if (theFunction.xCoordinates && theFunction.yCoordinates) {
+        
+//        if (theFunction.xCoordinates && theFunction.yCoordinates) {
+        if (theFunction.coordinatesX && theFunction.coordinatesY) {
+            
+            
 //            theFunction.scaledX = theFunction.scaleCoordiates(theFunction.xCoordinates, 'x');
 //            theFunction.scaledY = theFunction.scaleCoordiates(theFunction.yCoordinates, 'y');
             var polyline = new Array();
-            var totalXValues = theFunction.xCoordinates.length;
-            var totalYValues = theFunction.yCoordinates.length;
+            
+//            var totalXValues = theFunction.xCoordinates.length;
+//            var totalYValues = theFunction.yCoordinates.length;
+            var totalXValues = theFunction.coordinatesX.length;
+            var totalYValues = theFunction.coordinatesY.length;
+            
             var totalIterations = Math.min(totalXValues, totalYValues);
             for (var i = 0; i < totalIterations; i++) {
                 var xValue = theFunction.scaledX[i];
@@ -434,6 +447,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         var SVGPathString = theFunction.createFunctionPath();
 
         if (!SVGPathString) {
+            alert("Error: The function path could not be created!");
             return;
         }
 
@@ -921,10 +935,19 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
         var theFunction = this;
         if ($.isArray(coordinates)) {
+            
+            
 
-            theFunction[coordinate + 'Coordinates'] = coordinates;
+//            theFunction[coordinate + 'Coordinates'] = coordinates;
 
-            if (coordinate === 'y' && (!theFunction.xCoordinates || !theFunction.xValues.inConnectors.length)) {
+            
+
+            theFunction['coordinates' + coordinate.toUpperCase()] = coordinates;
+            
+            
+
+            if (coordinate === 'y' && (!theFunction.coordinatesX || !theFunction.xValues.inConnectors.length)) {
+//            if (coordinate === 'y' && (!theFunction.xCoordinates || !theFunction.xValues.inConnectors.length)) {
 
                 var xCoordinates = new Array();
 
@@ -945,11 +968,15 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
         theFunction.updateInputOutputVisibilityStatus();
 
-        if (theFunction.xCoordinates && theFunction.yCoordinates) {
+        if (theFunction.coordinatesX && theFunction.coordinatesY) {
+//        if (theFunction.xCoordinates && theFunction.yCoordinates) {
 
-            theFunction.scaledX = theFunction.scaleCoordiates(theFunction.xCoordinates, 'x');
-            theFunction.scaledY = theFunction.scaleCoordiates(theFunction.yCoordinates, 'y');
+//            theFunction.scaledX = theFunction.scaleCoordiates(theFunction.xCoordinates, 'x');
+//            theFunction.scaledY = theFunction.scaleCoordiates(theFunction.yCoordinates, 'y');
 
+            theFunction.scaledX = theFunction.scaleCoordiates(theFunction.coordinatesX, 'x');
+            theFunction.scaledY = theFunction.scaleCoordiates(theFunction.coordinatesY, 'y');
+            
             theFunction.addFunctionPath(shouldAnimate);
         }
 

@@ -20,6 +20,31 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
         appendElementWithValue(extractorNode, "scaleX", theExtractor.getScaleX());
         appendElementWithValue(extractorNode, "scaleY", theExtractor.getScaleY());
         appendElementWithValue(extractorNode, "isExpanded", !theExtractor.isCompressed);
+        appendElementWithValue(extractorNode, "isStraightLine", theExtractor.isStraightLine);
+
+        var centerPoint = theExtractor.getCenterPoint();
+        var centerPointNode = createXMLElement("originalDrawnPathCenterPoint");
+        addAttributeWithValue(centerPointNode, "x", centerPoint.x);
+        addAttributeWithValue(centerPointNode, "y", centerPoint.y);
+        extractorNode.append(centerPointNode);
+        
+        var originalDrawnPath = theExtractor.originalDrawnPath;
+        var originalDrawnPathWidth = null;
+        var originalDrawnPathHeight = null;
+        if (originalDrawnPath) {
+//            centerPoint = originalDrawnPath.getCenterPoint();
+            originalDrawnPathWidth = originalDrawnPath.getWidth();
+            originalDrawnPathHeight = originalDrawnPath.getHeight();
+        } else {
+//            centerPoint = theExtractor.originalDrawnPathCenterPoint;
+            originalDrawnPathWidth = theExtractor.originalDrawnPathWidth;
+            originalDrawnPathHeight = theExtractor.originalDrawnPathHeight;
+        }
+        
+        
+        appendElementWithValue(extractorNode, "originalDrawnPathWidth",  originalDrawnPathWidth);
+        appendElementWithValue(extractorNode, "originalDrawnPathHeight", originalDrawnPathHeight);
+        
         if (theExtractor.parentObject && theExtractor.parentObject.isImportedImage) {
             appendElementWithValue(extractorNode, "imageXmlID", theExtractor.parentObject.xmlID);
         }
@@ -35,12 +60,14 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
         var translatedPointsNode = createArrayNodeOfPoints("translatedPoints", theExtractor.translatedPoints, ['x', 'y']);
         var samplingMarksPositionsNode = createArrayNodeOfPoints("samplingMarksPositions", theExtractor.samplingMarks, ['left', 'top']);
         var samplingMarksStrokesNode = createArrayNodeOfPoints("samplingMarksStrokes", theExtractor.samplingMarks, ['stroke']);
+        var samplingMarksFillsNode = createArrayNodeOfPoints("samplingMarksFills", theExtractor.samplingMarks, ['fill']);
 
         extractorNode.append(samplingPointsNode);
         extractorNode.append(simplifiedPolylineNode);
         extractorNode.append(translatedPointsNode);
         extractorNode.append(samplingMarksPositionsNode);
         extractorNode.append(samplingMarksStrokesNode);
+        extractorNode.append(samplingMarksFillsNode);
 
 
         return extractorNode;
@@ -524,9 +551,9 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 //                                    var fillColor = rgb(r, g, b);
 //                                    var strokeColor = darkenrgb(r, g, b);
 
+                                    var sampledColor = rgb(r, g, b);
 
-
-                                    var rbgColor = new fabric.Color(rgb(r, g, b));
+                                    var rbgColor = new fabric.Color(sampledColor);
                                     console.log("rbgColor:");
                                     console.log(rbgColor);
                                     
@@ -541,7 +568,7 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
                                     var s = hslColor[1];
                                     var l = hslColor[2];
                                     
-                                    l += 15;
+                                    l += 7;
                                     if (l > 100) {
                                         l = 100;
                                     }
@@ -559,28 +586,27 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
                                     
 
 
+//                                    var strokeColor = rgb(0,0,0);
                                     var strokeColor = rgb(r, g, b);
 
 
 
 //                                    theVixor.samplingMarks[m].opacity = 0.2; // TODO: IMPORTANT: JUST FOR DEBUGGING
 
+                                    theVixor.samplingMarks[m].sampledColor = sampledColor;
                                     theVixor.samplingMarks[m].fill = fillColor;
                                     theVixor.samplingMarks[m].stroke = strokeColor;
                                     theVixor.samplingMarks[m].colorForStroke = strokeColor;
                                     m++;
 
-                                    colorValues.push(fillColor);
+                                    colorValues.push(sampledColor);
 
                                 });
-
-
-
-
 
                             } else {
 
                                 theVixor.samplingMarks.forEach(function (samplingMark) {
+                                    samplingMark.sampledColor = samplingMark.fill;
                                     colorValues.push(samplingMark.fill);
                                 });
 
@@ -655,8 +681,10 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
         } else {
 
             theVixor.samplingMarks.forEach(function (samplingMark) {
+                samplingMark.sampledColor = samplingMark.fill;
                 colorValues.push(samplingMark.fill);
             });
+            canvas.renderAll();
 
         }
 
@@ -1017,65 +1045,14 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
                 ctx.restore();
 
                 ctx.save();
+                ctx.strokeStyle = this.sampledColor;
                 ctx.beginPath();
-//                ctx.arc(0, 0, 1, 0, 2 * Math.PI);
                 ctx.rect(-0.5, -0.5, 1, 1);
                 ctx.stroke();
                 ctx.restore();
 
             };
 
-//            circle.render = function (ctx, noTransform) {
-//            
-//                
-//
-//                // do not render if width/height are zeros or object is not visible
-//                if ((this.width === 0 && this.height === 0) || !this.visible) {
-//                    return;
-//                }
-//
-//                ctx.save();
-//
-//                //setup fill rule for current object
-//                this._setupCompositeOperation(ctx);
-//                if (!noTransform) {
-//                    this.transform(ctx);
-//                }
-//                this._setStrokeStyles(ctx);
-//                this._setFillStyles(ctx);
-//                if (this.group && this.group.type === 'path-group') {
-//                    ctx.translate(-this.group.width / 2, -this.group.height / 2);
-//                }
-//                if (this.transformMatrix) {
-//                    ctx.transform.apply(ctx, this.transformMatrix);
-//                }
-//                this._setOpacity(ctx);
-//                this._setShadow(ctx);
-//                this.clipTo && fabric.util.clipContext(this, ctx);
-//                this._render(ctx, noTransform);
-//                this.clipTo && ctx.restore();
-//                this._removeShadow(ctx);
-//                this._restoreCompositeOperation(ctx);
-//                
-//                ctx.save();
-//                ctx.beginPath();
-//                ctx.arc(0, 0, 1, 0, 2 * Math.PI);
-//                ctx.stroke();
-//                ctx.restore();
-//                    
-//                ctx.restore();
-//
-//
-//                                
-//                
-//
-//
-//
-//
-//
-//
-//
-//            };
 
             canvas.add(circle);
 
@@ -1195,7 +1172,13 @@ function createColorSamplerOptionsFromXMLNode(colorSamplerXmlNode) {
         var tagName = this.tagName;
         var tagType = child.attr('type');
 
-        if (tagName === "property") {
+        if (tagName === "originalDrawnPathCenterPoint") {
+            
+            var x = Number(child.attr('x'));
+            var y = Number(child.attr('y'));
+            options.originalDrawnPathCenterPoint = new fabric.Point(x, y);
+            
+        } else if (tagName === "property") {
 
             var valueXmlNode = $(child.find('value')[0]);
             var propertyValue = createValueFromXMLNode(valueXmlNode);
@@ -1222,6 +1205,9 @@ function createColorSamplerOptionsFromXMLNode(colorSamplerXmlNode) {
                 } else if (tagName === "samplingMarksPositions") {
                     attributes = ['left', 'top'];
                     isNumber = [true, true];
+                } else if (tagName === "samplingMarksFills") {
+                    attributes = ['fill'];
+                    isNumber = [false];
                 } else if (tagName === "samplingMarksStrokes") {
                     attributes = ['stroke'];
                     isNumber = [false];
