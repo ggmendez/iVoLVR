@@ -189,7 +189,7 @@ function canvasPathCreated(options) {
 
         var drawnPath = options.path;                
 
-        createSampleVixorFromPath(drawnPath, false);
+        createSampleVixorFromPath(drawnPath, false, drawnPath.getCenterPoint());
 
         drawnPath.remove();
         
@@ -206,7 +206,6 @@ function canvasPathCreated(options) {
         /*******************************/
         /*** TRANSMOGRIFICATION ***/
         /*******************************/
-
 
         var points = options.path.perPixelTargetFind = true;
 
@@ -1048,11 +1047,12 @@ function canvasMouseDown(option) {
         var pointer = canvas.getPointer(event);
         var points = [pointer.x, pointer.y, pointer.x, pointer.y];
         canvas.samplingLine = new fabric.Line(points, {
-            strokeWidth: 2,
+            strokeWidth: 3,
             fill: '',
             stroke: rgb(219, 75, 0),
             originX: 'center',
-            originY: 'center'
+            originY: 'center',
+            perPixelTargetFind: true,
         });
         canvas.add(canvas.samplingLine);
 
@@ -1119,17 +1119,34 @@ function canvasMouseUp(option) {
         if (canvas.isSamplingLineMode) {
 
             deActivateLineSamplingMode();
+            
+            var theSamplingLine = canvas.samplingLine;
+            theSamplingLine.setCoords();
 
-            var x1 = canvas.samplingLine.x1;
-            var y1 = canvas.samplingLine.y1;
-            var x2 = canvas.samplingLine.x2;
-            var y2 = canvas.samplingLine.y2;
+            var x1 = theSamplingLine.x1;
+            var y1 = theSamplingLine.y1;
+            var x2 = theSamplingLine.x2;
+            var y2 = theSamplingLine.y2;
+            
+            console.log("theSamplingLine.top: " + theSamplingLine.top);
+            console.log("theSamplingLine.left: " + theSamplingLine.left);
+            
+            var centerPoint = theSamplingLine.getCenterPoint();
+            console.log("centerPoint.x: " + centerPoint.x);
+            console.log("centerPoint.y: " + centerPoint.y);
 
             var simplifiedPolyline = new Array();
-            simplifiedPolyline.push({x: x1, y: y1});
-            simplifiedPolyline.push({x: x2, y: y2});
+            var startPoint = {x: x1, y: y1};
+            var endPoint = {x: x2, y: y2};
+            
+//            drawRectAt(startPoint, 'green');
+//            drawRectAt(endPoint, 'red');
+//            drawRectAt(centerPoint, 'black');
+            
+            simplifiedPolyline.push(startPoint);
+            simplifiedPolyline.push(endPoint);
 
-            createSampleVixorFromPath(simplifiedPolyline, true);
+            createSampleVixorFromPath(simplifiedPolyline, true, centerPoint);
 
             canvas.samplingLine.remove();
 

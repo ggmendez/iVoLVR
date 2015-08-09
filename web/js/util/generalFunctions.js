@@ -1630,7 +1630,7 @@ function importImageToCanvas(options) {
         imgInstance.widgets = new Array();
 
         imgInstance.applySelectedStyle = function () {
-            console.log("++++++++++++++++ applySelectedStyle");
+//            console.log("++++++++++++++++ applySelectedStyle");
             imgInstance.stroke = widget_selected_stroke_color;
             imgInstance.strokeDashArray = widget_selected_stroke_dash_array;
             imgInstance.strokeWidth = widget_selected_stroke_width;
@@ -1640,7 +1640,7 @@ function importImageToCanvas(options) {
         };
 
         imgInstance.applyUnselectedStyle = function () {
-            console.log("++++++++++++++++ applyUnselectedStyle");
+//            console.log("++++++++++++++++ applyUnselectedStyle");
             imgInstance.stroke = '#CC3333';
             imgInstance.strokeDashArray = [];
             imgInstance.strokeWidth = 1;
@@ -1736,8 +1736,8 @@ function importImageToCanvas(options) {
         });
         imgInstance.on('selected', function (option) {
             objectSelected(option, imgInstance);
-            console.log("%c" + "imgInstance.getWidth(): " + imgInstance.getWidth(), "background: purple; color: white;");
-            console.log("%c" + "imgInstance.getHeight(): " + imgInstance.getHeight(), "background: purple; color: white;");
+//            console.log("%c" + "imgInstance.getWidth(): " + imgInstance.getWidth(), "background: purple; color: white;");
+//            console.log("%c" + "imgInstance.getHeight(): " + imgInstance.getHeight(), "background: purple; color: white;");
         });
 
         imgInstance.setXmlIDs = function (from) {
@@ -1952,8 +1952,16 @@ function rgb(r, g, b) {
 }
 
 function darkenrgb(r, g, b) {
-    return 'rgb(' + (r * 0.75).toFixed(0) + ',' + (g * 0.75).toFixed(0) + ',' + (b * 0.75).toFixed(0) + ')';
+    var factor = 0.75;
+    return 'rgb(' + (r * factor).toFixed(0) + ',' + (g * factor).toFixed(0) + ',' + (b * factor).toFixed(0) + ')';
 }
+
+function lightenrgb(r, g, b) {
+    var factor = 0.8;
+    return 'rgb(' + (r / factor).toFixed(0) + ',' + (g / factor).toFixed(0) + ',' + (b / factor).toFixed(0) + ')';
+}
+
+
 
 
 var findSelfIntersects = function (coordinates) {
@@ -2719,9 +2727,9 @@ function drawRectAt(point, color, noRefresh) {
 //    if (LOG) console.log("FUNCTION drawRectAt");
     var rect = new fabric.Rect({
         fill: color,
-        width: 3,
-        height: 3,
-        opacity: 0.35,
+        width: 5,
+        height: 5,
+        opacity: 0.5,
         stroke: 'transparent',
     });
     canvas.add(rect);
@@ -3679,6 +3687,8 @@ function computePolylineLength(polyline) {
 
 function samplePolyline(polyline, samplingDistance) {
 
+    console.log("Sampling polyline with sampling distance: " + samplingDistance);
+
     var samplingPoints = new Array();
     var totalLength = 0;
     var totalPoints = polyline.length;
@@ -3698,15 +3708,35 @@ function samplePolyline(polyline, samplingDistance) {
         var line = {p1: p1, p2: p2};
         var length = computeLength(line);
         if (length < leftDistance) {
+
+            var difference = Math.abs(length - leftDistance);
+
+            if (difference < 0.0000001) {
+                samplingPoints.push(p2);
+                console.log("%c" + "Adding last sampling POINT anyway, because the detected difference was VERY SMALL (" + difference + ")", "background: rgb(145,199,236); color: black;");
+            }
+
+//            console.log("Case 000000000000000000");
+//            
+//            console.log("length: " + length);
+//            console.log("leftDistance: " + leftDistance);
+
             leftDistance -= length;
-        } else if (length == leftDistance) {
+
+
+//            console.log("length: " + length);
+//            console.log("leftDistance: " + leftDistance);
+
+        } else if (length === leftDistance) {
             samplingPoints.push(p2);
+//            console.log("Case 1111111111111111111");
         } else {
             var pointAt = getPointAlongLine(line, leftDistance);
             samplingPoints.push(pointAt);
             copiedPolyline[i] = pointAt;
             i--;
             leftDistance = samplingDistance;
+//            console.log("Case 22222222222222222222");
         }
         totalLength += length;
     }
@@ -3740,13 +3770,16 @@ function removeNaNs(points) {
     return cleanedPolygon;
 }
 
-function createSampleVixorFromPath(drawnPath, fromStraightLine) {
+function createSampleVixorFromPath(drawnPath, fromStraightLine, centerPoint) {
 
     drawnPath.strokeWidth = 0;
-    drawnPath.stroke = 'black';
+    drawnPath.stroke = 'red';
     drawnPath.fill = 'transparent';
     drawnPath.strokeLineCap = 'butt';
     drawnPath.perPixelTargetFind = true;
+
+//    console.log("drawnPath.getWidth(): " + drawnPath.getWidth());
+//    console.log("drawnPath.getHeight(): " + drawnPath.getHeight());
 
     var simplifiedPolyline = drawnPath;
 
@@ -3783,10 +3816,10 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
 
         // converting the user-traced path to a polyline representation
         var polyline = pathToPolyline(points, true);
-//        if (LOG) {
-//        console.log("%cpolyline:", "color: #000000; background: #7FFF00;");
-//        console.log(polyline);
-//        }
+        if (LOG) {
+            console.log("%cpolyline:", "color: #000000; background: #7FFF00;");
+            console.log(polyline);
+        }
 
 
 //
@@ -3799,10 +3832,15 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
         var highQuality = true;
         simplifiedPolyline = simplify(polyline, tolerance, highQuality);
 
-//        if (LOG) {
-//            console.log("%csimplifiedPolyline:", "color: #000000; background: #ADD8E6;");
-//            console.log(simplifiedPolyline);
-//        }
+
+        if (LOG) {
+            console.log("%csimplifiedPolyline:", "color: #000000; background: #ADD8E6;");
+            console.log(simplifiedPolyline);
+        }
+
+        // We need to guarantee that the polyline and the simplifiedPolyline have the same first point (still to test this)
+
+
 
         // It may happen that the first and last point are LOST after the simplification of the original path
         // We check for that before going any further
@@ -3901,12 +3939,12 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
     // generating the offset polygon of the SIMPLIFIED polyline
     var offsetDistance = 30;
     var offsetPolygonPoints = generateOffsetPolygon(simplifiedPolyline, offsetDistance);
-    if (LOG)
+
+    if (LOG) {
         console.log("%coffsetPolygon:", "color: #000000; background: #E6E6FA;");
-    if (LOG)
         console.log("%c" + offsetPolygonPoints, "color: #000000; background: #E6E6FA;");
-    if (LOG)
         console.log(offsetPolygonPoints.length + " points in the offset polygon.");
+    }
 
     // Removing the NaN values from the generated offset polygon 
 //    offsetPolygonPoints = removeNaNs(offsetPolygonPoints);
@@ -3916,20 +3954,23 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
 
 
     var offsetJSTSPolygon = buildJSTSPolygon(offsetPolygonPoints);
-    if (LOG)
+    if (LOG) {
         console.log("%coffsetJSTSPolygon:", "color: #000000; background: #FAFAD2;");
-    if (LOG)
         console.log("%c" + offsetJSTSPolygon, "color: #000000; background: #FAFAD2;");
+    }
+
 
     // removing self intersections that can be found in the offset polygon
     var cleanedPolygon = removeSelfIntersections(offsetJSTSPolygon);
-    if (LOG)
+    if (LOG) {
         console.log("%ccleanedPolygon", "background: #FF0000; color: #FFFFFF");
-    if (LOG)
         console.log("%c" + cleanedPolygon, "background: #FF0000; color: #FFFFFF");
+    }
+
     var cleanedCoordinates = cleanedPolygon.getCoordinates();
-    if (LOG)
+    if (LOG) {
         console.log(cleanedCoordinates);
+    }
 
     if ((!cleanedCoordinates || !cleanedCoordinates.length) && drawnPath.remove) {
         drawnPath.remove();
@@ -3938,24 +3979,19 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
     }
 
     var svgPathString = JSTSPolygonToSVGPath(cleanedPolygon);
-    if (LOG)
+    if (LOG) {
         console.log("svgPathString:");
-    if (LOG)
         console.log(svgPathString);
+    }
 
 //    if (!svgPathString) {
 //        svgPathString = JSTSPolygonToSVGPath(offsetJSTSPolygon);
 //    }
 
-    if (LOG)
-        console.log("svgPathString:");
-    if (LOG)
-        console.log(svgPathString);
-
-    if (LOG)
+    if (LOG) {
         console.log("drawnPath:");
-    if (LOG)
         console.log(drawnPath);
+    }
 
     if (!svgPathString || svgPathString === '') {
         if (drawnPath.remove) {
@@ -3969,17 +4005,26 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
 
     if (fromStraightLine) {
 
-        var x1 = drawnPath[0].x;
-        var y1 = drawnPath[0].y;
-        var x2 = drawnPath[1].x;
-        var y2 = drawnPath[1].y;
-        userDefinedPath = 'M ' + x1 + ' ' + y1 + ' L ' + x2 + ' ' + y2;
+//        var x1 = drawnPath[0].x;
+//        var y1 = drawnPath[0].y;
+//        var x2 = drawnPath[1].x;
+//        var y2 = drawnPath[1].y;
+////        userDefinedPath = 'M ' + x1 + ' ' + y1 + ' L ' + x2 + ' ' + y2;
+//        userDefinedPath = 'M ' + x1 + ' ' + y1 + ' L ' + x2 + ' ' + y2;
+
+        userDefinedPath = polylineToSVGPathString(drawnPath);
 
     } else {
 
-        userDefinedPath = drawnPath.path;
+//        userDefinedPath = drawnPath.path;
+
+
+        userDefinedPath = polylineToSVGPathString(simplifiedPolyline);
 
     }
+
+
+
 
 
 //    console.log("userDefinedPath:");
@@ -4050,13 +4095,16 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
     var options = {
         offsetPolygonPath: svgPathString,
         userTracedPath: userDefinedPath,
+        userTracedPathCenter: centerPoint,
         samplingPoints: samplingPoints,
         totalLength: totalLength,
         simplifiedPolyline: simplifiedPolyline,
         translatedPoints: translatedPoints,
         samplingDistance: samplingDistance,
         trajectory: trajectory,
-        parentObject: parentObject
+        parentObject: parentObject,
+        isStraightLine: fromStraightLine,
+        originalDrawnPath: drawnPath,
     };
     var samplerVixor = buildAndAddSamplerColor(options);
 
@@ -4076,6 +4124,11 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
      if (LOG) console.log("samplerVixor.parentObject.scaleY");
      if (LOG) console.log("%c" + samplerVixor.parentObject.scaleY, "color: white; background: red;");*/
 
+
+
+
+
+
 }
 
 
@@ -4086,6 +4139,59 @@ function buildAndAddSamplerColor(options) {
 
     var offsetPath = new fabric.Path(options.offsetPolygonPath, {fill: rgb(198, 198, 198), stroke: '#000000', colorForStroke: '#000000', opacity: 0.75, strokeWidth: 1, originalStrokeWidth: 1});
     var userPath = new fabric.Path(options.userTracedPath, {fill: '', stroke: 'black', strokeWidth: 3});
+
+
+//    console.log("options.firstPoint:");
+//    console.log(options.firstPoint);
+//
+//    console.log("userPath.getPointByOrigin('left', 'bottom'):");
+//    console.log(userPath.getPointByOrigin('left', 'bottom'));
+
+
+//    console.log("userPath.getWidth(): " + userPath.getWidth());
+//    console.log("userPath.getHeight(): " + userPath.getHeight());
+
+    if (options.isStraightLine) {
+        offsetPath.originX = 'center';
+        offsetPath.originY = 'center';
+        userPath.originX = 'center';
+        userPath.originY = 'center';
+        offsetPath.setPositionByOrigin(options.userTracedPathCenter, 'center', 'center');
+        userPath.setPositionByOrigin(options.userTracedPathCenter, 'center', 'center');
+    } else {
+
+        var originalDrawnPath = options.originalDrawnPath;
+        var originalWidth = originalDrawnPath.getWidth();
+        var originalHeight = originalDrawnPath.getHeight();
+
+        offsetPath.setPositionByOrigin(originalDrawnPath.getCenterPoint(), 'center', 'center');
+        userPath.setPositionByOrigin(originalDrawnPath.getCenterPoint(), 'center', 'center');
+
+        var diffWidth = Math.abs(originalWidth - userPath.getWidth());
+        var diffheight = Math.abs(originalHeight - userPath.getHeight());
+
+        if (LOG) {
+            console.log("diffWidth: " + diffWidth);
+            console.log("diffheight: " + diffheight);
+        }
+
+        userPath.left -= diffWidth / 2;
+        userPath.top -= diffheight / 2;
+
+    }
+
+
+
+    offsetPath.setCoords();
+    userPath.setCoords();
+
+//    var offsetPath = new fabric.Path(options.offsetPolygonPath, {fill: rgb(198, 198, 198), stroke: '#000000', colorForStroke: '#000000', opacity: 0.75, strokeWidth: 1, originalStrokeWidth: 1, originX: 'center', originY: 'center'});
+//    var userPath = new fabric.Path(options.userTracedPath, {fill: '', stroke: 'black', strokeWidth: 3, originX: 'center', originY: 'center'});
+//    offsetPath.setPositionByOrigin(options.userTracedPathCenter, 'center', 'center');
+//    userPath.setPositionByOrigin(options.userTracedPathCenter, 'center', 'center');
+
+
+
 
     var objects = [offsetPath, userPath];
 
@@ -4127,12 +4233,12 @@ function buildAndAddSamplerColor(options) {
     };
 
 
-    if (options.left) {
-        samplerOptions.left = options.left;
-    }
-    if (options.top) {
-        samplerOptions.top = options.top;
-    }
+//    if (options.left) {
+//        samplerOptions.left = options.left;
+//    }
+//    if (options.top) {
+//        samplerOptions.top = options.top;
+//    }
 
     var samplerVixor = addSamplerVixorToCanvas(objects, samplerOptions);
 

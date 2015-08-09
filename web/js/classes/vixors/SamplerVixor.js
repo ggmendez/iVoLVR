@@ -192,6 +192,43 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
             });
         };
 
+
+//        var userPathCopy = fabric.util.object.clone(this.item(1));
+
+//        console.log("this.originX: " + this.originX);
+//        console.log("this.originY: " + this.originY);
+//        console.log("this.top: " + this.top);
+//        console.log("this.left: " + this.left);
+
+//        drawRectAt(this.getCenterPoint(), 'purple');
+
+//        var offsetPath = this.item(0);
+//        console.log("offsetPath.top: " + offsetPath.top);
+//        console.log("offsetPath.getTop(): " + offsetPath.getTop());
+//
+//        console.log("offsetPath.left: " + offsetPath.left);
+//        console.log("offsetPath.getLeft(): " + offsetPath.getLeft());
+//
+//        var userPath = this.item(1);
+//        
+////        setTimeout(function () {
+////            userPath.strokeWidth = 3;
+////            userPath.left -= userPath.strokeWidth/2;
+////            userPath.top -= userPath.strokeWidth/2;
+////        },
+////        3000);
+//        
+//        
+//        console.log("userPath.top: " + userPath.top);
+//        console.log("userPath.left: " + userPath.left);
+
+
+
+
+//        userPath.top = 0;
+//        userPath.left = 0;
+//        userPath.setCoords();
+
     },
     onManipulating: function (options) {
         var theVixor = this;
@@ -484,8 +521,47 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
                                      if (LOG) console.log("b");
                                      if (LOG) console.log(b);*/
 
-                                    var fillColor = rgb(r, g, b);
-                                    var strokeColor = darkenrgb(r, g, b);
+//                                    var fillColor = rgb(r, g, b);
+//                                    var strokeColor = darkenrgb(r, g, b);
+
+
+
+                                    var rbgColor = new fabric.Color(rgb(r, g, b));
+                                    console.log("rbgColor:");
+                                    console.log(rbgColor);
+                                    
+                                    var hslColor = rbgColor._rgbToHsl(r, g, b);
+                                    console.log("hslColor:");
+                                    console.log(hslColor);
+                                    
+                                    console.log("rbgColor.toHsl():");
+                                    console.log(rbgColor.toHsl());
+                                    
+                                    var h = hslColor[0];
+                                    var s = hslColor[1];
+                                    var l = hslColor[2];
+                                    
+                                    l += 15;
+                                    if (l > 100) {
+                                        l = 100;
+                                    }
+                                    
+                                    var newHslString = "hsl(" + h + "," + s + "%," + l + "%)";
+                                    console.log("newHslString:");
+                                    console.log(newHslString);
+                                    
+                                    var newHslFabricColor = new fabric.Color(newHslString);
+                                    
+                                    var fillColor = newHslFabricColor.toRgb();
+                                    
+                                    console.log("fillColor:");
+                                    console.log(fillColor);
+                                    
+
+
+                                    var strokeColor = rgb(r, g, b);
+
+
 
 //                                    theVixor.samplingMarks[m].opacity = 0.2; // TODO: IMPORTANT: JUST FOR DEBUGGING
 
@@ -539,11 +615,11 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
             imageCopy.setCoords();
 
             theVixor.samplingMarks.forEach(function (samplingMark) {
-                
+
                 samplingMark.setCoords();
-            
+
                 var theCopy = fabric.util.object.clone(samplingMark);
-                
+
                 theCopy.originX = 'left';
                 theCopy.originY = 'top';
                 theCopy.strokeWidth = 0;
@@ -556,8 +632,8 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 //                
 //                console.log("theCopy:");
 //                console.log(theCopy);
-                
-                
+
+
 
                 theCopy.parentObject = theVixor.parentObject;
                 computeUntransformedProperties(theCopy, imageCopy); // This computes the position of the mark relative to the image, which is the parent object of the vixor
@@ -627,16 +703,20 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
             } else if (property === 'totalSamplingPoints') {
 
 
+                var totalSamplingPoints = Number(value.toFixed(0));
 
-                theVixor.totalSamplingPoints = Number(value.toFixed(0)); // of this is not cast to Number, the result is a concatenation (if value is 10, the concatenation would return 101)
+                theVixor.totalSamplingPoints = totalSamplingPoints; // of this is not cast to Number, the result is a concatenation (if value is 10, the concatenation would return 101)
 
                 console.log("%c" + "theVixor.totalSamplingPoints: ", "background: green; color: black;");
                 console.log(theVixor.totalSamplingPoints);
 
-                theVixor.samplingDistance = Number((theVixor.length / (theVixor.totalSamplingPoints - 1)).toFixed(2));
+//                theVixor.samplingDistance = Number((theVixor.length / (theVixor.totalSamplingPoints - 1)).toFixed(2));
+                theVixor.samplingDistance = theVixor.length / (theVixor.totalSamplingPoints - 1);
 
                 console.log("%c" + "theVixor.samplingDistance: ", "background: green; color: black;");
                 console.log(theVixor.samplingDistance);
+
+                theVixor.getVisualPropertyByAttributeName('samplingDistance').value = createNumericValue(theVixor.samplingDistance);
 
             }
 
@@ -900,7 +980,7 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
             var hexColor = rgb(145, 145, 145);
             var darkColor = darkenrgb(145, 145, 145);
 
-            var markOptions = {
+            var circleOptions = {
                 originX: 'center',
                 originY: 'center',
                 left: point.x,
@@ -922,9 +1002,80 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
             };
 
 //            var circularMark = addMarkToCanvas(CIRCULAR_MARK, markOptions);
-            var circle = new fabric.Circle(markOptions);
+            var circle = new fabric.Circle(circleOptions);
 //            circularMark.setPositionByOrigin(new fabric.Point(point.x + 1, point.y + 1), 'center', 'center');
             circle.setPositionByOrigin(new fabric.Point(point.x, point.y), 'center', 'center');
+
+            circle._render = function (ctx) {
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2, false);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+
+                ctx.save();
+                ctx.beginPath();
+//                ctx.arc(0, 0, 1, 0, 2 * Math.PI);
+                ctx.rect(-0.5, -0.5, 1, 1);
+                ctx.stroke();
+                ctx.restore();
+
+            };
+
+//            circle.render = function (ctx, noTransform) {
+//            
+//                
+//
+//                // do not render if width/height are zeros or object is not visible
+//                if ((this.width === 0 && this.height === 0) || !this.visible) {
+//                    return;
+//                }
+//
+//                ctx.save();
+//
+//                //setup fill rule for current object
+//                this._setupCompositeOperation(ctx);
+//                if (!noTransform) {
+//                    this.transform(ctx);
+//                }
+//                this._setStrokeStyles(ctx);
+//                this._setFillStyles(ctx);
+//                if (this.group && this.group.type === 'path-group') {
+//                    ctx.translate(-this.group.width / 2, -this.group.height / 2);
+//                }
+//                if (this.transformMatrix) {
+//                    ctx.transform.apply(ctx, this.transformMatrix);
+//                }
+//                this._setOpacity(ctx);
+//                this._setShadow(ctx);
+//                this.clipTo && fabric.util.clipContext(this, ctx);
+//                this._render(ctx, noTransform);
+//                this.clipTo && ctx.restore();
+//                this._removeShadow(ctx);
+//                this._restoreCompositeOperation(ctx);
+//                
+//                ctx.save();
+//                ctx.beginPath();
+//                ctx.arc(0, 0, 1, 0, 2 * Math.PI);
+//                ctx.stroke();
+//                ctx.restore();
+//                    
+//                ctx.restore();
+//
+//
+//                                
+//                
+//
+//
+//
+//
+//
+//
+//
+//            };
 
             canvas.add(circle);
 
