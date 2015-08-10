@@ -1717,8 +1717,8 @@ function importImageToCanvas(options) {
 
         imgInstance.on('mouseup', function (option) {
             objectMouseup(option, imgInstance);
-            console.log("%c" + "imgInstance.getWidth(): " + imgInstance.getWidth(), "background: yellow; color: black;");
-            console.log("%c" + "imgInstance.getHeight(): " + imgInstance.getHeight(), "background: yellow; color: black;");
+//            console.log("%c" + "imgInstance.getWidth(): " + imgInstance.getWidth(), "background: yellow; color: black;");
+//            console.log("%c" + "imgInstance.getHeight(): " + imgInstance.getHeight(), "background: yellow; color: black;");
         });
 
         imgInstance.on('modified', function (option) {
@@ -1783,12 +1783,12 @@ function importImageToCanvas(options) {
                 }
             });
         };
-        
+
         canvas.add(imgInstance);
         imgInstance.setCoords();
         imgInstance.applySelectedStyle();
         canvas.setActiveObject(imgInstance);
-        
+
         // Once the image has been added to the canvas, the extractor associated to id are added:
         var extractors = options.extractorsOptions;
         if (extractors) {
@@ -1828,8 +1828,8 @@ function importImageToCanvas(options) {
             });
         }
 
-        
-        
+
+
 
         if (typeof options.xmlID !== 'undefined') {
             imgInstance.executePendingConnections();
@@ -1960,9 +1960,24 @@ function darkenrgb(r, g, b) {
     return 'rgb(' + (r * factor).toFixed(0) + ',' + (g * factor).toFixed(0) + ',' + (b * factor).toFixed(0) + ')';
 }
 
-function lightenrgb(r, g, b) {
-    var factor = 0.8;
-    return 'rgb(' + (r / factor).toFixed(0) + ',' + (g / factor).toFixed(0) + ',' + (b / factor).toFixed(0) + ')';
+function lightenrgb(r, g, b, percentage) {
+
+    var originalColor = rgb(r, g, b);
+    var rbgColor = new fabric.Color(originalColor);
+    var hslColor = rbgColor._rgbToHsl(r, g, b);
+    var h = hslColor[0];
+    var s = hslColor[1];
+    var l = hslColor[2];
+
+    l += percentage;
+    if (l > 100) {
+        l = 100;
+    }
+
+    var newHslString = "hsl(" + h + "," + s + "%," + l + "%)";
+    var newHslFabricColor = new fabric.Color(newHslString);
+
+    return newHslFabricColor.toRgb();
 }
 
 
@@ -3624,6 +3639,7 @@ function removeSelfIntersections(polygon) {
 function JSTSPolygonToSVGPath(JSTSPolygon) {
 
     var points = JSTSPolygon.getCoordinates();
+
     if (!points.length)
         return;
 
@@ -3645,17 +3661,25 @@ function JSTSPolygonToSVGPath(JSTSPolygon) {
             return p.x === point.x && p.y === point.y;
         });
 
-        if (result.length != 0) {
+        if (result.length !== 0) {
             point.letter = "M";
         }
 
     }
 
-    copiedPoints.forEach(function (point) {
+    var totalCopiedPoints = copiedPoints.length - 1; // We need to ignore the last point, as sometimes, it is damaged. Since it is equal to the first one anyway, we add the Z character at the end of the string
+    for (var i = 0; i < totalCopiedPoints; i++) {
+        var point = copiedPoints[i];
         SVGPathString += " " + point.x + " " + point.y + " " + point.letter;
-    });
+    }
+
+//    copiedPoints.forEach(function (point) {
+//        SVGPathString += " " + point.x + " " + point.y + " " + point.letter;
+//    });
 
     SVGPathString = SVGPathString.substring(0, SVGPathString.length - 2);
+
+    SVGPathString = SVGPathString + ' Z'; // because the last point was supposed to be equal to the first one
 
     return SVGPathString;
 }
@@ -3691,7 +3715,7 @@ function computePolylineLength(polyline) {
 
 function samplePolyline(polyline, samplingDistance) {
 
-    console.log("Sampling polyline with sampling distance: " + samplingDistance);
+//    console.log("Sampling polyline with sampling distance: " + samplingDistance);
 
     var samplingPoints = new Array();
     var totalLength = 0;
@@ -3765,16 +3789,416 @@ function getPointAlongLine(line, distance) {
 function removeNaNs(points) {
     var cleanedPolygon = new Array();
     points.forEach(function (coordinate) {
+
+
+//        console.log("coordinate:");
+//        console.log(coordinate);
+//        
+//        console.log("coordinate.x:");
+//        console.log(coordinate.x);
+//        
+//        console.log("coordinate.y:");
+//        console.log(coordinate.y);
+
         var x = coordinate.x;
         var y = coordinate.y;
-        if (!(isNaN(x) || isNaN(y))) {
+
+        if (!isNaN(x) && !isNaN(y)) {
             cleanedPolygon.push(coordinate);
         }
     });
+
     return cleanedPolygon;
 }
 
-//function createSampleVixorFromPath(drawnPath, fromStraightLine, centerPoint) {
+//function createSampleVixorFromPath(drawnPath, fromStraightLine) {
+//
+//    drawnPath.strokeWidth = 0;
+//    drawnPath.stroke = 'red';
+//    drawnPath.fill = 'transparent';
+//    drawnPath.strokeLineCap = 'butt';
+//    drawnPath.perPixelTargetFind = true;
+//
+////    console.log("drawnPath.getWidth(): " + drawnPath.getWidth());
+////    console.log("drawnPath.getHeight(): " + drawnPath.getHeight());
+//
+////    var simplifiedPolyline = drawnPath;
+//    var simplifiedPolyline = null;
+//
+////    var firstPathPoint = null;
+////    var lastPathPoint = null;
+////
+////    if (drawnPath.path) {
+////        var pos = drawnPath.path.length - 1;
+////        var first = drawnPath.path[0];
+////        var last = drawnPath.path[pos];
+////
+////        console.log("+++++++++++++++++ first:");
+////        console.log(first);
+////        console.log("+++++++++++++++++ last:");
+////        console.log(last);
+////
+////
+////
+////        var firstPathPoint = new fabric.Point(first[1], first[2]);
+////        var lastPathPoint = new fabric.Point(last[1], last[2]);
+////    }
+//
+//
+//    if (fromStraightLine) {
+//
+//        var x1 = drawnPath.x1;
+//        var y1 = drawnPath.y1;
+//        var x2 = drawnPath.x2;
+//        var y2 = drawnPath.y2;
+//
+//        simplifiedPolyline = new Array();
+//        var startPoint = {x: x1, y: y1};
+//        var endPoint = {x: x2, y: y2}
+//        simplifiedPolyline.push(startPoint);
+//        simplifiedPolyline.push(endPoint);
+//
+//    } else {
+//
+//        var points = drawnPath.path;
+//
+////        if (LOG) {
+////        console.log("points:");
+////        console.log(points);
+////        }
+//
+//        // converting the user-traced path to a polyline representation
+//        var polyline = pathToPolyline(points, true);
+//        if (LOG) {
+//            console.log("%cpolyline:", "color: #000000; background: #7FFF00;");
+//            console.log(polyline);
+//        }
+//
+//
+////
+////        polyline.forEach(function (point) {
+////            drawRectAt(new fabric.Point(point.x, point.y), "red");
+////        });
+//
+//        // simplifying the user-trced polyline
+//        var tolerance = 1;
+//        var highQuality = true;
+//        simplifiedPolyline = simplify(polyline, tolerance, highQuality);
+//
+//
+//        if (LOG) {
+//            console.log("%csimplifiedPolyline:", "color: #000000; background: #ADD8E6;");
+//            console.log(simplifiedPolyline);
+//        }
+//
+//        // We need to guarantee that the polyline and the simplifiedPolyline have the same first point (still to test this)
+//
+//
+//
+//        // It may happen that the first and last point are LOST after the simplification of the original path
+//        // We check for that before going any further
+////        var firstOriginalPoint = polyline[0];
+////        var firstSimplifiedPoint = simplifiedPolyline[0];
+////
+////        var lastOriginalPoint = polyline[polyline.length - 1];
+////        var lastSimplifiedPoint = simplifiedPolyline[simplifiedPolyline.length - 1];
+//
+//
+//
+////        console.log("%c" + "firstOriginalPoint:", "color: #000000; background: #ADD8E6;");
+////        console.log(firstOriginalPoint);
+////
+////        console.log("%c" + "firstSimplifiedPoint:", "color: #000000; background: #ADD8E6;");
+////        console.log(firstSimplifiedPoint);
+////
+////        console.log("\n");
+////
+////        console.log("%c" + "lastOriginalPoint:", "color: #000000; background: #ADD8E6;");
+////        console.log(lastOriginalPoint);
+////
+////        console.log("%c" + "lastSimplifiedPoint:", "color: #000000; background: #ADD8E6;");
+////        console.log(lastSimplifiedPoint);
+//
+//
+//
+//    }
+//
+//
+//
+////    console.log("simplifiedPolyline:");
+//
+//
+//    // The variable translatedPoints contains the information of the approximation polyline relative to its first point (which, relative to itself, is located at the poit (0,0) )
+//    // this points are used to resample the approximation polyline traced by the user and they are needed because, after manipulation (translation, rotation and scaling), the original points traced by the user
+//    // are not part of the path anymore
+//    var translatedPoints = new Array();
+//    simplifiedPolyline.forEach(function (point) {
+//
+////        console.log(point);
+//
+//        var translatedPoint = {x: point.x - simplifiedPolyline[0].x, y: point.y - simplifiedPolyline[0].y};
+//
+//        translatedPoints.push(translatedPoint);
+//
+////        drawRectAt(point, "green");
+////        drawRectAt(translatedPoint, "yellow");
+//
+//    });
+//
+////    if (LOG) {
+////        console.log("%ctranslatedPoints:", "color: #000000; background: #ADD8E6;");
+////        console.log(translatedPoints);
+////    }
+////
+////
+////    if (firstPathPoint) {
+////        drawRectAt(firstPathPoint, "purple");
+////    }
+////    if (lastPathPoint) {
+////        drawRectAt(lastPathPoint, "purple");
+////    }
+////    
+////    
+////
+////
+////
+////    console.log("+++++++++++++++++ first:");
+////    console.log(first);
+////    console.log("+++++++++++++++++ last:");
+////    console.log(last);
+//
+//
+//
+//
+//
+//
+//    // computing the sampling positions over the simplified path
+//    var samplingDistance = 25;
+//    var samplingPoints = samplePolyline(simplifiedPolyline, samplingDistance);
+//    var totalLength = computePolylineLength(simplifiedPolyline);
+//    var trajectory = computePolylineTrajectory(simplifiedPolyline);
+//
+////    if (LOG) {
+////    console.log("samplingPoints:");
+////    console.log(samplingPoints);
+////    }
+//
+//
+////    samplingPoints.forEach(function (point) {
+////        drawRectAt(point, 'blue');
+////    });
+//
+//
+//    // generating the offset polygon of the SIMPLIFIED polyline
+//    var offsetDistance = 28;
+//    var offsetPolygonPoints = generateOffsetPolygon(simplifiedPolyline, offsetDistance);
+//
+//    if (LOG) {
+//        console.log("%coffsetPolygon:", "color: #000000; background: #E6E6FA;");
+//        console.log("%c" + offsetPolygonPoints, "color: #000000; background: #E6E6FA;");
+//        console.log(offsetPolygonPoints.length + " points in the offset polygon.");
+//    }
+//
+//    // Removing the NaN values from the generated offset polygon 
+////    offsetPolygonPoints = removeNaNs(offsetPolygonPoints);
+////    if (LOG) console.log("%coffsetPolygon:", "color: #000000; background: #bdf1bb;");
+////    if (LOG) console.log("%c" + offsetPolygonPoints, "color: #000000; background: #bdf1bb;");
+////    if (LOG) console.log(offsetPolygonPoints.length + " points after removing NaNs.");
+//
+//
+//    var offsetJSTSPolygon = buildJSTSPolygon(offsetPolygonPoints);
+//    if (LOG) {
+//        console.log("%coffsetJSTSPolygon:", "color: #000000; background: #FAFAD2;");
+//        console.log("%c" + offsetJSTSPolygon, "color: #000000; background: #FAFAD2;");
+//    }
+//
+//
+//    // removing self intersections that can be found in the offset polygon
+//    var cleanedPolygon = removeSelfIntersections(offsetJSTSPolygon);
+//    if (LOG) {
+//        console.log("%ccleanedPolygon", "background: #FF0000; color: #FFFFFF");
+//        console.log("%c" + cleanedPolygon, "background: #FF0000; color: #FFFFFF");
+//    }
+//
+//    var cleanedCoordinates = cleanedPolygon.getCoordinates();
+//    if (LOG) {
+//        console.log(cleanedCoordinates);
+//    }
+//
+////    if ((!cleanedCoordinates || !cleanedCoordinates.length) && drawnPath.remove) {
+////        drawnPath.remove();
+////        canvas.renderAll();
+////        return;
+////    }
+//
+//    var svgPathString = JSTSPolygonToSVGPath(cleanedPolygon);
+//    if (LOG) {
+//        console.log("svgPathString:");
+//        console.log(svgPathString);
+//    }
+//
+////    if (!svgPathString) {
+////        svgPathString = JSTSPolygonToSVGPath(offsetJSTSPolygon);
+////    }
+//
+//    if (LOG) {
+//        console.log("drawnPath:");
+//        console.log(drawnPath);
+//    }
+//
+////    if (!svgPathString || svgPathString === '') {
+////        if (drawnPath.remove) {
+////            drawnPath.remove();
+////            canvas.renderAll();
+////        }
+////        return;
+////    }
+//
+//    var userDefinedPath = null;
+//
+////    if (fromStraightLine) {
+////
+//////        var x1 = drawnPath[0].x;
+//////        var y1 = drawnPath[0].y;
+//////        var x2 = drawnPath[1].x;
+//////        var y2 = drawnPath[1].y;
+////////        userDefinedPath = 'M ' + x1 + ' ' + y1 + ' L ' + x2 + ' ' + y2;
+//////        userDefinedPath = 'M ' + x1 + ' ' + y1 + ' L ' + x2 + ' ' + y2;
+////
+////        userDefinedPath = polylineToSVGPathString(drawnPath);
+////
+////    } else {
+////
+//////        userDefinedPath = drawnPath.path;
+////
+////
+////        userDefinedPath = polylineToSVGPathString(simplifiedPolyline);
+////
+////    }
+//
+//
+//    userDefinedPath = polylineToSVGPathString(simplifiedPolyline);
+//
+//
+////    console.log("userDefinedPath:");
+////    console.log(userDefinedPath);
+//
+//
+//    /*var offsetPath = new fabric.Path(svgPathString, {fill: rgb(198, 198, 198), stroke: '#000000', colorForStroke: '#000000', opacity: 0.75, strokeWidth: 1, originalStrokeWidth: 1});
+//     var userPath = new fabric.Path(userDefinedPath, {fill: '', stroke: 'black', strokeWidth: 3});
+//     
+//     var objects = [offsetPath, userPath];
+//     
+//     var firstPoint = new fabric.Point(samplingPoints[0].x, samplingPoints[0].y);
+//     var parentObject = getImportedImageContaining(firstPoint);
+//     
+//     var samplerOptions = {
+//     originX: 'center',
+//     originY: 'center',
+//     hasBorders: false,
+//     hasControls: false,
+//     hasRotatingPoint: false,
+//     lockScalingX: true,
+//     lockScalingY: true,
+//     lockRotation: true,
+//     perPixelTargetFind: true,
+//     samplingFrequency: 5,
+//     samplingPoints: samplingPoints,
+//     length: parentObject ? totalLength / parentObject.scaleX : totalLength,
+//     trajectory: parentObject ? trajectory / parentObject.scaleX : trajectory,
+//     simplifiedPolyline: simplifiedPolyline,
+//     translatedPoints: translatedPoints,
+//     samplingDistance: samplingDistance,
+//     totalSamplingPoints: samplingPoints.length,
+//     fill: rgb(153, 153, 153),
+//     parentObject: parentObject,
+//     untransformedX: 0,
+//     untransformedY: 0,
+//     untransformedScaleX: 1,
+//     untransformedScaleY: 1,
+//     untransformedAngle: parentObject ? 360 - parentObject.getAngle() : 0,
+//     offsetPolygonPath: svgPathString,
+//     userTracedPath: userDefinedPath,
+//     };
+//     
+//     var samplerVixor = addSamplerVixorToCanvas(objects, samplerOptions);
+//     
+//     samplerVixor.samplingMarks.forEach(function (sampligMark) {
+//     blink(sampligMark, false);
+//     });
+//     blink(samplerVixor, true, 0.1);
+//     
+//     if (parentObject) {
+//     parentObject.widgets.push(samplerVixor);
+//     computeUntransformedProperties(samplerVixor);
+//     
+//     samplerVixor.untransformedScaleX = 1 / parentObject.getScaleX();
+//     samplerVixor.untransformedScaleY = 1 / parentObject.getScaleY();
+//     
+//     samplerVixor.sampleColors(true);
+//     }*/
+//
+//    var firstPoint = new fabric.Point(samplingPoints[0].x, samplingPoints[0].y);
+//
+////    console.log("%c" + "firstPoint:", "background: rgb(33,128,213); color: black;");
+////    console.log("x: " + firstPoint.x + " y: " + firstPoint.y);
+//
+//    var parentObject = getImportedImageContaining(firstPoint);
+//
+//    var options = {
+//        offsetPolygonPath: svgPathString,
+//        userTracedPath: userDefinedPath,
+////        userTracedPathCenter: centerPoint,
+//        samplingPoints: samplingPoints,
+//        totalLength: totalLength,
+//        simplifiedPolyline: simplifiedPolyline,
+//        translatedPoints: translatedPoints,
+//        samplingDistance: samplingDistance,
+//        trajectory: trajectory,
+//        parentObject: parentObject,
+//        isStraightLine: fromStraightLine,
+//        originalDrawnPath: drawnPath,
+//    };
+//    var samplerVixor = buildAndAddSamplerColor(options);
+//
+//    if (parentObject) {
+//        parentObject.widgets.push(samplerVixor);
+//    }
+//
+//    deActivateSamplingMode();
+//    deActivateLineSamplingMode();
+//
+//
+//
+//    /*if (LOG) console.log("samplerVixor.length");
+//     if (LOG) console.log("%c" + samplerVixor.length, "color: white; background: red;");
+//     if (LOG) console.log("samplerVixor.parentObject.scaleX");
+//     if (LOG) console.log("%c" + samplerVixor.parentObject.scaleX, "color: white; background: red;");
+//     if (LOG) console.log("samplerVixor.parentObject.scaleY");
+//     if (LOG) console.log("%c" + samplerVixor.parentObject.scaleY, "color: white; background: red;");*/
+//
+//
+//
+//
+//
+//
+//}
+
+
+function findPotentialParent(samplingPoints) {
+    var parentObject = null;
+    var totalSamplingPoints = samplingPoints.length;
+    for (var i = 0; i < totalSamplingPoints; i++) {
+        var point = samplingPoints[i];
+        var fabricPoint = new fabric.Point(point.x, point.y);
+        parentObject = getImportedImageContaining(fabricPoint);
+        if (parentObject) {
+            break;
+        }
+    }
+    return parentObject;
+}
+
 function createSampleVixorFromPath(drawnPath, fromStraightLine) {
 
     drawnPath.strokeWidth = 0;
@@ -3818,9 +4242,16 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
 
         simplifiedPolyline = new Array();
         var startPoint = {x: x1, y: y1};
-        var endPoint = {x: x2, y: y2}
-        simplifiedPolyline.push(startPoint);
-        simplifiedPolyline.push(endPoint);
+        var endPoint = {x: x2, y: y2};
+
+        if (x1 === x2 && y1 === y2) {
+            simplifiedPolyline.push(startPoint);
+        } else {
+            simplifiedPolyline.push(startPoint);
+            simplifiedPolyline.push(endPoint);
+        }
+
+
 
     } else {
 
@@ -3942,10 +4373,10 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
     var totalLength = computePolylineLength(simplifiedPolyline);
     var trajectory = computePolylineTrajectory(simplifiedPolyline);
 
-//    if (LOG) {
-//    console.log("samplingPoints:");
-//    console.log(samplingPoints);
-//    }
+    if (LOG) {
+        console.log("samplingPoints:");
+        console.log(samplingPoints);
+    }
 
 
 //    samplingPoints.forEach(function (point) {
@@ -3956,18 +4387,30 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
     // generating the offset polygon of the SIMPLIFIED polyline
     var offsetDistance = 28;
     var offsetPolygonPoints = generateOffsetPolygon(simplifiedPolyline, offsetDistance);
-
     if (LOG) {
         console.log("%coffsetPolygon:", "color: #000000; background: #E6E6FA;");
         console.log("%c" + offsetPolygonPoints, "color: #000000; background: #E6E6FA;");
         console.log(offsetPolygonPoints.length + " points in the offset polygon.");
     }
 
+
+
+//    var i = 0;
+//    offsetPolygonPoints.forEach(function (point) {
+//        drawRectAt(point, lightenrgb(0, 0, 0, i));
+//        i += 3;
+//    });
+
     // Removing the NaN values from the generated offset polygon 
-//    offsetPolygonPoints = removeNaNs(offsetPolygonPoints);
-//    if (LOG) console.log("%coffsetPolygon:", "color: #000000; background: #bdf1bb;");
-//    if (LOG) console.log("%c" + offsetPolygonPoints, "color: #000000; background: #bdf1bb;");
-//    if (LOG) console.log(offsetPolygonPoints.length + " points after removing NaNs.");
+    offsetPolygonPoints = removeNaNs(offsetPolygonPoints);
+
+    if (LOG) {
+        console.log("****************** AFTER REMOVING NaNs ********************");
+        console.log(offsetPolygonPoints.length + " points BEFORE removing NaNs.");
+        console.log("%coffsetPolygon:", "color: #000000; background: #bdf1bb;");
+        console.log("%c" + offsetPolygonPoints, "color: #000000; background: #bdf1bb;");
+        console.log(offsetPolygonPoints.length + " points AFTER removing NaNs.");
+    }
 
 
     var offsetJSTSPolygon = buildJSTSPolygon(offsetPolygonPoints);
@@ -3976,7 +4419,6 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
         console.log("%c" + offsetJSTSPolygon, "color: #000000; background: #FAFAD2;");
     }
 
-
     // removing self intersections that can be found in the offset polygon
     var cleanedPolygon = removeSelfIntersections(offsetJSTSPolygon);
     if (LOG) {
@@ -3984,135 +4426,65 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
         console.log("%c" + cleanedPolygon, "background: #FF0000; color: #FFFFFF");
     }
 
-    var cleanedCoordinates = cleanedPolygon.getCoordinates();
+
+//    var cleanedCoordinates = cleanedPolygon.getCoordinates();
+//    cleanedCoordinates.forEach(function (point) {
+//        console.log(point);
+//        drawRectAt(point, "black");
+//    });
+//    
     if (LOG) {
+        console.log("cleanedCoordinates: ");
         console.log(cleanedCoordinates);
     }
 
-    if ((!cleanedCoordinates || !cleanedCoordinates.length) && drawnPath.remove) {
-        drawnPath.remove();
-        canvas.renderAll();
-        return;
+
+    var finalPolygon = null;
+    if (cleanedPolygon.isEmpty()) {
+        finalPolygon = offsetJSTSPolygon;
+    } else {
+        finalPolygon = cleanedPolygon;
     }
 
-    var svgPathString = JSTSPolygonToSVGPath(cleanedPolygon);
+//    if ((!cleanedCoordinates || !cleanedCoordinates.length) && drawnPath.remove) {
+//        drawnPath.remove();
+//        canvas.renderAll();
+//        return;
+//    }
+
+//    var svgPathString = JSTSPolygonToSVGPath(cleanedPolygon);
+    var svgPathString = JSTSPolygonToSVGPath(finalPolygon);
     if (LOG) {
         console.log("svgPathString:");
         console.log(svgPathString);
     }
-
-//    if (!svgPathString) {
-//        svgPathString = JSTSPolygonToSVGPath(offsetJSTSPolygon);
-//    }
 
     if (LOG) {
         console.log("drawnPath:");
         console.log(drawnPath);
     }
 
-    if (!svgPathString || svgPathString === '') {
-        if (drawnPath.remove) {
-            drawnPath.remove();
-            canvas.renderAll();
-        }
-        return;
-    }
-
-    var userDefinedPath = null;
-
-//    if (fromStraightLine) {
-//
-////        var x1 = drawnPath[0].x;
-////        var y1 = drawnPath[0].y;
-////        var x2 = drawnPath[1].x;
-////        var y2 = drawnPath[1].y;
-//////        userDefinedPath = 'M ' + x1 + ' ' + y1 + ' L ' + x2 + ' ' + y2;
-////        userDefinedPath = 'M ' + x1 + ' ' + y1 + ' L ' + x2 + ' ' + y2;
-//
-//        userDefinedPath = polylineToSVGPathString(drawnPath);
-//
-//    } else {
-//
-////        userDefinedPath = drawnPath.path;
-//
-//
-//        userDefinedPath = polylineToSVGPathString(simplifiedPolyline);
-//
+//    if (!svgPathString || svgPathString === '') {
+//        if (drawnPath.remove) {
+//            drawnPath.remove();
+//            canvas.renderAll();
+//        }
+//        return;
 //    }
 
-
-    userDefinedPath = polylineToSVGPathString(simplifiedPolyline);
-
+    var userDefinedPath = polylineToSVGPathString(simplifiedPolyline);
 
 //    console.log("userDefinedPath:");
 //    console.log(userDefinedPath);
 
-
-    /*var offsetPath = new fabric.Path(svgPathString, {fill: rgb(198, 198, 198), stroke: '#000000', colorForStroke: '#000000', opacity: 0.75, strokeWidth: 1, originalStrokeWidth: 1});
-     var userPath = new fabric.Path(userDefinedPath, {fill: '', stroke: 'black', strokeWidth: 3});
-     
-     var objects = [offsetPath, userPath];
-     
-     var firstPoint = new fabric.Point(samplingPoints[0].x, samplingPoints[0].y);
-     var parentObject = getImportedImageContaining(firstPoint);
-     
-     var samplerOptions = {
-     originX: 'center',
-     originY: 'center',
-     hasBorders: false,
-     hasControls: false,
-     hasRotatingPoint: false,
-     lockScalingX: true,
-     lockScalingY: true,
-     lockRotation: true,
-     perPixelTargetFind: true,
-     samplingFrequency: 5,
-     samplingPoints: samplingPoints,
-     length: parentObject ? totalLength / parentObject.scaleX : totalLength,
-     trajectory: parentObject ? trajectory / parentObject.scaleX : trajectory,
-     simplifiedPolyline: simplifiedPolyline,
-     translatedPoints: translatedPoints,
-     samplingDistance: samplingDistance,
-     totalSamplingPoints: samplingPoints.length,
-     fill: rgb(153, 153, 153),
-     parentObject: parentObject,
-     untransformedX: 0,
-     untransformedY: 0,
-     untransformedScaleX: 1,
-     untransformedScaleY: 1,
-     untransformedAngle: parentObject ? 360 - parentObject.getAngle() : 0,
-     offsetPolygonPath: svgPathString,
-     userTracedPath: userDefinedPath,
-     };
-     
-     var samplerVixor = addSamplerVixorToCanvas(objects, samplerOptions);
-     
-     samplerVixor.samplingMarks.forEach(function (sampligMark) {
-     blink(sampligMark, false);
-     });
-     blink(samplerVixor, true, 0.1);
-     
-     if (parentObject) {
-     parentObject.widgets.push(samplerVixor);
-     computeUntransformedProperties(samplerVixor);
-     
-     samplerVixor.untransformedScaleX = 1 / parentObject.getScaleX();
-     samplerVixor.untransformedScaleY = 1 / parentObject.getScaleY();
-     
-     samplerVixor.sampleColors(true);
-     }*/
-
-    var firstPoint = new fabric.Point(samplingPoints[0].x, samplingPoints[0].y);
-
 //    console.log("%c" + "firstPoint:", "background: rgb(33,128,213); color: black;");
 //    console.log("x: " + firstPoint.x + " y: " + firstPoint.y);
 
-    var parentObject = getImportedImageContaining(firstPoint);
+    var parentObject = findPotentialParent(samplingPoints);
 
     var options = {
         offsetPolygonPath: svgPathString,
         userTracedPath: userDefinedPath,
-//        userTracedPathCenter: centerPoint,
         samplingPoints: samplingPoints,
         totalLength: totalLength,
         simplifiedPolyline: simplifiedPolyline,
@@ -4151,11 +4523,12 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
 
 function buildAndAddSamplerColor(options) {
 
-    console.log("%c Going to build and add a sample color with the following options:", "background: rgb(97,121,77); color: white;");
-    console.log(options);
+//    console.log("%c Going to build and add a sample color with the following options:", "background: rgb(97,121,77); color: white;");
+//    console.log(options);
 
-    var offsetPath = new fabric.Path(options.offsetPolygonPath, {fill: rgb(198, 198, 198), stroke: '#000000', colorForStroke: '#000000', opacity: 0.75, strokeWidth: 1, originalStrokeWidth: 1});
-    var userPath = new fabric.Path(options.userTracedPath, {fill: '', stroke: 'black', strokeWidth: 3});
+    var offsetPath = new fabric.Path(options.offsetPolygonPath, {fill: 'rgba(112,112,112,0.5)', stroke: 'black', colorForStroke: 'black', strokeWidth: 2, originalStrokeWidth: 2});
+//    var offsetPath = new fabric.Path(options.offsetPolygonPath, {fill: rgb(198, 198, 198), stroke: '#000000', colorForStroke: '#000000', opacity: 0.75, strokeWidth: 1, originalStrokeWidth: 1});
+    var userPath = new fabric.Path(options.userTracedPath, {fill: '', stroke: 'black', strokeWidth: 1.5});
 
 
 //    console.log("options.firstPoint:");
@@ -4265,8 +4638,8 @@ function buildAndAddSamplerColor(options) {
         values: options.values,
         originalDrawnPath: options.originalDrawnPath,
         centerPoint: options.originalDrawnPathCenterPoint,
-        originalWidth: options.originalDrawnPathWidth,
-        originalHeight: options.originalDrawnPathHeight,
+        originalDrawnPathWidth: options.originalDrawnPathWidth,
+        originalDrawnPathHeight: options.originalDrawnPathHeight,
         isStraightLine: options.isStraightLine
     };
 
@@ -4294,25 +4667,35 @@ function buildAndAddSamplerColor(options) {
         samplerVixor.untransformedScaleY = 1 / parentObject.getScaleY();
 
         samplerVixor.sampleColors(true);
+
     } else if (colorValues) {
         var i = 0;
         var strokes = options.samplingMarksStrokes;
         var fills = options.samplingMarksFills;
+
+        var sampledColors = new Array();
+
         colorValues.forEach(function (colorValue) {
-            samplerVixor.samplingMarks[i].sampledColor = colorValue.color.toRgba();
+
+            var sampledColor = colorValue.color.toRgba();
+            samplerVixor.samplingMarks[i].sampledColor = sampledColor;
+            sampledColors.push(sampledColor);
+
+            console.log("samplerVixor.samplingMarks[i].sampledColor: " + samplerVixor.samplingMarks[i].sampledColor);
+
             samplerVixor.samplingMarks[i].stroke = strokes[i].stroke;
             samplerVixor.samplingMarks[i].fill = fills[i].fill;
             i++;
         });
+
+        samplerVixor.setColorValues(sampledColors);
+
     }
 
     var samplingMarksPositions = options.samplingMarksPositions;
     if (samplingMarksPositions) {
         var j = 0;
         samplingMarksPositions.forEach(function (object) {
-//            console.log("point:");
-//            console.log(object);
-//            samplerVixor.samplingMarks[j].setPositionByOrigin(new fabric.Point(point.x, point.y), 'center', 'center');
             samplerVixor.samplingMarks[j].left = object.left;
             samplerVixor.samplingMarks[j].top = object.top;
             computeUntransformedProperties(samplerVixor.samplingMarks[j]);
@@ -5028,12 +5411,14 @@ function updateConnectorsPositions(object) {
 function bringConnectorsToFront(object) {
     if (object.inConnectors) {
         object.inConnectors.forEach(function (inConnector) {
-            inConnector.bringToFront();
+//            inConnector.bringToFront();
+            bringToFront(inConnector);
         });
     }
     if (object.outConnectors) {
         object.outConnectors.forEach(function (outConnector) {
-            outConnector.bringToFront();
+//            outConnector.bringToFront();
+            bringToFront(outConnector);
         });
     }
 }
@@ -6558,4 +6943,10 @@ function importImageFromXMLNode(imageXmlNode) {
     console.log("importedImage:");
     console.log(importedImage);
 
+}
+
+
+function bringToFront(object) {
+    fabric.util.removeFromArray(canvas._objects, object);
+    canvas._objects.push(object);
 }

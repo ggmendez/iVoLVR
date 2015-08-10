@@ -419,8 +419,10 @@ var VisualProperty = function () {
                             if (!targetObject.isVerticalCollection) {
 
                                 setTimeout(function () {
-                                    connector.source.bringToFront();
-                                    connector.destination.bringToFront();
+//                                    connector.source.bringToFront();
+//                                    connector.destination.bringToFront();
+                                    bringToFront(connector.source);
+                                    bringToFront(connector.destination);
                                 }, 50);
 
                             }
@@ -482,10 +484,12 @@ var VisualProperty = function () {
                                     setTimeout(function () {
 
                                         if (theSource) {
-                                            theSource.bringToFront();
+//                                            theSource.bringToFront();
+                                            bringToFront(theSource);
                                         }
                                         if (theDestination) {
-                                            theDestination.bringToFront();
+//                                            theDestination.bringToFront();
+                                            bringToFront(theDestination);
                                         }
                                     }, 50);
 

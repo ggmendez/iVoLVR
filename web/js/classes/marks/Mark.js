@@ -796,16 +796,21 @@ var Mark = function () {
 
         theBackground.strokeWidth = 1;
 
-        theBackground.bringToFront();
-        theMark.bringToFront();
+//        theBackground.bringToFront();
+//        theMark.bringToFront();
+        bringToFront(theBackground);
+        bringToFront(theMark);
 
         var theParentObject = theMark.parentObject;
         if (theParentObject && theParentObject.isLocator && !theParentObject.isCompressed && theParentObject.selectedMark === theMark) {
-            theMark.xVisualProperty.bringToFront();
-            theMark.yVisualProperty.bringToFront();
+//            theMark.xVisualProperty.bringToFront();
+//            theMark.yVisualProperty.bringToFront();
+            bringToFront(theMark.xVisualProperty);
+            bringToFront(theMark.yVisualProperty);
         }
         if (theMark.iText) {
-            theMark.iText.bringToFront();
+//            theMark.iText.bringToFront();
+            bringToFront(theMark.iText);
         }
 
         var boundingRectCenterBottom = new fabric.Point(theMark.left, objectCenter.y + boundingRect.height / 2);
@@ -859,11 +864,13 @@ var Mark = function () {
             visualProperty.bringForward(true);
 
             visualProperty.outConnectors.forEach(function (connector) {
-                connector.bringToFront();
+//                connector.bringToFront();
+                bringToFront(connector);
             });
 
             visualProperty.inConnectors.forEach(function (connector) {
-                connector.bringToFront();
+//                connector.bringToFront();
+                bringToFront(connector);
             });
 
             visualProperty.left = theMark.left;
@@ -946,11 +953,14 @@ var Mark = function () {
             theMark.animateVisualProperty(i, 'top', theMark.top, duration, easing, refreshCanvas && isTheLastElement, true, isTheLastElement, false);
         }
 
-        theMark.bringToFront();
+//        theMark.bringToFront();
+        bringToFront(theMark);
         var theParentObject = theMark.parentObject;
         if (theParentObject && theParentObject.isLocator && !theParentObject.isCompressed && theParentObject.selectedMark === theMark) {
-            theMark.xVisualProperty.bringToFront();
-            theMark.yVisualProperty.bringToFront();
+//            theMark.xVisualProperty.bringToFront();
+//            theMark.yVisualProperty.bringToFront();
+            bringToFront(theMark.xVisualProperty);
+            bringToFront(theMark.yVisualProperty);
         }
 
     };
@@ -1514,26 +1524,32 @@ var Mark = function () {
                 } else {
 
                     if (!theMark.isCompressed) {
-                        theMark.backgroundRect.bringToFront();
+//                        theMark.backgroundRect.bringToFront();
+                        bringToFront(theMark.backgroundRect);
                         theMark.visualProperties.forEach(function (visualProperty) {
                             if (visualProperty.canvas) {
-                                visualProperty.bringToFront();
+//                                visualProperty.bringToFront();
+                                bringToFront(visualProperty);
 
 
                                 visualProperty.inConnectors.forEach(function (inConnection) {
-                                    inConnection.bringToFront();
+//                                    inConnection.bringToFront();
+                                    bringToFront(inConnection);
                                 });
                                 visualProperty.outConnectors.forEach(function (outConnection) {
-                                    outConnection.bringToFront();
+//                                    outConnection.bringToFront();
+                                    bringToFront(outConnection);
                                 });
 
                             }
                         });
                         if (theMark.iText) {
-                            theMark.iText.bringToFront();
+//                            theMark.iText.bringToFront();
+                            bringToFront(theMark.iText);
                         }
                     }
-                    theMark.bringToFront();
+//                    theMark.bringToFront();
+                    bringToFront(theMark);
 
                 }
 

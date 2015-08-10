@@ -83,7 +83,8 @@ var Locator = fabric.util.createClass(fabric.Circle, {
             var shouldAnimate = options.shouldAnimate;
 
             var source = newInConnection.source;
-            source.typeIcon.bringToFront();
+//            source.typeIcon.bringToFront();
+            bringToFront(source.typeIcon);
 
             var targetAttribute = newInConnection.destination.attribute;
             var incommingValue = newInConnection.value;
@@ -1324,7 +1325,8 @@ var Locator = fabric.util.createClass(fabric.Circle, {
             connector.sendToBack();
         }
 
-        child.bringToFront();
+//        child.bringToFront();
+        bringToFront(child);
 
         if (markAsSelected) {
             theLocator.selectedMark = child;

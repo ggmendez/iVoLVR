@@ -209,21 +209,26 @@ var TextualVixor = fabric.util.createClass(fabric.Rect, {
 
         var theTextRecogniser = this;
         if (!theTextRecogniser.isCompressed) {
-            theTextRecogniser.backgroundRect.bringToFront();
+//            theTextRecogniser.backgroundRect.bringToFront();
+            bringToFront(theTextRecogniser.backgroundRect);
             theTextRecogniser.visualProperties.forEach(function (visualProperty) {
                 if (visualProperty.canvas) {
-                    visualProperty.bringToFront();
+//                    visualProperty.bringToFront();
+                    bringToFront(visualProperty);
 
                     visualProperty.inConnectors.forEach(function (inConnection) {
-                        inConnection.bringToFront();
+//                        inConnection.bringToFront();
+                        bringToFront(inConnection);
                     });
                     visualProperty.outConnectors.forEach(function (outConnection) {
-                        outConnection.bringToFront();
+//                        outConnection.bringToFront();
+                        bringToFront(outConnection);
                     });
                 }
             });
         }
-        theTextRecogniser.bringToFront();
+//        theTextRecogniser.bringToFront();
+        bringToFront(theTextRecogniser);
     },
     onMouseDown: function (options) {
         this.bringElementsToFront();

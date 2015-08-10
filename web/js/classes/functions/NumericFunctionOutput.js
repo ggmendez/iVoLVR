@@ -95,8 +95,10 @@ var NumericFunctionOutput = fabric.util.createClass(fabric.Path, {
                             if (!targetObject.isVerticalCollection) {
 
                                 setTimeout(function () {
-                                    connector.source.bringToFront();
-                                    connector.destination.bringToFront();
+//                                    connector.source.bringToFront();
+//                                    connector.destination.bringToFront();
+                                    bringToFront(connector.source);
+                                    bringToFront(connector.destination);
                                 }, 50);
 
                             }

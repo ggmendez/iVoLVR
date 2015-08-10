@@ -134,14 +134,16 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         if (options.inCollectionOptions) {
             var theMapper = this;
             setTimeout(function () {
-                theMapper.inCollection.typeIcon.bringToFront();
+//                theMapper.inCollection.typeIcon.bringToFront();
+                bringToFront(theMapper.inCollection.typeIcon);
             }, 50);
         }
 
         if (options.outCollectionOptions) {
             var theMapper = this;
             setTimeout(function () {
-                theMapper.outCollection.typeIcon.bringToFront();
+//                theMapper.outCollection.typeIcon.bringToFront();
+                bringToFront(theMapper.outCollection.typeIcon);
             }, 50);
         }
 

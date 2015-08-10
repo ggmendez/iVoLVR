@@ -427,7 +427,8 @@
                     canvas.add(visualValue);
                 }
 
-                visualValue.bringToFront();
+//                visualValue.bringToFront();
+                bringToFront(visualValue);
 
                 var y = firstY + j * space;
 //                if (visualValue.relativeY != null) {
@@ -476,7 +477,8 @@
         }
 
         if (theCollection.typeIcon) {
-            theCollection.typeIcon.bringToFront();
+//            theCollection.typeIcon.bringToFront();
+            bringToFront(theCollection.typeIcon);
         }
 
         if (!valuesFinalScale) {
@@ -502,7 +504,8 @@
         if (theCollection.visualValues) {
             theCollection.visualValues.forEach(function (visualValue) {
 
-                visualValue.bringToFront();
+//                visualValue.bringToFront();
+                bringToFront(visualValue);
                 bringConnectorsToFront(visualValue);
 
                 visualValue.animate('top', newTop, {
@@ -587,7 +590,8 @@
             console.log("Starting collection expansion...");
 
         if (theCollection.typeIcon) {
-            theCollection.typeIcon.bringToFront();
+//            theCollection.typeIcon.bringToFront();
+            bringToFront(theCollection.typeIcon);
         }
 
         if (!valuesFinalScale) {
@@ -694,7 +698,8 @@
                 visualValue.opacity = 0;
 
                 canvas.add(visualValue);
-                visualValue.bringToFront();
+//                visualValue.bringToFront();
+                bringToFront(visualValue);
                 bringConnectorsToFront(visualValue);
 
                 var y = firstY + j * space;
@@ -774,7 +779,8 @@
         visualValue.on({
             'pressed': function (options) {
 
-                visualValue.bringToFront();
+//                visualValue.bringToFront();
+                bringToFront(visualValue);
                 visualValue.lockMovementX = true;
                 visualValue.lockMovementY = true;
                 blink(visualValue, true, 0.35);
@@ -822,10 +828,12 @@
                                     setTimeout(function () {
 
                                         if (theSource) {
-                                            theSource.bringToFront();
+//                                            theSource.bringToFront();
+                                            bringToFront(theSource);
                                         }
                                         if (theDestination) {
-                                            theDestination.bringToFront();
+//                                            theDestination.bringToFront();
+                                            bringToFront(theDestination);
                                         }
                                     }, 50);
 
@@ -848,8 +856,10 @@
                                 connector.setDestination(targetObject, true);
 
                                 setTimeout(function () {
-                                    connector.source.bringToFront();
-                                    connector.destination.bringToFront();
+//                                    connector.source.bringToFront();
+//                                    connector.destination.bringToFront();
+                                    bringToFront(connector.source);
+                                    bringToFront(connector.destination);
                                 }, 50);
 
                             } else if (targetObject.isOperator) {
@@ -863,8 +873,10 @@
                                     connector.setDestination(targetObject, true);
 
                                     setTimeout(function () {
-                                        connector.source.bringToFront();
-                                        connector.destination.bringToFront();
+//                                        connector.source.bringToFront();
+//                                        connector.destination.bringToFront();
+                                        bringToFront(connector.source);
+                                        bringToFront(connector.destination);
                                     }, 50);
 
                                 } else {
@@ -1043,7 +1055,8 @@
             visualValue.on({
                 'mousedown': function (options) {
                     var theVisualValue = this;
-                    theVisualValue.bringToFront();
+//                    theVisualValue.bringToFront();
+                    bringToFront(theVisualValue);
                 },
             });
 
@@ -1226,7 +1239,8 @@
                                     if (!targetObject.isFunctionValuesCollection && !targetObject.isLocatorValuesCollection && !targetObject.isNumericFunctionInput) {
                                         setTimeout(function () {
 //                                            connector.source.bringToFront();
-                                            connector.destination.bringToFront();
+//                                            connector.destination.bringToFront();
+                                            bringToFront(connector.destination);
                                         }, 50);
                                     }
 

@@ -268,10 +268,12 @@ var DataType = function () {
                                         setTimeout(function () {
 
                                             if (theSource) {
-                                                theSource.bringToFront();
+//                                                theSource.bringToFront();
+                                                bringToFront(theSource);
                                             }
                                             if (theDestination) {
-                                                theDestination.bringToFront();
+//                                                theDestination.bringToFront();
+                                                bringToFront(theDestination);
                                             }
                                         }, 50);
 
@@ -294,8 +296,10 @@ var DataType = function () {
                                     connector.setDestination(targetObject, true);
 
                                     setTimeout(function () {
-                                        connector.source.bringToFront();
-                                        connector.destination.bringToFront();
+//                                        connector.source.bringToFront();
+//                                        connector.destination.bringToFront();
+                                        bringToFront(connector.source);
+                                        bringToFront(connector.destination);
                                     }, 50);
 
                                 } else if (targetObject.isOperator) {
@@ -310,8 +314,10 @@ var DataType = function () {
                                         connector.setDestination(targetObject, true);
 
                                         setTimeout(function () {
-                                            connector.source.bringToFront();
-                                            connector.destination.bringToFront();
+//                                            connector.source.bringToFront();
+//                                            connector.destination.bringToFront();
+                                            bringToFront(connector.source);
+                                            bringToFront(connector.destination);
                                         }, 50);
 
                                     } else {
@@ -449,7 +455,8 @@ var DataType = function () {
             'mousedown': function (option) {
 
                 var theDataType = this;
-                theDataType.bringToFront();
+//                theDataType.bringToFront();
+                bringToFront(theDataType);
 
             },
             'inConnectionRemoved': standarInConnectionRemovedHandler,

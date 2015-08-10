@@ -305,8 +305,10 @@ var Operator = fabric.util.createClass(fabric.Circle, {
                                 visualValue.animateBirth(false, null, null, false);
 
                                 setTimeout(function () {
-                                    theOperator.bringToFront();
-                                    visualValue.bringToFront();
+//                                    theOperator.bringToFront();
+//                                    visualValue.bringToFront();
+                                    bringToFront(theOperator);
+                                    bringToFront(visualValue);
                                 }, 50);
 
                             }

@@ -166,8 +166,10 @@ var NumberGeneratorOutput = fabric.util.createClass(fabric.Path, {
                         dataType.animateBirth(false, null, null, false);
 
                         setTimeout(function () {
-                            theOutputPoint.bringToFront();
-                            dataType.bringToFront();
+//                            theOutputPoint.bringToFront();
+//                            dataType.bringToFront();
+                            bringToFront(theOutputPoint);
+                            bringToFront(dataType);
                         }, 50);
 
                     }

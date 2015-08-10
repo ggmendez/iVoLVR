@@ -63,15 +63,14 @@ public class SampleColorsFromImageObject extends HttpServlet {
 
                 int row = (int) point.y;
                 int col = (int) point.x;
+                int totalCols = image.cols();
+                int totalRows = image.rows();
+                
+                int b = -1;
+                int g = -1;
+                int r = -1;
 
-//                int b = 153;
-//                int g = 153;
-//                int r = 153;
-                int b = 0;
-                int g = 0;
-                int r = 255;
-
-                if (row >= 0 && col >= 0) {
+                if (row >= 0 && col >= 0 && col < totalCols && row < totalRows) {
                     double[] color = image.get(row, col);
                     b = (int) color[0];
                     g = (int) color[1];

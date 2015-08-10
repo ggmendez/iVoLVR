@@ -82,8 +82,10 @@ var NumericFunctionInput = fabric.util.createClass(fabric.Path, {
                                 if (!targetObject.isVerticalCollection) {
 
                                     setTimeout(function () {
-                                        connector.source.bringToFront();
-                                        connector.destination.bringToFront();
+//                                        connector.source.bringToFront();
+//                                        connector.destination.bringToFront();
+                                        bringToFront(connector.source);
+                                        bringToFront(connector.destination);
                                     }, 50);
 
                                 }
@@ -120,7 +122,8 @@ var NumericFunctionInput = fabric.util.createClass(fabric.Path, {
             },
             'mousedown': function (options) {
                 var theInputPoint = this;
-                theInputPoint.bringToFront();
+//                theInputPoint.bringToFront();
+                bringToFront(theInputPoint);
             },
             'moving': function (options) {
 

@@ -27,24 +27,21 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
         addAttributeWithValue(centerPointNode, "x", centerPoint.x);
         addAttributeWithValue(centerPointNode, "y", centerPoint.y);
         extractorNode.append(centerPointNode);
-        
+
         var originalDrawnPath = theExtractor.originalDrawnPath;
         var originalDrawnPathWidth = null;
         var originalDrawnPathHeight = null;
         if (originalDrawnPath) {
-//            centerPoint = originalDrawnPath.getCenterPoint();
             originalDrawnPathWidth = originalDrawnPath.getWidth();
             originalDrawnPathHeight = originalDrawnPath.getHeight();
         } else {
-//            centerPoint = theExtractor.originalDrawnPathCenterPoint;
             originalDrawnPathWidth = theExtractor.originalDrawnPathWidth;
             originalDrawnPathHeight = theExtractor.originalDrawnPathHeight;
         }
-        
-        
-        appendElementWithValue(extractorNode, "originalDrawnPathWidth",  originalDrawnPathWidth);
+
+        appendElementWithValue(extractorNode, "originalDrawnPathWidth", originalDrawnPathWidth);
         appendElementWithValue(extractorNode, "originalDrawnPathHeight", originalDrawnPathHeight);
-        
+
         if (theExtractor.parentObject && theExtractor.parentObject.isImportedImage) {
             appendElementWithValue(extractorNode, "imageXmlID", theExtractor.parentObject.xmlID);
         }
@@ -286,32 +283,45 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
     bringSamplingMarksToFront: function () {
         var theVixor = this;
         theVixor.samplingMarks.forEach(function (samplingMark) {
-            samplingMark.bringToFront();
+//            samplingMark.bringToFront();
+            bringToFront(samplingMark);
         });
     },
     bringElementsToFront: function () {
 
-        console.log("%c" + "bringElementsToFront function at COLOR SAMPLER class", "background: #def659; color: black;");
-
         var theSampler = this;
+
+        //        console.log("%c" + "bringElementsToFront function at COLOR SAMPLER class", "background: #def659; color: black;");
         if (!theSampler.isCompressed) {
-            theSampler.backgroundRect.bringToFront();
+//            theSampler.backgroundRect.bringToFront();
+            
+            bringToFront(theSampler.backgroundRect);
+            
             theSampler.visualProperties.forEach(function (visualProperty) {
                 if (visualProperty.canvas) {
-                    visualProperty.bringToFront();
+                    
+//                    visualProperty.bringToFront();
+                    bringToFront(visualProperty);
 
                     visualProperty.inConnectors.forEach(function (inConnection) {
-                        inConnection.bringToFront();
+//                        inConnection.bringToFront();
+                        bringToFront(inConnection);
                     });
                     visualProperty.outConnectors.forEach(function (outConnection) {
-                        outConnection.bringToFront();
+//                        outConnection.bringToFront();
+                        bringToFront(outConnection);
                     });
                 }
             });
 
         }
-        theSampler.bringToFront();
+//        theSampler.bringToFront();
+        bringToFront(theSampler);
+        
         theSampler.bringSamplingMarksToFront();
+        
+        canvas.renderAll();
+
     },
     onMouseDown: function (options) {
         this.bringElementsToFront();
@@ -320,30 +330,50 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 
         var theVixor = this;
 
-        var newParentObject;
+        /*var newParentObject;
+         
+         var fullyContainerElement = findContainerElement(this, ['isImportedImage']);
+         if (fullyContainerElement) {
+         newParentObject = fullyContainerElement;
+         if (LOG)
+         console.log("%cReleased over this element:", "background: green; color:white;");
+         console.log(fullyContainerElement);
+         } else {
+         var intersectorElement = findIntersectorElement(this, ['isImportedImage']);
+         if (intersectorElement) {
+         newParentObject = intersectorElement;
+         if (LOG)
+         console.log("%cNot fully contained by an imported image:", "background: yellow; color:black;");
+         } else {
+         if (LOG)
+         console.log("%cReleased over the canvas", "background: red; color:white;");
+         
+         intersectorElement = null;
+         
+         // This vixor should be removed from the list of widgets of its previous parent
+         
+         }
+         }*/
 
-        var fullyContainerElement = findContainerElement(this, ['isImportedImage']);
-        if (fullyContainerElement) {
-            newParentObject = fullyContainerElement;
-            if (LOG)
-                console.log("%cReleased over this element:", "background: green; color:white;");
-            console.log(fullyContainerElement);
-        } else {
-            var intersectorElement = findIntersectorElement(this, ['isImportedImage']);
-            if (intersectorElement) {
-                newParentObject = intersectorElement;
-                if (LOG)
-                    console.log("%cNot fully contained by an imported image:", "background: yellow; color:black;");
-            } else {
-                if (LOG)
-                    console.log("%cReleased over the canvas", "background: red; color:white;");
 
-                intersectorElement = null;
 
-                // This vixor should be removed from the list of widgets of its previous parent
-
+        var newParentObject = null;
+        var samplingPoints = theVixor.samplingMarks;
+        var totalSamplingPoints = samplingPoints.length;
+        for (var i = 0; i < totalSamplingPoints; i++) {
+            var samplingMark = samplingPoints[i];
+            var center = samplingMark.getCenterPoint();
+            var fabricPoint = new fabric.Point(center.x, center.y);
+            newParentObject = getImportedImageContaining(fabricPoint);
+            if (newParentObject) {
+                break;
             }
         }
+
+
+
+
+
 
         var parentChanged = newParentObject !== theVixor.parentObject;
 
@@ -421,7 +451,7 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
     },
     areTheSameColors: function (colors1, colors2) {
 
-        console.log("areTheSameColors FUNCTION");
+//        console.log("areTheSameColors FUNCTION");
 
         if (!colors1 || !colors2 || colors1.length !== colors2.length) {
             return false;
@@ -536,70 +566,45 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 //                                    var g = parseFloat(array[0][1]).toFixed(0);
 //                                    var r = parseFloat(array[0][0]).toFixed(0);
 
-                                    var r = array[0];
-                                    var g = array[1];
-                                    var b = array[2];
+                                    var r = Number(array[0]);
+                                    var g = Number(array[1]);
+                                    var b = Number(array[2]);
+
+                                    var percentage = 7;
+                                    var sampledColor = null;
+                                    var fillColor = null;
+                                    var strokeColor = null;
 
 
-                                    /*if (LOG) console.log("r");
-                                     if (LOG) console.log(r);
-                                     if (LOG) console.log("g");
-                                     if (LOG) console.log(g);
-                                     if (LOG) console.log("b");
-                                     if (LOG) console.log(b);*/
 
-//                                    var fillColor = rgb(r, g, b);
-//                                    var strokeColor = darkenrgb(r, g, b);
+                                    if (r === -1 && g === -1 && b === -1) {
 
-                                    var sampledColor = rgb(r, g, b);
+                                        r = 198;
+                                        g = 198;
+                                        b = 198;
+//                                        sampledColor = rgb(r, g, b);
+                                        sampledColor = 'rgb(112,112,112)';
+                                        fillColor = sampledColor;
+                                        strokeColor = sampledColor;
 
-                                    var rbgColor = new fabric.Color(sampledColor);
-                                    console.log("rbgColor:");
-                                    console.log(rbgColor);
-                                    
-                                    var hslColor = rbgColor._rgbToHsl(r, g, b);
-                                    console.log("hslColor:");
-                                    console.log(hslColor);
-                                    
-                                    console.log("rbgColor.toHsl():");
-                                    console.log(rbgColor.toHsl());
-                                    
-                                    var h = hslColor[0];
-                                    var s = hslColor[1];
-                                    var l = hslColor[2];
-                                    
-                                    l += 7;
-                                    if (l > 100) {
-                                        l = 100;
+                                    } else {
+
+                                        sampledColor = rgb(r, g, b);
+                                        fillColor = lightenrgb(r, g, b, percentage);
+                                        strokeColor = sampledColor;
                                     }
-                                    
-                                    var newHslString = "hsl(" + h + "," + s + "%," + l + "%)";
-                                    console.log("newHslString:");
-                                    console.log(newHslString);
-                                    
-                                    var newHslFabricColor = new fabric.Color(newHslString);
-                                    
-                                    var fillColor = newHslFabricColor.toRgb();
-                                    
-                                    console.log("fillColor:");
-                                    console.log(fillColor);
-                                    
-
-
-//                                    var strokeColor = rgb(0,0,0);
-                                    var strokeColor = rgb(r, g, b);
-
-
-
-//                                    theVixor.samplingMarks[m].opacity = 0.2; // TODO: IMPORTANT: JUST FOR DEBUGGING
 
                                     theVixor.samplingMarks[m].sampledColor = sampledColor;
                                     theVixor.samplingMarks[m].fill = fillColor;
                                     theVixor.samplingMarks[m].stroke = strokeColor;
                                     theVixor.samplingMarks[m].colorForStroke = strokeColor;
-                                    m++;
+
+                                    // theVixor.samplingMarks[m].opacity = 0.2; // TODO: IMPORTANT: JUST FOR DEBUGGING
+
 
                                     colorValues.push(sampledColor);
+
+                                    m++;
 
                                 });
 
@@ -1123,6 +1128,9 @@ Vixor.call(SamplerVixor.prototype);
 
 function addSamplerVixorToCanvas(objects, options) {
 
+//    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%% FUNCTION addSamplerVixorToCanvas with options: ");
+//    console.log(options);
+
     var samplerVixor = new SamplerVixor(objects, options);
     canvas.add(samplerVixor);
     samplerVixor.associateEvents();
@@ -1132,10 +1140,6 @@ function addSamplerVixorToCanvas(objects, options) {
     var colorValues = new Array();
     samplerVixor.samplingMarks.forEach(function (samplingMark) {
         colorValues.push(samplingMark.fill);
-
-
-//        samplingMark.opacity = 0.25;
-
     });
     samplerVixor.setColorValues(colorValues);
 
@@ -1173,11 +1177,11 @@ function createColorSamplerOptionsFromXMLNode(colorSamplerXmlNode) {
         var tagType = child.attr('type');
 
         if (tagName === "originalDrawnPathCenterPoint") {
-            
+
             var x = Number(child.attr('x'));
             var y = Number(child.attr('y'));
             options.originalDrawnPathCenterPoint = new fabric.Point(x, y);
-            
+
         } else if (tagName === "property") {
 
             var valueXmlNode = $(child.find('value')[0]);

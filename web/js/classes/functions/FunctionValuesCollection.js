@@ -38,7 +38,8 @@ var FunctionValuesCollection = fabric.util.createClass(fabric.Path, {
             },
             'mousedown': function (options) {
                 var theFunctionValuesCollection = this;
-                theFunctionValuesCollection.bringToFront();
+//                theFunctionValuesCollection.bringToFront();
+                bringToFront(theFunctionValuesCollection);
             },
             'moving': function (options) {
                 var theFunctionValuesCollection = this;
@@ -206,7 +207,7 @@ var FunctionValuesCollection = fabric.util.createClass(fabric.Path, {
 
                 var success = theNumericFunction.setCoordinates(incommingValue, coordinate);
                 if (!success) {
-                    alertify.error("A weird error has happened. Please, contact God.", "", 2000);
+                    alertify.error("A weird error has happened.", "", 2000);
                     newInConnection.contract();
                     return;
                 }
@@ -268,7 +269,7 @@ var FunctionValuesCollection = fabric.util.createClass(fabric.Path, {
 
         var success = theNumericFunction.setCoordinates(updatedValue, coordinate);
         if (!success) {
-            alertify.error("A weird error has happened. Please, contact God.", "", 2000);
+            alertify.error("A weird error has happened.", "", 2000);
             inConnection.contract();
             return;
         }

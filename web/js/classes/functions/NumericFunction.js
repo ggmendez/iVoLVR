@@ -1132,7 +1132,8 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             if (!intersectionPoint.canvas) {
                 canvas.add(intersectionPoint);
             }
-            intersectionPoint.bringToFront();
+//            intersectionPoint.bringToFront();
+            bringToFront(intersectionPoint);
             theFunction.intersectionPoint.top = changeRange(intersection.y, minY, maxY, theFunction.maxY.top, theFunction.minY.top);
             theFunction.intersectionPoint.left = changeRange(intersection.x, minX, maxX, theFunction.minX.left, theFunction.maxX.left);
         }
@@ -1561,7 +1562,8 @@ function addNumericFunction(options) {
     }
 
     if (theFunction.intersectionPoint && theFunction.intersectionPoint.canvas) {
-        theFunction.intersectionPoint.bringToFront();
+//        theFunction.intersectionPoint.bringToFront();
+        bringToFront(theFunction.intersectionPoint);
         blink(theFunction.intersectionPoint, false, 0.3);
     }
 

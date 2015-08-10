@@ -774,11 +774,13 @@ function createConnectorFromXMLNode(connectorNode) {
         canvas.add(connector);
 
         if (source.isOperator || source.isLocator) {
-            source.bringToFront();
+//            source.bringToFront();
+            bringToFront(source);
         }
 
         if (destination.isOperator || destination.isMark) {
-            destination.bringToFront();
+//            destination.bringToFront();
+            bringToFront(destination);
         }
         
         return true;

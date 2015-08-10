@@ -217,7 +217,8 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
 
         }
 
-        theCollection.typeIcon.bringToFront();
+//        theCollection.typeIcon.bringToFront();
+        bringToFront(theCollection.typeIcon);
 
     },
     isEmpty: function () {
@@ -312,7 +313,8 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
                     canvas.add(visualValue);
                 }
 
-                visualValue.bringToFront();
+//                visualValue.bringToFront();
+                bringToFront(visualValue);
 
                 var y = firstY + j * space;
                 if (visualValue.relativeY) {
@@ -344,7 +346,8 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
         }
 
         if (theCollection.typeIcon) {
-            theCollection.typeIcon.bringToFront();
+//            theCollection.typeIcon.bringToFront();
+            bringToFront(theCollection.typeIcon);
         }
 
         if (!valuesFinalScale) {
@@ -370,7 +373,8 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
         if (theCollection.visualProperties) {
             theCollection.visualProperties.forEach(function (visualValue) {
 
-                visualValue.bringToFront();
+//                visualValue.bringToFront();
+                bringToFront(visualValue);
                 bringConnectorsToFront(visualValue);
 
                 visualValue.animate('top', newTop, {
@@ -453,7 +457,8 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
             console.log("Starting collection expansion...");
 
         if (theCollection.typeIcon) {
-            theCollection.typeIcon.bringToFront();
+//            theCollection.typeIcon.bringToFront();
+            bringToFront(theCollection.typeIcon);
         }
 
         if (!valuesFinalScale) {
@@ -551,7 +556,9 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
                 visualProperty.opacity = 0;
 
                 canvas.add(visualProperty);
-                visualProperty.bringToFront();
+//                visualProperty.bringToFront();
+                bringToFront(visualProperty);
+                
                 bringConnectorsToFront(visualProperty);
 
                 var y = firstY + j * space;
@@ -756,7 +763,8 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
                                     if (!targetObject.isFunctionValuesCollection && !targetObject.isLocatorValuesCollection && !targetObject.isNumericFunctionInput) {
                                         setTimeout(function () {
 //                                            connector.source.bringToFront();
-                                            connector.destination.bringToFront();
+//                                            connector.destination.bringToFront();
+                                            bringToFront(connector.destination);
                                         }, 50);
                                     }
 

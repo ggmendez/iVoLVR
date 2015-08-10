@@ -137,7 +137,13 @@
                 </a>
                 <ul>
                     <li><a href="javascript:void(0);" onclick="saveProject();"><i id="saveProjectElement" class="fa-save icon-large"></i> Save project</a></li>
-                    <li><a href="javascript:void(0);" onclick="loadiVoLVRProject();"><i class="fa-folder-open-o icon-large"></i> Open project</a></li>
+                    
+                    <li><a href="javascript:loadiVoLVRProject();"><i class="fa-folder-open-o icon-large"></i> Open project</a></li>
+                    
+                    
+                    
+                    
+                    
                     <li> <input type="file" accept=".xml" id="dataprojectFileInput" name="someProjectfile" onchange="handleDatafiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>                    
                     <li><a href="javascript:void(0);"><i class="fa-lightbulb-o icon-large"></i> Sample projects</a>
                         <ul>
@@ -203,7 +209,7 @@
             <!-------------------->
             <li class=""> <a id="samplerButton" href="javascript:void(0);" onclick="samplerButtonClicked();"><i class="collections-freeSampler" style="font-size: 26px;"></i> </a></li>
             <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a id="samplerLineButton" href="javascript:void(0);" onclick="samplerLineButtonClicked();"><i class="collections-straightSampler" style="font-size: 26px;"></i> </a></li>
-            <!--<li class="verticalRightDivider"><a href="javascript:void(0);" onclick="duplicateObject();"><i class="fa fa-copy fa-2x"></i></a></li>-->
+            <li class="verticalRightDivider"><a href="javascript:void(0);" onclick="duplicateObject();"><i class="fa fa-copy fa-2x"></i></a></li>
 
             <!--------------->
             <!-- MORE MENU -->

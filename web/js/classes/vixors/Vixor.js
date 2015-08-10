@@ -428,8 +428,12 @@ var Vixor = function () {
 
 
 
-        theBackground.bringToFront();
-        theVixor.bringToFront();
+//        theBackground.bringToFront();
+//        theVixor.bringToFront();
+        
+        bringToFront(theBackground);
+        bringToFront(theVixor);
+        
 
         var boundingRectCenterBottom = new fabric.Point(theVixor.left, boundingRect.top + boundingRect.height);
 //        drawRectAt(boundingRectCenterBottom, "green");
@@ -472,11 +476,13 @@ var Vixor = function () {
             visualProperty.bringForward(true);
 
             visualProperty.outConnectors.forEach(function (connector) {
-                connector.bringToFront();
+//                connector.bringToFront();
+                bringToFront(connector);
             });
 
             visualProperty.inConnectors.forEach(function (connector) {
-                connector.bringToFront();
+//                connector.bringToFront();
+                bringToFront(connector);
             });
 
 //         visualProperty.left = theVixor.left;

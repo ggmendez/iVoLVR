@@ -68,7 +68,8 @@ var MapperInput = fabric.util.createClass(fabric.Path, {
             },
             'mousedown': function (options) {
                 var theMapperInput = this;
-                theMapperInput.bringToFront();
+//                theMapperInput.bringToFront();
+                bringToFront(theMapperInput);
             },
             'moving': function (options) {
                 var theMapperInput = this;

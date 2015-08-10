@@ -490,8 +490,10 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
                             
 
                             setTimeout(function () {
-                                connector.source.bringToFront();
-                                connector.destination.bringToFront();
+//                                connector.source.bringToFront();
+//                                connector.destination.bringToFront();
+                                source.bringToFront(connector);
+                                destination.bringToFront(connector);
                             }, 50);
 
 

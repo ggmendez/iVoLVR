@@ -189,7 +189,6 @@ function canvasPathCreated(options) {
 
         var drawnPath = options.path;                
 
-//        createSampleVixorFromPath(drawnPath, false, drawnPath.getCenterPoint());
         createSampleVixorFromPath(drawnPath, false);
 
         drawnPath.remove();
