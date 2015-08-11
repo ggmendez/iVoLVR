@@ -78,8 +78,10 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         this.toXML = function () {
             // Calling the nomal expand method from the prototype definition
             var markNode = SVGPathMark.prototype.toXML.call(this);
-            appendElementWithValue(markNode, "finalScaleX", this.finalScaleX);
-            appendElementWithValue(markNode, "finalScaleY", this.finalScaleY);
+//            appendElementWithValue(markNode, "finalScaleX", this.finalScaleX || this.scaleX);
+//            appendElementWithValue(markNode, "finalScaleY", this.finalScaleY || this.scaleY);
+            appendElementWithValue(markNode, "finalScaleX", this.scaleX);
+            appendElementWithValue(markNode, "finalScaleY", this.scaleY);
             return markNode;
         };
 

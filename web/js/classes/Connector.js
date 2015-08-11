@@ -729,21 +729,98 @@ var Connector = fabric.util.createClass(fabric.Line, {
 
 
 
+//function createConnectorFromXMLNode(connectorNode) {
+//
+//    var fromID = Number(connectorNode.attr('from'));
+//    var toID = Number(connectorNode.attr('to'));
+//
+//    var source = getFabricElementByXmlID(fromID);
+//    var destination = getFabricElementByXmlID(toID);
+//    console.log("%c" + "source:", "background: black; color: rgb(240,205,90);");
+//    console.log(source);
+//    
+//    console.log("%c" + "destination:", "background: black; color: rgb(240,205,90);");
+//    console.log(destination);
+//
+//    if (source !== null && destination !== null) {
+//
+//        var arrowColor = connectorNode.attr('arrowColor');
+//        var strokeWidth = Number(connectorNode.attr('strokeWidth'));
+//        var filledArrow = connectorNode.attr('filledArrow') === 'true';
+//        var opacity = Number(connectorNode.attr('opacity'));
+//
+//        var connector = new Connector({
+//            source: source,
+//            x1: source.left,
+//            y1: source.top,
+//            destination: destination,
+//            x2: destination.left,
+//            y2: destination.top,
+//            arrowColor: arrowColor,
+//            filledArrow: filledArrow,
+//            strokeWidth: strokeWidth,
+//            opacity: opacity
+//        });
+//        
+//        console.log("%c source.left: " + source.left, "background: rgb(255,192,36); color: white;");
+//        console.log("%c source.top: " + source.top, "background: rgb(255,192,36); color: white;");
+//        console.log("%c destination.left: " + destination.left, "background: rgb(255,192,36); color: white;");
+//        console.log("%c destination.top: " + destination.top, "background: rgb(255,192,36); color: white;");
+//
+//        source.outConnectors.push(connector);
+//        destination.inConnectors.push(connector);
+//
+//        canvas.add(connector);
+//
+//        if (source.isOperator || source.isLocator) {
+////            source.bringToFront();
+//            bringToFront(source);
+//        }
+//
+//        if (destination.isOperator || destination.isMark) {
+////            destination.bringToFront();
+//            bringToFront(destination);
+//        }
+//        
+//        return true;
+//
+//    } else {
+//
+//        // This means that either the source or the destination of this connector is not available in the canvas yet 
+//        // We store the connector in the pendingConnections array, so that, objects that might be late, ask for their connections
+//        // to be made when they become available. This call will be only executed for objects that might be delayed (SVGGroupMarks, for instance)
+//        
+//        // We need to check if this connection has not been previously added to this array.
+//        if ($.inArray(connectorNode, pendingConnections) === -1) { // If the connection is NOT in the array
+//            pendingConnections.push(connectorNode);
+//        }
+//                        
+//        return false;
+//
+//    }
+//
+//}
+
 function createConnectorFromXMLNode(connectorNode) {
 
-    var fromID = Number(connectorNode.attr('from'));
-    var toID = Number(connectorNode.attr('to'));
+//    var fromID = Number(connectorNode.attr('from'));
+//    var toID = Number(connectorNode.attr('to'));
+    var fromID = connectorNode.attr('from');
+    var toID = connectorNode.attr('to');
 
-    var source = getFabricElementByXmlID(fromID);
-    var destination = getFabricElementByXmlID(toID);
+//    var source = getFabricElementByXmlID(fromID);
+//    var destination = getFabricElementByXmlID(toID);
     
-    console.log("%c" + "source:", "background: black; color: rgb(240,205,90);");
-    console.log(source);
+    var source = connectableElements[fromID];
+    var destination = connectableElements[toID];
     
-    console.log("%c" + "destination:", "background: black; color: rgb(240,205,90);");
-    console.log(destination);
+//    console.log("%c" + "source:", "background: black; color: rgb(240,205,90);");
+//    console.log(source);
+//    
+//    console.log("%c" + "destination:", "background: black; color: rgb(240,205,90);");
+//    console.log(destination);
 
-    if (source !== null && destination !== null) {
+    if (typeof source !== 'undefined' && typeof destination !== 'undefined' && source !== null && destination !== null) {
 
         var arrowColor = connectorNode.attr('arrowColor');
         var strokeWidth = Number(connectorNode.attr('strokeWidth'));
@@ -763,10 +840,10 @@ function createConnectorFromXMLNode(connectorNode) {
             opacity: opacity
         });
         
-        console.log("%c source.left: " + source.left, "background: rgb(255,192,36); color: white;");
-        console.log("%c source.top: " + source.top, "background: rgb(255,192,36); color: white;");
-        console.log("%c destination.left: " + destination.left, "background: rgb(255,192,36); color: white;");
-        console.log("%c destination.top: " + destination.top, "background: rgb(255,192,36); color: white;");
+//        console.log("%c source.left: " + source.left, "background: rgb(255,192,36); color: white;");
+//        console.log("%c source.top: " + source.top, "background: rgb(255,192,36); color: white;");
+//        console.log("%c destination.left: " + destination.left, "background: rgb(255,192,36); color: white;");
+//        console.log("%c destination.top: " + destination.top, "background: rgb(255,192,36); color: white;");
 
         source.outConnectors.push(connector);
         destination.inConnectors.push(connector);
@@ -783,21 +860,16 @@ function createConnectorFromXMLNode(connectorNode) {
             bringToFront(destination);
         }
         
+        console.log("%c" + "Connection created from " + fromID + " to " + toID, "background: rgb(255,192,36); color: white;");
+        
+        console.log("%c" + "Current state of pendingConnections pool:", "background: rgb(255,192,36); color: white;");
+        console.log(pendingConnections);
+        
+        
         return true;
 
-    } else {
-
-        // This means that either the source or the destination of this connector is not available in the canvas yet 
-        // We store the connector in the pendingConnections array, so that, objects that might be late, ask for their connections
-        // to be made when they become available. This call will be only executed for objects that might be delayed (SVGGroupMarks, for instance)
-        
-        // We need to check if this connection has not been previously added to this array.
-        if ($.inArray(connectorNode, pendingConnections) === -1) { // If the connection is NOT in the array
-            pendingConnections.push(connectorNode);
-        }
-                        
-        return false;
-
     }
+    
+    return false;
 
 }

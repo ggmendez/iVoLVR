@@ -98,20 +98,34 @@ var Mark = function () {
 
     this.applyXmlIDs = function (xmlIDs) {
 
-        var theMark = this;
         if (xmlIDs) {
 
-            for (var attribute in xmlIDs) {
+            var theMark = this;
 
-                var xmlID = xmlIDs[attribute];
-                var visualProperty = theMark.getVisualPropertyByAttributeName(attribute);
-                if (visualProperty !== null) {
-                    visualProperty.xmlID = xmlID;
+            addToConnectableElements(theMark);
+
+            if (xmlIDs) {
+
+                for (var attribute in xmlIDs) {
+
+                    var xmlID = xmlIDs[attribute];
+                    var visualProperty = theMark.getVisualPropertyByAttributeName(attribute);
+                    if (visualProperty !== null) {
+                        visualProperty.xmlID = xmlID;
+                        addToConnectableElements(visualProperty);
+                    }
                 }
-            }
 
-            theMark.xVisualProperty.xmlID = xmlIDs['x'];
-            theMark.yVisualProperty.xmlID = xmlIDs['y'];
+                var xVisualProperty = theMark.xVisualProperty;
+                var yVisualProperty = theMark.yVisualProperty;
+
+                xVisualProperty.xmlID = xmlIDs['x'];
+                yVisualProperty.xmlID = xmlIDs['y'];
+
+                addToConnectableElements(xVisualProperty);
+                addToConnectableElements(yVisualProperty);
+
+            }
 
         }
 
@@ -536,7 +550,7 @@ var Mark = function () {
         var backgroundRect = theMark.backgroundRect;
 
         var waitingTime = 0;
-                
+
         theMark.xVisualProperty.disconnect(false, true);
         theMark.yVisualProperty.disconnect(false, true);
 
@@ -1881,7 +1895,8 @@ function createMarkFromXMLNode(markXmlNode) {
 
     var options = {
         markType: markXmlNode.attr('shape'),
-        xmlID: Number(markXmlNode.attr('xmlID')),
+//        xmlID: Number(markXmlNode.attr('xmlID')),
+        xmlID: markXmlNode.attr('xmlID'),
         locatorXmlID: Number(markXmlNode.attr('locatorXmlID')),
         xmlIDs: {},
         values: {}
@@ -1897,7 +1912,9 @@ function createMarkFromXMLNode(markXmlNode) {
             var valueXmlNode = $(child.find('value')[0]);
             var propertyValue = createValueFromXMLNode(valueXmlNode);
 
-            var xmlID = Number(child.attr('xmlID'));
+            var xmlID = child.attr('xmlID');
+            
+//            var xmlID = Number(child.attr('xmlID'));
             var attribute = child.attr('attribute');
 
             if (LOG) {

@@ -6418,3 +6418,16 @@ function bringToFront(object) {
     fabric.util.removeFromArray(canvas._objects, object);
     canvas._objects.push(object);
 }
+
+function addToConnectableElements(object) {
+    connectableElements[object.xmlID] = object;
+}
+
+function getSize(object) {
+    var size = 0, key;
+    for (key in object) {
+        if (object.hasOwnProperty(key))
+            size++;
+    }
+    return size;
+}

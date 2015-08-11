@@ -21,29 +21,37 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
         return from;
     },
     applyXmlIDs: function (xmlIDs) {
-        var theGenerator = this;
+        
         if (xmlIDs) {
+            
+            var theGenerator = this;
+            addToConnectableElements(theGenerator);
+            
             for (var attribute in xmlIDs) {
                 var xmlID = xmlIDs[attribute];
                 var visualProperty = theGenerator.getVisualPropertyByAttributeName(attribute);
                 if (visualProperty !== null) {
                     visualProperty.xmlID = xmlID;
+                    addToConnectableElements(visualProperty);
                 }
             }
         }
     },
     toXML: function () {
         var theGenerator = this;
-        var markNode = createXMLElement("numericCollectionGenerator");
-        addAttributeWithValue(markNode, "xmlID", theGenerator.xmlID);
-        appendElementWithValue(markNode, "left", theGenerator.left);
-        appendElementWithValue(markNode, "top", theGenerator.top);
-        appendElementWithValue(markNode, "isExpanded", !theGenerator.isCompressed);
+        var generatorNode = createXMLElement("numericCollectionGenerator");
+        addAttributeWithValue(generatorNode, "xmlID", theGenerator.xmlID);
+        
+        var centerPoint = theGenerator.typeIcon ? theGenerator.typeIcon.getCenterPoint() : theGenerator.getCenterPoint();
+        appendElementWithValue(generatorNode, "left", centerPoint.x);
+        appendElementWithValue(generatorNode, "top", centerPoint.y);
+        
+        appendElementWithValue(generatorNode, "isExpanded", !theGenerator.isCompressed);
         theGenerator.visualProperties.forEach(function (visualProperty) {
             var propertyNode = visualProperty.toXML();
-            markNode.append(propertyNode);
+            generatorNode.append(propertyNode);
         });
-        return markNode;
+        return generatorNode;
     },
     initialize: function (options) {
         options || (options = {});

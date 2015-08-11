@@ -1,4 +1,4 @@
-var LOG = false;
+var LOG = true;
 
 OPERATOR_TEXT_FILL = "rgb(226, 227, 227)";
 DEFAULT_OPERATOR_FILL = "rgb(226, 227, 227)";

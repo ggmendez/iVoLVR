@@ -129,8 +129,10 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
         this.toXML = function () {
             // Calling the nomal expand method from the prototype definition
             var markNode = SVGPathGroupMark.prototype.toXML.call(this);
-            appendElementWithValue(markNode, "finalScaleX", this.finalScaleX);
-            appendElementWithValue(markNode, "finalScaleY", this.finalScaleY);
+//            appendElementWithValue(markNode, "finalScaleX", this.finalScaleX || this.scaleX);
+//            appendElementWithValue(markNode, "finalScaleY", this.finalScaleY || this.scaleY);
+            appendElementWithValue(markNode, "finalScaleX", this.scaleX);
+            appendElementWithValue(markNode, "finalScaleY", this.scaleY);
             return markNode;
         };
 
@@ -190,8 +192,8 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
 
         var theMark = this;
 
-        if (property == 'shape') {
-            if (propertyValue == theMark.shape) {
+        if (property === 'shape') {
+            if (propertyValue === theMark.shape) {
                 return;
             }
 
@@ -203,11 +205,11 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
             setTimeout(function () {
                 changeMarkShape(theMark, propertyValue);
             }, waitingTime);
-        } else if (property == 'label') {
+        } else if (property === 'label') {
 
             this.setLabelProperty(propertyValue);
 
-        } else if (property == 'fill') {
+        } else if (property === 'fill') {
 
             this.setColorProperty(propertyValue);
 
@@ -215,7 +217,7 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
 
             var theNumber = propertyValue.number;
 
-            if (property == 'angle') {
+            if (property === 'angle') {
                 if (LOG)
                     console.log("Original value: " + theNumber);
                 theNumber = theNumber % 360;
