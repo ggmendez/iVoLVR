@@ -10,9 +10,9 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
         options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : -0));
 
-        options.side = options.side ||((options.values && options.values.side) ? options.values.side.number : null);
-        
-        
+        options.side = options.side || ((options.values && options.values.side) ? options.values.side.number : null);
+
+
         if (options.side !== null && typeof options.side !== 'undefined') {
             options.width = Math.abs(options.side);
             options.height = options.width;
@@ -360,10 +360,10 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
             options.ry = theMark.height / 2;
 
         } else if (newShapeType === RECTANGULAR_MARK) {
-            
+
             options.width = rectangular_mark_default_width;
             options.height = theMark.area / options.width;
-            
+
         } else if (newShapeType === CIRCULAR_MARK || newShapeType === ELLIPTIC_MARK) {
 
             options.area = theMark.area;
@@ -406,13 +406,17 @@ function addSquaredMarkToCanvas(options) {
         squaredMark.expand(true);
     }
 
+    if (options.xmlID) {
+        squaredMark.executePendingConnections();
+        if (!options.shouldExpand) {
+            canvas.renderAll();
+        }
+    }
+
     setTimeout(function () {
         if (options.locatorXmlID) {
             var locator = getFabricElementByXmlID(options.locatorXmlID);
             locator.reportMarkAvailable(squaredMark);
-        }
-        if (options.xmlID) {
-            squaredMark.executePendingConnections();
         }
     }, waitingTime);
 

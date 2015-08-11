@@ -856,7 +856,7 @@ function addVisualValueToCanvas(options) {
 function createVisualVariableFromXMLNode(visualValueXmlNode) {
 
     var options = {
-        xmlID: Number(visualValueXmlNode.attr('xmlID')),
+        xmlID: visualValueXmlNode.attr('xmlID'),
     };
 
     var children = visualValueXmlNode.children();
@@ -889,14 +889,14 @@ function createVisualVariableFromXMLNode(visualValueXmlNode) {
     console.log(options);
 
     var visualValue = CreateDataTypeFromValue(options.value);
-
     visualValue.xmlID = options.xmlID;
     visualValue.top = options.top;
     visualValue.left = options.left;
+    addToConnectableElements(visualValue);
 
     canvas.add(visualValue);
     visualValue.animateBirth(false, null, null, true);
-    
+            
     visualValue.executePendingConnections();
 
     return visualValue;

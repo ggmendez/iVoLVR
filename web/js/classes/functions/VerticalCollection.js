@@ -42,7 +42,7 @@
         // Checking all the pending connections that might have not been executed before due to the loading order
         executePendingConnections(theCollection.xmlID);
 
-        // The same is made for the visual properties of the mark, as they can also be connected
+        // Connecting the visual values that are part of this collection
         theCollection.visualValues.forEach(function (visualValue) {
             executePendingConnections(visualValue.xmlID);
         });
@@ -1784,9 +1784,10 @@ function addVerticalCollection(options) {
     console.log("%cAdding NEW VERTICAL COLLECTION", "background: rgb(244,131,32); color: white;");
 
     options.fill = rgb(226, 227, 227);
-    options.stroke = 'black';
+    options.stroke = 'black';    
 
     var theCollection = new VerticalCollection(options);
+    addToConnectableElements(theCollection);
 
     canvas.add(theCollection);
 
@@ -1801,21 +1802,25 @@ function addVerticalCollection(options) {
             theCollection.visualValues.forEach(function (visualValue) {
                 var xmlID = options.xmlIDs ? options.xmlIDs[i] : null;
                 var relativeY = options.relativeYs ? (isNaN(options.relativeYs[i]) ? null : options.relativeYs[i]) : null;
+                
                 visualValue.xmlID = xmlID;
+                addToConnectableElements(visualValue);
+                
                 visualValue.relativeY = relativeY;
                 visualValue.left = theCollection.getCenterPoint().x;
                 visualValue.top = theCollection.getCenterPoint().y;
                 i++;
             });
+            
+            theCollection.executePendingConnections();
+            
         }
     }
 
     if (options.shouldExpand) {
         theCollection.expand(true);
-    }
-
-    if (options.xmlID) {
-        theCollection.executePendingConnections();
+    } else {
+        canvas.renderAll();
     }
 
     return theCollection;
@@ -1876,7 +1881,7 @@ function createVerticalCollectionOptionsFromXMLNode(collectionXmlNode) {
     var options = {
         markAsSelected: false,
         animateAtBirth: false,
-        xmlID: Number(collectionXmlNode.attr('xmlID'))
+        xmlID: collectionXmlNode.attr('xmlID')
     };
 
     var children = collectionXmlNode.children();
@@ -1905,7 +1910,7 @@ function createVerticalCollectionOptionsFromXMLNode(collectionXmlNode) {
                 var relativeY = Number(valueNode.attr('relativeY'));
                 relativeYs.push(relativeY);
 
-                var xmlID = Number(valueNode.attr('xmlID'));
+                var xmlID = valueNode.attr('xmlID');
                 xmlIDs.push(xmlID);
             });
 

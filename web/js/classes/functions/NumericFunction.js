@@ -306,7 +306,8 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
                         theFunction.setPositionByOrigin(new fabric.Point(point.x, point.y), originX, originY);
 
-                        if (theFunction.xCoordinates) {
+                        if (theFunction.coordinatesX) {
+//                        if (theFunction.xCoordinates) {
                             theFunction.generateScaledCoordinates('x');
                         }
 
@@ -337,7 +338,8 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
                         theFunction.setPositionByOrigin(new fabric.Point(point.x, point.y), originX, originY);
 
-                        if (theFunction.yCoordinates) {
+//                        if (theFunction.yCoordinates) {
+                        if (theFunction.coordinatesX) {
                             theFunction.generateScaledCoordinates('y');
                         }
 
@@ -818,22 +820,28 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
     },
     updateLimits: function () {
         var theFunction = this;
-        if (theFunction.xCoordinates) {
+//        if (theFunction.xCoordinates) {
+        if (theFunction.coordinatesX) {
             var f = function (numericValue) {
                 return numericValue.number;
             };
-            var minXNumber = Math.min.apply(Math, theFunction.xCoordinates.map(f));
-            var maXNumber = Math.max.apply(Math, theFunction.xCoordinates.map(f));
+//            var minXNumber = Math.min.apply(Math, theFunction.xCoordinates.map(f));
+//            var maXNumber = Math.max.apply(Math, theFunction.xCoordinates.map(f));
+            var minXNumber = Math.min.apply(Math, theFunction.coordinatesX.map(f));
+            var maXNumber = Math.max.apply(Math, theFunction.coordinatesY.map(f));
             var minXValue = createNumericValue(minXNumber);
             var maxXValue = createNumericValue(maXNumber);
             theFunction.minX.setValue(minXValue);
             theFunction.maxX.setValue(maxXValue);
         }
-        if (theFunction.yCoordinates) {
-            var minYNumber = Math.min.apply(Math, theFunction.yCoordinates.map(function (yValue) {
+//        if (theFunction.yCoordinates) {
+        if (theFunction.coordinatesY) {
+//            var minYNumber = Math.min.apply(Math, theFunction.yCoordinates.map(function (yValue) {
+            var minYNumber = Math.min.apply(Math, theFunction.coordinatesY.map(function (yValue) {
                 return yValue.number;
             }));
-            var maYNumber = Math.max.apply(Math, theFunction.yCoordinates.map(function (yValue) {
+//            var maYNumber = Math.max.apply(Math, theFunction.yCoordinates.map(function (yValue) {
+            var maYNumber = Math.max.apply(Math, theFunction.coordinatesY.map(function (yValue) {
                 return yValue.number;
             }));
             var minYValue = createNumericValue(minYNumber);
@@ -862,13 +870,15 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
     generateScaledCoordinates: function (coordinate) {
         var theFunction = this;
         if (coordinate === 'x') {
-            theFunction.scaledX = theFunction.scaleCoordiates(theFunction.xCoordinates, 'x');
+//            theFunction.scaledX = theFunction.scaleCoordiates(theFunction.xCoordinates, 'x');
+            theFunction.scaledX = theFunction.scaleCoordiates(theFunction.coordinatesX, 'x');
             if (LOG)
                 console.log("Scaling X coordinates:");
             if (LOG)
                 console.log(theFunction.scaledX);
         } else {
-            theFunction.scaledY = theFunction.scaleCoordiates(theFunction.yCoordinates, 'y');
+//            theFunction.scaledY = theFunction.scaleCoordiates(theFunction.yCoordinates, 'y');
+            theFunction.scaledY = theFunction.scaleCoordiates(theFunction.coordinatesY, 'y');
             if (LOG)
                 console.log("Scaling Y coordinates:");
             if (LOG)
@@ -915,13 +925,17 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             return false;
         }
 
-        theFunction.xCoordinates = xCoordinates;
-        theFunction.yCoordinates = yCoordinates;
+//        theFunction.xCoordinates = xCoordinates;
+//        theFunction.yCoordinates = yCoordinates;
+        theFunction.coordinatesX = xCoordinates;
+        theFunction.coordinatesY = yCoordinates;
 
         theFunction.updateLimits();
         theFunction.updateInputOutputVisibilityStatus();
-        theFunction.scaledX = theFunction.scaleCoordiates(theFunction.xCoordinates, 'x');
-        theFunction.scaledY = theFunction.scaleCoordiates(theFunction.yCoordinates, 'y');
+//        theFunction.scaledX = theFunction.scaleCoordiates(theFunction.xCoordinates, 'x');
+//        theFunction.scaledY = theFunction.scaleCoordiates(theFunction.yCoordinates, 'y');
+        theFunction.scaledX = theFunction.scaleCoordiates(theFunction.coordinatesX, 'x');
+        theFunction.scaledY = theFunction.scaleCoordiates(theFunction.coordinatesY, 'y');
         theFunction.addFunctionPath(shouldAnimate);
 
         return true;
@@ -1697,7 +1711,7 @@ function createNumericFunctionFromXMLNode(functionXmlNode) {
 
             var propertyValue = createValueFromXMLNode(child);
             var which = child.attr('which');
-            var xmlID = Number(child.attr('xmlID'));
+            var xmlID = child.attr('xmlID');
             options.xmlIDs[which] = xmlID;
             options.values[which] = propertyValue;
 

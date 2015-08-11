@@ -958,16 +958,6 @@
 
 
 //            canvas.forEachObject(function (object) {
-//
-//                if (object.isCircularMark) {
-//                    console.log("+++++++++++++++++++++++++++++++++++++++++++++++");
-//                    var XMLNode = generateXMLNodeString(object);
-//                    console.log(XMLNode);
-//                    console.log("+++++++++++++++++++++++++++++++++++++++++++++++");
-//                }
-//
-//
-//
 //                /*if (object.isMark) {
 //                    console.log("*****************************************");
 //                    for (var property in object) {

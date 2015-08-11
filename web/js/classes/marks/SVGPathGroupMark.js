@@ -433,13 +433,17 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
                 svgPathGroupMark.expand(true);
             }
 
+            if (options.xmlID) {
+                svgPathGroupMark.executePendingConnections();
+                if (!options.shouldExpand) {
+                    canvas.renderAll();
+                }
+            }
+
             setTimeout(function () {
                 if (options.locatorXmlID) {
                     var locator = getFabricElementByXmlID(options.locatorXmlID);
                     locator.reportMarkAvailable(svgPathGroupMark);
-                }
-                if (options.xmlID) {
-                    svgPathGroupMark.executePendingConnections();
                 }
             }, waitingTime);
 

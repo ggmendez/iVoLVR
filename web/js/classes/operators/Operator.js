@@ -10,6 +10,11 @@ var Operator = fabric.util.createClass(fabric.Circle, {
         return from;
     },
     
+    executePendingConnections: function () {
+        var theOperator = this;
+        executePendingConnections(theOperator.xmlID);
+    },
+    
     initialize: function (options) {
         options || (options = {});
 
@@ -545,6 +550,8 @@ function addOperator(options) {
     if (options.markAsSelected) {
         canvas.setActiveObject(operator);
     }
+    
+    return operator;
 
 }
 
@@ -554,7 +561,7 @@ function createOperatorFromXMLNode(operatorXmlNode) {
 
     var options = {
         type: operatorXmlNode.attr('type'),
-        xmlID: Number(operatorXmlNode.attr('xmlID')),
+        xmlID: operatorXmlNode.attr('xmlID'),
         animateAtBirth: true
     };
 
@@ -586,7 +593,14 @@ function createOperatorFromXMLNode(operatorXmlNode) {
 
 //    console.log("options to create a new OPERATOR from an XML node");
 //    console.log(options);
+   
 
-    return addOperator(options);
+    var operator = addOperator(options);
+    
+    addToConnectableElements(operator);
+    
+    operator.executePendingConnections();
+    
+    return operator;
 
 }

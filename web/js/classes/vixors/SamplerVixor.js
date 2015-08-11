@@ -1164,7 +1164,7 @@ function createColorSamplerOptionsFromXMLNode(colorSamplerXmlNode) {
 
     var options = {
         extractorType: colorSamplerXmlNode.attr('type'),
-        xmlID: Number(colorSamplerXmlNode.attr('xmlID')),
+        xmlID: colorSamplerXmlNode.attr('xmlID'),
         imageXmlID: Number(colorSamplerXmlNode.attr('imageXmlID')),
         xmlIDs: {},
         values: {}
@@ -1187,7 +1187,7 @@ function createColorSamplerOptionsFromXMLNode(colorSamplerXmlNode) {
             var valueXmlNode = $(child.find('value')[0]);
             var propertyValue = createValueFromXMLNode(valueXmlNode);
 
-            var xmlID = Number(child.attr('xmlID'));
+            var xmlID = child.attr('xmlID');
             var attribute = child.attr('attribute');
 
             options.values[attribute] = propertyValue;
@@ -1704,10 +1704,10 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
 //        drawRectAt(point, "black");
 //    });
 //    
-    if (LOG) {
-        console.log("cleanedCoordinates: ");
-        console.log(cleanedCoordinates);
-    }
+//    if (LOG) {
+//        console.log("cleanedCoordinates: ");
+//        console.log(cleanedCoordinates);
+//    }
 
 
     var finalPolygon = null;

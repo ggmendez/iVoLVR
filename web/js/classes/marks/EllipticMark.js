@@ -9,9 +9,9 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
         options.angle = -(options.angle || ((options.values && options.values.angle) ? options.values.angle.number : 0));
-        
-        options.rx = options.rx ||((options.values && options.values.rx) ? options.values.rx.number : null);
-        options.ry = options.ry ||((options.values && options.values.ry) ? options.values.ry.number : null);
+
+        options.rx = options.rx || ((options.values && options.values.rx) ? options.values.rx.number : null);
+        options.ry = options.ry || ((options.values && options.values.ry) ? options.values.ry.number : null);
 
         if (options.rx !== null && options.ry !== null && typeof options.rx !== 'undefined' && typeof options.ry !== 'undefined') {
             var area = Math.PI * Math.abs(options.rx) * Math.abs(options.ry);
@@ -356,14 +356,19 @@ function addEllipticMarkToCanvas(options) {
         ellipticMark.expand(true);
     }
 
+    if (options.xmlID) {
+        ellipticMark.executePendingConnections();
+        if (!options.shouldExpand) {
+            canvas.renderAll();
+        }
+    }
+
     setTimeout(function () {
         if (options.locatorXmlID) {
             var locator = getFabricElementByXmlID(options.locatorXmlID);
             locator.reportMarkAvailable(ellipticMark);
         }
-        if (options.xmlID) {
-            ellipticMark.executePendingConnections();
-        }
+
     }, waitingTime);
 
     return ellipticMark;

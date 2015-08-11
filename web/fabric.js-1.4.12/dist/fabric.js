@@ -9759,7 +9759,9 @@ fabric.Pattern = fabric.util.createClass(/** @lends fabric.Pattern.prototype */ 
       this.viewportTransform[5] += before.y - after.y;
       this.renderAll();
       for (var i = 0, len = this._objects.length; i < len; i++) {
-        this._objects[i].setCoords();
+        if (this._objects[i] !== null) { // MODIFICATION BY GONZALO
+          this._objects[i].setCoords();  
+        }
       }
       return this;
     },
@@ -9786,7 +9788,9 @@ fabric.Pattern = fabric.util.createClass(/** @lends fabric.Pattern.prototype */ 
       this.viewportTransform[5] = -point.y;
       this.renderAll();
       for (var i = 0, len = this._objects.length; i < len; i++) {
-        this._objects[i].setCoords();
+        if (this._objects[i] !== null) { // MODIFICATION BY GONZALO
+          this._objects[i].setCoords();  
+        }
       }
       return this;
     },
@@ -12465,7 +12469,9 @@ fabric.PatternBrush = fabric.util.createClass(fabric.PencilBrush, /** @lends fab
           i = 0,
           len = allObjects.length;
       for ( ; i < len; i++) {
-        allObjects[i].set('active', false);
+        if (allObjects[i] !== null) {
+          allObjects[i].set('active', false); 
+        }        
       }
       this._discardActiveGroup();
       this._discardActiveObject();

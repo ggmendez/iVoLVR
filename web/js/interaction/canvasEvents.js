@@ -29,6 +29,9 @@
 
 
 function canvasObjectSelected(option) {
+    
+    
+    
     if (LOG) console.log("canvasObjectSelected");
 
     var event = option.e;
@@ -39,6 +42,15 @@ function canvasObjectSelected(option) {
     canvasDeselectAllObjects();
 
     var selectedObject = option.target;
+    
+    
+    if (selectedObject.xmlID) {
+        
+        console.log("%c" + "Object with ID " + selectedObject.xmlID + " selected", "background: rgb(0,148,158); color: white;");
+    }
+    
+    
+    
 
     if (selectedObject) {
         if (selectedObject.isWidget) {

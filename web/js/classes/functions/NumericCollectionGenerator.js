@@ -6,10 +6,8 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
         console.log("%c" + "Executing pending connections of loaded NumericCollectionGenerator. xmlID = " + theGenerator.xmlID, "background: rgb(243,128,146); color: black;");
         executePendingConnections(theGenerator.xmlID);
         theGenerator.visualProperties.forEach(function (visualProperty) {
-            
-            console.log("%c" + "\t visualProperty.xmlID = " + visualProperty.xmlID, "background: rgb(243,128,146); color: black;");
-            
             executePendingConnections(visualProperty.xmlID);
+//            console.log("%c" + "\t visualProperty.xmlID = " + visualProperty.xmlID, "background: rgb(243,128,146); color: black;");
         });
     },
     setXmlIDs: function (from) {
@@ -27,11 +25,15 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
             var theGenerator = this;
             addToConnectableElements(theGenerator);
             
+            
+            console.log("5858585858585858585858 connectableElements:");
+            console.log(connectableElements);
+            
             for (var attribute in xmlIDs) {
                 var xmlID = xmlIDs[attribute];
                 var visualProperty = theGenerator.getVisualPropertyByAttributeName(attribute);
                 if (visualProperty !== null) {
-                    visualProperty.xmlID = xmlID;
+                    visualProperty.xmlID = xmlID;                                        
                     addToConnectableElements(visualProperty);
                 }
             }
@@ -1098,17 +1100,17 @@ function addNumericCollectionGeneratorToCanvas(options) {
 
 }
 
-function createNumericCollectionGeneratorFromXMLNode(markXmlNode) {
+function createNumericCollectionGeneratorFromXMLNode(generatorXmlNode) {
 
     var options = {
         markAsSelected: false,
         animateAtBirth: false,
-        xmlID: Number(markXmlNode.attr('xmlID')),
+        xmlID: generatorXmlNode.attr('xmlID'),
         xmlIDs: {},
         values: {}
     };
 
-    var children = markXmlNode.children();
+    var children = generatorXmlNode.children();
     children.each(function () {
         var child = $(this);
         var tagName = this.tagName;
@@ -1118,7 +1120,7 @@ function createNumericCollectionGeneratorFromXMLNode(markXmlNode) {
             var valueXmlNode = $(child.find('value')[0]);
             var propertyValue = createValueFromXMLNode(valueXmlNode);
 
-            var xmlID = Number(child.attr('xmlID'));
+            var xmlID = child.attr('xmlID');
             var attribute = child.attr('attribute');
 
             options.values[attribute] = propertyValue;

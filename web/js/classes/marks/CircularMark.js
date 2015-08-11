@@ -1,15 +1,13 @@
 var CircularMark = fabric.util.createClass(fabric.Circle, {
     type: 'circularMark',
     isCircularMark: true,
-    
-    
     initialize: function (options) {
         options || (options = {});
 
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
 
-        options.radius = options.radius ||((options.values && options.values.radius) ? options.values.radius.number : null);
+        options.radius = options.radius || ((options.values && options.values.radius) ? options.values.radius.number : null);
         if (options.radius !== null && typeof options.radius !== 'undefined') {
             options.area = Math.PI * Math.abs(options.radius) * Math.abs(options.radius);
         } else {
@@ -17,7 +15,7 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
             var radius = Math.sqrt(options.area / Math.PI);
             options.radius = Math.abs(radius);
         }
-        
+
         console.log("0000000000000000000000000000000000000000000000000000 CIRCULAR MARK options:");
         console.log(options);
 
@@ -61,12 +59,12 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
-        if (updater == 'radius') {
-            if (updatedProperty == 'area') {
+        if (updater === 'radius') {
+            if (updatedProperty === 'area') {
                 return Math.PI * value * value;
             }
-        } else if (updater == 'area') {
-            if (updatedProperty == 'radius') {
+        } else if (updater === 'area') {
+            if (updatedProperty === 'radius') {
                 return Math.sqrt(value / Math.PI);
             }
         }
@@ -293,14 +291,19 @@ function addCircularMarkToCanvas(options) {
         circularMark.expand(true);
     }
 
+    if (options.xmlID) {
+        circularMark.executePendingConnections();
+        if (!options.shouldExpand) {
+            canvas.renderAll();
+        }
+    }
+
     setTimeout(function () {
         if (options.locatorXmlID) {
             var locator = getFabricElementByXmlID(options.locatorXmlID);
             locator.reportMarkAvailable(circularMark);
         }
-        if (options.xmlID) {
-            circularMark.executePendingConnections();
-        }
+
     }, waitingTime);
 
     return circularMark;

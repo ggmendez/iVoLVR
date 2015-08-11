@@ -1,135 +1,6 @@
 var connectableElements = null;
 var pendingConnections = null;
 
-function createObjectFromXMLString(XMLNode) {
-
-    var options = {};
-    var deserializerFunction = null;
-
-    console.log(XMLNode[0]);
-    var children = XMLNode.children();
-    children.each(function () {
-
-        var child = $(this);
-
-//        console.log(child);
-//        console.log(this.tagName);
-//        console.log(child.text());
-//
-//        console.log("child.attr('type'):");
-//        console.log();
-
-        var property = this.tagName;
-        var value = child.text();
-
-        if (property.includes(".")) {
-            var parts = property.split(".");
-            property = parts[1]; // the name after the dot is the name of the attribute
-        }
-
-        if (property === "deserializer") {
-
-            console.log("deserializerFunction: " + value);
-            deserializerFunction = eval(value);
-
-            console.log("deserializerFunction:");
-            console.log(deserializerFunction);
-
-        } else {
-
-            var type = child.attr('type');
-
-            if (type === "number") {
-                value = Number(value);
-            } else if (type === "boolean") {
-                value = value === "true";
-            } else if (type === "array") {
-
-                value = new Array();
-
-                console.log("%c" + "An array has been found as child of a saved object!", "background: #9cf6f6; color: black;");
-//                console.log("this:");
-//                console.log(this);
-
-                var elements = child.children('element');
-                elements.each(function () {
-                    var xmlElement = $(this);
-                    var elementType = xmlElement.attr('type');
-                    if (elementType === "number") {
-                        value.push(Number(xmlElement.text()));
-                    }
-
-
-                });
-
-
-
-
-//                console.log("elements:");
-//                console.log(elements);
-
-            }
-
-            options[property] = value;
-        }
-
-
-
-
-
-    });
-
-    console.log("options:");
-    console.log(options);
-
-    deserializerFunction(options);
-
-}
-
-function generateXMLNodeString(object) {
-
-
-    var serializableProperties = object.serializableProperties;
-    var XMLNode = createXMLElement(object.xmlNodeName);
-    appendElementWithValue(XMLNode, 'deserializer', object.deserializer.name);
-    appendElementWithValue(XMLNode, 'serialID', object.serialID);
-    serializableProperties.forEach(function (property) {
-
-        if (property.includes(".")) {
-
-            var parts = property.split(".");
-            var property1 = parts[0];
-            var property2 = parts[1];
-
-            var childObject = object[property1];
-
-            print("childObject:", "#a77337", "white");
-            console.log(childObject);
-
-            print("property1: " + property1, "#a7377c", "white");
-            print("property2: " + property2, "#a7377c", "white");
-
-            if (childObject) {
-
-                var value = childObject[property2];
-                if (value) {
-                    appendElementWithValue(XMLNode, property, value);
-                }
-
-            }
-
-        } else {
-            appendElementWithValue(XMLNode, property, object[property]);
-        }
-
-
-
-    });
-
-    var xmlText = (new XMLSerializer()).serializeToString(XMLNode[0]);
-    return xmlText;
-}
-
 function generateProjectXML() {
 
     var root = createXMLElement('iVoLVR_Canvas');
@@ -164,10 +35,33 @@ function generateProjectXML() {
 //    return xmlText;
 }
 
-function processCanvasXMLNode(canvasNode) {
+function populatePendingConnections(canvasNode) {
+    
+    console.log("%c" + "Populating pending connections dictionary...", "font-weight: bold; font-size: 15px; background: black; color: rgb(244,138,162);");
 
-//    pendingConnections = new Array();
-//    connectableElements = new Array();
+    var connectorsNodes = canvasNode.children('connector');
+    connectorsNodes.each(function () {
+        var connectorNode = $(this);
+
+        var fromID = connectorNode.attr('from');
+        var toID = connectorNode.attr('to');
+
+        var firstLevelArray = pendingConnections[fromID];
+
+        if (!firstLevelArray) {
+            pendingConnections[fromID] = new Object();
+        }
+
+        pendingConnections[fromID][toID] = connectorNode;
+
+    });
+    
+    console.log("%c" + "Connections loaded:", "font-weight: bold; font-size: 15px; background: black; color: rgb(244,138,162);");
+    console.log(pendingConnections);
+
+}
+
+function processCanvasXMLNode(canvasNode) {
 
     pendingConnections = new Object();
     connectableElements = new Object();
@@ -196,6 +90,11 @@ function processCanvasXMLNode(canvasNode) {
 //    canvas.setZoom(newZoom);
 //    canvas.absolutePan(new fabric.Point(panX, panY));
 
+
+    // All connections should be loaded before anything else so that, as new elements are added,
+    // their connect to others objects that are available on the canvas
+    populatePendingConnections(canvasNode);
+
     var children = canvasNode.children();
 
     if (LOG) {
@@ -203,8 +102,8 @@ function processCanvasXMLNode(canvasNode) {
         console.log(children);
     }
 
-    console.log("currentZoom: " + currentZoom);
-    console.log("newZoom: " + newZoom);
+//    console.log("currentZoom: " + currentZoom);
+//    console.log("newZoom: " + newZoom);
 
     var duration = 1300;
 
@@ -232,7 +131,7 @@ function processCanvasXMLNode(canvasNode) {
         endValue: newZoom,
         duration: duration,
         onChange: function (value) {
-//            console.log(value);
+            console.log(value);
             canvas.setZoom(value);
             canvas.absolutePan(new fabric.Point(tempPanX, tempPanY));
         },
@@ -242,7 +141,6 @@ function processCanvasXMLNode(canvasNode) {
         }
     });
 
-    var connectors = new Array();
     var marks = new Array();
     var locators = new Array();
     var images = new Array();
@@ -316,27 +214,9 @@ function processCanvasXMLNode(canvasNode) {
 
             createMapperFromXMLNode(child);
 
-        } else if (tagName === "connector") {
-
-//            connectors.push(child);
-
-            var fromID = child.attr('from');
-            var toID = child.attr('to');
-
-            var firstLevelArray = pendingConnections[fromID];
-
-            if (!firstLevelArray) {
-                pendingConnections[fromID] = new Array();
-            }
-
-            pendingConnections[fromID][toID] = child;
-//            
-//            pendingConnections.push(child);
-
         }
 
     });
-
 
     images.forEach(function (imageNode) {
         var image = importImageFromXMLNode(imageNode);
@@ -359,7 +239,7 @@ function processCanvasXMLNode(canvasNode) {
 //        createConnectorFromXMLNode(connectorNode);
 //    });
 
-    var totalPendingConnections = getSize(pendingConnections);
+    var totalPendingConnections = getObjectLength(pendingConnections);
     console.log("%c" + "There are " + totalPendingConnections + " PENDING connections!", "font-weight: bold; background: #0afff9; color: black;");
 
 }
@@ -404,35 +284,71 @@ function executePendingConnections(objectXmlID) {
     // outgoingConnections
     var fromID = objectXmlID;
     var outgoingConnections = pendingConnections[fromID];
-    for (var toID in outgoingConnections) {
-        var connection = outgoingConnections[toID];
-        var success = createConnectorFromXMLNode(connection);
-        if (success) {
-            delete outgoingConnections[toID];
+
+    var totalOutgoingConnections = getObjectLength(outgoingConnections);
+
+    if (totalOutgoingConnections > 0) {
+
+        console.log("%c" + "Total outgoing connections found for object with ID: " + fromID, "background: yellow; color: black;");
+        console.log(totalOutgoingConnections);
+
+        for (var toID in outgoingConnections) {
+            var connection = outgoingConnections[toID];
+            var success = createConnectorFromXMLNode(connection);
+            if (success) {
+                delete outgoingConnections[toID];
+            }
         }
+
+        var stillToBeConnected = getObjectLength(outgoingConnections);
+
+        if (stillToBeConnected === 0) {
+            console.log("%c" + "ALL outgoing connections performed for object with ID: " + fromID, "background: yellow; color: black;");
+            delete pendingConnections[fromID];
+        } else {
+            console.log("%c" + "Still " + stillToBeConnected + " outgoing connections PENDING for object with ID: " + fromID, "background: blue; color: white;");
+        }
+
+    } else {
+        console.log("%c" + "There are no outgoing connections for the object with ID: " + fromID, "background: green; color: black;");
     }
 
     for (var fromID in pendingConnections) {
         var incommingConnections = pendingConnections[fromID];
         for (var toID in incommingConnections) {
             if (toID === objectXmlID) {
+
                 var connection = incommingConnections[toID];
+
+                console.log("%c" + "One INCOMING connection found for object with ID " + objectXmlID + " from object " + fromID, "font-size: 15px; font-weight: bold; background: rgb(113,181,202); color: black;");
+
                 var success = createConnectorFromXMLNode(connection);
+
                 if (success) {
+
+                    console.log("%c" + "One INCOMING connection performed for object with ID " + objectXmlID + " from object " + fromID, "background: yellow; color: black;");
+
                     delete incommingConnections[toID];
+
+                    // If all the connections of this object has been done already, it should be removed
+                    if (getObjectLength(incommingConnections) === 0) {
+                        delete pendingConnections[fromID];
+                        console.log("%c" + "ALL outgoing connections performed for object with ID " + fromID + ". Some of them were pending.", "background: rgb(249,0,217); color: white;");
+                    }
+
                 }
             }
         }
     }
 
-    var totalPendingConnections = getSize(pendingConnections);
-    console.log("%c" + "There are " + totalPendingConnections + " PENDING connections!", "font-weight: bold; background: #0afff9; color: black;");
-
-    console.log("%c" + "Current state of connectableElements pool:", "background: rgb(255,25,47); color: white;");
-    console.log(connectableElements);
-
-
-
+    var totalPendingConnections = getObjectLength(pendingConnections);
+    if (totalPendingConnections > 0) {
+        console.log("%c" + "There are " + totalPendingConnections + " PENDING connections!", "background: #0afff9; color: black;");
+        console.log("%c" + "Current state of pendingConnections pool:", "background: rgb(255,25,47); color: white;");
+        console.log(pendingConnections);
+    } else {
+        console.log("%c" + "All connections done!", "font-size: 20px; font-weight: bold; background: #f2ff75; color: black;");
+    }
 }
 
 

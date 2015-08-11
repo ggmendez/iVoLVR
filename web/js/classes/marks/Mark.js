@@ -1323,14 +1323,14 @@ var Mark = function () {
     this.associateEvents = function () {
         var theMark = this;
         theMark.on({
-            'mouseover': function (options) {
-                if (LOG) {
-                    console.log("Mouse over a mark!");
-                }
-            },
+//            'mouseover': function (options) {
+//                if (LOG) {
+////                    console.log("Mouse over a mark!");
+//                }
+//            },
             'mouseout': function (options) {
                 if (LOG) {
-                    console.log("Mouse out of a mark!");
+//                    console.log("Mouse out of a mark!");
                 }
                 this.deactivateCopyingMode(); // TODO: Should this be here? 
             },
@@ -1895,7 +1895,6 @@ function createMarkFromXMLNode(markXmlNode) {
 
     var options = {
         markType: markXmlNode.attr('shape'),
-//        xmlID: Number(markXmlNode.attr('xmlID')),
         xmlID: markXmlNode.attr('xmlID'),
         locatorXmlID: Number(markXmlNode.attr('locatorXmlID')),
         xmlIDs: {},
@@ -1913,14 +1912,7 @@ function createMarkFromXMLNode(markXmlNode) {
             var propertyValue = createValueFromXMLNode(valueXmlNode);
 
             var xmlID = child.attr('xmlID');
-            
-//            var xmlID = Number(child.attr('xmlID'));
             var attribute = child.attr('attribute');
-
-            if (LOG) {
-                console.log(attribute + ":");
-                console.log(propertyValue);
-            }
 
             options.values[attribute] = propertyValue;
             options.xmlIDs[attribute] = xmlID;

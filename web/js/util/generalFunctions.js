@@ -2065,7 +2065,7 @@ function findPotentialDestination(point, allowedTypes) {
         var object = canvas.item(i);
         for (var j = 0; j < allowedTypes.length; j++) {
             var type = allowedTypes[j];
-            if (object[type]) {
+            if (object && type && object[type]) {
 
                 //  The current object is, indeed, of one of the required types
                 var topLeft = object.getPointByOrigin('left', 'top');
@@ -6349,7 +6349,7 @@ function createImportedImageOptionsFromXMLNode(imageXmlNode) {
 
     var options = {
         id: imageXmlNode.attr('id'),
-        xmlID: Number(imageXmlNode.attr('xmlID')),
+        xmlID: imageXmlNode.attr('xmlID'),
     };
 
     var children = imageXmlNode.children();
@@ -6374,7 +6374,7 @@ function createImportedImageOptionsFromXMLNode(imageXmlNode) {
                 var extractor = createExtractorOptionsFromXMLNode(valueNode);
                 extractorsOptions.push(extractor);
 
-                var xmlID = Number(valueNode.attr('xmlID'));
+                var xmlID = valueNode.attr('xmlID');
                 xmlIDs.push(xmlID);
             });
 
@@ -6420,10 +6420,12 @@ function bringToFront(object) {
 }
 
 function addToConnectableElements(object) {
-    connectableElements[object.xmlID] = object;
+    if (object.xmlID) {
+        connectableElements[object.xmlID] = object;
+    }
 }
 
-function getSize(object) {
+function getObjectLength(object) {
     var size = 0, key;
     for (key in object) {
         if (object.hasOwnProperty(key))

@@ -512,7 +512,7 @@ function createNumberGeneratorFromXMLNode(functionXmlNode) {
 
             var propertyValue = createValueFromXMLNode(child);
             var which = child.attr('which');
-            var xmlID = Number(child.attr('xmlID'));
+            var xmlID = child.attr('xmlID');
             options.xmlIDs[which] = xmlID;
             options.values[which] = propertyValue;
 

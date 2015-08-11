@@ -1736,7 +1736,7 @@ function createLocatorFromXMLNode(locatorXmlNode) {
     var options = {
         markAsSelected: false,
         animateAtBirth: false,
-        xmlID: Number(locatorXmlNode.attr('xmlID')),
+        xmlID: locatorXmlNode.attr('xmlID'),
         selectedMarkXmlID: Number(locatorXmlNode.attr('selectedMarkXmlID'))
     };
 

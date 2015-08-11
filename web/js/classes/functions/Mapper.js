@@ -270,8 +270,14 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         theMapper.topElements.push(inCollection);
         canvas.add(inCollection);
 
+        
+
         var inCollectionOptions = options.inCollectionOptions;
         if (inCollectionOptions) {
+            
+            inCollection.xmlID = inCollectionOptions.xmlID;
+            addToConnectableElements(inCollection);
+            
             var values = inCollectionOptions.values;
             if (values && values.length > 0) {
                 inCollection.setValues(values, true);
@@ -280,7 +286,10 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
                     inCollection.visualValues.forEach(function (visualValue) {
                         var xmlID = inCollectionOptions.xmlIDs ? inCollectionOptions.xmlIDs[i] : null;
                         var relativeY = inCollectionOptions.relativeYs ? inCollectionOptions.relativeYs[i] : null;
+
                         visualValue.xmlID = xmlID;
+                        addToConnectableElements(visualValue);
+
                         visualValue.relativeY = relativeY;
                         visualValue.left = inCollection.getCenterPoint().x;
                         visualValue.top = inCollection.getCenterPoint().y;
@@ -308,6 +317,10 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
         var outCollectionOptions = options.outCollectionOptions;
         if (outCollectionOptions) {
+
+            outCollection.xmlID = outCollectionOptions.xmlID;
+            addToConnectableElements(outCollection);
+
             var values = outCollectionOptions.values;
             if (values && values.length > 0) {
                 outCollection.setValues(values, true);
@@ -316,7 +329,10 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
                     outCollection.visualValues.forEach(function (visualValue) {
                         var xmlID = outCollectionOptions.xmlIDs ? outCollectionOptions.xmlIDs[i] : null;
                         var relativeY = outCollectionOptions.relativeYs ? outCollectionOptions.relativeYs[i] : null;
+
                         visualValue.xmlID = xmlID;
+                        addToConnectableElements(visualValue);
+
                         visualValue.relativeY = relativeY;
                         visualValue.left = outCollection.getCenterPoint().x;
                         visualValue.top = outCollection.getCenterPoint().y;
@@ -343,6 +359,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         if (options) {
             inputPoint.value = options.input;
             inputPoint.xmlID = options.xmlIDs ? options.xmlIDs.input : null;
+            addToConnectableElements(inputPoint);
         }
 
         var outputPointPath = paths['output'].r;
@@ -359,6 +376,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         if (options) {
             outputPoint.value = options.output;
             outputPoint.xmlID = options.xmlIDs ? options.xmlIDs.output : null;
+            addToConnectableElements(outputPoint);
         }
 
     },
@@ -850,7 +868,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
                         var outputValue = theMapper.computeOutput();
                         theMapper.outputPoint.setValue(outputValue, false);
                     }
-                    
+
                     theMapper.inputPoint.updateConnectorsPositions();
                     theMapper.outputPoint.updateConnectorsPositions();
                     canvas.renderAll();
@@ -1150,7 +1168,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
 
         var newDistance = getProportionalDistance(firstVisualValue.value.color, secondVisualValue.value.color, value.color);
-        
+
         console.log("%c" + "newDistance: " + newDistance, "background: rgb(167,51,15); color: white;");
 
 //        console.log("newDistance:" + newDistance);
@@ -1196,8 +1214,8 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         /*drawRectAt(firstVisualValue.getCenterPoint(), 'green');
          drawRectAt(secondVisualValue.getCenterPoint(), 'red');*/
 
-         
-         console.log("%c" + "newYCoordinate: " + newYCoordinate, "background: rgb(167,51,15); color: white;");
+
+        console.log("%c" + "newYCoordinate: " + newYCoordinate, "background: rgb(167,51,15); color: white;");
 
         return newYCoordinate;
 
@@ -1381,6 +1399,7 @@ function addMapper(options) {
     console.log("%c" + "adding a MAPPER:", "background: rgb(235,34,41); color: white;");
 
     var theMapper = new Mapper(options);
+
     canvas.add(theMapper);
     setTimeout(theMapper.bringTopElementsToFront(), 50);
 
@@ -1402,10 +1421,11 @@ function addMapper(options) {
     }
 
     if (options.xmlID) {
+        console.log("options.xmlID:");
+        console.log(options.xmlID);
+        addToConnectableElements(theMapper);
         theMapper.executePendingConnections();
     }
-
-
 
     return theMapper;
 
@@ -1415,7 +1435,7 @@ function createMapperOptionsFromXMLNode(mapperXmlNode) {
 
     var options = {
         markAsSelected: false,
-        xmlID: Number(mapperXmlNode.attr('xmlID')),
+        xmlID: mapperXmlNode.attr('xmlID'),
         xmlIDs: {}
     };
 
@@ -1430,7 +1450,7 @@ function createMapperOptionsFromXMLNode(mapperXmlNode) {
         if (tagName === 'verticalCollection') {
 
             var which = child.attr('which');
-            var xmlID = Number(child.attr('xmlID'));
+            var xmlID = child.attr('xmlID');
             var collection = createVerticalCollectionOptionsFromXMLNode(child);
             options[which + "Options"] = collection;
             options.xmlIDs[which] = xmlID;
@@ -1438,7 +1458,7 @@ function createMapperOptionsFromXMLNode(mapperXmlNode) {
         } else if (tagName === 'value') {
 
             var which = child.attr('which');
-            var xmlID = Number(child.attr('xmlID'));
+            var xmlID = child.attr('xmlID');
 
             if (type === 'array') {
                 value = createArrayFromXMLNode(child);

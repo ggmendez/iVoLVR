@@ -807,12 +807,21 @@ function createConnectorFromXMLNode(connectorNode) {
 //    var toID = Number(connectorNode.attr('to'));
     var fromID = connectorNode.attr('from');
     var toID = connectorNode.attr('to');
+    
+    console.log("%c" + "Attempting new connection between " + fromID + " and " + toID, "font-weight: bold; font-size: 15px; background: black; color: rgb(240,205,90);");
 
 //    var source = getFabricElementByXmlID(fromID);
 //    var destination = getFabricElementByXmlID(toID);
     
     var source = connectableElements[fromID];
     var destination = connectableElements[toID];
+    
+    if (!source || typeof source === 'undefined') {
+        console.log("%c" + "Source NOT found!", "font-weight: bold; font-size: 15px; background: black; color: rgb(215,240,90);");
+    }
+    if (!destination || typeof destination === 'undefined') {
+        console.log("%c" + "Destination NOT found!", "font-weight: bold; font-size: 15px; background: black; color: rgb(215,240,90);");
+    }
     
 //    console.log("%c" + "source:", "background: black; color: rgb(240,205,90);");
 //    console.log(source);
@@ -826,24 +835,31 @@ function createConnectorFromXMLNode(connectorNode) {
         var strokeWidth = Number(connectorNode.attr('strokeWidth'));
         var filledArrow = connectorNode.attr('filledArrow') === 'true';
         var opacity = Number(connectorNode.attr('opacity'));
+        
+        var x1 = source.left;
+        var y1 = source.top;
+        var x2 = destination.left;
+        var y2 = destination.top;
+        
+//        console.log("%c x1: " + x1, "background: rgb(149,121,205); color: black;");
+//        console.log("%c y1: " + y1, "background: rgb(149,121,205); color: black;");
+//        console.log("%c x2: " + x2, "background: rgb(149,121,205); color: black;");
+//        console.log("%c y2: " + y2, "background: rgb(149,121,205); color: black;");
 
         var connector = new Connector({
             source: source,
-            x1: source.left,
-            y1: source.top,
+            x1: x1,
+            y1: y1,
             destination: destination,
-            x2: destination.left,
-            y2: destination.top,
+            x2: x2,
+            y2: y2,
             arrowColor: arrowColor,
             filledArrow: filledArrow,
             strokeWidth: strokeWidth,
             opacity: opacity
         });
         
-//        console.log("%c source.left: " + source.left, "background: rgb(255,192,36); color: white;");
-//        console.log("%c source.top: " + source.top, "background: rgb(255,192,36); color: white;");
-//        console.log("%c destination.left: " + destination.left, "background: rgb(255,192,36); color: white;");
-//        console.log("%c destination.top: " + destination.top, "background: rgb(255,192,36); color: white;");
+        
 
         source.outConnectors.push(connector);
         destination.inConnectors.push(connector);
@@ -862,8 +878,8 @@ function createConnectorFromXMLNode(connectorNode) {
         
         console.log("%c" + "Connection created from " + fromID + " to " + toID, "background: rgb(255,192,36); color: white;");
         
-        console.log("%c" + "Current state of pendingConnections pool:", "background: rgb(255,192,36); color: white;");
-        console.log(pendingConnections);
+//        console.log("%c" + "Current state of pendingConnections pool:", "background: rgb(255,192,36); color: white;");
+//        console.log(pendingConnections);
         
         
         return true;

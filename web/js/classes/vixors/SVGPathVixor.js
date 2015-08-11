@@ -637,7 +637,7 @@ function createColorRegionOptionsExtractorFromXMLNode(extractorXmlNode) {
 
     var options = {
         extractorType: extractorXmlNode.attr('type'),
-        xmlID: Number(extractorXmlNode.attr('xmlID')),
+        xmlID: extractorXmlNode.attr('xmlID'),
         imageXmlID: Number(extractorXmlNode.attr('imageXmlID')),
         xmlIDs: {},
         values: {}
@@ -653,7 +653,7 @@ function createColorRegionOptionsExtractorFromXMLNode(extractorXmlNode) {
             var valueXmlNode = $(child.find('value')[0]);
             var propertyValue = createValueFromXMLNode(valueXmlNode);
 
-            var xmlID = Number(child.attr('xmlID'));
+            var xmlID = child.attr('xmlID');
             var attribute = child.attr('attribute');
 
             if (LOG) {
