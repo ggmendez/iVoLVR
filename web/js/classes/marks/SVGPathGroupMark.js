@@ -442,7 +442,7 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
 
             setTimeout(function () {
                 if (options.locatorXmlID) {
-                    var locator = getFabricElementByXmlID(options.locatorXmlID);
+                    var locator = connectableElements[options.locatorXmlID];
                     locator.reportMarkAvailable(svgPathGroupMark);
                 }
             }, waitingTime);
@@ -481,7 +481,7 @@ function addSVGPathGroupMarkToCanvas(paths, options) {
 
         setTimeout(function () {
             if (options.locatorXmlID) {
-                var locator = getFabricElementByXmlID(options.locatorXmlID);
+                var locator = connectableElements[options.locatorXmlID];
                 locator.reportMarkAvailable(svgPathGroupMark);
             }
             if (options.xmlID) {

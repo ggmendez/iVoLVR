@@ -392,7 +392,7 @@ function addFatFontMarkToCanvas(options) {
 
     setTimeout(function () {
         if (options.locatorXmlID) {
-            var locator = getFabricElementByXmlID(options.locatorXmlID);
+            var locator = connectableElements[options.locatorXmlID];
             locator.reportMarkAvailable(fatFontMark);
         }
         if (options.xmlID) {

@@ -1,6 +1,13 @@
 var Locator = fabric.util.createClass(fabric.Circle, {
     type: 'Locator',
     isLocator: true,
+    setXmlIDs: function (from) {
+        var theLocator = this;
+        theLocator.xmlID = from++;                
+        theLocator.xAxisArrow.xmlID = from++;
+        theLocator.yAxisArrow.xmlID = from++;
+        return from;
+    },
     toXML: function () {
 
         var theLocator = this;
@@ -136,7 +143,13 @@ var Locator = fabric.util.createClass(fabric.Circle, {
 
         this.setCoords();
 
-
+        addToConnectableElements(this);
+        addToConnectableElements(this.xAxisArrow);
+        addToConnectableElements(this.yAxisArrow);
+        
+        
+        
+        
         // This is now done by each mark as they are added to the canvas
         /*if (options.marks) {
          var marks = new Array();
@@ -148,26 +161,24 @@ var Locator = fabric.util.createClass(fabric.Circle, {
          }*/
 
     },
-    
-    executePendingConnections: function () {        
+    executePendingConnections: function () {
         var theLocator = this;
         executePendingConnections(theLocator.xmlID);
     },
-    
     reportMarkAvailable: function (mark) {
-        
+
         var theLocator = this;
-        
+
         console.log("%c" + "New MARK AVAILABLE (xmlID: " + mark.xmlID + ") for locator with xmlID " + theLocator.xmlID, "background: rgb(235,86,41); color: white;");
-                                
+
         theLocator.addChild(mark, null, false, false, false);
         theLocator.reportedMarks++;
-        
+
         if (mark.xmlID === theLocator.selectedMarkXmlID) {
             theLocator.selectedMark = mark;
-        }        
-        
-        if (theLocator.reportedMarks === theLocator.marks.length) {                                                        
+        }
+
+        if (theLocator.reportedMarks === theLocator.marks.length) {
             if (theLocator.shouldExpand) {
                 theLocator.expand(true);
             }
@@ -176,7 +187,7 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         mark.configurePositionVisualProperties();
         repositionWidget(theLocator, mark.xVisualProperty);
         repositionWidget(theLocator, mark.yVisualProperty);
-        
+
         this.executePendingConnections();
 
     },
@@ -1777,7 +1788,7 @@ function createLocatorFromXMLNode(locatorXmlNode) {
     console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! options to create the saved LOCATOR");
     console.log(options);
 
-    
+
     options.shouldExpand = options.isExpanded;
 
     var theLocator = addLocator(options);

@@ -419,7 +419,7 @@ function loadProjectXML(XMLString) {
 //
 //}
 
-function getFabricElementByXmlID(xmlID) {
+/*function getFabricElementByXmlID(xmlID) {
     var canvasObjects = canvas.getObjects();
     for (var i = 0; i < canvasObjects.length; i++) {
         var object = canvas.item(i);
@@ -496,4 +496,4 @@ function getFabricElementByXmlID(xmlID) {
     console.log("%c" + "!!!!!!!!!!!! xmlID " + xmlID + " not FOUND!!!", "background: red; color: yellow;");
 
     return null;
-}
+}*/

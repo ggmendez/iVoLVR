@@ -357,7 +357,7 @@ function addSVGPathMarkToCanvas(path, options) {
 
     setTimeout(function () {
         if (options.locatorXmlID) {
-            var locator = getFabricElementByXmlID(options.locatorXmlID);
+            var locator = connectableElements[options.locatorXmlID];
             locator.reportMarkAvailable(svgPathMark);
         }
         if (options.xmlID) {
