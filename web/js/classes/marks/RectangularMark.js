@@ -90,7 +90,7 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
 
         var theMark = this;
 
-        if (property == 'shape') {
+        if (property === 'shape') {
 
             var waitingTime = 250;
             if (theMark.isCompressed) {
@@ -102,21 +102,26 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
             }, waitingTime);
 
 
-        } else if (property == 'label') {
+        } else if (property === 'label') {
 
             this.setLabelProperty(propertyValue);
 
-        } else if (property == 'fill') {
+        } else if (property === 'fill') {
 
-            this.setColorProperty(propertyValue);
+            if (shouldAnimate) {
+                this.animateColorProperty(propertyValue);
+            } else {
+                this.setColorProperty(propertyValue);
+            }
 
-        } else if (property == 'width' || property == 'height' || property == 'area') {
+
+        } else if (property === 'width' || property === 'height' || property === 'area') {
 
 
             var changedVisualProperty = theMark.getVisualPropertyByAttributeName(property);
             var propertiesToUpdate = changedVisualProperty.updatesTo;
 
-            if (property == 'area') {
+            if (property === 'area') {
 
 
                 var numericWidth = propertyValue.number;

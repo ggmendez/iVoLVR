@@ -30,6 +30,7 @@ var Mark = function () {
     this.set('hasBorders', false);
     this.set('hasControls', false);
     this.set('hasRotatingPoint', false);
+
     this.set('lockScalingX', true);
     this.set('lockScalingY', true);
     this.set('lockRotation', true);
@@ -336,6 +337,8 @@ var Mark = function () {
     this.applySelectedStyle = function (selectConnectors) {
 
         var theMark = this;
+        theMark.isSelected = true;
+        
         if (LOG)
             console.log("At the mark");
         theMark.stroke = widget_selected_stroke_color;
@@ -354,6 +357,8 @@ var Mark = function () {
     this.applyUnselectedStyle = function (unSelectConnectors) {
 
         var theMark = this;
+        theMark.isSelected = false;
+        
         theMark.stroke = this.colorForStroke;
         theMark.strokeWidth = this.originalStrokeWidth;
         theMark.strokeDashArray = [];
@@ -642,14 +647,73 @@ var Mark = function () {
     };
 
     this.setColorProperty = function (colorValue) {
+
         var theMark = this;
         if (!colorValue.isColorData) {
             return;
         }
         var fillColor = "#" + colorValue.color.toHex();
-        var rgbColor = hexToRGB(fillColor);
-        var strokeColor = darkenrgb(rgbColor.r, rgbColor.g, rgbColor.b);
-        theMark.changeColors(fillColor, strokeColor);
+
+        console.log("fillColor");
+        console.log(fillColor);
+
+        var fabricColor = new fabric.Color(fillColor);
+        var source = fabricColor.getSource();
+        var r = source[0];
+        var g = source[1];
+        var b = source[2];
+
+        var newFill = rgb(r, g, b);
+        var newStroke = darkenrgb(r, g, b);
+
+        theMark.changeColors(newFill, newStroke);
+
+    };
+
+    this.animateColorProperty = function (colorValue) {
+
+        console.log(colorValue);
+
+        var theMark = this;
+        if (!colorValue.isColorData) {
+            return;
+        }
+
+        var source = colorValue.color.getSource();
+        var r = source[0];
+        var g = source[1];
+        var b = source[2];
+
+        var duration = 500;
+        var currentFill = null;
+        var currentStroke = null;
+
+        var newStroke = darkenrgb(r, g, b);
+        var oldStroke = theMark.colorForStroke;
+        fabric.util.animateColor(oldStroke, newStroke, duration, {
+            onChange: function (val) {
+                currentStroke = val;
+            }
+        });
+
+        var newFill = rgb(r, g, b);
+        var oldFill = theMark.getFill();
+        fabric.util.animateColor(oldFill, newFill, duration, {
+            onChange: function (val) {
+                currentFill = val;
+                theMark.changeColors(currentFill, currentStroke);
+                
+                if (theMark.isSelected) {
+                    theMark.stroke = widget_selected_stroke_color;
+                }
+                
+                canvas.renderAll();
+            }
+        });
+
+//        var rgbColor = hexToRGB(fillColor);
+//        var strokeColor = darkenrgb(rgbColor.r, rgbColor.g, rgbColor.b);
+//        theMark.changeColors(fillColor, strokeColor);
     };
 
     this.changeColors = function (fill, stroke) {

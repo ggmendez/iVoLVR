@@ -46,7 +46,7 @@ var VisualProperty = function () {
                 if (theVisualProperty && theVisualProperty.canvas) {
                     theVisualProperty.remove();
                 }
-                
+
             }, waitingTime);
         }
 
@@ -328,7 +328,7 @@ var VisualProperty = function () {
         var theVisualProperty = this;
         this.on({
             'doubleTap': function (options) {
-                
+
                 if (theVisualProperty.parentObject && theVisualProperty.parentObject.isSVGPathVixor) {
                     return;
                 }
@@ -1454,8 +1454,6 @@ function showColorChooser(theVisualProperty) {
 
     configurationPanel.append(cancelButton);
 
-
-
     okButton.click(function () {
         if (isRGBColor(selectedColor)) {
 
@@ -1466,11 +1464,15 @@ function showColorChooser(theVisualProperty) {
                 connector.contract();
             }
 
-            theVisualProperty.parentObject.setProperty(theVisualProperty.attribute, colorValue, theVisualProperty);
+            if (theVisualProperty.parentObject && theVisualProperty.parentObject.isMark) {
+                theVisualProperty.parentObject.setProperty(theVisualProperty.attribute, colorValue, theVisualProperty, true);
+            }
+
+
             theVisualProperty.value = colorValue;
 
             theVisualProperty.outConnectors.forEach(function (outConnector) {
-                outConnector.setValue(colorValue, false, false);
+                outConnector.setValue(colorValue, false, true);
             });
 
             setTimeout(function () {

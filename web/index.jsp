@@ -29,13 +29,13 @@
         <script type="text/javascript" src="./js/jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js"></script>
         <script type="text/javascript" src="./js/jquery-ui-1.10.4/js/jquery.path.js"></script>
         <script type="text/javascript" src="./js/kickstart.js"></script>
-        
+
         <!--<script type="text/javascript" src="./fabric.js-1.4.12/dist/fabric.js"></script>-->
-        
+
         <script type="text/javascript" src="./fabric.js-1.6.0-rc.1/dist/fabric.js"></script>
-        
-        
-        
+
+
+
         <script type="text/javascript" src="./js/moment.js"></script>
         <script type="text/javascript" src="./js/alertify.js-0.3.11/lib/alertify.js"></script>
         <script type="text/javascript" src="./js/jquery.ui.touch-punch.min.js"></script>
@@ -142,13 +142,13 @@
                 </a>
                 <ul>
                     <li><a href="javascript:void(0);" onclick="saveProject();"><i id="saveProjectElement" class="fa-save icon-large"></i> Save project</a></li>
-                    
+
                     <li><a href="javascript:loadiVoLVRProject();"><i class="fa-folder-open-o icon-large"></i> Open project</a></li>
-                    
-                    
-                    
-                    
-                    
+
+
+
+
+
                     <li> <input type="file" accept=".xml" id="dataprojectFileInput" name="someProjectfile" onchange="handleDatafiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>                    
                     <li><a href="javascript:void(0);"><i class="fa-lightbulb-o icon-large"></i> Sample projects</a>
                         <ul>
@@ -173,9 +173,9 @@
             <!--------------->
             <li><a href="javascript:void(0);" onclick="onLoad();"><i class="icon-picture fa-2x"></i></a></li>
             <li> <input type="file" accept=".jpeg, .png, .jpg"  id="imageFileInput" name="someFile" onchange="handleImageFiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
-            
+
             <li class="verticalLeftDivider"><a href="javascript:void(0);" onclick="showCameraSignal();"><i id="openCameraButton" class="fa fa-camera fa-2x"></i></a></li>
-            
+
             <li class="verticalLeftDivider"><a href="javascript:readSVGFileAsData();"><i class="fa fa-file-code-o fa-2x"></i></a></li>
             <li> <input type="file" accept=".svg" id="dataSVGFileInput" name="someSVGDataFile" onchange="handleSVGFiles(this.files, false)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
 
@@ -340,6 +340,14 @@
             // create a wrapper around native canvas element (with id="theCanvas")            
             var canvas = new fabric.Canvas('theCanvas', {backgroundColor: "#ffffff", renderOnAddRemove: false});
 
+
+
+
+
+
+
+
+
             // WACOM plugin
             var plugin = document.getElementById('wtPlugin');
             if (LOG)
@@ -365,6 +373,8 @@
             canvas.selectionColor = 'rgba(229,238,244,0.2)';
             canvas.selectionBorderColor = '#7c7064';
             canvas.selectionLineWidth = 3;
+
+            checkForRetinaDisplay();
 
             $("#canvasContainer").on('mousewheel', function (ev) {
                 hideOpenTooltips();
@@ -1140,6 +1150,27 @@
 //            addCollectionGetter(800, 300);
 
 //                addCollectionAttributeSelector(800, 300);
+
+
+
+
+
+
+
+
+
+                
+
+
+
+
+
+
+
+
+
+
+
 
         </script>
 
