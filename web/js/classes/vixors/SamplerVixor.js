@@ -1259,7 +1259,7 @@ function buildAndAddSamplerColor(options) {
 
     var offsetPath = new fabric.Path(options.offsetPolygonPath, {fill: 'rgba(112,112,112,0.5)', stroke: 'black', colorForStroke: 'black', strokeWidth: 2, originalStrokeWidth: 2});
 //    var offsetPath = new fabric.Path(options.offsetPolygonPath, {fill: rgb(198, 198, 198), stroke: '#000000', colorForStroke: '#000000', opacity: 0.75, strokeWidth: 1, originalStrokeWidth: 1});
-    var userPath = new fabric.Path(options.userTracedPath, {fill: '', stroke: 'black', strokeWidth: 1.5});
+    var userPath = new fabric.Path(options.userTracedPath, {fill: 'transparent', stroke: 'black', strokeWidth: 1.5});
 
 
 //    console.log("options.firstPoint:");
@@ -1355,7 +1355,10 @@ function buildAndAddSamplerColor(options) {
         translatedPoints: options.translatedPoints,
         samplingDistance: options.values ? options.values.samplingDistance.number : options.samplingDistance,
         totalSamplingPoints: options.samplingPoints.length,
-        fill: rgb(153, 153, 153),
+        
+        visualPropertyFill: rgb(153, 153, 153),
+        
+        
         parentObject: parentObject,
         untransformedX: options.untransformedX || 0,
         untransformedY: options.untransformedY || 0,
@@ -1715,17 +1718,17 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
 //        return;
 //    }
 
-//    var svgPathString = JSTSPolygonToSVGPath(cleanedPolygon);
+
     var svgPathString = JSTSPolygonToSVGPath(finalPolygon);
-    if (LOG) {
+//    if (LOG) {
         console.log("svgPathString:");
         console.log(svgPathString);
-    }
+//    }
 
-    if (LOG) {
+//    if (LOG) {
         console.log("drawnPath:");
         console.log(drawnPath);
-    }
+//    }
 
 //    if (!svgPathString || svgPathString === '') {
 //        if (drawnPath.remove) {

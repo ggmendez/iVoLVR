@@ -203,7 +203,7 @@ function canvasPathCreated(options) {
 
         createSampleVixorFromPath(drawnPath, false);
 
-        drawnPath.remove();
+//        drawnPath.remove();
         
     } else if (canvas.isScribbleMode) {
 

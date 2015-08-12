@@ -1076,7 +1076,8 @@ var ReadableAndWritableVisualProperty = fabric.util.createClass(fabric.Path, {
 
         this[options.dataTypeProposition] = true;
 
-        this.set('fill', options.fill || options.parentObject.fill || options.parentObject.visualPropertyFill);
+//        this.set('fill', options.fill || options.parentObject.fill || options.parentObject.visualPropertyFill);
+        this.set('fill', options.parentObject.visualPropertyFill || options.parentObject.fill || options.fill);
 
         this.set('stroke', options.visualPropertyStroke || options.parentObject.visualPropertyStroke || options.parentObject.colorForStroke);
         this.set('colorForStroke', options.visualPropertyStroke || options.parentObject.visualPropertyStroke || options.parentObject.colorForStroke);

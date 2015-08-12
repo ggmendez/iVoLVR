@@ -29,8 +29,13 @@
         <script type="text/javascript" src="./js/jquery-ui-1.10.4/js/jquery-ui-1.10.4.min.js"></script>
         <script type="text/javascript" src="./js/jquery-ui-1.10.4/js/jquery.path.js"></script>
         <script type="text/javascript" src="./js/kickstart.js"></script>
-        <script type="text/javascript" src="./fabric.js-1.4.12/dist/fabric.js"></script>
-        <!--<script type="text/javascript" src="./fabric.js-1.5/dist/fabric.js"></script>-->
+        
+        <!--<script type="text/javascript" src="./fabric.js-1.4.12/dist/fabric.js"></script>-->
+        
+        <script type="text/javascript" src="./fabric.js-1.6.0-rc.1/dist/fabric.js"></script>
+        
+        
+        
         <script type="text/javascript" src="./js/moment.js"></script>
         <script type="text/javascript" src="./js/alertify.js-0.3.11/lib/alertify.js"></script>
         <script type="text/javascript" src="./js/jquery.ui.touch-punch.min.js"></script>

@@ -1,85 +1,61 @@
 // The Output mixing defines all the common properties and behaviours that outputs share
 var Vixor = function () {
 
-    this.set('isVixor', true);
-    this.set('hoverCursor', 'move');
-
-    this.set('originX', 'center');
-    this.set('originY', 'center');
-    this.set('transparentCorners', false);
-
-    this.set('perPixelTargetFind', true);
-    this.set('isCompressed', true);
-
-    this.set('showLabel', true);
-
-//   this.set('indent', 2);
-//   this.set('propertiesRadius', 20);
-//   this.set('propertiesSeparation', 60);
-//   this.set('propertiesGap', 5);
-//   this.set('labelGap', 5);
-
-    this.set('indent', 20);
-    this.set('propertiesRadius', 25);
-    this.set('propertiesSeparation', 60);
-    this.set('propertiesGap', 35);
-    this.set('labelGap', 15);
-
-    this.set('coreProperties', new Array());
-
-
-
-//    this.toXML = function () {
-//        var theExtractor = this;
-//        var extractorNode = createXMLElement("extractor");
+//    this.set('isVixor', true);
+//    this.set('hoverCursor', 'move');
 //
-//        addAttributeWithValue(extractorNode, "xmlID", theExtractor.xmlID);
-//        addAttributeWithValue(extractorNode, "type", theExtractor.getExtractorType());
-//        appendElementWithValue(extractorNode, "left", theExtractor.left);
-//        appendElementWithValue(extractorNode, "top", theExtractor.top);
-//                
-//        appendElementWithValue(extractorNode, "untransformedAngle", theExtractor.untransformedAngle);
-//        appendElementWithValue(extractorNode, "untransformedX", theExtractor.untransformedX);
-//        appendElementWithValue(extractorNode, "untransformedY", theExtractor.untransformedY);
-//        appendElementWithValue(extractorNode, "untransformedScaleX", theExtractor.untransformedScaleX);
-//        appendElementWithValue(extractorNode, "untransformedScaleY", theExtractor.untransformedScaleY);
-//        
-//        appendElementWithValue(extractorNode, "scaleX", theExtractor.getScaleX());
-//        appendElementWithValue(extractorNode, "scaleY", theExtractor.getScaleY());
+//    this.set('originX', 'center');
+//    this.set('originY', 'center');
+//    this.set('transparentCorners', false);
 //
-//        appendElementWithValue(extractorNode, "trueColor", theExtractor.trueColor);
-//        appendElementWithValue(extractorNode, "trueColorDarker", theExtractor.trueColorDarker);
-//        appendElementWithValue(extractorNode, "fillColor", theExtractor.fillColor);
+//    this.set('perPixelTargetFind', true);
+//    this.set('isCompressed', true);
 //
-//        appendElementWithValue(extractorNode, "stroke", new fabric.Color(theExtractor.visualProperties[0].stroke).toRgba());
-//        appendElementWithValue(extractorNode, "visualPropertyFill", new fabric.Color(theExtractor.visualProperties[0].fill).toRgba());
-//        appendElementWithValue(extractorNode, "isExpanded", !theExtractor.isCompressed);
-//        if (theExtractor.parentObject && theExtractor.parentObject.isImportedImage) {
-//            appendElementWithValue(extractorNode, "imageXmlID", theExtractor.parentObject.xmlID);
-//        }
-//        theExtractor.visualProperties.forEach(function (visualProperty) {
-//            var propertyNode = visualProperty.toXML();
-//            extractorNode.append(propertyNode);
-//        });
-//        return extractorNode;
-//    };
+//    this.set('showLabel', true);
+//    this.set('indent', 20);
+//    this.set('propertiesRadius', 25);
+//    this.set('propertiesSeparation', 60);
+//    this.set('propertiesGap', 35);
+//    this.set('labelGap', 15);
+//
+//    this.set('coreProperties', new Array());
+
+
+    this.isVixor = true;
+    this.hoverCursor = 'move';
+
+    this.originX = 'center';
+    this.originY = 'center';
+    this.transparentCorners = false;
+
+    this.perPixelTargetFind = true;
+    this.isCompressed = true;
+
+    this.showLabel = true;
+    this.indent = 20;
+    this.propertiesRadius = 25;
+    this.propertiesSeparation = 60;
+    this.propertiesGap = 35;
+    this.labelGap = 15;
+
+    this.coreProperties = new Array();
 
     this.applyXmlIDs = function (xmlIDs) {
-        
+
         var theExtractor = this;
-        
+
         if (xmlIDs) {
             for (var attribute in xmlIDs) {
-                
+
                 var xmlID = xmlIDs[attribute];
-                
+
                 console.log("attribute: " + attribute + " xmlID: " + xmlID);
-                 
+
                 var visualProperty = theExtractor.getVisualPropertyByAttributeName(attribute);
                 if (visualProperty !== null) {
                     visualProperty.xmlID = xmlID;
                     addToConnectableElements(visualProperty);
-                    
+
                 } else {
                     console.log("No visual property found with attribute " + attribute);
                 }
@@ -263,7 +239,7 @@ var Vixor = function () {
             }
         });
     };
-    
+
     this.changeColors = function (fill, stroke) {
         this.fill = fill;
         this.stroke = stroke;
@@ -372,7 +348,7 @@ var Vixor = function () {
         });
 
     };
-    
+
     this.bringElementsToFront = function () {
 
         var theExtractor = this;
@@ -462,10 +438,10 @@ var Vixor = function () {
 
 //        theBackground.bringToFront();
 //        theVixor.bringToFront();
-        
+
         bringToFront(theBackground);
         bringToFront(theVixor);
-        
+
 
         var boundingRectCenterBottom = new fabric.Point(theVixor.left, boundingRect.top + boundingRect.height);
 //        drawRectAt(boundingRectCenterBottom, "green");
@@ -569,10 +545,10 @@ var Vixor = function () {
                 }
             },
             onComplete: function () {
-                
+
                 theVixor.bringElementsToFront();
 
-                if (refreshCanvas) {                    
+                if (refreshCanvas) {
                     canvas.renderAll();
                 }
             }
@@ -852,17 +828,17 @@ var Vixor = function () {
 
 /* Function to add outputs to Canvas*/
 function addVixorToCanvas(vixorType, options) {
-    
+
     if (vixorType === TEXT_RECOGNIZER) {
-        
+
         return addTextualVixorToCanvas(options);
-        
+
     } else if (vixorType === COLOR_REGION_EXTRACTOR) {
-        
+
         return addSVGPathVixorToCanvas(options.thePath, options);
-        
+
     } else if (vixorType === SAMPLER_VIXOR) {
-        
+
         return addSamplerVixorToCanvas(options.thePath, options);
     }
 }
@@ -871,23 +847,23 @@ function addVixorToCanvas(vixorType, options) {
 function createExtractorOptionsFromXMLNode(extractorXmlNode) {
 
     var extractorType = extractorXmlNode.attr('type');
-    
-    
+
+
 
     if (extractorType === RECTANGULAR_VIXOR) {
-        
+
 //        createExtractorFromXMLNode(extractorXmlNode);
 
     } else if (extractorType === TEXT_RECOGNIZER) {
-        
+
         return createTextRecogniserOptionsFromXMLNode(extractorXmlNode);
 
     } else if (extractorType === COLOR_REGION_EXTRACTOR) {
-        
+
         return createColorRegionOptionsExtractorFromXMLNode(extractorXmlNode);
 
     } else if (extractorType === SAMPLER_VIXOR) {
-        
+
         return createColorSamplerOptionsFromXMLNode(extractorXmlNode);
 
     }
@@ -899,19 +875,19 @@ function createExtractorFromXMLNode(extractorXmlNode) {
     var extractorType = extractorXmlNode.attr('type');
 
     if (extractorType === RECTANGULAR_VIXOR) {
-        
+
 //        createExtractorFromXMLNode(extractorXmlNode);
 
     } else if (extractorType === TEXT_RECOGNIZER) {
-        
+
 //        createExtractorFromXMLNode(extractorXmlNode);
 
     } else if (extractorType === COLOR_REGION_EXTRACTOR) {
-        
+
         return createColorRegionExtractorFromXMLNode(extractorXmlNode);
 
     } else if (extractorType === SAMPLER_VIXOR) {
-        
+
         return createColorSamplerFromXMLNode(extractorXmlNode);
 
     }

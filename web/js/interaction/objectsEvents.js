@@ -45,8 +45,8 @@ function objectRotating(option, targetObject) {
 }
 
 function objectScaling(option, targetObject) {
-    if (LOG)
-        console.log("objectScaling");
+//    if (LOG)
+        console.log("objectScaling!!!");
     if (targetObject.type == "importedImage") {
         repositionAllWidgets(targetObject);
     }
