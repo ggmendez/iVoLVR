@@ -96,6 +96,8 @@ var TextualVixor = fabric.util.createClass(fabric.Rect, {
 //        this.specificProperties.push({attribute: "date", readable: true, writable: false, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData'});
 
         this.createVisualProperties();
+        
+        this.applyXmlIDs(options.xmlIDs);
 
         this.applyUnselectedStyle = function () {
             this.stroke = this.colorForStroke;

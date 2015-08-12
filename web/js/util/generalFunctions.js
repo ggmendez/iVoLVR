@@ -4447,6 +4447,10 @@ function getPathLineIntersection(polyline, line) {
 
 function getActualCanvasCenter() {
     var canvasCenter = canvas.getCenter();
+    
+    console.log("************ ----------------- canvasCenter:");
+    console.log(canvasCenter);
+    
     var panningX = canvas.viewportTransform[4];
     var panningY = canvas.viewportTransform[5];
     var actualCanvasCenter = {x: canvasCenter.left - panningX, y: canvasCenter.top - panningY};
@@ -5230,7 +5234,15 @@ function enterFunctionButtonClicked() {
             // user clicked "ok"            
             var canvasActualCenter = getActualCanvasCenter();
             var coordinates = getFunctionCoordinates(str);
-            addNumericFunction(canvasActualCenter.x, canvasActualCenter.y, coordinates.XCoordinates, coordinates.YCoordinates);
+            
+            var options = {
+                left: canvasActualCenter.x,
+                top: canvasActualCenter.y,
+                coordinatesX: coordinates.XCoordinates,
+                coordinatesY: coordinates.YCoordinates
+            };
+            addNumericFunction(options);
+            
         } else {
             // user clicked "cancel"
         }

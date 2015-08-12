@@ -1,6 +1,5 @@
 var NumericFunction = fabric.util.createClass(fabric.Rect, {
     isNumericFunction: true,
-    
     setXmlIDs: function (from) {
         var theFunction = this;
         theFunction.xmlID = from++;
@@ -10,9 +9,11 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         theFunction.maxY.xmlID = from++;
         theFunction.inputPoint.xmlID = from++;
         theFunction.outputPoint.xmlID = from++;
+        theFunction.xValues.xmlID = from++;
+        theFunction.yValues.xmlID = from++;
+
         return from;
     },
-    
     toXML: function () {
 
         var theFunction = this;
@@ -74,7 +75,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         } else {
             alert("Error: A function with no coordinatesX is being saved!");
         }
-        
+
         var coordinatesY = theFunction.coordinatesY;
         if (typeof coordinatesY !== 'undefined') {
             var yCoordinatesNode = createXMLElement("array");
@@ -166,6 +167,33 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
                 theFunction.evaluate(inputValue, false);
             }
         }
+
+
+        if (options.xmlIDs) {
+            addToConnectableElements(this);
+            addToConnectableElements(this.minX);
+            addToConnectableElements(this.maxX);
+            addToConnectableElements(this.minY);
+            addToConnectableElements(this.maxY);
+            addToConnectableElements(this.inputPoint);
+            addToConnectableElements(this.outputPoint);
+            addToConnectableElements(this.xValues);
+            addToConnectableElements(this.yValues);
+            this.executePendingConnections();
+        }
+
+    },
+    executePendingConnections: function () {
+        var theFunction = this;
+        executePendingConnections(theFunction.xmlID);
+        executePendingConnections(theFunction.minX.xmlID);
+        executePendingConnections(theFunction.maxX.xmlID);
+        executePendingConnections(theFunction.minY.xmlID);
+        executePendingConnections(theFunction.maxY.xmlID);
+        executePendingConnections(theFunction.inputPoint.xmlID);
+        executePendingConnections(theFunction.outputPoint.xmlID);
+        executePendingConnections(theFunction.xValues.xmlID);
+        executePendingConnections(theFunction.yValues.xmlID);
     },
     bringTopElementsToFront: function () {
         var theFunction = this;
@@ -397,20 +425,20 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
     },
     createFunctionPath: function () {
         var theFunction = this;
-        
+
 //        if (theFunction.xCoordinates && theFunction.yCoordinates) {
         if (theFunction.coordinatesX && theFunction.coordinatesY) {
-            
-            
+
+
 //            theFunction.scaledX = theFunction.scaleCoordiates(theFunction.xCoordinates, 'x');
 //            theFunction.scaledY = theFunction.scaleCoordiates(theFunction.yCoordinates, 'y');
             var polyline = new Array();
-            
+
 //            var totalXValues = theFunction.xCoordinates.length;
 //            var totalYValues = theFunction.yCoordinates.length;
             var totalXValues = theFunction.coordinatesX.length;
             var totalYValues = theFunction.coordinatesY.length;
-            
+
             var totalIterations = Math.min(totalXValues, totalYValues);
             for (var i = 0; i < totalIterations; i++) {
                 var xValue = theFunction.scaledX[i];
@@ -453,10 +481,10 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             return;
         }
 
-        if (LOG)
+        if (LOG) {
             console.log("SVGPathString:");
-        if (LOG)
             console.log(SVGPathString);
+        }
 
         var functionPath = new fabric.Path(SVGPathString, {
             originX: 'center',
@@ -949,16 +977,16 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
         var theFunction = this;
         if ($.isArray(coordinates)) {
-            
-            
+
+
 
 //            theFunction[coordinate + 'Coordinates'] = coordinates;
 
-            
+
 
             theFunction['coordinates' + coordinate.toUpperCase()] = coordinates;
-            
-            
+
+
 
             if (coordinate === 'y' && (!theFunction.coordinatesX || !theFunction.xValues.inConnectors.length)) {
 //            if (coordinate === 'y' && (!theFunction.xCoordinates || !theFunction.xValues.inConnectors.length)) {
@@ -990,7 +1018,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 
             theFunction.scaledX = theFunction.scaleCoordiates(theFunction.coordinatesX, 'x');
             theFunction.scaledY = theFunction.scaleCoordiates(theFunction.coordinatesY, 'y');
-            
+
             theFunction.addFunctionPath(shouldAnimate);
         }
 
@@ -1549,7 +1577,7 @@ function addNumericFunction(options) {
         }
     }
 
-    if (options.values) {        
+    if (options.values) {
         theFunction.minX.setValue(options.values.minX, true, false);
         theFunction.maxX.setValue(options.values.maxX, true, false);
         theFunction.minY.setValue(options.values.minY, true, false);

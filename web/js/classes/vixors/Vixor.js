@@ -65,7 +65,9 @@ var Vixor = function () {
 //    };
 
     this.applyXmlIDs = function (xmlIDs) {
+        
         var theExtractor = this;
+        
         if (xmlIDs) {
             for (var attribute in xmlIDs) {
                 
@@ -76,6 +78,8 @@ var Vixor = function () {
                 var visualProperty = theExtractor.getVisualPropertyByAttributeName(attribute);
                 if (visualProperty !== null) {
                     visualProperty.xmlID = xmlID;
+                    addToConnectableElements(visualProperty);
+                    
                 } else {
                     console.log("No visual property found with attribute " + attribute);
                 }
@@ -368,6 +372,34 @@ var Vixor = function () {
         });
 
     };
+    
+    this.bringElementsToFront = function () {
+
+        var theExtractor = this;
+
+        if (!theExtractor.isCompressed) {
+
+            bringToFront(theExtractor.backgroundRect);
+
+            theExtractor.visualProperties.forEach(function (visualProperty) {
+                if (visualProperty.canvas) {
+
+                    bringToFront(visualProperty);
+
+                    visualProperty.inConnectors.forEach(function (inConnection) {
+                        bringToFront(inConnection);
+                    });
+                    visualProperty.outConnectors.forEach(function (outConnection) {
+                        bringToFront(outConnection);
+                    });
+                }
+            });
+
+        }
+
+        bringToFront(theExtractor);
+
+    };
 
     this.expand = function (refreshCanvas) {
 
@@ -530,14 +562,17 @@ var Vixor = function () {
                  if (LOG) console.log(theBackground.width);*/
 
                 theBackground.width = newWidth;
+                theVixor.bringElementsToFront();
 
                 if (refreshCanvas) {
                     canvas.renderAll();
                 }
             },
             onComplete: function () {
+                
+                theVixor.bringElementsToFront();
 
-                if (refreshCanvas) {
+                if (refreshCanvas) {                    
                     canvas.renderAll();
                 }
             }

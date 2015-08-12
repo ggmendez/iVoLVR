@@ -216,6 +216,34 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
             });
         };
 
+        this.bringElementsToFront = function () {
+
+            var theSampler = this;
+            if (!theSampler.isCompressed) {
+
+                bringToFront(theSampler.backgroundRect);
+
+                theSampler.visualProperties.forEach(function (visualProperty) {
+                    if (visualProperty.canvas) {
+                        bringToFront(visualProperty);
+                        visualProperty.inConnectors.forEach(function (inConnection) {
+                            bringToFront(inConnection);
+                        });
+                        visualProperty.outConnectors.forEach(function (outConnection) {
+                            bringToFront(outConnection);
+                        });
+                    }
+                });
+
+            }
+            bringToFront(theSampler);
+
+            theSampler.bringSamplingMarksToFront();
+
+            canvas.renderAll();
+
+        };
+
 
 //        var userPathCopy = fabric.util.object.clone(this.item(1));
 
@@ -286,42 +314,6 @@ var SamplerVixor = fabric.util.createClass(fabric.Group, {
 //            samplingMark.bringToFront();
             bringToFront(samplingMark);
         });
-    },
-    bringElementsToFront: function () {
-
-        var theSampler = this;
-
-        //        console.log("%c" + "bringElementsToFront function at COLOR SAMPLER class", "background: #def659; color: black;");
-        if (!theSampler.isCompressed) {
-//            theSampler.backgroundRect.bringToFront();
-
-            bringToFront(theSampler.backgroundRect);
-
-            theSampler.visualProperties.forEach(function (visualProperty) {
-                if (visualProperty.canvas) {
-
-//                    visualProperty.bringToFront();
-                    bringToFront(visualProperty);
-
-                    visualProperty.inConnectors.forEach(function (inConnection) {
-//                        inConnection.bringToFront();
-                        bringToFront(inConnection);
-                    });
-                    visualProperty.outConnectors.forEach(function (outConnection) {
-//                        outConnection.bringToFront();
-                        bringToFront(outConnection);
-                    });
-                }
-            });
-
-        }
-//        theSampler.bringToFront();
-        bringToFront(theSampler);
-
-        theSampler.bringSamplingMarksToFront();
-
-        canvas.renderAll();
-
     },
     onMouseDown: function (options) {
         this.bringElementsToFront();

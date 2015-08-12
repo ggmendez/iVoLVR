@@ -1,14 +1,25 @@
 var NumberGenerator = fabric.util.createClass(fabric.Rect, {
     isNumberGenerator: true,
+    setXmlIDs: function (from) {
+        var theGenerator = this;
+        theGenerator.xmlID = from++;
+        theGenerator.minX.xmlID = from++;
+        theGenerator.maxX.xmlID = from++;
+        theGenerator.outputPoint.xmlID = from++;
+        return from;
+    },
     toXML: function () {
 
         var theNumberGenerator = this;
-        var functionNode = createXMLElement("numberGenerator");
+        var generatorNode = createXMLElement("numberGenerator");
 
-        appendElementWithValue(functionNode, "left", theNumberGenerator.left);
-        appendElementWithValue(functionNode, "top", theNumberGenerator.top);
-        appendElementWithValue(functionNode, "width", theNumberGenerator.width);
-        appendElementWithValue(functionNode, "height", theNumberGenerator.height);
+        appendElementWithValue(generatorNode, "left", theNumberGenerator.left);
+        appendElementWithValue(generatorNode, "top", theNumberGenerator.top);
+        appendElementWithValue(generatorNode, "width", theNumberGenerator.width);
+        appendElementWithValue(generatorNode, "height", theNumberGenerator.height);
+
+        var outputPoint = theNumberGenerator.outputPoint;
+        appendElementWithValue(generatorNode, "xCoordinate", outputPoint.left);
 
         var minXNode = theNumberGenerator.minX.value.toXML();
         var maxXNode = theNumberGenerator.maxX.value.toXML();
@@ -19,19 +30,18 @@ var NumberGenerator = fabric.util.createClass(fabric.Rect, {
         addAttributeWithValue(minXNode, "which", "minX");
         addAttributeWithValue(maxXNode, "which", "maxX");
 
-        functionNode.append(minXNode);
-        functionNode.append(maxXNode);
+        generatorNode.append(minXNode);
+        generatorNode.append(maxXNode);
 
-        var outputPoint = theNumberGenerator.outputPoint;
         var outputValue = outputPoint.value;
         if (typeof outputValue !== 'undefined') {
             var outputNode = outputValue.toXML();
             addAttributeWithValue(outputNode, "xmlID", outputPoint.xmlID);
             addAttributeWithValue(outputNode, "which", "output");
-            functionNode.append(outputNode);
+            generatorNode.append(outputNode);
         }
 
-        return functionNode;
+        return generatorNode;
     },
     initialize: function (options) {
 
@@ -78,8 +88,31 @@ var NumberGenerator = fabric.util.createClass(fabric.Rect, {
         this.addPlayerButtons();
         this.associateEvents();
         this.positionElements(false);
-        this.computeOutput(null, false);
 
+        var xCoordinate = null;
+        if (options.xCoordinate) {
+            xCoordinate = options.xCoordinate;
+            this.outputPoint.left = xCoordinate;
+        }
+
+        this.computeOutput(xCoordinate, false);
+
+        if (options.xmlIDs) {
+            addToConnectableElements(this);
+            addToConnectableElements(this.minX);
+            addToConnectableElements(this.maxX);
+            addToConnectableElements(this.outputPoint);
+
+            this.executePendingConnections();
+        }
+
+    },
+    executePendingConnections: function () {
+        var theGenerator = this;
+        executePendingConnections(theGenerator.xmlID);
+        executePendingConnections(theGenerator.minX.xmlID);
+        executePendingConnections(theGenerator.maxX.xmlID);
+        executePendingConnections(theGenerator.outputPoint.xmlID);
     },
     addPlayerButtons: function () {
 
@@ -491,7 +524,6 @@ function addNumberGenerator(options) {
     blink(theGenerator.maxX, false, 0.3);
     blink(theGenerator.playButton, false, 0.3);
     blink(theGenerator, true, 0.3);
-
 }
 
 
