@@ -1,4 +1,4 @@
- var VerticalCollection = fabric.util.createClass(fabric.Rect, {
+var VerticalCollection = fabric.util.createClass(fabric.Rect, {
     isCollection: true,
     isVerticalCollection: true,
     setXmlIDs: function (from) {
@@ -21,6 +21,14 @@
         var centerPoint = theCollection.typeIcon ? theCollection.typeIcon.getCenterPoint() : theCollection.getCenterPoint();
         appendElementWithValue(collectionNode, "left", centerPoint.x);
         appendElementWithValue(collectionNode, "top", centerPoint.y);
+
+        var topCenter = theCollection.getPointByOrigin('center', 'top');
+        appendElementWithValue(collectionNode, "actualTop", topCenter.y);
+
+        var actualCenter = theCollection.getCenterPoint();
+        appendElementWithValue(collectionNode, "centerX", actualCenter.x);
+        appendElementWithValue(collectionNode, "centerY", actualCenter.y);
+
         appendElementWithValue(collectionNode, "isExpanded", !theCollection.isCompressed);
 
         var valuesNode = createXMLElement("values");
@@ -351,7 +359,7 @@
         }
         return visualValue;
     },
-    positionConnectors: function () {        
+    positionConnectors: function () {
         var theCollection = this;
         updateConnectorsPositions(theCollection);
     },
@@ -363,11 +371,13 @@
         theCollection.setCoords();
         if (theCollection.typeIcon && theCollection.typeIcon.canvas) {
             var topCenter = theCollection.getPointByOrigin('center', 'top');
-            if (theCollection.iconName === "string" || theCollection.iconName === "dateAndTime") {
-                theCollection.typeIcon.setPositionByOrigin(new fabric.Point(topCenter.x, topCenter.y + 40), 'center', 'center');
-            } else {
-                theCollection.typeIcon.setPositionByOrigin(new fabric.Point(topCenter.x, topCenter.y + 40), 'center', 'center');
-            }
+            theCollection.typeIcon.setPositionByOrigin(new fabric.Point(topCenter.x, topCenter.y + 40), 'center', 'center');
+
+//            if (theCollection.iconName === "string" || theCollection.iconName === "dateAndTime") {
+//                theCollection.typeIcon.setPositionByOrigin(new fabric.Point(topCenter.x, topCenter.y + 40), 'center', 'center');
+//            } else {
+//                theCollection.typeIcon.setPositionByOrigin(new fabric.Point(topCenter.x, topCenter.y + 40), 'center', 'center');
+//            }
 
 //            console.log(theCollection.typeIcon.getPointByOrigin('center', 'center'));
 
@@ -450,7 +460,7 @@
                 visualValue.scaleY = valuesFinalScale;
                 visualValue.setCoords();
                 updateConnectorsPositions(visualValue);
-                
+
 //                if (visualValue.relativeY == null) {
                 if ((visualValue.relativeY === null) || (typeof visualValue.relativeY === 'undefined') || isNaN(visualValue.relativeY)) {
                     visualValue.relativeY = visualValue.getPointByOrigin('center', 'top').y - theCollection.getPointByOrigin('center', 'top').y;
@@ -1784,7 +1794,7 @@ function addVerticalCollection(options) {
     console.log("%cAdding NEW VERTICAL COLLECTION", "background: rgb(244,131,32); color: white;");
 
     options.fill = rgb(226, 227, 227);
-    options.stroke = 'black';    
+    options.stroke = 'black';
 
     var theCollection = new VerticalCollection(options);
     addToConnectableElements(theCollection);
@@ -1802,24 +1812,38 @@ function addVerticalCollection(options) {
             theCollection.visualValues.forEach(function (visualValue) {
                 var xmlID = options.xmlIDs ? options.xmlIDs[i] : null;
                 var relativeY = options.relativeYs ? (isNaN(options.relativeYs[i]) ? null : options.relativeYs[i]) : null;
-                
+
                 visualValue.xmlID = xmlID;
                 addToConnectableElements(visualValue);
-                
+
                 visualValue.relativeY = relativeY;
                 visualValue.left = theCollection.getCenterPoint().x;
                 visualValue.top = theCollection.getCenterPoint().y;
                 i++;
             });
-            
+
             theCollection.executePendingConnections();
-            
+
         }
     }
 
     if (options.shouldExpand) {
         theCollection.expand(true);
-    } else {
+
+        setTimeout(function () {
+
+            var actualCenter = new fabric.Point(options.centerX, options.centerY);
+            theCollection.setPositionByOrigin(actualCenter, 'center', 'center');
+            var valueScale = theCollection.mapper ? theCollection.mapper.valueScale : theCollection.valueScale;
+            theCollection.positionElements(valueScale);
+
+        }, 720);
+
+    } else if (options.actualTop !== null && typeof options.actualTop !== 'undefined') {
+
+        theCollection.setPositionByOrigin(new fabric.Point(options.left, options.actualTop), 'center', 'top');
+        theCollection.positionTypeIcon();
+
         canvas.renderAll();
     }
 

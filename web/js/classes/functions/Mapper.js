@@ -28,6 +28,11 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         mapperLocation.y += theMapper.compressedHeight / 2 + theMapper.strokeWidth / 2;
         appendElementWithValue(mapperNode, "left", mapperLocation.x);
         appendElementWithValue(mapperNode, "top", mapperLocation.y);
+        
+        var actualCenter = theMapper.getCenterPoint();
+        appendElementWithValue(mapperNode, "centerX", actualCenter.x);
+        appendElementWithValue(mapperNode, "centerY", actualCenter.y);
+        
         appendElementWithValue(mapperNode, "inputPosition", theMapper.inputPosition);
         appendElementWithValue(mapperNode, "isExpanded", !theMapper.isCompressed);
 
@@ -270,14 +275,12 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         theMapper.topElements.push(inCollection);
         canvas.add(inCollection);
 
-        
-
         var inCollectionOptions = options.inCollectionOptions;
         if (inCollectionOptions) {
-            
+
             inCollection.xmlID = inCollectionOptions.xmlID;
             addToConnectableElements(inCollection);
-            
+
             var values = inCollectionOptions.values;
             if (values && values.length > 0) {
                 inCollection.setValues(values, true);
@@ -298,8 +301,6 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
                 }
             }
         }
-
-
 
         var outCollection = new VerticalCollection({
             isMapperOutCollection: true,
@@ -1282,6 +1283,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
         if (!inputYCoordinate) {
             inputYCoordinate = theMapper.inputPoint.top;
+            theMapper.inputPosition = inputYCoordinate;
         }
 
         // Finding the corresponding value on the outCollection
@@ -1410,15 +1412,31 @@ function addMapper(options) {
         blink(theMapper, true, 0.2);
     }
 
+
     if (options.shouldExpand) {
+
         theMapper.expand(true);
 
         setTimeout(function () {
+            
+            var mapperCenter = new fabric.Point(options.centerX, options.centerY);
+            var inCollectionCenter = new fabric.Point(options.inCollectionOptions.centerX, options.inCollectionOptions.centerY);
+            var outCollectionCenter = new fabric.Point(options.outCollectionOptions.centerX, options.outCollectionOptions.centerY);
+            
+            theMapper.setPositionByOrigin(mapperCenter, 'center', 'center');
+            theMapper.inCollection.setPositionByOrigin(inCollectionCenter, 'center', 'center');
+            theMapper.outCollection.setPositionByOrigin(outCollectionCenter, 'center', 'center');            
+            
             if (options.inputPosition && options.inputPosition !== -1) {
                 theMapper.moveInputPointTo(options.inputPosition, true);
             }
-        }, 750);
+            
+        }, 720);
+
     }
+
+
+
 
     if (options.xmlID) {
         console.log("options.xmlID:");

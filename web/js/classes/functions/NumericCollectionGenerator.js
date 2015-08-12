@@ -48,7 +48,15 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
         appendElementWithValue(generatorNode, "left", centerPoint.x);
         appendElementWithValue(generatorNode, "top", centerPoint.y);
         
+        var topCenter = theGenerator.getPointByOrigin('center', 'top');
+        appendElementWithValue(generatorNode, "actualTop", topCenter.y);
+        
+        var actualCenter = theGenerator.getCenterPoint();
+        appendElementWithValue(generatorNode, "centerX", actualCenter.x);
+        appendElementWithValue(generatorNode, "centerY", actualCenter.y);
+        
         appendElementWithValue(generatorNode, "isExpanded", !theGenerator.isCompressed);
+        
         theGenerator.visualProperties.forEach(function (visualProperty) {
             var propertyNode = visualProperty.toXML();
             generatorNode.append(propertyNode);
@@ -186,7 +194,7 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
     applyUnselectedStyle: function () {
         this.selected = false;
     },
-    addTypeIcon: function (iconName, blinkingFactor) {
+    addTypeIcon: function (iconName, blinkingFactor, doNotBlinkCollection) {
 
 
         var theCollection = this;
@@ -219,7 +227,9 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
         theCollection.positionTypeIcon();
         blink(icon, false, 0.30); // the canvas will be refreshed at some point below this, so no need to refresh it here
 
-        blink(theCollection, theCollection.isCompressed, 0.30);
+        if (!doNotBlinkCollection) {
+            blink(theCollection, theCollection.isCompressed, 0.30);
+        }        
 
         if (!theCollection.isCompressed) {
 
@@ -280,6 +290,7 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
     positionElements: function (valuesFinalScale, intendedNumberOfElements) {
 
         var theCollection = this;
+        theCollection.setCoords();
         var topCenter = theCollection.getPointByOrigin('center', 'top');
 
         theCollection.positionTypeIcon();
@@ -707,23 +718,23 @@ var NumericCollectionGenerator = fabric.util.createClass(fabric.Rect, {
             },
             'moving': function (options) {
 
-                var theCollection = this;
-                theCollection.setCoords();
+                var theCollectionGenerator = this;
+                theCollectionGenerator.setCoords();
 
-                if (theCollection.lockMovementX && theCollection.lockMovementY && !theCollection.mapper && !theCollection.isEmpty()) {
+                if (theCollectionGenerator.lockMovementX && theCollectionGenerator.lockMovementY && !theCollectionGenerator.mapper && !theCollectionGenerator.isEmpty()) {
 
                     var theEvent = options.e;
                     if (theEvent) {
                         var canvasCoords = getCanvasCoordinates(theEvent);
-                        var lastAddedConnector = getLastElementOfArray(theCollection.outConnectors);
+                        var lastAddedConnector = getLastElementOfArray(theCollectionGenerator.outConnectors);
                         lastAddedConnector.set({x2: canvasCoords.x, y2: canvasCoords.y});
                         canvas.renderAll();
                     }
 
                 } else {
-                    var valueScale = theCollection.mapper ? theCollection.mapper.valueScale : theCollection.valueScale;
-                    theCollection.positionElements(valueScale);
-                    theCollection.positionConnectors();
+                    var valueScale = theCollectionGenerator.valueScale;
+                    theCollectionGenerator.positionElements(valueScale);
+                    theCollectionGenerator.positionConnectors();
                 }
 
 
@@ -1092,9 +1103,33 @@ function addNumericCollectionGeneratorToCanvas(options) {
         theCollectionGenerator.executePendingConnections();
     }
 
+//    if (options.shouldExpand) {
+//        theCollectionGenerator.expand(true);
+//    }
+            
+    
     if (options.shouldExpand) {
         theCollectionGenerator.expand(true);
+
+        setTimeout(function () {
+
+            var actualCenter = new fabric.Point(options.centerX, options.centerY);
+            theCollectionGenerator.setPositionByOrigin(actualCenter, 'center', 'center');
+                        
+            var valueScale = theCollectionGenerator.valueScale;
+            theCollectionGenerator.positionElements(valueScale);
+
+        }, 720);
+
+    } else if (options.actualTop !== null && typeof options.actualTop !== 'undefined') {
+
+        theCollectionGenerator.setPositionByOrigin(new fabric.Point(options.left, options.actualTop), 'center', 'top');
+        theCollectionGenerator.positionTypeIcon();
+
+        canvas.renderAll();
     }
+    
+    
 
     return theCollectionGenerator;
 
@@ -1142,8 +1177,7 @@ function createNumericCollectionGeneratorFromXMLNode(generatorXmlNode) {
         }
 
     });
-
-    options.animateAtBirth = !options.isExpanded;
+    
     options.shouldExpand = options.isExpanded;
     options.doNotBlinkCollection = options.isExpanded;
 

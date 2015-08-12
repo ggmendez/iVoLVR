@@ -2746,8 +2746,8 @@ function drawRectAt(point, color, noRefresh) {
 //    if (LOG) console.log("FUNCTION drawRectAt");
     var rect = new fabric.Rect({
         fill: color,
-        width: 5,
-        height: 5,
+        width: 10,
+        height: 10,
         opacity: 0.5,
         stroke: 'transparent',
     });
