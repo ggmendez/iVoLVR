@@ -1271,6 +1271,8 @@ function canvasDoubleTap(hammerEvent) {
             if (LOG) console.log("%cDelegating the double tap event to the tapped object", "background: #00ff00");
 
             objectDoubleTap(hammerEvent, activeObject);
+            
+            
         } else {
             var options = {event: hammerEvent};
             activeObject.trigger('doubleTap', options);

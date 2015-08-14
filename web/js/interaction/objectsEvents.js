@@ -541,9 +541,9 @@ function enableObjectEvents() {
 function objectDoubleTap(theEvent, targetObject) {
 
 
-
-
-
+    if (!canvas.isFloodFillMode) {
+        return;
+    }
 
     if (LOG)
         console.log("objectDoubleTap");

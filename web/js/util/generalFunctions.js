@@ -1,50 +1,50 @@
-(function() {
-  // Calculate an in-between color. Returns a "rgba()" string.
-  // Credit: Edwin Martin <edwin@bitstorm.org>
-  //         http://www.bitstorm.org/jquery/color-animation/jquery.animate-colors.js
-  function calculateColor(begin, end, pos) {
-    var color = 'rgba('
-        + parseInt((begin[0] + pos * (end[0] - begin[0])), 10) + ','
-        + parseInt((begin[1] + pos * (end[1] - begin[1])), 10) + ','
-        + parseInt((begin[2] + pos * (end[2] - begin[2])), 10);
+(function () {
+    // Calculate an in-between color. Returns a "rgba()" string.
+    // Credit: Edwin Martin <edwin@bitstorm.org>
+    //         http://www.bitstorm.org/jquery/color-animation/jquery.animate-colors.js
+    function calculateColor(begin, end, pos) {
+        var color = 'rgba('
+                + parseInt((begin[0] + pos * (end[0] - begin[0])), 10) + ','
+                + parseInt((begin[1] + pos * (end[1] - begin[1])), 10) + ','
+                + parseInt((begin[2] + pos * (end[2] - begin[2])), 10);
 
-    color += ',' + (begin && end ? parseFloat(begin[3] + pos * (end[3] - begin[3])) : 1);
-    color += ')';
-    return color;
-  }
+        color += ',' + (begin && end ? parseFloat(begin[3] + pos * (end[3] - begin[3])) : 1);
+        color += ')';
+        return color;
+    }
 
-  /**
-   * Changes the color from one to another within certain period of time, invoking callbacks as value is being changed.
-   * @memberOf fabric.util
-   * @param {String} fromColor The starting color in hex or rgb(a) format.
-   * @param {String} toColor The starting color in hex or rgb(a) format.
-   * @param {Number} [duration] Duration of change (in ms).
-   * @param {Object} [options] Animation options
-   * @param {Function} [options.onChange] Callback; invoked on every value change
-   * @param {Function} [options.onComplete] Callback; invoked when value change is completed
-   * @param {Function} [options.colorEasing] Easing function. Note that this function only take two arguments (currentTime, duration). Thus the regular animation easing functions cannot be used.
-   */
-  function animateColor(fromColor, toColor, duration, options) {
-    var startColor = new fabric.Color(fromColor).getSource(),
-        endColor = new fabric.Color(toColor).getSource();
+    /**
+     * Changes the color from one to another within certain period of time, invoking callbacks as value is being changed.
+     * @memberOf fabric.util
+     * @param {String} fromColor The starting color in hex or rgb(a) format.
+     * @param {String} toColor The starting color in hex or rgb(a) format.
+     * @param {Number} [duration] Duration of change (in ms).
+     * @param {Object} [options] Animation options
+     * @param {Function} [options.onChange] Callback; invoked on every value change
+     * @param {Function} [options.onComplete] Callback; invoked when value change is completed
+     * @param {Function} [options.colorEasing] Easing function. Note that this function only take two arguments (currentTime, duration). Thus the regular animation easing functions cannot be used.
+     */
+    function animateColor(fromColor, toColor, duration, options) {
+        var startColor = new fabric.Color(fromColor).getSource(),
+                endColor = new fabric.Color(toColor).getSource();
 
-    options = options || {};
+        options = options || {};
 
-    fabric.util.animate(fabric.util.object.extend(options, {
-      duration: duration || 500,
-      startValue: startColor,
-      endValue: endColor,
-      byValue: endColor,
-      easing: function (currentTime, startValue, byValue, duration) {
-        var posValue = options['colorEasing']
-              ? options['colorEasing'](currentTime, duration)
-              : 1 - Math.cos(currentTime / duration * (Math.PI / 2));
-        return calculateColor(startValue, byValue, posValue);
-      }
-    }));
-  }
+        fabric.util.animate(fabric.util.object.extend(options, {
+            duration: duration || 500,
+            startValue: startColor,
+            endValue: endColor,
+            byValue: endColor,
+            easing: function (currentTime, startValue, byValue, duration) {
+                var posValue = options['colorEasing']
+                        ? options['colorEasing'](currentTime, duration)
+                        : 1 - Math.cos(currentTime / duration * (Math.PI / 2));
+                return calculateColor(startValue, byValue, posValue);
+            }
+        }));
+    }
 
-  fabric.util.animateColor = animateColor;
+    fabric.util.animateColor = animateColor;
 
 })();
 
@@ -3133,14 +3133,23 @@ function deActivateFilledMarkDrawingMode() {
 }
 
 function activatePanningMode() {
+    
+    applyActiveMenuButtonStyle($("#panningModeActivatorLink"));
+    
+    // All of the following are mutually exclusive with the panning mode
+    applyInactiveMenuButtonStyle($("#panningModeDeActivatorLink"));
+    applyInactiveMenuButtonStyle($("#multipleColorRegionsButton"));
+    applyInactiveMenuButtonStyle($("#groupColorRegionButton"));
+    
     canvas.currentPan1FingerendOperation = PANNING_OPERATION;
     canvas.activePanningMode = true;
     canvas.defaultCursor = "pointer";
-    $("#panningModeActivatorLink").css("background-color", "#fefefe");
-    $("#panningModeActivatorLink").css("border-color", "#000");
-
-    $("#panningModeDeActivatorLink").css("background-color", "");
-    $("#panningModeDeActivatorLink").css("border-color", "");
+    
+//    $("#panningModeActivatorLink").css("background-color", "#fefefe");
+//    $("#panningModeActivatorLink").css("border-color", "#000");
+//
+//    $("#panningModeDeActivatorLink").css("background-color", "");
+//    $("#panningModeDeActivatorLink").css("border-color", "");
 
 }
 
@@ -3288,6 +3297,116 @@ function activateScribbleMode(makeSingleRegion) {
 
 
 }
+
+function applySelectableStates() {
+    canvas.forEachObject(function (object) {
+        if (object.previousSelectableState && object.previousEventedState) {
+            object.selectable = object.previousSelectableState;
+            object.evented = object.previousEventedState;
+        }
+    });
+}
+
+
+
+function getOtherButtons(category, buttonName) {
+    var buttons = systemButtons[category];
+    var results = new Array();
+    buttons.forEach(function (name) {
+        if (name !== buttonName) {
+            results.push(name);
+        }
+    });
+    return results;
+}
+
+
+
+function colorRegionButtonClicked(button) {
+
+    var clickedButton = $(button);
+    var isActive = clickedButton.data('isActive');
+    var buttonID = clickedButton.attr('id');
+
+    var otherButtonsIDs = getOtherButtons('colorRegions', buttonID);
+
+    if (isActive) {
+
+        applyInactiveMenuButtonStyle(clickedButton);
+
+        if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
+            activatePanningMode();
+        } else {
+            deActivatePanningMode();
+        }
+
+    } else {
+        applyActiveMenuButtonStyle(clickedButton);
+        otherButtonsIDs.forEach(function (id) {
+            applyInactiveMenuButtonStyle($("#" + id));
+        });
+    }
+
+    if (buttonID === 'floodFillButton') {
+
+        canvas.isScribbleMode = false;
+        canvas.isDrawingMode = false;
+        canvas.isFloodFillMode = true;
+
+    } else {
+        
+        // Nor the panning or the disconnecting mode should be active here
+        
+        applyInactiveMenuButtonStyle($("#panningModeActivatorLink"));
+        applyInactiveMenuButtonStyle($("#panningModeDeActivatorLink"));
+        
+        canvas.freeDrawingBrush.color = rgb(238, 189, 62);
+        canvas.freeDrawingBrush.width = 5;
+
+        canvas.currentPan1FingerendOperation = canvas.activePanningMode ? PANNING_OPERATION : DISCONNECTION_OPERATION;
+
+        canvas.isScribbleMode = true;
+        canvas.isDrawingMode = true;
+        canvas.isFloodFillMode = false;
+        canvas.makeSingleRegion = buttonID === 'groupColorRegionButton';
+        
+    }
+
+}
+
+
+
+
+
+
+
+
+function deactivateFloodFillMode() {
+
+    applySelectableStates();
+
+    canvas.isScribbleMode = false;
+    canvas.isDrawingMode = false;
+
+    applyActiveMenuButtonStyle($("#scribbleDectivator"));
+    applyInactiveMenuButtonStyle($("#scribbleActivator1"));
+    applyInactiveMenuButtonStyle($("#scribbleActivator2"));
+
+    canvas.defaultCursor = 'default';
+
+    if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
+        activatePanningMode();
+    } else {
+        deActivatePanningMode();
+    }
+}
+
+
+
+
+
+
+
 
 function deactivateScribbleMode() {
 

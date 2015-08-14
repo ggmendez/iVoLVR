@@ -199,21 +199,21 @@
             <!--------------------->
             <!-- COLOR REGIONS EXTRACTORS -->
             <!--------------------->
-            <li><a id="scribbleDectivator" href="javascript:void(0);" onclick="deactivateScribbleMode();"><i class="fa fa-magic fa-2x"></i></a></li>
-            <li class="verticalLeftDivider"><a id="scribbleActivator1" href="javascript:void(0);" onclick="activateScribbleMode(false);"><i class="fa fa-pencil fa-2x"></i></a></li>
-            <li class="verticalLeftDivider verticalRightDivider2"><a id="scribbleActivator2" href="javascript:void(0);" onclick="activateScribbleMode(true);"><i class="fa fa-paint-brush fa-2x"></i></a></li>
+            <!--            <li><a id="scribbleDectivator" href="javascript:void(0);" onclick="deactivateScribbleMode();"><i class="fa fa-magic fa-2x"></i></a></li>
+                        <li class="verticalLeftDivider"><a id="scribbleActivator1" href="javascript:void(0);" onclick="activateScribbleMode(false);"><i class="fa fa-pencil fa-2x"></i></a></li>
+                        <li class="verticalLeftDivider verticalRightDivider2"><a id="scribbleActivator2" href="javascript:void(0);" onclick="activateScribbleMode(true);"><i class="fa fa-paint-brush fa-2x"></i></a></li>-->
 
             <!--------------------->
             <!-- TEXT EXTRACTORS -->
             <!--------------------->
-            <li class=""><a id="lineTextualVixor" href="javascript:void(0);" onclick="drawTextualVixor('lineExtractor', this);"><i class="icon-strikethrough fa-2x"></i></a></li>
-            <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a id="blockTextualVixor" href="javascript:void(0);" onclick="drawTextualVixor('blockExtractor', this);"><i class="fa fa-stop fa-2x"></i></a></li>
+            <!--            <li class=""><a id="lineTextualVixor" href="javascript:void(0);" onclick="drawTextualVixor('lineExtractor', this);"><i class="icon-strikethrough fa-2x"></i></a></li>
+                        <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a id="blockTextualVixor" href="javascript:void(0);" onclick="drawTextualVixor('blockExtractor', this);"><i class="fa fa-stop fa-2x"></i></a></li>-->
 
             <!-------------------->
             <!-- COLOR SAMPLERS -->
             <!-------------------->
-            <li class=""> <a id="samplerButton" href="javascript:void(0);" onclick="samplerButtonClicked();"><i class="collections-freeSampler" style="font-size: 26px;"></i> </a></li>
-            <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a id="samplerLineButton" href="javascript:void(0);" onclick="samplerLineButtonClicked();"><i class="collections-straightSampler" style="font-size: 26px;"></i> </a></li>
+            <!--            <li class=""> <a id="samplerButton" href="javascript:void(0);" onclick="samplerButtonClicked();"><i class="collections-freeSampler" style="font-size: 26px;"></i> </a></li>
+                        <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a id="samplerLineButton" href="javascript:void(0);" onclick="samplerLineButtonClicked();"><i class="collections-straightSampler" style="font-size: 26px;"></i> </a></li>-->
             <li class="verticalRightDivider"><a href="javascript:void(0);" onclick="duplicateObject();"><i class="fa fa-copy fa-2x"></i></a></li>
 
             <!--------------->
@@ -239,6 +239,38 @@
             <div class="col_12" id="mainContainer">
 
                 <div class="rightPanel nonSelection" id="rightPanel" draggable="false">
+
+
+
+
+                    <!-- EXTRACTORS -->
+                    <h6 id="extractorsListH6" onclick="togglePanelVisibility('#extractorsList', false);" style="cursor: pointer;" class="nonSelection sectionHeader"><span class="fa fa-angle-down" style="margin-right: 5px;"></span>Extractors</h6>
+                    <ul id="extractorsList" class="horizontalButtomsRow">
+
+                        <li id="groupColorRegionButton" unselectable='on' onselectstart='return false;' onmousedown='colorRegionButtonClicked(this);' draggable="false" class="boxDivider"><a><i class="fa fa-paint-brush" style="font-size: 25px;"> </i> </a></li>
+                        
+                        <li id="multipleColorRegionsButton" unselectable='on' onselectstart='return false;' onmousedown='colorRegionButtonClicked(this);' draggable="false" class="boxDivider"><a><i class="fa fa-pencil" style="font-size: 25px;"> </i> </a></li>
+                        
+                        <li id="floodFillButton" unselectable='on' onselectstart='return false;' onmousedown='colorRegionButtonClicked(this);' draggable="false" class="boxDivider"><a><i class="fa fa-magic" style="font-size: 25px;"> </i> </a></li>
+
+
+
+                        <li id="lineTextualVixor" onclick="drawTextualVixor('lineExtractor', this);" unselectable='on' onselectstart='return false;' draggable="false" class="boxDivider clicElement"><a><i class="icon-strikethrough icon-large"> </i> </a></li>
+                        <li id="blockTextualVixor" onclick="drawTextualVixor('blockExtractor', this);" unselectable='on' onselectstart='return false;' draggable="false" class="boxDivider clicElement"><a><i class="fa fa-stop icon-large"> </i> </a></li>
+
+
+
+                        <li id="samplerButton" onclick="samplerButtonClicked();" unselectable='on' onselectstart='return false;' draggable="false" class="boxDivider clicElement"><a><i class="collections-freeSampler" style="font-size: 20px;"> </i> </a></li>
+                        <li id="samplerLineButton" onclick="samplerLineButtonClicked();" unselectable='on' onselectstart='return false;' draggable="false" class="boxDivider clicElement"><a><i class="collections-straightSampler" style="font-size: 20px;"> </i> </a></li>
+
+
+
+
+                        <!-- <li id="lineTextualVixor" unselectable='on' onselectstart='return false;' onmousedown="drawTextualVixor('lineExtractor', this);" draggable="false" class="boxDivider"><a><i class="fa icon-strikethrough icon-large"> </i> </a></li>
+                        <li id="lineTextualVixor" unselectable='on' onselectstart='return false;' onmousedown="drawTextualVixor('lineExtractor', this);" draggable="false" class="boxDivider"><a><i class="fa icon-strikethrough icon-large"> </i> </a></li>-->
+
+                    </ul>
+                    <hr />
 
                     <!-- MARKS -->
                     <h6 id="marksListH6" onclick="togglePanelVisibility('#marksList', false);" style="cursor: pointer;" class="nonSelection sectionHeader"><span class="fa fa-angle-down" style="margin-right: 5px;"></span>Marks</h6>
@@ -807,7 +839,7 @@
             });
 
             activatePanningMode();
-            deactivateScribbleMode();
+//            deactivateScribbleMode();
 
             ////////////////////////////////////
             // Creating a vertical collection //
@@ -1159,7 +1191,7 @@
 
 
 
-                
+
 
 
 

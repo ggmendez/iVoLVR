@@ -1,5 +1,9 @@
 var LOG = false;
 
+systemButtons = {
+    colorRegions: ['floodFillButton', 'multipleColorRegionsButton', 'groupColorRegionButton'],
+}
+
 OPERATOR_TEXT_FILL = "rgb(226, 227, 227)";
 DEFAULT_OPERATOR_FILL = "rgb(226, 227, 227)";
 DEFAULT_OPERATOR_STROKE = "rgb(0, 0, 0)";
