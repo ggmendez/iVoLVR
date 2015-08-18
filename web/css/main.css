@@ -26,7 +26,7 @@ textarea {
 
 .rightPanel{
     float: right;
-    margin-left: 2px;
+    margin-left: 0px;
 }
 
 .canvasStyle {
@@ -55,7 +55,7 @@ textarea {
     margin: 0;
     padding: 0;
     list-style-type: none;
-    max-width: 200px;
+    max-width: 215px;
     text-align: center;
 }
 
@@ -88,7 +88,7 @@ textarea {
 .horizontalButtomsRow li { 
     display: inline;
     float: right;
-    /*max-width: 30%;*/    
+    /* max-width: 30%; */    
     margin: 2px;
 }
 
@@ -102,7 +102,7 @@ textarea {
 
 
 .horizontalButtomsRow li.circularBorder { 
-    max-width: 24%;
+    /*max-width: 24%;*/
     
 /*    padding-top: 0.6em;
     padding-left: 0.3em;

@@ -188,7 +188,8 @@ function hideOpenTooltips() {
         var autoClose = tooltip.tooltipster('option', 'autoClose');
         if (autoClose) {
             tooltip.tooltipster("hide", function () {
-                document.body.removeChild(this[0]);
+                var a = this[0];
+                document.body.removeChild(a);
             });
         }
     });
@@ -216,32 +217,14 @@ function zoomOut() {
     canvas.renderAll();
 }
 
-function drawTextualVixor(textExtractorType, element) {
+function allowTextExtractor(textExtractorType) {
 
-    var button = $("#" + element.id);
-    var isActive = button.data('isActive');
-    if (isActive) {
-        applyInactiveMenuButtonStyle(button);
-        // TODO: Here, the canvas should behave normal, so the drawing a rectangle capability
-        // should not be disabled
-        bindCanvasDefaultEvents();
-        enableObjectEvents();
-    } else {
-        applyActiveMenuButtonStyle(button);
-    }
-
-    if (LOG)
-        console.log("isActive");
-    if (LOG)
-        console.log(isActive);
-    disableDrawingMode();
-    disableObjectEvents();
     canvas.discardActiveObject();
     var hoverCursor = canvas.hoverCursor;
     var defaultCursor = canvas.defaultCursor;
     canvas.hoverCursor = 'crosshair';
     canvas.defaultCursor = 'crosshair';
-    var theVixor = null;
+    var theTextExtractor = null;
     // removing all canvas handlers for all events
     canvas.off();
     var downEvent = 'mouse:down';
@@ -251,7 +234,6 @@ function drawTextualVixor(textExtractorType, element) {
     var mouseDragged = false;
     canvas.on(downEvent, function (options) {
 
-        applyInactiveMenuButtonStyle(button);
         var event = options.e;
         if (event) {
             event.preventDefault();
@@ -259,19 +241,15 @@ function drawTextualVixor(textExtractorType, element) {
         if (LOG)
             console.log("DOWN");
         var downPoint = getCanvasCoordinates(event);
-        //                    drawRectAt(downPoint, "red");
-
 
         var startX = downPoint.x;
         var startY = downPoint.y;
         var parentObject = getImportedImageContaining(downPoint);
-        theVixor = new TextualVixor({
+        theTextExtractor = new TextualVixor({
             top: startY,
             left: startX,
             scaleX: parentObject ? parentObject.getScaleX() : 1,
             scaleY: parentObject ? parentObject.getScaleY() : 1,
-            //                        scaleX: parentObject ? parentObject.getScaleX() / canvas.getZoom() : 1,
-            //                        scaleY: parentObject ? parentObject.getScaleY() / canvas.getZoom() : 1,
             width: 0,
             height: 0,
             fill: 'rgba(' + 255 + ',  ' + 255 + ', ' + 255 + ', ' + widget_fill_opacity + ')',
@@ -281,38 +259,22 @@ function drawTextualVixor(textExtractorType, element) {
             hasControls: false,
             hasBorders: false,
             hasRotatingPoint: false,
-//            selectable: true,
-//            cornerColor: '#ffbd00',
-//            transparentCorners: false,
-//            isTextRecognizer: true,
-//            trueColor: 'rgba(255, 255, 255, 0)',
-//            fillColor: 'rgba(' + 255 + ',  ' + 255 + ', ' + 255 + ', ' + widget_fill_opacity + ')',
-
             parentObject: parentObject,
             nonSerializable: parentObject !== null,
         });
 
+        theTextExtractor.permanentOpacity = theTextExtractor.opacity;
+        theTextExtractor.set('originX', 'center');
+        theTextExtractor.set('originY', 'center');
+        canvas.add(theTextExtractor);
+        canvas.setActiveObject(theTextExtractor);
 
-
-
-        theVixor.permanentOpacity = theVixor.opacity;
-        theVixor.set('originX', 'center');
-        theVixor.set('originY', 'center');
-        canvas.add(theVixor);
-        canvas.setActiveObject(theVixor);
-
-        if (LOG) {
-            console.log("Created text recogniser: ");
-            console.log(theVixor);
-        }
-
-        theVixor.applySelectedStyle();
-        theVixor.associateEvents();
-        theVixor.associateInteractionEvents();
+        theTextExtractor.applySelectedStyle();
+        theTextExtractor.associateEvents();
+        theTextExtractor.associateInteractionEvents();
         canvas.on(moveEvent, function (option) {
 
-            if (LOG)
-                console.log("DRAGGING");
+
             var event = option.e;
             if (event) {
                 event.preventDefault();
@@ -330,16 +292,16 @@ function drawTextualVixor(textExtractorType, element) {
             var diffY = currentY - startY;
             var width = Math.abs(diffX);
             var height = Math.abs(diffY);
-            if (textExtractorType === "blockExtractor") {
-                diffX > 0 ? theVixor.set('originX', 'left') : theVixor.set('originX', 'right');
-                diffY > 0 ? theVixor.set('originY', 'top') : theVixor.set('originY', 'bottom');
-                if (theVixor.parentObject) {
+            if (textExtractorType === BLOCK_TEXT_EXTRACTOR) {
+                diffX > 0 ? theTextExtractor.set('originX', 'left') : theTextExtractor.set('originX', 'right');
+                diffY > 0 ? theTextExtractor.set('originY', 'top') : theTextExtractor.set('originY', 'bottom');
+                if (theTextExtractor.parentObject) {
                     //                                width = width * canvas.getZoom()
                     //                                height = height * canvas.getZoom()
                 }
-                theVixor.set('width', width);
-                theVixor.set('height', height);
-            } else if (textExtractorType === "lineExtractor") {
+                theTextExtractor.set('width', width);
+                theTextExtractor.set('height', height);
+            } else if (textExtractorType === LINE_TEXT_EXTRACTOR) {
 
                 var x1 = startX;
                 var y1 = startY;
@@ -354,100 +316,322 @@ function drawTextualVixor(textExtractorType, element) {
                     angle = angle + 180;
                 }
 
-                theVixor.set('left', center.x);
-                theVixor.set('top', center.y);
-                theVixor.set('angle', angle);
-                theVixor.set('width', length / (parentObject ? parentObject.getScaleX() : 1));
-                theVixor.set('height', 40);
+                theTextExtractor.set('left', center.x);
+                theTextExtractor.set('top', center.y);
+                theTextExtractor.set('angle', angle);
+                theTextExtractor.set('width', length / (parentObject ? parentObject.getScaleX() : 1));
+                theTextExtractor.set('height', 40);
             }
 
-            theVixor.applySelectedStyle();
-            theVixor.setCoords();
-            canvas.setActiveObject(theVixor);
+            theTextExtractor.applySelectedStyle();
+            theTextExtractor.setCoords();
+            canvas.setActiveObject(theTextExtractor);
             canvas.renderAll();
         });
     });
+
     canvas.on(upEvent, function (option) {
-
-        //                    if (LOG) console.log("UP");
-
         var event = option.e;
         if (event) {
             event.preventDefault();
         }
-
-        //                    var canvasCoords = getCanvasCoordinates(event);
-        //                    drawRectAt(canvasCoords, "purple");
-
         canvas.off();
         canvas.discardActiveObject();
         //                    canvas.selection = true;
         canvas.hoverCursor = hoverCursor;
         canvas.defaultCursor = defaultCursor;
         if (!mouseDragged) {
-            canvas.remove(theVixor);
+            canvas.remove(theTextExtractor);
         } else {
 
             //                        var parentObject = getImportedImageContaining(theVixor.left, theVixor.top);
-            var parentObject = theVixor.parentObject;
+            var parentObject = theTextExtractor.parentObject;
             if (parentObject) {
 
-                parentObject.widgets.push(theVixor);
-                theVixor.parentObject = parentObject;
-                if (textExtractorType === "blockExtractor") {
-                    var centerPoint = theVixor.getPointByOrigin('center', 'center');
-                    theVixor.originX = 'center';
-                    theVixor.originY = 'center';
-                    theVixor.left = centerPoint.x;
-                    theVixor.top = centerPoint.y;
+                parentObject.widgets.push(theTextExtractor);
+                theTextExtractor.parentObject = parentObject;
+                if (textExtractorType === BLOCK_TEXT_EXTRACTOR) {
+                    var centerPoint = theTextExtractor.getPointByOrigin('center', 'center');
+                    theTextExtractor.originX = 'center';
+                    theTextExtractor.originY = 'center';
+                    theTextExtractor.left = centerPoint.x;
+                    theTextExtractor.top = centerPoint.y;
                 }
 
-                computeUntransformedProperties(theVixor);
+                computeUntransformedProperties(theTextExtractor);
                 //                     theVixor.untransformedScaleX = theVixor.getScaleX() / parentObject.getScaleX();
                 //                     theVixor.untransformedScaleY = theVixor.getScaleY() / parentObject.getScaleY();
-                theVixor.untransformedScaleX = 1;
-                theVixor.untransformedScaleY = 1;
+                theTextExtractor.untransformedScaleX = 1;
+                theTextExtractor.untransformedScaleY = 1;
             }
 
             var d = new Date();
             var df = d.getMonth() + '_' + d.getDate() + '_' + d.getYear() + '_' + (d.getHours() + 1) + '_' + d.getMinutes() + '_' + d.getSeconds() + '_' + d.getMilliseconds();
-            theVixor.id = df;
-            theVixor.hasControls = true;
-            theVixor.hasRotatingPoint = true;
-            theVixor.valueForRotatingPointOffset = 50;
-            theVixor.rotatingPointOffset = theVixor.valueForRotatingPointOffset;
-            theVixor.hasBorders = true;
-            theVixor.borderColor = theVixor.stroke;
-            theVixor.padding = -2;
-            theVixor.valueForcornerSize = 20;
-            theVixor.cornerSize = theVixor.valueForcornerSize;
-            //                                          theVixor.setControlsVisibility({
-            //                                             bl: false, // middle top disable
-            //                                             br: false, // midle bottom
-            //                                             tl: false, // middle left
-            //                                             tr: false, // I think you get it
-            //                                          });
-
-            //                  theVixor.setControlsVisibility({
-            //                     mb: false, // middle top disable
-            //                     ml: false, // midle bottom
-            //                     mr: false, // middle left
-            //                     mt: false, // I think you get it
-            //                  });
-
-            theVixor.connectors = new Array();
-            theVixor.applySelectedStyle();
-            canvas.setActiveObject(theVixor);
+            theTextExtractor.id = df;
+            theTextExtractor.hasControls = true;
+            theTextExtractor.hasRotatingPoint = true;
+            theTextExtractor.valueForRotatingPointOffset = 50;
+            theTextExtractor.rotatingPointOffset = theTextExtractor.valueForRotatingPointOffset;
+            theTextExtractor.hasBorders = true;
+            theTextExtractor.borderColor = theTextExtractor.stroke;
+            theTextExtractor.padding = -2;
+            theTextExtractor.valueForcornerSize = 20;
+            theTextExtractor.cornerSize = theTextExtractor.valueForcornerSize;
+            theTextExtractor.connectors = new Array();
+            theTextExtractor.applySelectedStyle();
+            canvas.setActiveObject(theTextExtractor);
         }
+
+        deactivateTextExtractionMode();
 
         // restoring default canvas and objects events
         setTimeout(function () {
-            applyInactiveMenuButtonStyle(button);
             bindCanvasDefaultEvents();
             enableObjectEvents();
         }, 300);
     });
 }
+
+//function drawTextualVixor(element, textExtractorType) {
+//
+//    var button = $("#" + element.id);
+//    var isActive = button.data('isActive');
+//    if (isActive) {
+//        applyInactiveMenuButtonStyle(button);
+//        // TODO: Here, the canvas should behave normal, so the drawing a rectangle capability
+//        // should not be disabled
+//        bindCanvasDefaultEvents();
+//        enableObjectEvents();
+//    } else {
+//        applyActiveMenuButtonStyle(button);
+//    }
+//
+//    if (LOG)
+//        console.log("isActive");
+//    if (LOG)
+//        console.log(isActive);
+//    
+//    
+//    
+//    
+//    disableDrawingMode();
+//    
+//    
+//    
+//    
+//    disableObjectEvents();
+//    canvas.discardActiveObject();
+//    var hoverCursor = canvas.hoverCursor;
+//    var defaultCursor = canvas.defaultCursor;
+//    canvas.hoverCursor = 'crosshair';
+//    canvas.defaultCursor = 'crosshair';
+//    var theVixor = null;
+//    // removing all canvas handlers for all events
+//    canvas.off();
+//    var downEvent = 'mouse:down';
+//    var moveEvent = 'mouse:move';
+//    var upEvent = 'mouse:up';
+//    canvas.selection = false;
+//    var mouseDragged = false;
+//    canvas.on(downEvent, function (options) {
+//
+//        applyInactiveMenuButtonStyle(button);
+//        var event = options.e;
+//        if (event) {
+//            event.preventDefault();
+//        }
+//        if (LOG)
+//            console.log("DOWN");
+//        var downPoint = getCanvasCoordinates(event);
+//        //                    drawRectAt(downPoint, "red");
+//
+//
+//        var startX = downPoint.x;
+//        var startY = downPoint.y;
+//        var parentObject = getImportedImageContaining(downPoint);
+//        theVixor = new TextualVixor({
+//            top: startY,
+//            left: startX,
+//            scaleX: parentObject ? parentObject.getScaleX() : 1,
+//            scaleY: parentObject ? parentObject.getScaleY() : 1,
+//            //                        scaleX: parentObject ? parentObject.getScaleX() / canvas.getZoom() : 1,
+//            //                        scaleY: parentObject ? parentObject.getScaleY() / canvas.getZoom() : 1,
+//            width: 0,
+//            height: 0,
+//            fill: 'rgba(' + 255 + ',  ' + 255 + ', ' + 255 + ', ' + widget_fill_opacity + ')',
+//            opacity: 1,
+//            movingOpacity: 0.3,
+//            figureType: textExtractorType,
+//            hasControls: false,
+//            hasBorders: false,
+//            hasRotatingPoint: false,
+////            selectable: true,
+////            cornerColor: '#ffbd00',
+////            transparentCorners: false,
+////            isTextRecognizer: true,
+////            trueColor: 'rgba(255, 255, 255, 0)',
+////            fillColor: 'rgba(' + 255 + ',  ' + 255 + ', ' + 255 + ', ' + widget_fill_opacity + ')',
+//
+//            parentObject: parentObject,
+//            nonSerializable: parentObject !== null,
+//        });
+//
+//
+//
+//
+//        theVixor.permanentOpacity = theVixor.opacity;
+//        theVixor.set('originX', 'center');
+//        theVixor.set('originY', 'center');
+//        canvas.add(theVixor);
+//        canvas.setActiveObject(theVixor);
+//
+//        if (LOG) {
+//            console.log("Created text recogniser: ");
+//            console.log(theVixor);
+//        }
+//
+//        theVixor.applySelectedStyle();
+//        theVixor.associateEvents();
+//        theVixor.associateInteractionEvents();
+//        canvas.on(moveEvent, function (option) {
+//
+//            if (LOG)
+//                console.log("DRAGGING");
+//            var event = option.e;
+//            if (event) {
+//                event.preventDefault();
+//            }
+//
+//            var canvasCoords = getCanvasCoordinates(event);
+//            //                        drawRectAt(canvasCoords, "green");
+//
+//            mouseDragged = true;
+//            canvas.hoverCursor = 'crosshair';
+//            canvas.defaultCursor = 'crosshair';
+//            var currentX = canvasCoords.x;
+//            var currentY = canvasCoords.y;
+//            var diffX = currentX - startX;
+//            var diffY = currentY - startY;
+//            var width = Math.abs(diffX);
+//            var height = Math.abs(diffY);
+//            if (textExtractorType === BLOCK_TEXT_EXTRACTOR) {
+//                diffX > 0 ? theVixor.set('originX', 'left') : theVixor.set('originX', 'right');
+//                diffY > 0 ? theVixor.set('originY', 'top') : theVixor.set('originY', 'bottom');
+//                if (theVixor.parentObject) {
+//                    //                                width = width * canvas.getZoom()
+//                    //                                height = height * canvas.getZoom()
+//                }
+//                theVixor.set('width', width);
+//                theVixor.set('height', height);
+//            } else if (textExtractorType === LINE_TEXT_EXTRACTOR) {
+//
+//                var x1 = startX;
+//                var y1 = startY;
+//                var x2 = currentX;
+//                var y2 = currentY;
+//                var deltaX = x2 - x1;
+//                var deltaY = y2 - y1;
+//                var length = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+//                var center = new fabric.Point(x1 + deltaX / 2, y1 + deltaY / 2);
+//                var angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+//                if (deltaX < 0) {
+//                    angle = angle + 180;
+//                }
+//
+//                theVixor.set('left', center.x);
+//                theVixor.set('top', center.y);
+//                theVixor.set('angle', angle);
+//                theVixor.set('width', length / (parentObject ? parentObject.getScaleX() : 1));
+//                theVixor.set('height', 40);
+//            }
+//
+//            theVixor.applySelectedStyle();
+//            theVixor.setCoords();
+//            canvas.setActiveObject(theVixor);
+//            canvas.renderAll();
+//        });
+//    });
+//    canvas.on(upEvent, function (option) {
+//
+//        //                    if (LOG) console.log("UP");
+//
+//        var event = option.e;
+//        if (event) {
+//            event.preventDefault();
+//        }
+//
+//        //                    var canvasCoords = getCanvasCoordinates(event);
+//        //                    drawRectAt(canvasCoords, "purple");
+//
+//        canvas.off();
+//        canvas.discardActiveObject();
+//        //                    canvas.selection = true;
+//        canvas.hoverCursor = hoverCursor;
+//        canvas.defaultCursor = defaultCursor;
+//        if (!mouseDragged) {
+//            canvas.remove(theVixor);
+//        } else {
+//
+//            //                        var parentObject = getImportedImageContaining(theVixor.left, theVixor.top);
+//            var parentObject = theVixor.parentObject;
+//            if (parentObject) {
+//
+//                parentObject.widgets.push(theVixor);
+//                theVixor.parentObject = parentObject;
+//                if (textExtractorType === BLOCK_TEXT_EXTRACTOR) {
+//                    var centerPoint = theVixor.getPointByOrigin('center', 'center');
+//                    theVixor.originX = 'center';
+//                    theVixor.originY = 'center';
+//                    theVixor.left = centerPoint.x;
+//                    theVixor.top = centerPoint.y;
+//                }
+//
+//                computeUntransformedProperties(theVixor);
+//                //                     theVixor.untransformedScaleX = theVixor.getScaleX() / parentObject.getScaleX();
+//                //                     theVixor.untransformedScaleY = theVixor.getScaleY() / parentObject.getScaleY();
+//                theVixor.untransformedScaleX = 1;
+//                theVixor.untransformedScaleY = 1;
+//            }
+//
+//            var d = new Date();
+//            var df = d.getMonth() + '_' + d.getDate() + '_' + d.getYear() + '_' + (d.getHours() + 1) + '_' + d.getMinutes() + '_' + d.getSeconds() + '_' + d.getMilliseconds();
+//            theVixor.id = df;
+//            theVixor.hasControls = true;
+//            theVixor.hasRotatingPoint = true;
+//            theVixor.valueForRotatingPointOffset = 50;
+//            theVixor.rotatingPointOffset = theVixor.valueForRotatingPointOffset;
+//            theVixor.hasBorders = true;
+//            theVixor.borderColor = theVixor.stroke;
+//            theVixor.padding = -2;
+//            theVixor.valueForcornerSize = 20;
+//            theVixor.cornerSize = theVixor.valueForcornerSize;
+//            //                                          theVixor.setControlsVisibility({
+//            //                                             bl: false, // middle top disable
+//            //                                             br: false, // midle bottom
+//            //                                             tl: false, // middle left
+//            //                                             tr: false, // I think you get it
+//            //                                          });
+//
+//            //                  theVixor.setControlsVisibility({
+//            //                     mb: false, // middle top disable
+//            //                     ml: false, // midle bottom
+//            //                     mr: false, // middle left
+//            //                     mt: false, // I think you get it
+//            //                  });
+//
+//            theVixor.connectors = new Array();
+//            theVixor.applySelectedStyle();
+//            canvas.setActiveObject(theVixor);
+//        }
+//
+//        // restoring default canvas and objects events
+//        setTimeout(function () {
+//            applyInactiveMenuButtonStyle(button);
+//            bindCanvasDefaultEvents();
+//            enableObjectEvents();
+//        }, 300);
+//    });
+//}
 
 
 
@@ -817,6 +1001,7 @@ function adjustCanvasDimensions() {
     if (canvas) {
         canvas.setWidth(width);
         canvas.setHeight(height);
+        checkForRetinaDisplay(); // every time the canvas is adjusted, the retina functionality has to be applied, as it uses the size of the canvas
     }
 
 }
@@ -3072,23 +3257,23 @@ function drawFilledPolygon(shape, ctx) {
 
 
 
-function activateFunctionDrawingMode() {
-    canvas.isDrawingMode = true;
-    canvas.isFunctionDrawingMode = true;
-    $("#drawFunction").css("background-color", "#AAA");
-    $("#drawFunction").css("border-color", "#000");
-
-    canvas.freeDrawingBrush.color = rgb(229, 171, 20);
-    canvas.freeDrawingBrush.width = 2;
-
-}
-
-function deActivateFunctionDrawingMode() {
-    canvas.isDrawingMode = false;
-    canvas.isFunctionDrawingMode = false;
-    $("#drawFunction").css("background-color", "#D6D6D6");
-    $("#drawFunction").css("border-color", "#AAA");
-}
+//function activateFunctionDrawingMode() {
+//    canvas.isDrawingMode = true;
+//    canvas.isFunctionDrawingMode = true;
+//    $("#drawFunction").css("background-color", "#AAA");
+//    $("#drawFunction").css("border-color", "#000");
+//
+//    canvas.freeDrawingBrush.color = rgb(229, 171, 20);
+//    canvas.freeDrawingBrush.width = 2;
+//
+//}
+//
+//function deActivateFunctionDrawingMode() {
+//    canvas.isDrawingMode = false;
+//    canvas.isFunctionDrawingMode = false;
+//    $("#drawFunction").css("background-color", "#D6D6D6");
+//    $("#drawFunction").css("border-color", "#AAA");
+//}
 
 
 // Functions to draw paths as marks
@@ -3104,12 +3289,12 @@ function activatePathMarkDrawingMode() {
 
 }
 
-function deActivatePathMarkDrawingMode() {
-    canvas.isDrawingMode = false;
-    canvas.isPathMarkDrawingMode = false;
-    $("#drawPathMark").css("background-color", "#D6D6D6");
-    $("#drawPathMark").css("border-color", "#AAA");
-}
+//function deActivatePathMarkDrawingMode() {
+//    canvas.isDrawingMode = false;
+//    canvas.isPathMarkDrawingMode = false;
+//    $("#drawPathMark").css("background-color", "#D6D6D6");
+//    $("#drawPathMark").css("border-color", "#AAA");
+//}
 
 
 // Functions to draw paths as marks
@@ -3132,171 +3317,378 @@ function deActivateFilledMarkDrawingMode() {
     $("#drawFilledMark").css("border-color", "#AAA");
 }
 
-function activatePanningMode() {
-    
-    applyActiveMenuButtonStyle($("#panningModeActivatorLink"));
-    
-    // All of the following are mutually exclusive with the panning mode
-    applyInactiveMenuButtonStyle($("#panningModeDeActivatorLink"));
-    applyInactiveMenuButtonStyle($("#multipleColorRegionsButton"));
-    applyInactiveMenuButtonStyle($("#groupColorRegionButton"));
-    
-    canvas.currentPan1FingerendOperation = PANNING_OPERATION;
-    canvas.activePanningMode = true;
+function activateDrawing(brushColor, brushWidth) {
+    canvas.isDrawingMode = true;
+    canvas.freeDrawingBrush.color = brushColor || rgb(238, 189, 62);
+    canvas.freeDrawingBrush.width = brushWidth || 5;
+}
+
+function deactivateDrawing() {
+    canvas.isDrawingMode = false;
+}
+
+/************************************************/
+/* Flood fill to select a single colored region */
+function activateFloodFill() {
+    deactivateDrawing();
+    canvas.isFloodFillMode = true;
     canvas.defaultCursor = "pointer";
-    
-//    $("#panningModeActivatorLink").css("background-color", "#fefefe");
-//    $("#panningModeActivatorLink").css("border-color", "#000");
-//
-//    $("#panningModeDeActivatorLink").css("background-color", "");
-//    $("#panningModeDeActivatorLink").css("border-color", "");
-
 }
-
-function deActivatePanningMode() {
-    canvas.currentPan1FingerendOperation = DISCONNECTION_OPERATION;
-    canvas.activePanningMode = false;
-    canvas.defaultCursor = "default";
-    $("#panningModeActivatorLink").css("background-color", "");
-    $("#panningModeActivatorLink").css("border-color", "");
-
-    $("#panningModeDeActivatorLink").css("background-color", "#fefefe");
-    $("#panningModeDeActivatorLink").css("border-color", "#000");
+function deactivateFloodFill(restore1FingerCanvasOperation) {
+    canvas.isFloodFillMode = false;
+    if (restore1FingerCanvasOperation) {
+        restorePan1FingerBehaviour();
+    }
 }
+/************************************************/
 
-function activateTransmogrificationMode() {
 
-    deActivateSamplingMode();
-    deActivateLineSamplingMode();
 
-    canvas.isDrawingMode = true;
-    canvas.isTransmogrificationMode = true;
-    $("#transmogrifyButton").css("background", "#D6D6D6 none repeat scroll 0% 0% / auto padding-box border-box");
+
+/**********************************************/
+/* Selecting multiple colored regions at once */
+function activateMultipleColorRegionSelection() {
+    activateDrawing();
+    canvas.isScribbleMode = true;
+    canvas.makeSingleRegion = false;
+    canvas.defaultCursor = "pointer";
 }
-
-function deActivateTransmogrificationMode() {
-    canvas.isDrawingMode = false;
-    canvas.isTransmogrificationMode = false;
-    $("#transmogrifyButton").css("background-color", "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box");
-    $("#transmogrifyButton").css("border", "0px none rgb(0, 0, 0)");
+function deactivateMultipleColorRegionSelection(restore1FingerCanvasOperation) {
+    deactivateDrawing();
+    canvas.isScribbleMode = false;
+    if (restore1FingerCanvasOperation) {
+        restorePan1FingerBehaviour();
+    }
 }
+/**********************************************/
 
-function activateSamplingMode() {
 
-    deActivateTransmogrificationMode();
-    deActivateLineSamplingMode();
 
-    canvas.isDrawingMode = true;
-    canvas.isSamplingMode = true;
-    $("#samplerButton").css("background", "#D6D6D6 none repeat scroll 0% 0% / auto padding-box border-box");
-    canvas.freeDrawingBrush.color = rgb(219, 75, 0);
-    canvas.freeDrawingBrush.width = 2;
+/*******************************************/
+/* Grouping several colored regions in one */
+function activateGroupColorRegionSelection() {
+    activateDrawing();
+    canvas.isScribbleMode = true;
+    canvas.makeSingleRegion = true;
+    canvas.defaultCursor = "pointer";
 }
-
-function deActivateSamplingMode() {
-    canvas.isDrawingMode = false;
-    canvas.isSamplingMode = false;
-    $("#samplerButton").css("background-color", "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box");
-    $("#samplerButton").css("border", "0px none rgb(0, 0, 0)");
+function deactivateGroupColorRegionSelection(restore1FingerCanvasOperation) {
+    deactivateDrawing();
+    canvas.isScribbleMode = false;
+    if (restore1FingerCanvasOperation) {
+        restorePan1FingerBehaviour();
+    }
 }
+/*******************************************/
 
-function activateLineSamplingMode() {
 
-    canvas.currentPan1FingerendOperation = canvas.activePanningMode ? PANNING_OPERATION : DISCONNECTION_OPERATION;
 
+
+
+
+/*************************/
+/* LINE text extraction */
+function activateLineTextExtraction() {
+    deactivateDrawing();
+    disableObjectEvents();
+    allowTextExtractor(LINE_TEXT_EXTRACTOR);
+}
+function deactivateLineTextExtraction(restore1FingerCanvasOperation) {
+    canvas.off();
+    bindCanvasDefaultEvents();
+    enableObjectEvents();
+    if (restore1FingerCanvasOperation) {
+        restorePan1FingerBehaviour();
+    }
+}
+/*************************/
+/*************************/
+/* BLOCK text extraction */
+function activateBlockTextExtraction() {
+    deactivateDrawing();
+    disableObjectEvents();
+    allowTextExtractor(BLOCK_TEXT_EXTRACTOR);
+}
+function deactivateBlockTextExtraction(restore1FingerCanvasOperation) {
+    canvas.off();
+    bindCanvasDefaultEvents();
+    enableObjectEvents();
+    if (restore1FingerCanvasOperation) {
+        restorePan1FingerBehaviour();
+    }
+}
+/*************************/
+
+
+
+function saveObjectsStatus() {
     canvas.forEachObject(function (object) {
         object.previousSelectableState = object.selectable;
         object.previousEventedState = object.evented;
         object.selectable = false;
         object.evented = false;
     });
-
-    deActivateTransmogrificationMode();
-    deActivateSamplingMode();
-
-    canvas.activePanningMode = false;
-    canvas.defaultCursor = "default";
-
-    $("#samplerLineButton").css("background", "#D6D6D6 none repeat scroll 0% 0% / auto padding-box border-box");
-    canvas.isSamplingLineMode = true;
-
-    canvas.defaultCursor = 'crosshair';
-
 }
-
-function deActivateLineSamplingMode() {
-
+function restoreObjectsStatus() {
     canvas.forEachObject(function (object) {
         if (object.previousSelectableState && object.previousEventedState) {
             object.selectable = object.previousSelectableState;
             object.evented = object.previousEventedState;
         }
     });
-
-    canvas.isSamplingLineMode = false;
-    $("#samplerLineButton").css("background-color", "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box");
-    $("#samplerLineButton").css("border", "0px none rgb(0, 0, 0)");
-
-    canvas.defaultCursor = 'default';
-
-    if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
-        activatePanningMode();
-    } else {
-        deActivatePanningMode();
-    }
 }
 
 
-function activateScribbleMode(makeSingleRegion) {
 
-    canvas.makeSingleRegion = makeSingleRegion;
-
-    canvas.freeDrawingBrush.color = rgb(238, 189, 62);
-    canvas.freeDrawingBrush.width = 5;
-
-    canvas.currentPan1FingerendOperation = canvas.activePanningMode ? PANNING_OPERATION : DISCONNECTION_OPERATION;
-
-    canvas.forEachObject(function (object) {
-        object.previousSelectableState = object.selectable;
-        object.previousEventedState = object.evented;
-        object.selectable = false;
-        object.evented = false;
-    });
-
-    deActivateTransmogrificationMode();
-    deActivateSamplingMode();
-
+/***********************/
+/* FREE color sampling */
+function activateFreeColorSampling() {
+    activateDrawing();
+    canvas.isSamplingMode = true;
+    canvas.defaultCursor = "pointer";
+}
+function deactivateFreeColorSampling(restore1FingerCanvasOperation) {
+    deactivateDrawing();
+    canvas.isSamplingMode = false;
+    if (restore1FingerCanvasOperation) {
+        restorePan1FingerBehaviour();
+    }
+}
+/***********************/
+/***********************/
+/* LINE color sampling */
+function activateLineColorSampling() {
+    deactivateDrawing();
+    saveObjectsStatus();
     canvas.activePanningMode = false;
-    canvas.defaultCursor = "default";
-
-    canvas.isDrawingMode = true;
-
-
-    canvas.isSamplingLineMode = false;
-
-    canvas.isScribbleMode = true;
-
-    canvas.defaultCursor = 'crosshair';
-
-//    $("#scribbleModeActivatorLink").css("background-color", "");
-//    $("#scribbleModeActivatorLink").css("border-color", "");
-//
-//    $("#scribbleModeDeactivatorLink").css("background-color", "#fefefe");
-//    $("#scribbleModeDeactivatorLink").css("border-color", "#000");
-//    
-    applyInactiveMenuButtonStyle($("#scribbleDectivator"));
-
-    if (makeSingleRegion) {
-        applyActiveMenuButtonStyle($("#scribbleActivator2"));
-        applyInactiveMenuButtonStyle($("#scribbleActivator1"));
-    } else {
-        applyActiveMenuButtonStyle($("#scribbleActivator1"));
-        applyInactiveMenuButtonStyle($("#scribbleActivator2"));
-    }
-
-
-
+    canvas.isSamplingLineMode = true;
+    canvas.defaultCursor = "crosshair";
 }
+function deactivateLineColorSampling(restore1FingerCanvasOperation) {
+    canvas.isSamplingLineMode = false;
+    restoreObjectsStatus();
+    if (restore1FingerCanvasOperation) {
+        restorePan1FingerBehaviour();
+    }
+}
+/***********************/
+
+
+
+
+
+
+
+
+
+
+/**********************/
+/* PATH marks drawing */
+function activatePathMarkDrawing() {
+    activateDrawing();
+    canvas.isPathMarkDrawingMode = true;
+    canvas.defaultCursor = "crosshair";
+}
+function deactivatePathMarkDrawing(restore1FingerCanvasOperation) {
+    deactivateDrawing();
+    canvas.isPathMarkDrawingMode = false;
+    if (restore1FingerCanvasOperation) {
+        restorePan1FingerBehaviour();
+    }
+}
+/**********************/
+
+
+
+
+/*****************************/
+/* FILLED path marks drawing */
+function activateFilledPathMarkDrawing() {
+    activateDrawing();
+    canvas.isFilledMarkDrawingMode = true;
+    canvas.defaultCursor = "pointer";
+}
+function deactivateFilledPathMarkDrawing(restore1FingerCanvasOperation) {
+    deactivateDrawing();
+    canvas.isFilledMarkDrawingMode = false;
+    if (restore1FingerCanvasOperation) {
+        restorePan1FingerBehaviour();
+    }
+}
+/*****************************/
+
+
+
+
+
+/********************/
+/* FUNCTION drawing */
+function activateFunctionDrawing() {
+    activateDrawing();
+    canvas.isFunctionDrawingMode = true;
+    canvas.defaultCursor = "crosshair";
+}
+function deactivateFunctionDrawing(restore1FingerCanvasOperation) {
+    deactivateDrawing();
+    canvas.isFunctionDrawingMode = false;
+    if (restore1FingerCanvasOperation) {
+        restorePan1FingerBehaviour();
+    }
+}
+/********************/
+
+
+
+
+
+function activatePanningMode() {
+    deactivateDrawing();
+    canvas.currentPan1FingerendOperation = PANNING_OPERATION;
+    canvas.activePanningMode = true;
+    canvas.defaultCursor = "-webkit-grab";
+}
+
+function activateDisconnectingMode() {
+    deactivateDrawing();
+    canvas.currentPan1FingerendOperation = DISCONNECTION_OPERATION;
+    canvas.activePanningMode = false;
+    canvas.defaultCursor = "pointer";
+}
+
+/*function activateTransmogrificationMode() {
+ 
+ deActivateSamplingMode();
+ deActivateLineSamplingMode();
+ 
+ canvas.isDrawingMode = true;
+ canvas.isTransmogrificationMode = true;
+ $("#transmogrifyButton").css("background", "#D6D6D6 none repeat scroll 0% 0% / auto padding-box border-box");
+ }
+ 
+ function deActivateTransmogrificationMode() {
+ canvas.isDrawingMode = false;
+ canvas.isTransmogrificationMode = false;
+ $("#transmogrifyButton").css("background-color", "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box");
+ $("#transmogrifyButton").css("border", "0px none rgb(0, 0, 0)");
+ }*/
+
+/*function activateSamplingMode() {
+ 
+ deActivateTransmogrificationMode();
+ deActivateLineSamplingMode();
+ 
+ canvas.isDrawingMode = true;
+ canvas.isSamplingMode = true;
+ $("#samplerButton").css("background", "#D6D6D6 none repeat scroll 0% 0% / auto padding-box border-box");
+ canvas.freeDrawingBrush.color = rgb(219, 75, 0);
+ canvas.freeDrawingBrush.width = 2;
+ }*/
+
+
+//function deActivateSamplingMode() {
+// canvas.isDrawingMode = false;
+// canvas.isSamplingMode = false;
+// $("#samplerButton").css("background-color", "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box");
+// $("#samplerButton").css("border", "0px none rgb(0, 0, 0)");
+// }
+
+// function activateLineSamplingMode() {
+// 
+// canvas.currentPan1FingerendOperation = canvas.activePanningMode ? PANNING_OPERATION : DISCONNECTION_OPERATION;
+// 
+// canvas.forEachObject(function (object) {
+// object.previousSelectableState = object.selectable;
+// object.previousEventedState = object.evented;
+// object.selectable = false;
+// object.evented = false;
+// });
+// 
+// deActivateTransmogrificationMode();
+// deActivateSamplingMode();
+// 
+// canvas.activePanningMode = false;
+// canvas.defaultCursor = "default";
+// 
+// $("#samplerLineButton").css("background", "#D6D6D6 none repeat scroll 0% 0% / auto padding-box border-box");
+// canvas.isSamplingLineMode = true;
+// 
+// canvas.defaultCursor = 'crosshair';
+// 
+// }
+
+//function deActivateLineSamplingMode() {
+//
+//    canvas.forEachObject(function (object) {
+//        if (object.previousSelectableState && object.previousEventedState) {
+//            object.selectable = object.previousSelectableState;
+//            object.evented = object.previousEventedState;
+//        }
+//    });
+//
+//    canvas.isSamplingLineMode = false;
+//    $("#samplerLineButton").css("background-color", "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box");
+//    $("#samplerLineButton").css("border", "0px none rgb(0, 0, 0)");
+//
+//    canvas.defaultCursor = 'default';
+//
+//    if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
+//        activatePanningMode();
+//    } else {
+//        deActivatePanningMode();
+//    }
+//}
+
+
+//function activateScribbleMode(makeSingleRegion) {
+//
+//    canvas.makeSingleRegion = makeSingleRegion;
+//
+//    canvas.freeDrawingBrush.color = rgb(238, 189, 62);
+//    canvas.freeDrawingBrush.width = 5;
+//
+//    canvas.currentPan1FingerendOperation = canvas.activePanningMode ? PANNING_OPERATION : DISCONNECTION_OPERATION;
+//
+//    canvas.forEachObject(function (object) {
+//        object.previousSelectableState = object.selectable;
+//        object.previousEventedState = object.evented;
+//        object.selectable = false;
+//        object.evented = false;
+//    });
+//
+//    deActivateTransmogrificationMode();
+//    deActivateSamplingMode();
+//
+//    canvas.activePanningMode = false;
+//    canvas.defaultCursor = "default";
+//
+//    canvas.isDrawingMode = true;
+//
+//
+//    canvas.isSamplingLineMode = false;
+//
+//    canvas.isScribbleMode = true;
+//
+//    canvas.defaultCursor = 'crosshair';
+//
+////    $("#scribbleModeActivatorLink").css("background-color", "");
+////    $("#scribbleModeActivatorLink").css("border-color", "");
+////
+////    $("#scribbleModeDeactivatorLink").css("background-color", "#fefefe");
+////    $("#scribbleModeDeactivatorLink").css("border-color", "#000");
+////    
+//    applyInactiveMenuButtonStyle($("#scribbleDectivator"));
+//
+//    if (makeSingleRegion) {
+//        applyActiveMenuButtonStyle($("#scribbleActivator2"));
+//        applyInactiveMenuButtonStyle($("#scribbleActivator1"));
+//    } else {
+//        applyActiveMenuButtonStyle($("#scribbleActivator1"));
+//        applyInactiveMenuButtonStyle($("#scribbleActivator2"));
+//    }
+//
+//
+//
+//}
 
 function applySelectableStates() {
     canvas.forEachObject(function (object) {
@@ -3309,10 +3701,9 @@ function applySelectableStates() {
 
 
 
-function getOtherButtons(category, buttonName) {
-    var buttons = systemButtons[category];
+function getMutuallyExclusiveModesButtons(buttonName) {
     var results = new Array();
-    buttons.forEach(function (name) {
+    modeButtons.forEach(function (name) {
         if (name !== buttonName) {
             results.push(name);
         }
@@ -3320,60 +3711,185 @@ function getOtherButtons(category, buttonName) {
     return results;
 }
 
+function deactivateMode(buttonID, restore1FingerCanvasOperation) {
+
+    if (buttonID === 'floodFillButton') {
+        deactivateFloodFill(restore1FingerCanvasOperation);
+    } else if (buttonID === 'multipleColorRegionsButton') {
+        deactivateMultipleColorRegionSelection(restore1FingerCanvasOperation);
+    } else if (buttonID === 'groupColorRegionButton') {
+        deactivateGroupColorRegionSelection(restore1FingerCanvasOperation);
+    } else if (buttonID === 'lineTextExtractorButton') {
+        deactivateLineTextExtraction(restore1FingerCanvasOperation);
+    } else if (buttonID === 'blockTextExtractorButton') {
+        deactivateBlockTextExtraction(restore1FingerCanvasOperation);
+    } else if (buttonID === 'samplerButton') {
+        deactivateFreeColorSampling(restore1FingerCanvasOperation);
+    } else if (buttonID === 'samplerLineButton') {
+        deactivateLineColorSampling(restore1FingerCanvasOperation);
+    } else if (buttonID === 'drawPathMark') {
+        deactivatePathMarkDrawing(restore1FingerCanvasOperation);
+    } else if (buttonID === 'drawFilledMark') {
+        deactivateFilledPathMarkDrawing(restore1FingerCanvasOperation);
+    } else if (buttonID === 'drawFunction') {
+        deactivateFunctionDrawing(restore1FingerCanvasOperation);
+    }
+
+}
+
+function activateMode(buttonID) {
+
+    if (buttonID === 'panningModeButton') {
+        activatePanningMode();
+    } else if (buttonID === 'disconnectingModeButton') {
+        activateDisconnectingMode();
+    } else if (buttonID === 'floodFillButton') {
+        activateFloodFill();
+    } else if (buttonID === 'multipleColorRegionsButton') {
+        activateMultipleColorRegionSelection();
+    } else if (buttonID === 'groupColorRegionButton') {
+        activateGroupColorRegionSelection();
+    } else if (buttonID === 'lineTextExtractorButton') {
+        activateLineTextExtraction();
+    } else if (buttonID === 'blockTextExtractorButton') {
+        activateBlockTextExtraction();
+    } else if (buttonID === 'samplerButton') {
+        activateFreeColorSampling();
+    } else if (buttonID === 'samplerLineButton') {
+        activateLineColorSampling();
+    } else if (buttonID === 'drawPathMark') {
+        activatePathMarkDrawing();
+    } else if (buttonID === 'drawFilledMark') {
+        activateFilledPathMarkDrawing();
+    } else if (buttonID === 'drawFunction') {
+        activateFunctionDrawing();
+    }
+
+}
 
 
-function colorRegionButtonClicked(button) {
+function modeButtonClicked(button) {
 
     var clickedButton = $(button);
+    
+    clickedButton.mouseout();
+    
     var isActive = clickedButton.data('isActive');
     var buttonID = clickedButton.attr('id');
 
-    var otherButtonsIDs = getOtherButtons('colorRegions', buttonID);
+    var otherButtonsIDs = getMutuallyExclusiveModesButtons(buttonID);
 
     if (isActive) {
 
-        applyInactiveMenuButtonStyle(clickedButton);
-
-        if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
-            activatePanningMode();
-        } else {
-            deActivatePanningMode();
+        // First possible hehabiour: When hitting on a canvas 1-finger ACTIVE mode, nothing happens
+        if (buttonID === 'panningModeButton' || buttonID === 'disconnectingModeButton') {
+            return;
         }
 
+        applyInactiveMenuButtonStyle(clickedButton);
+        deactivateMode(buttonID, true);
+
+
+        // Second possible hehabiour: When hitting on a canvas 1-finger ACTIVE mode, the other one gets active
+        /*if (buttonID === 'panningModeButton') {
+         var otherCanvasModeButton = $("#disconnectingModeButton"); 
+         applyActiveMenuButtonStyle(otherCanvasModeButton);
+         activateDisconnectingMode();
+         } else if (buttonID === 'disconnectingModeButton') {
+         var otherCanvasModeButton = $("#panningModeButton"); 
+         applyActiveMenuButtonStyle(otherCanvasModeButton);
+         activatePanningMode();
+         }*/
+
     } else {
-        applyActiveMenuButtonStyle(clickedButton);
+
+        if (buttonID === 'floodFillButton') {
+            restorePan1FingerBehaviour();
+        }
+
         otherButtonsIDs.forEach(function (id) {
-            applyInactiveMenuButtonStyle($("#" + id));
+
+            if (buttonID === 'floodFillButton') {
+
+                if (id !== 'panningModeButton' && id !== 'disconnectingModeButton') {
+                    applyInactiveMenuButtonStyle($("#" + id));
+                    deactivateMode(id, false);
+                }
+
+            } else if (buttonID === 'panningModeButton' || buttonID === 'disconnectingModeButton') {
+                if (id !== 'floodFillButton') {
+                    applyInactiveMenuButtonStyle($("#" + id));
+                    deactivateMode(id, false);
+                }
+            } else {
+                applyInactiveMenuButtonStyle($("#" + id));
+                deactivateMode(id, false);
+            }
+
         });
-    }
 
-    if (buttonID === 'floodFillButton') {
 
-        canvas.isScribbleMode = false;
-        canvas.isDrawingMode = false;
-        canvas.isFloodFillMode = true;
 
-    } else {
-        
-        // Nor the panning or the disconnecting mode should be active here
-        
-        applyInactiveMenuButtonStyle($("#panningModeActivatorLink"));
-        applyInactiveMenuButtonStyle($("#panningModeDeActivatorLink"));
-        
-        canvas.freeDrawingBrush.color = rgb(238, 189, 62);
-        canvas.freeDrawingBrush.width = 5;
 
-        canvas.currentPan1FingerendOperation = canvas.activePanningMode ? PANNING_OPERATION : DISCONNECTION_OPERATION;
 
-        canvas.isScribbleMode = true;
-        canvas.isDrawingMode = true;
-        canvas.isFloodFillMode = false;
-        canvas.makeSingleRegion = buttonID === 'groupColorRegionButton';
-        
+        applyActiveMenuButtonStyle(clickedButton);
+        activateMode(buttonID);
+
     }
 
 }
 
+//function colorRegionButtonClicked(button) {
+//
+//    var clickedButton = $(button);
+//    var isActive = clickedButton.data('isActive');
+//    var buttonID = clickedButton.attr('id');
+//
+//    var otherButtonsIDs = getMutuallyExclusiveModesButtons(buttonID);
+//
+//    if (isActive) {
+//
+//        applyInactiveMenuButtonStyle(clickedButton);
+//
+//        if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
+//            activatePanningMode();
+//        } else {
+//            deActivatePanningMode();
+//        }
+//
+//    } else {
+//        applyActiveMenuButtonStyle(clickedButton);
+//        otherButtonsIDs.forEach(function (id) {
+//            applyInactiveMenuButtonStyle($("#" + id));
+//        });
+//    }
+//
+//    if (buttonID === 'floodFillButton') {
+//
+//        canvas.isScribbleMode = false;
+//        canvas.isDrawingMode = false;
+//        canvas.isFloodFillMode = true;
+//
+//    } else {
+//
+//        // Nor the panning or the disconnecting mode should be active here
+//
+//        canvas.currentPan1FingerendOperation = canvas.activePanningMode ? PANNING_OPERATION : DISCONNECTION_OPERATION;
+//
+//        applyInactiveMenuButtonStyle($("#panningModeActivatorLink"));
+//        applyInactiveMenuButtonStyle($("#panningModeDeActivatorLink"));
+//
+//        canvas.freeDrawingBrush.color = rgb(238, 189, 62);
+//        canvas.freeDrawingBrush.width = 5;
+//
+//        canvas.isScribbleMode = true;
+//        canvas.isDrawingMode = true;
+//        canvas.isFloodFillMode = false;
+//        canvas.makeSingleRegion = buttonID === 'groupColorRegionButton';
+//
+//    }
+//
+//}
 
 
 
@@ -3381,62 +3897,71 @@ function colorRegionButtonClicked(button) {
 
 
 
-function deactivateFloodFillMode() {
 
-    applySelectableStates();
+//function deactivateFloodFillMode() {
+//
+//    applySelectableStates();
+//
+//    canvas.isScribbleMode = false;
+//    canvas.isDrawingMode = false;
+//
+//    applyActiveMenuButtonStyle($("#scribbleDectivator"));
+//    applyInactiveMenuButtonStyle($("#scribbleActivator1"));
+//    applyInactiveMenuButtonStyle($("#scribbleActivator2"));
+//
+//    canvas.defaultCursor = 'default';
+//
+//    if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
+//        activatePanningMode();
+//    } else {
+//        deActivatePanningMode();
+//    }
+//}
 
-    canvas.isScribbleMode = false;
-    canvas.isDrawingMode = false;
 
-    applyActiveMenuButtonStyle($("#scribbleDectivator"));
-    applyInactiveMenuButtonStyle($("#scribbleActivator1"));
-    applyInactiveMenuButtonStyle($("#scribbleActivator2"));
 
-    canvas.defaultCursor = 'default';
+
+
+
+function restorePan1FingerBehaviour() {
+
+    console.log("restorePan1FingerBehaviour !!!!");
 
     if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
-        activatePanningMode();
+        applyActiveMenuButtonStyle($("#panningModeButton"));
+        activatePanningMode();        
     } else {
-        deActivatePanningMode();
+        applyActiveMenuButtonStyle($("#disconnectingModeButton"));
+        activateDisconnectingMode();
     }
+    
 }
-
-
-
-
-
-
-
 
 function deactivateScribbleMode() {
 
-    canvas.forEachObject(function (object) {
-        if (object.previousSelectableState && object.previousEventedState) {
-            object.selectable = object.previousSelectableState;
-            object.evented = object.previousEventedState;
-        }
-    });
+//    canvas.forEachObject(function (object) {
+//        if (object.previousSelectableState && object.previousEventedState) {
+//            object.selectable = object.previousSelectableState;
+//            object.evented = object.previousEventedState;
+//        }
+//    });
 
-    canvas.isScribbleMode = false;
-    canvas.isDrawingMode = false;
+    applyInactiveMenuButtonStyle($("#multipleColorRegionsButton"));
+    applyInactiveMenuButtonStyle($("#groupColorRegionButton"));
 
-    /*$("#scribbleModeDeactivatorLink").css("background-color", "");
-     $("#scribbleModeDeactivatorLink").css("border-color", "");
-     
-     $("#scribbleModeActivatorLink").css("background-color", "#fefefe");
-     $("#scribbleModeActivatorLink").css("border-color", "#000");*/
+    deactivateMultipleColorRegionSelection(false);
+    deactivateGroupColorRegionSelection(false);
+    restorePan1FingerBehaviour(); // This is called independently from the two invocations of above, so that it is only executed once
+}
 
-    applyActiveMenuButtonStyle($("#scribbleDectivator"));
-    applyInactiveMenuButtonStyle($("#scribbleActivator1"));
-    applyInactiveMenuButtonStyle($("#scribbleActivator2"));
+function deactivateTextExtractionMode() {
 
-    canvas.defaultCursor = 'default';
+    applyInactiveMenuButtonStyle($("#lineTextExtractorButton"));
+    applyInactiveMenuButtonStyle($("#blockTextExtractorButton"));
 
-    if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
-        activatePanningMode();
-    } else {
-        deActivatePanningMode();
-    }
+    deactivateLineTextExtraction(false);
+    deactivateBlockTextExtraction(false);
+    restorePan1FingerBehaviour(); // this is done just one, that's why in the two previous calls, we send false
 }
 
 
@@ -3469,14 +3994,13 @@ function deActivateRectSelectionMode() {
 
 
 function applyActiveMenuButtonStyle(button) {
+//    button.css("background-color", "#AAA");
     button.css("background-color", "#fefefe");
-    button.css("border-color", "#000");
     button.data('isActive', true);
 }
 
 function applyInactiveMenuButtonStyle(button) {
     button.css("background-color", "");
-    button.css("border-color", "");
     button.data('isActive', false);
 
 }
@@ -5437,13 +5961,13 @@ function enterFunctionButtonClicked() {
 
 }
 
-function drawFunctionButtonClicked() {
-    if (canvas.isFunctionDrawingMode) {
-        deActivateFunctionDrawingMode();
-    } else {
-        activateFunctionDrawingMode();
-    }
-}
+//function drawFunctionButtonClicked() {
+//    if (canvas.isFunctionDrawingMode) {
+//        deActivateFunctionDrawingMode();
+//    } else {
+//        activateFunctionDrawingMode();
+//    }
+//}
 
 
 function drawFilledMarkButtonClicked() {
@@ -5488,13 +6012,13 @@ function samplerButtonClicked() {
     }
 }
 
-function samplerLineButtonClicked() {
-    if (canvas.isSamplingLineMode) {
-        deActivateLineSamplingMode();
-    } else {
-        activateLineSamplingMode();
-    }
-}
+//function samplerLineButtonClicked() {
+//    if (canvas.isSamplingLineMode) {
+//        deActivateLineSamplingMode();
+//    } else {
+//        activateLineSamplingMode();
+//    }
+//}
 
 function rectSelectionButtonClicked() {
     if (canvas.isRectSelectionMode) {

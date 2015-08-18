@@ -405,12 +405,7 @@ var VisualProperty = function () {
 
                     if (targetObject !== this) {
 
-                        if (targetObject.isPlayer) {
-
-                            var connector = getLastElementOfArray(this.outConnectors);
-                            connector.setDestination(targetObject, true);
-
-                        } else if (targetObject.isOperator || targetObject.isVisualProperty || targetObject.isFunctionInput || targetObject.isDataType || targetObject.isFunctionValuesCollection || targetObject.isMapperInput || targetObject.isMapperOutput) {
+                        if (targetObject.isOperator || targetObject.isVisualProperty || targetObject.isFunctionInput || targetObject.isDataType || targetObject.isFunctionValuesCollection || targetObject.isMapperInput || targetObject.isMapperOutput) {
 
                             var connector = getLastElementOfArray(this.outConnectors);
 

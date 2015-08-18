@@ -113,7 +113,8 @@ function canvasPathCreated(options) {
         
         drawnPath.remove();
         
-        deActivatePathMarkDrawingMode();
+        applyInactiveMenuButtonStyle($("#drawPathMark"))
+        deactivatePathMarkDrawing(true);
 
 
     } else if (canvas.isFilledMarkDrawingMode) {
@@ -135,7 +136,8 @@ function canvasPathCreated(options) {
         
         drawnPath.remove();
         
-        deActivateFilledMarkDrawingMode();
+        applyInactiveMenuButtonStyle($("#drawFilledMark"))
+        deactivateFilledPathMarkDrawing(true);
                         
         
     } else if (canvas.isFunctionDrawingMode) {
@@ -160,7 +162,9 @@ function canvasPathCreated(options) {
 
         addNumericFunction(options);
 
-        deActivateFunctionDrawingMode();
+        applyInactiveMenuButtonStyle($("#drawFunction"))
+        deactivateFunctionDrawing(true);
+        
 
     } else if (canvas.isFreeSelectionMode) {
 
@@ -1046,11 +1050,30 @@ function canvasPathCreated(options) {
 
 }
 
+function hiMenu (menuID) {    
+    $("#" + menuID).removeClass('hover');
+    $("#" + menuID + "UL").css("display", "none");    
+}
+
+function showMenu (menu) {
+    var theMenu = $(menu);
+    var menuID = theMenu.attr('id');
+    $("#" + menuID).addClass('hover');
+    $("#" + menuID + "UL").css("display", "block");    
+}
+
+function closePotentiallyOpenMenus () {
+    hiMenu ("fileMenu");
+    hiMenu ("configMenu");
+}
+
 function canvasMouseDown(option) {
 
     if (LOG) console.log("canvasMouseDown");
     var event = option.e;
     event.preventDefault();
+    
+    closePotentiallyOpenMenus ();
 
 //   if (LOG) console.log(event);
 
@@ -1130,7 +1153,8 @@ function canvasMouseUp(option) {
 
         if (canvas.isSamplingLineMode) {
 
-            deActivateLineSamplingMode();
+            applyInactiveMenuButtonStyle($("#samplerLineButton"));
+            deactivateLineColorSampling();
             
             var theSamplingLine = canvas.samplingLine;
             theSamplingLine.setCoords();

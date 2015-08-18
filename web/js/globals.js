@@ -1,8 +1,22 @@
 var LOG = false;
 
-systemButtons = {
-    colorRegions: ['floodFillButton', 'multipleColorRegionsButton', 'groupColorRegionButton'],
-}
+LINE_TEXT_EXTRACTOR = "line";
+BLOCK_TEXT_EXTRACTOR = "block";
+
+modeButtons = [
+    'panningModeButton',
+    'disconnectingModeButton',
+    'floodFillButton',
+    'multipleColorRegionsButton',
+    'groupColorRegionButton',
+    'lineTextExtractorButton',
+    'blockTextExtractorButton',
+    'samplerButton',
+    'samplerLineButton',
+    'drawPathMark',
+    'drawFilledMark',
+    'drawFunction',
+];
 
 OPERATOR_TEXT_FILL = "rgb(226, 227, 227)";
 DEFAULT_OPERATOR_FILL = "rgb(226, 227, 227)";

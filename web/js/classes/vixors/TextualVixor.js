@@ -386,8 +386,16 @@ var TextualVixor = fabric.util.createClass(fabric.Rect, {
                  console.log("theVixor.originY: " + theVixor.originY);*/
 
                 if (theVixor.originX !== 'center' && theVixor.originY !== 'center') {
-                    var oldLeft = theVixor.left;
-                    var oldTop = theVixor.top;
+                    
+                    
+                    
+                    
+                    var leftTop = theVixor.getPointByOrigin('left', 'top');
+//                    var oldLeft = theVixor.left;
+//                    var oldTop = theVixor.top;
+                    var oldLeft = leftTop.x;
+                    var oldTop = leftTop.y;
+                   
                     theVixor.originX = 'center';
                     theVixor.originY = 'center';
                     theVixor.setPositionByOrigin(new fabric.Point(oldLeft, oldTop), 'left', 'top');

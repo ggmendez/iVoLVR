@@ -150,7 +150,15 @@ li a {
     cursor: pointer;
 }
 
+.mode {
+    cursor: pointer;
+}
+
 .clicElement:hover {
+    text-shadow: 2px 2px 2px rgba(150, 150, 150, 0.9);
+}
+
+.mode:hover {
     text-shadow: 2px 2px 2px rgba(150, 150, 150, 0.9);
 }
 

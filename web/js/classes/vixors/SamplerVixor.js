@@ -1766,9 +1766,19 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
     if (parentObject) {
         parentObject.widgets.push(samplerVixor);
     }
+    
+    if (fromStraightLine) {
+        applyInactiveMenuButtonStyle($("#samplerLineButton"));
+        deactivateLineColorSampling(false);
+    } else {
+        applyInactiveMenuButtonStyle($("#samplerButton"));
+        deactivateFreeColorSampling(false);
+    }
+    
+    restorePan1FingerBehaviour();
 
-    deActivateSamplingMode();
-    deActivateLineSamplingMode();
+//    deActivateSamplingMode();
+//    deActivateLineSamplingMode();
 
 
 
