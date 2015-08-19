@@ -224,6 +224,10 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
 
     },
     positionLabel: function () {
+        
+        if (this.group) {
+            return;
+        }
 
         var theMark = this;
 

@@ -253,6 +253,10 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
         });
     },
     positionLabel: function () {
+        
+        if (this.group) {
+            return;
+        }
 
 //        if (LOG) console.log("positionLabel function");
 

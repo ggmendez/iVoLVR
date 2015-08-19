@@ -432,6 +432,10 @@ PathMark = fabric.util.createClass(fabric.Path, {
         });
     },
     positionLabel: function () {
+        
+        if (this.group) {
+            return;
+        }
 
         var theMark = this;
 
@@ -475,7 +479,7 @@ PathMark = fabric.util.createClass(fabric.Path, {
     },
     drawBorders: function (ctx) {
 
-        if (!this.hasBorders) {
+        if (!this.hasBorders || this.group) {
             return this;
         }
 

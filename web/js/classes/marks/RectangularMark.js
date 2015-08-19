@@ -255,6 +255,11 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
 
     },
     positionLabel: function () {
+        
+        if (this.group) {
+            return;
+        }
+        
         var groupLeft = 0;
         var groupTop = 0;
         var groupScaleX = 1;

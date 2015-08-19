@@ -1,18 +1,16 @@
 var Connector = fabric.util.createClass(fabric.Line, {
     type: 'connector',
-    
-    
     toXML: function () {
 
         var theConnector = this;
 
         var source = theConnector.source;
         var destination = theConnector.destination;
-        
+
         var sourceID = source ? source.xmlID : -1;
         var destinationID = destination ? destination.xmlID : -1;
 
-        var connectorNode = createXMLElement("connector");                        
+        var connectorNode = createXMLElement("connector");
         addAttributeWithValue(connectorNode, "from", sourceID);
         addAttributeWithValue(connectorNode, "to", destinationID);
         addAttributeWithValue(connectorNode, "arrowColor", theConnector.arrowColor);
@@ -23,7 +21,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
         return connectorNode;
     },
     initialize: function (options) {
-        
+
 //        console.log("%c" + "Creating a connection via the initialize method of the CONNECTOR class...", "background: red; color: white;");
 
         options || (options = {});
@@ -51,9 +49,15 @@ var Connector = fabric.util.createClass(fabric.Line, {
         this.set('perPixelTargetFind', false);
         this.set('transparentCorners', false);
         this.set('hasRotatingPoint', false);
-        this.set('selectable', false);
+
+        this.set('selectable', true);
+
         this.set('evented', false);
+
+        this.set('hasBorders', false);
         this.set('hasControls', false);
+        this.set('hasRotatingPoint', false);
+
         this.set('triangles', new Array());
         this.set('arrowColor', options.arrowColor || this.source.fill);
         this.set('stroke', options.stroke || this.arrowColor);
@@ -75,19 +79,22 @@ var Connector = fabric.util.createClass(fabric.Line, {
             var triangle = new fabric.Path("M0 0 L" + this.arrowSize / 2 + " " + this.arrowSize + "L" + this.arrowSize + " " + 0, {
                 originX: 'center',
                 originY: 'center',
-//                width: this.arrowSize+2*i,
-//                height: this.arrowSize+2*i,
                 width: this.arrowSize,
                 height: this.arrowSize,
                 stroke: this.arrowColor,
                 fill: this.filledArrow ? this.arrowColor : '',
                 angle: angle,
-                opacity: this.opacity
+                opacity: this.opacity,
+                
+                hasBorders: false,
+                hasControls: false,
+                hasRotatingPoint: false,
+                selectable: true
+                
             });
             triangle.left = this.x1 + (((i + 1) * deltaX) / (this.nTriangles + 1));
             triangle.top = this.y1 + (((i + 1) * deltaY) / (this.nTriangles + 1));
             this.triangles.push(triangle);
-//            canvas.add(triangle);
         }
 
         var connector = this;
@@ -123,7 +130,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
                     console.log("connector source modified");
             });
         }
-        
+
         if (this.destination) {
             this.destination.on('moving', function (options) {
                 var massCenter = this.getPointByOrigin('center', 'center');
@@ -807,22 +814,22 @@ function createConnectorFromXMLNode(connectorNode) {
 //    var toID = Number(connectorNode.attr('to'));
     var fromID = connectorNode.attr('from');
     var toID = connectorNode.attr('to');
-    
+
     console.log("%c" + "Attempting new connection between " + fromID + " and " + toID, "font-weight: bold; font-size: 15px; background: black; color: rgb(240,205,90);");
 
 //    var source = getFabricElementByXmlID(fromID);
 //    var destination = getFabricElementByXmlID(toID);
-    
+
     var source = connectableElements[fromID];
     var destination = connectableElements[toID];
-    
+
     if (!source || typeof source === 'undefined') {
         console.log("%c" + "Source NOT found!", "font-weight: bold; font-size: 15px; background: black; color: rgb(215,240,90);");
     }
     if (!destination || typeof destination === 'undefined') {
         console.log("%c" + "Destination NOT found!", "font-weight: bold; font-size: 15px; background: black; color: rgb(215,240,90);");
     }
-    
+
 //    console.log("%c" + "source:", "background: black; color: rgb(240,205,90);");
 //    console.log(source);
 //    
@@ -835,12 +842,12 @@ function createConnectorFromXMLNode(connectorNode) {
         var strokeWidth = Number(connectorNode.attr('strokeWidth'));
         var filledArrow = connectorNode.attr('filledArrow') === 'true';
         var opacity = Number(connectorNode.attr('opacity'));
-        
+
         var x1 = source.left;
         var y1 = source.top;
         var x2 = destination.left;
         var y2 = destination.top;
-        
+
 //        console.log("%c x1: " + x1, "background: rgb(149,121,205); color: black;");
 //        console.log("%c y1: " + y1, "background: rgb(149,121,205); color: black;");
 //        console.log("%c x2: " + x2, "background: rgb(149,121,205); color: black;");
@@ -858,8 +865,8 @@ function createConnectorFromXMLNode(connectorNode) {
             strokeWidth: strokeWidth,
             opacity: opacity
         });
-        
-        
+
+
 
         source.outConnectors.push(connector);
         destination.inConnectors.push(connector);
@@ -875,17 +882,17 @@ function createConnectorFromXMLNode(connectorNode) {
 //            destination.bringToFront();
             bringToFront(destination);
         }
-        
+
         console.log("%c" + "Connection created from " + fromID + " to " + toID, "background: rgb(255,192,36); color: white;");
-        
+
 //        console.log("%c" + "Current state of pendingConnections pool:", "background: rgb(255,192,36); color: white;");
 //        console.log(pendingConnections);
-        
-        
+
+
         return true;
 
     }
-    
+
     return false;
 
 }

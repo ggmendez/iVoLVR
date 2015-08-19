@@ -20,6 +20,14 @@ var VisualProperty = function () {
     this.set('hasBorders', false);
     this.set('hasControls', false);
     this.set('hasRotatingPoint', false);
+    
+    this.addToGroup = function (theGroup) {
+        var theVisualProperty = this;
+        var parentObject = theVisualProperty.parentObject;
+        if (parentObject.addToGroup) {
+            parentObject.addToGroup(theGroup); // this will add the visual property to the given group
+        }
+    };
 
     this.disconnect = function (refreshCanvas, removeAfterDisconnection) {
         var theVisualProperty = this;

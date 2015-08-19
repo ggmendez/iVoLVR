@@ -4,6 +4,8 @@ var Mark = function () {
     this.set('isMark', true);
     this.set('xmlNodeName', 'mark');
 
+    this.set('isClonable', 'true');
+
     this.set('hoverCursor', 'move');
 
     this.set('originX', 'center');
@@ -166,7 +168,7 @@ var Mark = function () {
 
     this.createIText = function () {
         var theMark = this;
-        var label = theMark.label || '';
+        var label = theMark.label || 'Gonzalo';
         var iText = new fabric.IText(label, {
             originX: 'center',
             originY: 'center',
@@ -176,14 +178,14 @@ var Mark = function () {
             hasControls: false,
             hasBorders: false,
             hasRotatingPoint: false,
-//                lockRotation: true,
-//                lockScalingX: true,
-//                lockScalingY: true,
-//                lockMovementX: true,
-//                lockMovementY: true,
-            selectable: false,
-            evented: true,
-            editable: true
+            lockRotation: true,
+            lockScalingX: true,
+            lockScalingY: true,
+            lockMovementX: true,
+            lockMovementY: true,
+            selectable: true,
+            evented: false,
+            editable: false
         });
         theMark.set('label', label);
         theMark.set('iText', iText);
@@ -196,6 +198,31 @@ var Mark = function () {
         setTimeout(function () {
             iText.bringToFront(true);
         }, 100);
+
+    };
+
+    this.addToGroup = function (theGroup) {
+        var theMark = this;
+
+        if (theMark.group !== theGroup) {
+            theGroup.addWithUpdate(theMark);
+        }
+
+        if (theMark.iText && (theMark.iText.group !== theGroup)) {
+            theGroup.addWithUpdate(theMark.iText);
+        }
+
+        if (!theMark.isCompressed) {
+            if (theMark.backgroundRect && (theMark.backgroundRect.group !== theGroup)) {
+                theGroup.addWithUpdate(theMark.backgroundRect);
+            }
+
+            theMark.visualProperties.forEach(function (visualProperty) {
+                if (visualProperty.group !== theGroup) {
+                    theGroup.addWithUpdate(visualProperty);
+                }
+            });
+        }
 
     };
 
@@ -338,7 +365,7 @@ var Mark = function () {
 
         var theMark = this;
         theMark.isSelected = true;
-        
+
         if (LOG)
             console.log("At the mark");
         theMark.stroke = widget_selected_stroke_color;
@@ -358,7 +385,7 @@ var Mark = function () {
 
         var theMark = this;
         theMark.isSelected = false;
-        
+
         theMark.stroke = this.colorForStroke;
         theMark.strokeWidth = this.originalStrokeWidth;
         theMark.strokeDashArray = [];
@@ -702,11 +729,11 @@ var Mark = function () {
             onChange: function (val) {
                 currentFill = val;
                 theMark.changeColors(currentFill, currentStroke);
-                
+
                 if (theMark.isSelected) {
                     theMark.stroke = widget_selected_stroke_color;
                 }
-                
+
                 canvas.renderAll();
             }
         });
@@ -939,10 +966,10 @@ var Mark = function () {
 //            drawRectAt(new fabric.Point(x,y), generateRandomColor());
 
             canvas.add(visualProperty);
-            visualProperty.bringForward(true);
+//            visualProperty.bringForward(true);
+            bringToFront(visualProperty);
 
             visualProperty.outConnectors.forEach(function (connector) {
-//                connector.bringToFront();
                 bringToFront(connector);
             });
 
@@ -1235,7 +1262,9 @@ var Mark = function () {
         if (theMark.paths) {
             theCopy.paths = new Array();
             theMark.paths.forEach(function (path) {
-                theCopy.paths.push(fabric.util.object.clone(path));
+                var clonedPath = fabric.util.object.clone(path);
+                theCopy.paths.push(clonedPath);
+
             });
         }
 
@@ -1602,31 +1631,25 @@ var Mark = function () {
                 } else {
 
                     if (!theMark.isCompressed) {
-//                        theMark.backgroundRect.bringToFront();
                         bringToFront(theMark.backgroundRect);
                         theMark.visualProperties.forEach(function (visualProperty) {
                             if (visualProperty.canvas) {
-//                                visualProperty.bringToFront();
                                 bringToFront(visualProperty);
 
 
                                 visualProperty.inConnectors.forEach(function (inConnection) {
-//                                    inConnection.bringToFront();
                                     bringToFront(inConnection);
                                 });
                                 visualProperty.outConnectors.forEach(function (outConnection) {
-//                                    outConnection.bringToFront();
                                     bringToFront(outConnection);
                                 });
 
                             }
                         });
                         if (theMark.iText) {
-//                            theMark.iText.bringToFront();
                             bringToFront(theMark.iText);
                         }
                     }
-//                    theMark.bringToFront();
                     bringToFront(theMark);
 
                 }

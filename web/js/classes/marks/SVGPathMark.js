@@ -209,6 +209,10 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         });
     },
     positionLabel: function () {
+        
+        if (this.group) {
+            return;
+        }
 
         var theMark = this;
 

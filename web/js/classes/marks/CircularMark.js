@@ -174,6 +174,10 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
 
     },
     positionLabel: function () {
+        
+        if (this.group) {
+            return;
+        }
 
         var groupLeft = 0;
         var groupTop = 0;

@@ -230,7 +230,7 @@ function allowTextExtractor(textExtractorType) {
     var downEvent = 'mouse:down';
     var moveEvent = 'mouse:move';
     var upEvent = 'mouse:up';
-    canvas.selection = false;
+//    canvas.selection = false;
     var mouseDragged = false;
     canvas.on(downEvent, function (options) {
 
@@ -662,7 +662,7 @@ function draw(figureType) {
     var downEvent = 'mouse:down';
     var moveEvent = 'mouse:move';
     var upEvent = 'mouse:up';
-    canvas.selection = false;
+//    canvas.selection = false;
     var mouseDragged = false;
     canvas.on(downEvent, function (options) {
 
@@ -865,15 +865,7 @@ function setBrushColor() {
     $(colorChooser).click();
 }
 
-function enableConnectorsVisibility() {
-    $('#toggleConnectorsVisibilityActivatorLink').html('<i id="checkConnectorsVisibility" class="icon-check"></i> Show connectors');
-    showConnectors();
-}
 
-function disableConnectorsVisibility() {
-    $('#toggleConnectorsVisibilityActivatorLink').html('<i id="checkConnectorsVisibility" class="icon-check-empty"></i> Show connectors');
-    hideConnectors();
-}
 
 function enableMarksExpansion() {
     $('#toggleMarksExpansionActivatorLink').html('<i id="checkMarksExpansion" class="icon-check"></i> Expand marks');
@@ -900,15 +892,15 @@ function setLineWidth(width) {
     $(drawingMenu).mouseout();
 }
 
-function activateObjectMode() {
-    canvas.selection = true;
-}
-
-
-
-function activePanningMode() {
-    canvas.selection = false;
-}
+//function activateObjectMode() {
+//    canvas.selection = true;
+//}
+//
+//
+//
+//function activePanningMode() {
+//    canvas.selection = false;
+//}
 
 function toggleDrawingMode() {
     var link = document.getElementById('drawingModeActivatorLink');
@@ -919,14 +911,52 @@ function toggleDrawingMode() {
     }
 }
 
+
+
+
+//function toggleConnectorsVisibility() {
+//    var htmlString = $('#toggleConnectorsVisibilityActivatorLink').html();
+//    if (htmlString.indexOf("empty") > -1) {
+//        enableConnectorsVisibility();
+//    } else {
+//        disableConnectorsVisibility();
+//    }
+//}
+//
+//function enableConnectorsVisibility() {
+//    $('#toggleConnectorsVisibilityActivatorLink').html('<i id="checkConnectorsVisibility" class="icon-check"></i> Show connectors');
+//    showConnectors();
+//}
+//
+//function disableConnectorsVisibility() {
+//    $('#toggleConnectorsVisibilityActivatorLink').html('<i id="checkConnectorsVisibility" class="icon-check-empty"></i> Show connectors');
+//    hideConnectors();
+//}
+
+
 function toggleConnectorsVisibility() {
-    var htmlString = $('#toggleConnectorsVisibilityActivatorLink').html();
-    if (htmlString.indexOf("empty") > -1) {
+    var htmlString = $('#connectorsVisibilityButton').html();
+    if (htmlString.indexOf("slash") > -1) {
         enableConnectorsVisibility();
     } else {
         disableConnectorsVisibility();
     }
 }
+
+function enableConnectorsVisibility() {
+    $('#connectorsVisibilityButton').html('<i class="fa fa-eye fa-2x"></i>');
+    showConnectors();
+}
+
+function disableConnectorsVisibility() {
+    $('#connectorsVisibilityButton').html('<i class="fa fa-eye-slash fa-2x"></i>');
+    hideConnectors();
+}
+
+
+
+
+
 
 function toggleMarksExpansion() {
     var htmlString = $('#toggleMarksExpansionActivatorLink').html();
@@ -1552,15 +1582,78 @@ function deleteObject() {
     }
 }
 
+
 function duplicateObject() {
 
-    if (canvas.getActiveGroup()) {
-        alertify.error("Select only one object");
+    var activeGroup = canvas.getActiveGroup();
+    var activeObject = canvas.getActiveObject();
+
+    if (activeGroup) {
+
+        var objects = activeGroup._objects;
+        if (objects) {
+            var totalSelectedObjects = objects.length;
+            if (totalSelectedObjects > 0) {
+
+                var clones = new Array();
+
+                objects.forEach(function (object) {
+                    if (object.isClonable && object.clone) {
+                        var clone = object.clone();
+                        clones.push(clone);
+                    }
+                });
+
+                var clonedGroup = new fabric.Group(clones);
+                canvas.add(clonedGroup);
+                var canvasActualCenter = getActualCanvasCenter();
+                clonedGroup.setPositionByOrigin(canvasActualCenter, 'center', 'center');
+
+
+
+
+                // ungrouping the CLONED group is here
+                var items = clonedGroup._objects;
+                clonedGroup._restoreObjectsState();
+                
+                canvas.remove(clonedGroup);
+
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];                    
+                    canvas.add(item);
+                    item.setCoords();
+                    item.group = null;
+                }
+                
+                
+                for (var i = 0; i < items.length; i++) {
+                    
+                    
+                    
+                    var item = items[i];                    
+                    if (item.isMark) {
+                        item.animateBirth(false, null, null, i !== items.length - 1);
+                        if (item.positionElements()) {
+                            item.positionElements();
+                        }
+                    }
+                }
+
+                canvas.renderAll();
+
+            }
+        }
+
+
+
+
+
+//        alertify.error("Select only one object");
     } else {
         var activeObject = canvas.getActiveObject();
         if (activeObject) {
 
-            if (!activeObject.isMark && !activeObject.isImportedImage) {
+            if (!activeObject.isClonable) {
                 alertify.error("The selected object can not be cloned.");
                 return;
             }
@@ -1576,12 +1669,25 @@ function duplicateObject() {
                 copy = fabric.util.object.clone(activeObject);
             }
 
+            
+
             canvas.add(copy);
             var canvasActualCenter = getActualCanvasCenter();
             copy.setPositionByOrigin(canvasActualCenter, 'center', 'center');
             copy.setCoords();
+
+
+            if (copy.isMark) {
+                copy.animateBirth();
+            }
+            
+            if (copy.positionElements()) {
+                copy.positionElements();
+            }
+
             canvas.setActiveObject(copy);
             canvas.renderAll();
+
         } else {
             alertify.error("No objects selected");
         }
@@ -1874,6 +1980,7 @@ function importImageToCanvas(options) {
         imgInstance.img = img;
 
         imgInstance.centeredRotation = true;
+        imgInstance.isClonable = true;
 
         imgInstance.type = "importedImage";
         imgInstance.isImage = true;
@@ -3539,6 +3646,21 @@ function deactivateFunctionDrawing(restore1FingerCanvasOperation) {
 
 
 
+/********************/
+/* FUNCTION drawing */
+function activateSquaredSelection() {
+    deactivateDrawing();
+    canvas.currentPan1FingerendOperation = SQUARED_GROUPING_OPERATION;
+    canvas.selection = true;
+    canvas.defaultCursor = 'default';
+}
+function deactivateSquaredSelection(restore1FingerCanvasOperation) {
+    canvas.selection = false;
+    if (restore1FingerCanvasOperation) {
+        restorePan1FingerBehaviour();
+    }
+}
+/********************/
 
 
 function activatePanningMode() {
@@ -3733,6 +3855,8 @@ function deactivateMode(buttonID, restore1FingerCanvasOperation) {
         deactivateFilledPathMarkDrawing(restore1FingerCanvasOperation);
     } else if (buttonID === 'drawFunction') {
         deactivateFunctionDrawing(restore1FingerCanvasOperation);
+    } else if (buttonID === 'squaredSelectionButton') {
+        deactivateSquaredSelection(restore1FingerCanvasOperation);
     }
 
 }
@@ -3763,6 +3887,8 @@ function activateMode(buttonID) {
         activateFilledPathMarkDrawing();
     } else if (buttonID === 'drawFunction') {
         activateFunctionDrawing();
+    } else if (buttonID === 'squaredSelectionButton') {
+        activateSquaredSelection();
     }
 
 }
@@ -3771,9 +3897,9 @@ function activateMode(buttonID) {
 function modeButtonClicked(button) {
 
     var clickedButton = $(button);
-    
+
     clickedButton.mouseout();
-    
+
     var isActive = clickedButton.data('isActive');
     var buttonID = clickedButton.attr('id');
 
@@ -3782,7 +3908,7 @@ function modeButtonClicked(button) {
     if (isActive) {
 
         // First possible hehabiour: When hitting on a canvas 1-finger ACTIVE mode, nothing happens
-        if (buttonID === 'panningModeButton' || buttonID === 'disconnectingModeButton') {
+        if (buttonID === 'panningModeButton' || buttonID === 'disconnectingModeButton' || buttonID === 'squaredSelectionButton') {
             return;
         }
 
@@ -3929,12 +4055,15 @@ function restorePan1FingerBehaviour() {
 
     if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
         applyActiveMenuButtonStyle($("#panningModeButton"));
-        activatePanningMode();        
-    } else {
+        activatePanningMode();
+    } else if (canvas.currentPan1FingerendOperation === DISCONNECTION_OPERATION) {
         applyActiveMenuButtonStyle($("#disconnectingModeButton"));
         activateDisconnectingMode();
+    } else if (canvas.currentPan1FingerendOperation === SQUARED_GROUPING_OPERATION) {
+        applyActiveMenuButtonStyle($("#squaredSelectionButton"));
+        activateSquaredSelection();
     }
-    
+
 }
 
 function deactivateScribbleMode() {
@@ -3979,18 +4108,18 @@ function deActivateFreeSelectionMode() {
     $("#freeSelectionButton").css("border", "0px none rgb(0, 0, 0)");
 }
 
-function activateRectSelectionMode() {
-    canvas.selection = true;
-    canvas.isRectSelectionMode = true;
-    $("#rectSelectionButton").css("background", "#D6D6D6 none repeat scroll 0% 0% / auto padding-box border-box");
-}
-
-function deActivateRectSelectionMode() {
-    canvas.selection = false;
-    canvas.isRectSelectionMode = false;
-    $("#rectSelectionButton").css("background-color", "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box");
-    $("#rectSelectionButton").css("border", "0px none rgb(0, 0, 0)");
-}
+//function activateRectSelectionMode() {
+//    canvas.selection = true;
+//    canvas.isRectSelectionMode = true;
+//    $("#rectSelectionButton").css("background", "#D6D6D6 none repeat scroll 0% 0% / auto padding-box border-box");
+//}
+//
+//function deActivateRectSelectionMode() {
+//    canvas.selection = false;
+//    canvas.isRectSelectionMode = false;
+//    $("#rectSelectionButton").css("background-color", "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box");
+//    $("#rectSelectionButton").css("border", "0px none rgb(0, 0, 0)");
+//}
 
 
 function applyActiveMenuButtonStyle(button) {

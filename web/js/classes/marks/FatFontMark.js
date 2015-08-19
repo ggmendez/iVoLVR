@@ -191,6 +191,10 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
 
     },
     positionLabel: function () {
+        
+        if (this.group) {
+            return;
+        }
 
         var groupLeft = 0;
         var groupTop = 0;
@@ -230,6 +234,8 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
 //   },
 
     _render: function (ctx) {
+        
+        this.set('editable', false);
         this.renderLocationLines(ctx);
         this.callSuper('_render', ctx);
         if (this.iText) {
@@ -238,7 +244,7 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
     },
     drawBorders: function (ctx) {
 
-        if (!this.hasBorders) {
+        if (!this.hasBorders || this.group) {
             return this;
         }
 

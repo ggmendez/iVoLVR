@@ -119,7 +119,7 @@
         <script type="text/javascript" src="./js/jquery.xdomainajax.js"></script>
         <script type="text/javascript" src="./js/resizeEvents/jquery.resize.js"></script>
         <script type="text/javascript" src="./js/jquery.drag.resize.js"></script>
- 
+
         <% new OpenCVLoader();%>
 
     </head>
@@ -135,6 +135,9 @@
             <!--------------->
             <!-- IMPORTING -->
             <!--------------->
+
+
+
             <li><a href="javascript:void(0);" onclick="onLoad();"><i class="icon-picture fa-2x"></i></a></li>
             <li> <input type="file" accept=".jpeg, .png, .jpg"  id="imageFileInput" name="someFile" onchange="handleImageFiles(this.files)" style="visibility:hidden;position:absolute;top:-50;left:-50"/></li>
 
@@ -152,7 +155,7 @@
             <!-- ZOOM -->
             <!---------->
             <li class=""><a href="javascript:zoomIn();" onclick=""><i class="icon-zoom-in fa-2x"></i></a></li>
-            <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a href="javascript:zoomOut();" onclick=""><i class="icon-zoom-out fa-2x"></i></a></li>
+            <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a href="javascript:zoomOut();" onclick=""><i class="icon-zoom-out fa-2x"></i></a></li>            
 
             <!------------------------------>
             <!-- DRAGGING & PANNING MODES -->
@@ -160,10 +163,24 @@
 
             <!--<li id="panningModeButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="mode"><a><i class="fa fa-hand-paper-o fa-2x"> </i> </a></li>-->
             <li id="panningModeButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="mode"><a><i class="fa fa-hand-paper-o fa-2x"> </i> </a></li>
-            <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2" id="disconnectingModeButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="mode"><a><i class="fa fa-unlink fa-2x"> </i> </a></li>
-
+            <li class="verticalLeftDivider" id="disconnectingModeButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="mode"><a><i class="fa fa-unlink fa-2x"> </i> </a></li>
+            
+            <li class="verticalLeftDivider" id="squaredSelectionButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="mode"><a><i class="fa fa-object-group fa-2x"> </i> </a></li>
+            <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2" id="freeSelectionButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="mode"><a><i class="fa fa-circle-o-notch fa-2x"> </i> </a></li>
+            
+            
             <!--<li class=""><a id="panningModeActivatorLink" href="javascript:void(0);" onclick="activatePanningMode();"><i class="icon-hand-up fa-2x"></i></a></li>-->
-            <!--<li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a id="panningModeDeActivatorLink" href="javascript:void(0);" onclick="deActivatePanningMode();"><i class="fa fa-unlink fa-2x"></i></a></li>-->
+            <!--<li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a id="panningModeDeActivatorLink" href="javascript:void(0);" onclick="deActivatePanningMode();"><i class="fa fa-unlink fa-2x"></i></a></li>-->            
+
+
+            <!--------------------------->
+            <!-- CONNECTORS VISIBILITY -->
+            <!--------------------------->
+            <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2" id="disconnectingModeButton" unselectable='on' onselectstart='return false;' draggable="false" class="mode"><a id="connectorsVisibilityButton" onmousedown="toggleConnectorsVisibility(this);"><i class="fa fa-eye fa-2x"></i></a></li>            
+            <!--            <li><a id="toggleConnectorsVisibilityActivatorLink" href="javascript:toggleConnectorsVisibility();"><i id="checkConnectorsVisibility" class="icon-check"></i> Show connectors</a></li>-->
+
+
+
 
             <!--------------------->
             <!-- COLOR REGIONS EXTRACTORS -->
@@ -190,8 +207,15 @@
             <!-- OPERATIONS ON OBJECTS -->
             <!--------------------------->
 
-            <li unselectable='on' onselectstart='return false;' onmousedown='duplicateObject();' draggable="false" class="mode"><a><i class="fa fa-copy fa-2x"> </i> </a></li>
+            <li unselectable='on' onselectstart='return false;' onmousedown='duplicateObject();' draggable="false" class="mode"><a><i class="fa fa-clone fa-flip-horizontal fa-2x clicMenu"> </i> </a></li>
             <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2" unselectable='on' onselectstart='return false;' onmousedown='deleteObject();' draggable="false" class="mode"><a><i class="fa fa-remove fa-2x"> </i> </a></li>
+
+            
+
+
+
+
+            <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a href="javascript:void(0);" onclick="deleteAllObjects();"><i class="fa fa-trash-o fa-2x"></i></a></li>
 
             <!--------------->
             <!-- FILE MENU -->
@@ -230,18 +254,26 @@
 
             <!--------------->
             <!-- MORE MENU -->
-            <!--------------->
+            <!--            -----------
             <li id="configMenu" onclick="showMenu(this);" class="verticalRightDivider verticalRightDivider2">
                 <a>
                     <i class="fa fa-plus fa-2x"></i>
                 </a>
                 <ul id="configMenuUL">
-                    <li><a id="toggleConnectorsVisibilityActivatorLink" href="javascript:toggleConnectorsVisibility();"><i id="checkConnectorsVisibility" class="icon-check"></i> Show connectors</a></li>
+                    
 
                     <li><a href="javascript:void(0);" onclick="deleteAllObjects();"><i class="fa-trash-o icon-large"></i> Clear canvas</a></li>
                 </ul>
-            </li>
+            </li>-->
+
+
+            <!-- RIGHT PANEL HANDLER -->
+
+
+
             <li class="verticalLeftDivider2" style="float: right;"><a id="toggleAdditionalToolsVisibility" href="javascript:void(0);" onclick="togglePanelVisibility('#rightPanel');"><i class="fa fa-chevron-right fa-2x"></i></a></li>
+
+
         </ul>
 
         <!--<div class="clear"></div>-->
@@ -264,35 +296,34 @@
                     <ul id="extractorsList" class="horizontalButtomsRow">
 
 
-<!--                        <li style="width: 100%; height: 15px; padding: 0px; margin: 0px; margin-bottom: 5px;">Coloured regions:</li>-->
-                        <li style="width: 100%; height: 15px; padding: 0px; margin: 0px; margin-bottom: 0px; margin-top: 0px; font-size: 10px; color: #777;">COLOURED REGIONS</li>
 
-                        <li id="groupColorRegionButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="boxDivider mode" style="margin-right: 8px;"><a><i class="fa fa-paint-brush" style="font-size: 25px;"> </i> </a></li>
+                        <!--<li style="width: 100%; height: 15px; padding: 0px; margin: 0px; margin-bottom: 0px; margin-top: 0px; font-size: 10px; color: #777;">COLOURED REGIONS</li>-->
 
-                        <li id="multipleColorRegionsButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="boxDivider mode" style="margin-right: 8px;"><a><i class="fa fa-pencil" style="font-size: 25px;"> </i> </a></li>
+                        <li id="groupColorRegionButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="boxDivider mode" style="margin-right: 8px; margin-bottom: 6px;"><a><i class="fa fa-paint-brush" style="font-size: 25px;"> </i> </a></li>
 
-                        <li id="floodFillButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="boxDivider mode" style="margin-right: 8px;"><a><i class="fa fa-magic" style="font-size: 25px;"> </i> </a></li>
+                        <li id="multipleColorRegionsButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="boxDivider mode" style="margin-right: 8px; margin-bottom: 6px;"><a><i class="fa fa-pencil" style="font-size: 25px;"> </i> </a></li>
 
+                        <li id="floodFillButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="boxDivider mode" style="margin-right: 8px; margin-bottom: 6px;"><a><i class="fa fa-magic" style="font-size: 25px;"> </i> </a></li>
 
-
-                        <!--<hr style="border-top: 1px solid #bbb; margin-top: 3px;" />-->
-
-                        <!--<li style="width: 100%; height: 15px; padding: 0px; margin-top: 5px; margin-bottom: 5px;">Colour samplers:</li>-->
-                        <li style="width: 100%; height: 15px; padding: 0px; margin-top: 5px; margin-bottom: 0px; margin-top: 0px; font-size: 10px; color: #777;">COLOUR SAMPLERS</li>
-
-                        <li id="samplerLineButton" onclick="modeButtonClicked(this);" unselectable='on' onselectstart='return false;' draggable="false" class="boxDivider mode" style="width: 46%;"><a><i class="collections-straightSampler" style="font-size: 22px;"> </i> </a></li>
-
-                        <li id="samplerButton" onclick="modeButtonClicked(this);" unselectable='on' onselectstart='return false;' draggable="false" class="boxDivider mode" style="width: 46%;"><a><i class="collections-freeSampler" style="font-size: 22px;"> </i> </a></li>
 
 
                         <!--<hr style="border-top: 1px solid #bbb; margin-top: 3px;" />-->
 
-                        <!--<li style="width: 100%; height: 15px; padding: 0px; margin-top: 5px; margin-bottom: 5px;">Text extractors:</li>-->
-                        <li style="width: 100%; height: 15px; padding: 0px; margin-top: 5px; margin-bottom: 0px; margin-top: 0px; font-size: 10px; color: #777;">TEXT EXTRACTORS</li>
+                        <!--<li style="width: 100%; height: 15px; padding: 0px; margin-top: 5px; margin-bottom: 0px; margin-top: 0px; font-size: 10px; color: #777;">COLOUR SAMPLERS</li>-->
 
-                        <li id="lineTextExtractorButton" unselectable='on' onselectstart='return false;' onmousedown="modeButtonClicked(this);" draggable="false" class="boxDivider mode" style="width: 46%;"><a><i class="icon-strikethrough icon-large" style="font-size: 19px;"> </i> </a></li>
+                        <li id="samplerLineButton" onclick="modeButtonClicked(this);" unselectable='on' onselectstart='return false;' draggable="false" class="boxDivider mode" style="width: 44%; margin-right: 8px; margin-bottom: 6px;"><a><i class="collections-straightSampler" style="font-size: 22px;"> </i> </a></li>
 
-                        <li id="blockTextExtractorButton" unselectable='on' onselectstart='return false;' onmousedown="modeButtonClicked(this);" draggable="false" class="boxDivider mode" style="width: 46%;"><a><i class="fa fa-stop icon-large" style="font-size: 19.5px;"> </i> </a></li>
+                        <li id="samplerButton" onclick="modeButtonClicked(this);" unselectable='on' onselectstart='return false;' draggable="false" class="boxDivider mode" style="width: 44%; margin-right: 8px; margin-bottom: 6px;"><a><i class="collections-freeSampler" style="font-size: 22px;"> </i> </a></li>
+
+
+                        <!--<hr style="border-top: 1px solid #bbb; margin-top: 3px;" />-->
+
+
+                        <!--<li style="width: 100%; height: 15px; padding: 0px; margin-top: 5px; margin-bottom: 0px; margin-top: 0px; font-size: 10px; color: #777;">TEXT EXTRACTORS</li>-->
+
+                        <li id="lineTextExtractorButton" unselectable='on' onselectstart='return false;' onmousedown="modeButtonClicked(this);" draggable="false" class="boxDivider mode" style="width: 44%; margin-right: 8px;"><a><i class="icon-strikethrough icon-large" style="font-size: 19px;"> </i> </a></li>
+
+                        <li id="blockTextExtractorButton" unselectable='on' onselectstart='return false;' onmousedown="modeButtonClicked(this);" draggable="false" class="boxDivider mode" style="width: 44%; margin-right: 8px;"><a><i class="fa fa-stop icon-large" style="font-size: 19.5px;"> </i> </a></li>
 
                         <!--<li id="lineTextualVixor" onclick="drawTextualVixor('lineExtractlineTextualVixoror', this);" unselectable='on' onselectstart='return false;' draggable="false" class="boxDivider clicElement"><a><i class="icon-strikethrough icon-large"> </i> </a></li>-->
                         <!--<li id="blockTextualVixor" onclick="drawTextualVixor('blockExtractor', this);" unselectable='on' onselectstart='return false;' draggable="false" class="boxDivider mode"><a><i class="fa fa-stop icon-large"> </i> </a></li>-->
@@ -489,7 +520,8 @@
             canvas.setHeight(height);
             canvas.selection = false;
             canvas.connectorsHidden = false;
-            canvas.selectionColor = 'rgba(229,238,244,0.2)';
+            canvas.selectionColor = 'rgba(229,238,244,0.5)';
+            canvas.selectionDashArray = [7, 7];
             canvas.selectionBorderColor = '#7c7064';
             canvas.selectionLineWidth = 3;
 
@@ -536,13 +568,15 @@
                         if (LOG)
                             console.log(ev);
                         canvas.pan1Fingerstarted = true;
-                        gestureSetEnabled(manager, 'pinch', false);                                                                        
+                        gestureSetEnabled(manager, 'pinch', false);
                     }
 
-                } else {
-                    
-                    console.log("Panning!!!");
-                    
+                } else if (!canvas.selection) {
+
+                    /*****************************/
+                    /********** PANNING **********/
+                    /*****************************/
+
                     canvas.defaultCursor = "-webkit-grabbing";
 
                     // This is to allow the canvas panning with one finger
@@ -554,6 +588,9 @@
                     canvas.viewportLeft = canvas.viewportTransform[4];
                     canvas.viewportTop = canvas.viewportTransform[5];
                     gestureSetEnabled(manager, 'pinch', false);
+
+                } else {
+                    console.log("Starting selection");
                 }
 
                 hideOpenTooltips();
@@ -570,8 +607,12 @@
                             console.log(ev);
                     }
 
-                } else {
-                    
+                } else if (!canvas.selection) {
+
+                    /*****************************/
+                    /********** PANNING **********/
+                    /*****************************/
+
                     canvas.defaultCursor = "-webkit-grabbing";
 
                     // This should only happen when the mouse event happens over a zone where NO objects are being touched
@@ -582,13 +623,20 @@
                         canvas.absolutePan(new fabric.Point(x, y));
                     }
 
+                } else {
+
+                    /**************************************/
+                    /********** SQUARE SELECTING **********/
+                    /**************************************/
+
+                    console.log("Selecting");
                 }
 
 
             });
             manager.on("pan1Fingerend", function (ev) {
 
-                if (!canvas.activePanningMode && !canvas.isSamplingLineMode) {
+                if (!canvas.activePanningMode && !canvas.isSamplingLineMode && !canvas.selection) {
 
                     if (!canvas.isDrawingMode && !canvas.getActiveObject() && !canvas.getActiveGroup() && canvas.pan1Fingerstarted && !canvas.connectorsHidden) {
 
@@ -619,10 +667,16 @@
                         canvas.pan1Fingerstarted = false;
                     }
                     gestureSetEnabled(manager, 'pinch', true);
-                } else {
+
+                } else if (!canvas.selection) {
 
                     canvas.defaultCursor = "-webkit-grab";
                     gestureSetEnabled(manager, 'pinch', true);
+
+                } else {
+
+                    console.log("Square selection ended");
+
                 }
 
 

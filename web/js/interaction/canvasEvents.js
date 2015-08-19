@@ -29,10 +29,11 @@
 
 
 function canvasObjectSelected(option) {
-    
-    
-    
-    if (LOG) console.log("canvasObjectSelected");
+
+
+
+    if (LOG)
+        console.log("canvasObjectSelected");
 
     var event = option.e;
     if (event) {
@@ -42,15 +43,15 @@ function canvasObjectSelected(option) {
     canvasDeselectAllObjects();
 
     var selectedObject = option.target;
-    
-    
+
+
     if (selectedObject.xmlID) {
-        
+
         console.log("%c" + "Object with ID " + selectedObject.xmlID + " selected", "background: rgb(0,148,158); color: white;");
     }
-    
-    
-    
+
+
+
 
     if (selectedObject) {
         if (selectedObject.isWidget) {
@@ -69,29 +70,222 @@ function canvasObjectSelected(option) {
 
 }
 
+function canvasBeforeSelectionCleared(option) {
+
+    console.log("canvas BEFORE Selection Cleared");
+
+    console.log("option:");
+    console.log(option);
+
+    var selectedObjects = option.target._objects;
+    if (selectedObjects) {
+        var totalSelectedObjects = selectedObjects.length;
+        console.log("Total objects in the selection to clear: " + totalSelectedObjects);
+
+        if (totalSelectedObjects > 0) {
+            selectedObjects.forEach(function (object) {
+                object.lockMovementX = object.previousLockMovementX;
+                object.lockMovementY = object.previousLockMovementY;
+            });
+
+        }
+    }
+}
+
+
 function canvasSelectionCleared(option) {
-//    if (LOG) console.log("canvasSelectionCleared");    
+    console.log("canvasSelectionCleared");
     var event = option.e;
     if (event) {
         event.preventDefault();
     }
     canvasDeselectAllObjects();
 
+    // this is done to guarantee that the marks' labels are not going to be missplaced and, thus, they can be grouped again with no problems
+    canvas.forEachObject(function (object) {
+        if (object.positionElements) {
+            object.positionElements();
+        }
+    });
+
+
 }
 
+groupDrawBorders = function (ctx) {
+
+        if (!this.hasBorders) {
+            return this;
+        }
+
+        ctx.save();
+
+        ctx.setLineDash([7, 7]);
+
+        ctx.fillStyle = 'rgba(229,238,244,0.2)';
+
+        ctx.globalAlpha = this.isMoving ? this.borderOpacityWhenMoving : 1;
+        ctx.strokeStyle = this.borderColor;
+        ctx.lineWidth = 3;
+
+        var wh = this._calculateCurrentDimensions(true),
+                width = wh.x,
+                height = wh.y;
+        if (this.group) {
+            width = width * this.group.scaleX;
+            height = height * this.group.scaleY;
+        }
+
+        ctx.fillRect(
+                ~~(-(width / 2)) - 0.5, // offset needed to make lines look sharper
+                ~~(-(height / 2)) - 0.5,
+                ~~(width) + 1, // double offset needed to make lines look sharper
+                ~~(height) + 1
+                );
+
+        ctx.strokeRect(
+                ~~(-(width / 2)) - 0.5, // offset needed to make lines look sharper
+                ~~(-(height / 2)) - 0.5,
+                ~~(width) + 1, // double offset needed to make lines look sharper
+                ~~(height) + 1
+                );
+
+        if (this.hasRotatingPoint && this.isControlVisible('mtr') && !this.get('lockRotation') && this.hasControls) {
+
+            var rotateHeight = -height / 2;
+
+            ctx.beginPath();
+            ctx.moveTo(0, rotateHeight);
+            ctx.lineTo(0, rotateHeight - this.rotatingPointOffset);
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        ctx.restore();
+        return this;
+    };
+
 function canvasSelectionCreated(option) {
-    if (LOG) console.log("canvasSelectionCreated");
+
+    console.log("canvasSelectionCreated");
     var event = option.e;
     if (event) {
         event.preventDefault();
+    }
+    
+    var createdGroup = option.target;
+    createdGroup.lockScalingX = true;
+    createdGroup.lockScalingY = true;
+    createdGroup.lockRotation = true;
+    createdGroup.hasControls = false;
+    createdGroup.hasBorders = true;
+
+    createdGroup.padding = 10;
+    createdGroup.borderColor = '#ffce0a';
+
+    createdGroup.setShadow({
+        color: 'red',
+        blur: 10,
+        offsetX: 20,
+        offsetY: 20
+    });
+
+    createdGroup.drawBorders = groupDrawBorders;
+    
+    
+    /*createdGroup.drawBorders = function (ctx) {
+
+        if (!this.hasBorders) {
+            return this;
+        }
+
+        ctx.save();
+
+        ctx.setLineDash([7, 7]);
+
+        ctx.fillStyle = 'rgba(229,238,244,0.2)';
+
+        ctx.globalAlpha = this.isMoving ? this.borderOpacityWhenMoving : 1;
+        ctx.strokeStyle = this.borderColor;
+        ctx.lineWidth = 3;
+
+        var wh = this._calculateCurrentDimensions(true),
+                width = wh.x,
+                height = wh.y;
+        if (this.group) {
+            width = width * this.group.scaleX;
+            height = height * this.group.scaleY;
+        }
+
+        ctx.fillRect(
+                ~~(-(width / 2)) - 0.5, // offset needed to make lines look sharper
+                ~~(-(height / 2)) - 0.5,
+                ~~(width) + 1, // double offset needed to make lines look sharper
+                ~~(height) + 1
+                );
+
+        ctx.strokeRect(
+                ~~(-(width / 2)) - 0.5, // offset needed to make lines look sharper
+                ~~(-(height / 2)) - 0.5,
+                ~~(width) + 1, // double offset needed to make lines look sharper
+                ~~(height) + 1
+                );
+
+        if (this.hasRotatingPoint && this.isControlVisible('mtr') && !this.get('lockRotation') && this.hasControls) {
+
+            var rotateHeight = -height / 2;
+
+            ctx.beginPath();
+            ctx.moveTo(0, rotateHeight);
+            ctx.lineTo(0, rotateHeight - this.rotatingPointOffset);
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        ctx.restore();
+        return this;
+    };*/
+
+    var selectedObjects = createdGroup._objects;
+    if (selectedObjects) {
+        var totalSelectedObjects = selectedObjects.length;
+
+        if (LOG) {
+            console.log("Selection created with " + totalSelectedObjects + " objects");
+        }
+
+        if (totalSelectedObjects > 0) {
+
+            selectedObjects.forEach(function (object) {
+                if (object.addToGroup) {
+                    object.addToGroup(createdGroup);
+                }
+            });
+        }
+
+        selectedObjects = createdGroup._objects;
+        totalSelectedObjects = selectedObjects.length;
+        if (LOG) {
+            console.log("FINAL number of objects in the : " + totalSelectedObjects);
+        }
+        if (totalSelectedObjects > 0) {
+            selectedObjects.forEach(function (object) {
+                object.previousLockMovementX = object.lockMovementX;
+                object.previousLockMovementY = object.lockMovementY;
+                object.lockMovementX = false;
+                object.lockMovementY = false;
+            });
+        }
+
     }
 }
 
 function canvasPathCreated(options) {
 
 
-    if (LOG) console.log("options:");
-    if (LOG) console.log(options);
+    if (LOG)
+        console.log("options:");
+    if (LOG)
+        console.log(options);
 
 
     if (canvas.isPathMarkDrawingMode) {
@@ -110,15 +304,15 @@ function canvasPathCreated(options) {
             thePath: points
         };
         addMarkToCanvas(PATH_MARK, options);
-        
+
         drawnPath.remove();
-        
+
         applyInactiveMenuButtonStyle($("#drawPathMark"))
         deactivatePathMarkDrawing(true);
 
 
     } else if (canvas.isFilledMarkDrawingMode) {
-        
+
         var drawnPath = options.path;
         var points = drawnPath.path;
         var center = drawnPath.getCenterPoint();
@@ -133,24 +327,24 @@ function canvasPathCreated(options) {
             thePath: points
         };
         addMarkToCanvas(FILLEDPATH_MARK, options);
-        
+
         drawnPath.remove();
-        
+
         applyInactiveMenuButtonStyle($("#drawFilledMark"))
         deactivateFilledPathMarkDrawing(true);
-                        
-        
+
+
     } else if (canvas.isFunctionDrawingMode) {
 
         var drawnPath = options.path;
         var center = drawnPath.getCenterPoint();
-        
+
         drawnPath.remove();
-        
+
         var XYValues = extractXYValues(drawnPath);
-        
+
         var coordinates = createFunctionCoordinatesFromValues(XYValues.xValues, XYValues.yValues);
-                
+
         var options = {
             top: center.y,
             left: center.x,
@@ -164,7 +358,7 @@ function canvasPathCreated(options) {
 
         applyInactiveMenuButtonStyle($("#drawFunction"))
         deactivateFunctionDrawing(true);
-        
+
 
     } else if (canvas.isFreeSelectionMode) {
 
@@ -178,8 +372,10 @@ function canvasPathCreated(options) {
         });
         stringPath += "Z";
 
-        if (LOG) console.log("stringPath:");
-        if (LOG) console.log(stringPath);
+        if (LOG)
+            console.log("stringPath:");
+        if (LOG)
+            console.log(stringPath);
 
         drawnPath.remove();
 
@@ -203,12 +399,12 @@ function canvasPathCreated(options) {
 
     } else if (canvas.isSamplingMode) {
 
-        var drawnPath = options.path;                
+        var drawnPath = options.path;
 
         createSampleVixorFromPath(drawnPath, false);
 
 //        drawnPath.remove();
-        
+
     } else if (canvas.isScribbleMode) {
 
         var drawnPath = options.path;
@@ -229,8 +425,10 @@ function canvasPathCreated(options) {
 
         var n = points.length;
 
-        if (LOG) console.log("points:");
-        if (LOG) console.log(points);
+        if (LOG)
+            console.log("points:");
+        if (LOG)
+            console.log(points);
 
         var curvePoints = new Array();
         var x, y, i;
@@ -267,8 +465,10 @@ function canvasPathCreated(options) {
 
 
 
-        if (LOG) console.log("curvePoints:");
-        if (LOG) console.log(curvePoints);
+        if (LOG)
+            console.log("curvePoints:");
+        if (LOG)
+            console.log(curvePoints);
 
 
 
@@ -277,10 +477,13 @@ function canvasPathCreated(options) {
 
         var simplifiedCurvePoints = simplify(curvePoints, tolerance, highQuality);
 
-        if (LOG) console.log("simplifiedCurvePoints:");
-        if (LOG) console.log(simplifiedCurvePoints);
+        if (LOG)
+            console.log("simplifiedCurvePoints:");
+        if (LOG)
+            console.log(simplifiedCurvePoints);
 
-        if (LOG) console.log(simplifiedCurvePoints.length + " points in the simplified curve.");
+        if (LOG)
+            console.log(simplifiedCurvePoints.length + " points in the simplified curve.");
 
         var polyPath = "M ";
 
@@ -321,11 +524,15 @@ function canvasPathCreated(options) {
 //    canvas.add(curve);
 
 
-        if (LOG) console.log("lineString:");
-        if (LOG) console.log(lineString);
+        if (LOG)
+            console.log("lineString:");
+        if (LOG)
+            console.log(lineString);
 
-        if (LOG) console.log("%csimplifiedLineString:", "color: #000000; background: #F5F5DC");
-        if (LOG) console.log("%c" + simplifiedLineString, "color: #000000; background: #F5F5DC");
+        if (LOG)
+            console.log("%csimplifiedLineString:", "color: #000000; background: #F5F5DC");
+        if (LOG)
+            console.log("%c" + simplifiedLineString, "color: #000000; background: #F5F5DC");
 
         var reader = new jsts.io.WKTReader();
 
@@ -344,10 +551,13 @@ function canvasPathCreated(options) {
         var samplingDistance = 25;
         var offsetPoints = offsetCurveBuilder.getLineCurve(line.getCoordinates(), samplingDistance);
 
-        if (LOG) console.log("offsetPoints");
-        if (LOG) console.log(offsetPoints);
+        if (LOG)
+            console.log("offsetPoints");
+        if (LOG)
+            console.log(offsetPoints);
 
-        if (LOG) console.log(offsetPoints.length + " points in the offset curve.");
+        if (LOG)
+            console.log(offsetPoints.length + " points in the offset curve.");
 
 
 
@@ -375,13 +585,17 @@ function canvasPathCreated(options) {
         var reader = new jsts.io.WKTReader();
         var polygon = reader.read('POLYGON (' + offsetPolygonString + ')');
 
-        if (LOG) console.log("polygon:");
-        if (LOG) console.log(polygon);
+        if (LOG)
+            console.log("polygon:");
+        if (LOG)
+            console.log(polygon);
 
         var buffer = line.buffer(20);
         buffer.normalize();
-        if (LOG) console.log("buffer");
-        if (LOG) console.log(buffer.getCoordinates());
+        if (LOG)
+            console.log("buffer");
+        if (LOG)
+            console.log(buffer.getCoordinates());
 
 
         var offsetPath = new fabric.Path(originalOffsetPolygon);
@@ -401,8 +615,10 @@ function canvasPathCreated(options) {
         // The cleaned polygon does NOT contain self-intersections after the following call:
         var cleanedPolygon = jsts.operation.buffer.BufferOp.bufferOp(polygon, 0);
 
-        if (LOG) console.log("%c" + cleanedPolygon, "background: #FF0000; color: #FFFFFF");
-        if (LOG) console.log(cleanedPolygon.getCoordinates());
+        if (LOG)
+            console.log("%c" + cleanedPolygon, "background: #FF0000; color: #FFFFFF");
+        if (LOG)
+            console.log(cleanedPolygon.getCoordinates());
 
 
         // The offsetPoints which we will work from now are going to be the ones that compose the cleaned polygon
@@ -435,8 +651,10 @@ function canvasPathCreated(options) {
 
         var intersects = findSelfIntersects(coordinates);
 
-        if (LOG) console.log("%c" + intersects, "background: #FFC00A; color: #ff0000");
-        if (LOG) console.log(intersects);
+        if (LOG)
+            console.log("%c" + intersects, "background: #FFC00A; color: #ff0000");
+        if (LOG)
+            console.log(intersects);
 
 
 
@@ -480,8 +698,10 @@ function canvasPathCreated(options) {
 
 
 
-        if (LOG) console.log("%cStart segment formed by points " + startSegment.p1 + " and " + startSegment.p2, "background: #000000; color: #ff00ff");
-        if (LOG) console.log("%cEnd segment formed by points " + endSegment.p1 + " and " + endSegment.p2, "background: #000000; color: #ff00ff");
+        if (LOG)
+            console.log("%cStart segment formed by points " + startSegment.p1 + " and " + startSegment.p2, "background: #000000; color: #ff00ff");
+        if (LOG)
+            console.log("%cEnd segment formed by points " + endSegment.p1 + " and " + endSegment.p2, "background: #000000; color: #ff00ff");
 
 
         var boundaryLimits = [startSegment.p1, startSegment.p2, endSegment.p1, endSegment.p2, 0, offsetPoints.length - 1];
@@ -490,7 +710,8 @@ function canvasPathCreated(options) {
         });
 
 
-        if (LOG) console.log(boundaryLimits);
+        if (LOG)
+            console.log(boundaryLimits);
 
 
 
@@ -573,18 +794,28 @@ function canvasPathCreated(options) {
 
 
 
-        if (LOG) console.log("offsetPathString1:");
-        if (LOG) console.log(offsetPathString1);
+        if (LOG)
+            console.log("offsetPathString1:");
+        if (LOG)
+            console.log(offsetPathString1);
 
-        if (LOG) console.log("offsetPathString2:");
-        if (LOG) console.log(offsetPathString2);
+        if (LOG)
+            console.log("offsetPathString2:");
+        if (LOG)
+            console.log(offsetPathString2);
 
-        if (LOG) console.log("spinePoints:");
-        if (LOG) console.log(spinePoints);
-        if (LOG) console.log("boundary1:");
-        if (LOG) console.log(boundary1);
-        if (LOG) console.log("boundary2:");
-        if (LOG) console.log(boundary2);
+        if (LOG)
+            console.log("spinePoints:");
+        if (LOG)
+            console.log(spinePoints);
+        if (LOG)
+            console.log("boundary1:");
+        if (LOG)
+            console.log(boundary1);
+        if (LOG)
+            console.log("boundary2:");
+        if (LOG)
+            console.log(boundary2);
 
 
 
@@ -633,11 +864,15 @@ function canvasPathCreated(options) {
 
 
 
-        if (LOG) console.log("polyPathSVG:");
-        if (LOG) console.log(polyPathSVG);
+        if (LOG)
+            console.log("polyPathSVG:");
+        if (LOG)
+            console.log(polyPathSVG);
 
-        if (LOG) console.log("polyPathSVG.toSVG():");
-        if (LOG) console.log(polyPathSVG.toSVG());
+        if (LOG)
+            console.log("polyPathSVG.toSVG():");
+        if (LOG)
+            console.log(polyPathSVG.toSVG());
 
 
 
@@ -674,8 +909,10 @@ function canvasPathCreated(options) {
 
 
 
-        if (LOG) console.log("minX: " + minX);
-        if (LOG) console.log("minY: " + minY);
+        if (LOG)
+            console.log("minX: " + minX);
+        if (LOG)
+            console.log("minY: " + minY);
 
 
         var tl = polyPathSVG.getPointByOrigin('left', 'top');
@@ -785,14 +1022,20 @@ function canvasPathCreated(options) {
 //
 //        }
 
-            if (LOG) console.log("spineRelativePoints:");
-            if (LOG) console.log(spineTexturePoints);
+            if (LOG)
+                console.log("spineRelativePoints:");
+            if (LOG)
+                console.log(spineTexturePoints);
 
-            if (LOG) console.log("b1RelativePoints:");
-            if (LOG) console.log(b1TexturePoints);
+            if (LOG)
+                console.log("b1RelativePoints:");
+            if (LOG)
+                console.log(b1TexturePoints);
 
-            if (LOG) console.log("b2RelativePoints:");
-            if (LOG) console.log(b2TexturePoints);
+            if (LOG)
+                console.log("b2RelativePoints:");
+            if (LOG)
+                console.log(b2TexturePoints);
 
 
             // standard global variables
@@ -871,8 +1114,10 @@ function canvasPathCreated(options) {
             for (i = 0; i < n - 1; i++) {
                 spineDistances.push(Math.sqrt(Math.pow(spinePoints[i + 1].y - spinePoints[i].y, 2) + Math.pow(spinePoints[i + 1].x - spinePoints[i].x, 2)));
             }
-            if (LOG) console.log("spineDistances:");
-            if (LOG) console.log(spineDistances);
+            if (LOG)
+                console.log("spineDistances:");
+            if (LOG)
+                console.log(spineDistances);
 
             var newSpinePoints = new Array();
             newSpinePoints.push({x: 0, y: 0});
@@ -889,14 +1134,20 @@ function canvasPathCreated(options) {
             }
 
 
-            if (LOG) console.log("newSpinePoints:");
-            if (LOG) console.log(newSpinePoints);
+            if (LOG)
+                console.log("newSpinePoints:");
+            if (LOG)
+                console.log(newSpinePoints);
 
-            if (LOG) console.log("newBoundary1Points:");
-            if (LOG) console.log(newBoundary1Points);
+            if (LOG)
+                console.log("newBoundary1Points:");
+            if (LOG)
+                console.log(newBoundary1Points);
 
-            if (LOG) console.log("newBoundary2Points:");
-            if (LOG) console.log(newBoundary2Points);
+            if (LOG)
+                console.log("newBoundary2Points:");
+            if (LOG)
+                console.log(newBoundary2Points);
 
 
 
@@ -980,11 +1231,15 @@ function canvasPathCreated(options) {
             ]);
             scene.add(sourceShape);
 
-            if (LOG) console.log("sourceShape:");
-            if (LOG) console.log(sourceShape);
+            if (LOG)
+                console.log("sourceShape:");
+            if (LOG)
+                console.log(sourceShape);
 
-            if (LOG) console.log("sourceGeometry:");
-            if (LOG) console.log(sourceGeometry);
+            if (LOG)
+                console.log("sourceGeometry:");
+            if (LOG)
+                console.log(sourceGeometry);
 
 
 
@@ -996,8 +1251,10 @@ function canvasPathCreated(options) {
             sourceGeometry.computeBoundingSphere();
 
 
-            if (LOG) console.log("sourceGeometry.boundingBox:");
-            if (LOG) console.log(sourceGeometry.boundingBox);
+            if (LOG)
+                console.log("sourceGeometry.boundingBox:");
+            if (LOG)
+                console.log(sourceGeometry.boundingBox);
 
 //        destinationShape.position.y = sourceGeometry.boundingSphere.center.y - sourceGeometry.boundingSphere.radius - 30;
             destinationShape.position.y = sourceGeometry.boundingBox.min.y - 50;
@@ -1050,30 +1307,31 @@ function canvasPathCreated(options) {
 
 }
 
-function hiMenu (menuID) {    
+function hiMenu(menuID) {
     $("#" + menuID).removeClass('hover');
-    $("#" + menuID + "UL").css("display", "none");    
+    $("#" + menuID + "UL").css("display", "none");
 }
 
-function showMenu (menu) {
+function showMenu(menu) {
     var theMenu = $(menu);
     var menuID = theMenu.attr('id');
     $("#" + menuID).addClass('hover');
-    $("#" + menuID + "UL").css("display", "block");    
+    $("#" + menuID + "UL").css("display", "block");
 }
 
-function closePotentiallyOpenMenus () {
-    hiMenu ("fileMenu");
-    hiMenu ("configMenu");
+function closePotentiallyOpenMenus() {
+    hiMenu("fileMenu");
+    hiMenu("configMenu");
 }
 
 function canvasMouseDown(option) {
 
-    if (LOG) console.log("canvasMouseDown");
+    if (LOG)
+        console.log("canvasMouseDown");
     var event = option.e;
     event.preventDefault();
-    
-    closePotentiallyOpenMenus ();
+
+    closePotentiallyOpenMenus();
 
 //   if (LOG) console.log(event);
 
@@ -1140,10 +1398,8 @@ function canvasMouseMove(option) {
 
 function canvasMouseUp(option) {
 
-
-    deActivateRectSelectionMode();
-
-    if (LOG) console.log("canvasMouseUp");
+    if (LOG)
+        console.log("canvasMouseUp");
 
     if (option) {
         var event = option.e;
@@ -1155,7 +1411,7 @@ function canvasMouseUp(option) {
 
             applyInactiveMenuButtonStyle($("#samplerLineButton"));
             deactivateLineColorSampling();
-            
+
             var theSamplingLine = canvas.samplingLine;
             theSamplingLine.setCoords();
 
@@ -1163,10 +1419,10 @@ function canvasMouseUp(option) {
             var y1 = theSamplingLine.y1;
             var x2 = theSamplingLine.x2;
             var y2 = theSamplingLine.y2;
-            
+
             console.log("theSamplingLine.top: " + theSamplingLine.top);
             console.log("theSamplingLine.left: " + theSamplingLine.left);
-            
+
             var centerPoint = theSamplingLine.getCenterPoint();
             console.log("centerPoint.x: " + centerPoint.x);
             console.log("centerPoint.y: " + centerPoint.y);
@@ -1174,11 +1430,11 @@ function canvasMouseUp(option) {
             var simplifiedPolyline = new Array();
             var startPoint = {x: x1, y: y1};
             var endPoint = {x: x2, y: y2};
-            
+
 //            drawRectAt(startPoint, 'green');
 //            drawRectAt(endPoint, 'red');
 //            drawRectAt(centerPoint, 'black');
-            
+
             simplifiedPolyline.push(startPoint);
             simplifiedPolyline.push(endPoint);
 
@@ -1259,7 +1515,8 @@ function canvasMouseUp(option) {
 }
 
 function canvasPressEvent(hammerEvent) {
-    if (LOG) console.log("canvasPressEvent");
+    if (LOG)
+        console.log("canvasPressEvent");
     hammerEvent.preventDefault();
     var activeObject = canvas.getActiveObject();
     if (activeObject) {
@@ -1267,11 +1524,14 @@ function canvasPressEvent(hammerEvent) {
         hammerEvent.targetObject = activeObject;
 
         if (activeObject.isOperator) {
-            if (LOG) console.log("%cDelegating the pressing event to the press OPERATOR", "background: #00ff00");
+            if (LOG)
+                console.log("%cDelegating the pressing event to the press OPERATOR", "background: #00ff00");
         } else if (activeObject.isFunctionOutput) {
-            if (LOG) console.log("%cDelegating the pressing event to the press FUNCTION OUTPUT", "background: #00ff00");
+            if (LOG)
+                console.log("%cDelegating the pressing event to the press FUNCTION OUTPUT", "background: #00ff00");
         } else if (activeObject.isVisualProperty) {
-            if (LOG) console.log("%cDelegating the pressing event to the press VISUAL PROPERTY", "background: #00ff00");
+            if (LOG)
+                console.log("%cDelegating the pressing event to the press VISUAL PROPERTY", "background: #00ff00");
         }
 
         activeObject.trigger('pressed', hammerEvent);
@@ -1282,7 +1542,8 @@ function canvasPressEvent(hammerEvent) {
 
 function canvasDoubleTap(hammerEvent) {
 
-    if (LOG) console.log("canvasDoubleTap");
+    if (LOG)
+        console.log("canvasDoubleTap");
 
     hammerEvent.preventDefault();
 
@@ -1292,11 +1553,12 @@ function canvasDoubleTap(hammerEvent) {
 
         if (activeObject.isImage) {
 
-            if (LOG) console.log("%cDelegating the double tap event to the tapped object", "background: #00ff00");
+            if (LOG)
+                console.log("%cDelegating the double tap event to the tapped object", "background: #00ff00");
 
             objectDoubleTap(hammerEvent, activeObject);
-            
-            
+
+
         } else {
             var options = {event: hammerEvent};
             activeObject.trigger('doubleTap', options);
@@ -1307,7 +1569,8 @@ function canvasDoubleTap(hammerEvent) {
 //        toggleWidgetsOutputsConnectorsVisibility();
 //            toggleMarksState();
 
-        if (LOG) console.log("Double clic on the canvas");
+        if (LOG)
+            console.log("Double clic on the canvas");
 
     }
 
@@ -1316,7 +1579,8 @@ function canvasDoubleTap(hammerEvent) {
 function canvasMouseOver(option) {
 
 
-    if (LOG) console.log("canvasMouseOver");
+    if (LOG)
+        console.log("canvasMouseOver");
 
     var targetObject = option.target;
 
@@ -1351,6 +1615,9 @@ function bindCanvasDefaultEvents() {
         'selection:cleared': function (option) {
             canvasSelectionCleared(option);
         },
+        'before:selection:cleared': function (option) {
+            canvasBeforeSelectionCleared(option);
+        },
         'selection:created': function (option) {
             canvasSelectionCreated(option);
         },
@@ -1360,8 +1627,6 @@ function bindCanvasDefaultEvents() {
         'object:scaled': function (option) {
             console.log("ñsdiyugfeiuaagfñilu");
         },
-        
-        
 //        'mouse:over': function (option) {
 //            canvasMouseOver(option);
 //        }

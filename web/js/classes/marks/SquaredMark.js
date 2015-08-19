@@ -305,19 +305,8 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
 
     },
     positionLabel: function () {
-        var groupLeft = 0;
-        var groupTop = 0;
-        var groupScaleX = 1;
-        var groupScaleY = 1;
-
+        
         this.setCoords();
-
-        if (this.group) {
-            groupLeft = this.group.left;
-            groupTop = this.group.top;
-            groupScaleX = this.group.getScaleX();
-            groupScaleY = this.group.getScaleY();
-        }
 
         var objectCenter = this.getCenterPoint();
         var boundingRect = this.getBoundingRect();
@@ -328,17 +317,23 @@ var SquaredMark = fabric.util.createClass(fabric.Rect, {
         var boundingRectCenterBottom = new fabric.Point(this.left, objectCenter.y + (boundingRect.height / 2));
         boundingRectCenterBottom.y += this.labelGap;
         this.iText.text = this.label;
-        this.iText.left = groupLeft + this.left * groupScaleX;
-        this.iText.top = groupTop + boundingRectCenterBottom.y;
+        this.iText.left = this.left;
+        this.iText.top = boundingRectCenterBottom.y;
 
         this.iText.setCoords();
     },
     _render: function (ctx) {
+        
+        
+        
         this.renderLocationLines(ctx);
         this.callSuper('_render', ctx);
-        if (this.iText) {
+        if (this.iText && !this.group) {
             this.positionLabel();
         }
+        
+
+        
     },
     generateOptionsForShape: function (newShapeType) {
 
