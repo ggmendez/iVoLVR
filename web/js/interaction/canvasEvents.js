@@ -121,7 +121,7 @@ groupDrawBorders = function (ctx) {
 
         ctx.setLineDash([7, 7]);
 
-        ctx.fillStyle = 'rgba(229,238,244,0.2)';
+        ctx.fillStyle = 'rgba(229,238,244,0.3)';
 
         ctx.globalAlpha = this.isMoving ? this.borderOpacityWhenMoving : 1;
         ctx.strokeStyle = this.borderColor;
@@ -395,7 +395,12 @@ function canvasPathCreated(options) {
 
         canvas.renderAll();
 
-        deActivateFreeSelectionMode();
+//        deActivateFreeSelectionMode();
+
+        applyInactiveMenuButtonStyle($("#freeSelectionButton"))
+        deactivateFreeSelection(true);
+
+
 
     } else if (canvas.isSamplingMode) {
 

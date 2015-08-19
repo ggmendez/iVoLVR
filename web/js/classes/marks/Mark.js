@@ -168,7 +168,7 @@ var Mark = function () {
 
     this.createIText = function () {
         var theMark = this;
-        var label = theMark.label || 'Gonzalo';
+        var label = theMark.label || '';
         var iText = new fabric.IText(label, {
             originX: 'center',
             originY: 'center',

@@ -3646,8 +3646,8 @@ function deactivateFunctionDrawing(restore1FingerCanvasOperation) {
 
 
 
-/********************/
-/* FUNCTION drawing */
+/*********************/
+/* SQUARED selecction */
 function activateSquaredSelection() {
     deactivateDrawing();
     canvas.currentPan1FingerendOperation = SQUARED_GROUPING_OPERATION;
@@ -3656,6 +3656,26 @@ function activateSquaredSelection() {
 }
 function deactivateSquaredSelection(restore1FingerCanvasOperation) {
     canvas.selection = false;
+    if (restore1FingerCanvasOperation) {
+        restorePan1FingerBehaviour();
+    }
+}
+/********************/
+
+
+
+
+/*********************/
+/* FREE selecction */
+function activateFreeSelection() {
+    activateDrawing();
+    canvas.isFreeSelectionMode = true;    
+    canvas.defaultCursor = 'default';
+}
+function deactivateFreeSelection(restore1FingerCanvasOperation) {
+    canvas.selection = false;
+    canvas.isFreeSelectionMode = false;
+    deactivateDrawing();
     if (restore1FingerCanvasOperation) {
         restorePan1FingerBehaviour();
     }
@@ -3857,6 +3877,8 @@ function deactivateMode(buttonID, restore1FingerCanvasOperation) {
         deactivateFunctionDrawing(restore1FingerCanvasOperation);
     } else if (buttonID === 'squaredSelectionButton') {
         deactivateSquaredSelection(restore1FingerCanvasOperation);
+    } else if (buttonID === 'freeSelectionButton') {
+        deactivateFreeSelection(restore1FingerCanvasOperation);
     }
 
 }
@@ -3889,6 +3911,8 @@ function activateMode(buttonID) {
         activateFunctionDrawing();
     } else if (buttonID === 'squaredSelectionButton') {
         activateSquaredSelection();
+    } else if (buttonID === 'freeSelectionButton') {
+        activateFreeSelection();
     }
 
 }
@@ -3908,7 +3932,7 @@ function modeButtonClicked(button) {
     if (isActive) {
 
         // First possible hehabiour: When hitting on a canvas 1-finger ACTIVE mode, nothing happens
-        if (buttonID === 'panningModeButton' || buttonID === 'disconnectingModeButton' || buttonID === 'squaredSelectionButton') {
+        if (buttonID === 'panningModeButton' || buttonID === 'disconnectingModeButton' || buttonID === 'squaredSelectionButton' || buttonID === 'freeSelectionButton') {
             return;
         }
 
@@ -4062,6 +4086,9 @@ function restorePan1FingerBehaviour() {
     } else if (canvas.currentPan1FingerendOperation === SQUARED_GROUPING_OPERATION) {
         applyActiveMenuButtonStyle($("#squaredSelectionButton"));
         activateSquaredSelection();
+    } else if (canvas.currentPan1FingerendOperation === FREE_SELECTION_OPERATION) {
+        applyActiveMenuButtonStyle($("#freeSelectionButton"));
+        activateFreeSelection();
     }
 
 }

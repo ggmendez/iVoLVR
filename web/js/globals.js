@@ -16,7 +16,8 @@ modeButtons = [
     'drawPathMark',
     'drawFilledMark',
     'drawFunction',
-    'squaredSelectionButton'
+    'squaredSelectionButton',
+    'freeSelectionButton'
 ];
 
 OPERATOR_TEXT_FILL = "rgb(226, 227, 227)";
@@ -42,6 +43,7 @@ SHAPE = "Shape";
 PANNING_OPERATION = 'Panning';
 DISCONNECTION_OPERATION = 'Disconnecting';
 SQUARED_GROUPING_OPERATION = 'Squared_Grouping';
+FREE_SELECTION_OPERATION = 'Free_Selection';
 
 
 HORIZONTAL_RECTANGULAR_OUTPUT = 'Horizontal Rect';
