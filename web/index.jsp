@@ -120,6 +120,8 @@
         <script type="text/javascript" src="./js/resizeEvents/jquery.resize.js"></script>
         <script type="text/javascript" src="./js/jquery.drag.resize.js"></script>
 
+        <script type="text/javascript" src="./js/toPathTransformations.js"></script>
+
         <% new OpenCVLoader();%>
 
     </head>
@@ -164,11 +166,11 @@
             <!--<li id="panningModeButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="mode"><a><i class="fa fa-hand-paper-o fa-2x"> </i> </a></li>-->
             <li id="panningModeButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="mode"><a><i class="fa fa-hand-paper-o fa-2x"> </i> </a></li>
             <li class="verticalLeftDivider" id="disconnectingModeButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="mode"><a><i class="fa fa-unlink fa-2x"> </i> </a></li>
-            
+
             <li class="verticalLeftDivider" id="squaredSelectionButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="mode"><a><i class="fa fa-object-group fa-2x"> </i> </a></li>
             <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2" id="freeSelectionButton" unselectable='on' onselectstart='return false;' onmousedown='modeButtonClicked(this);' draggable="false" class="mode"><a><i class="fa fa-circle-o-notch fa-2x"> </i> </a></li>
-            
-            
+
+
             <!--<li class=""><a id="panningModeActivatorLink" href="javascript:void(0);" onclick="activatePanningMode();"><i class="icon-hand-up fa-2x"></i></a></li>-->
             <!--<li class="verticalLeftDivider verticalRightDivider verticalRightDivider2"><a id="panningModeDeActivatorLink" href="javascript:void(0);" onclick="deActivatePanningMode();"><i class="fa fa-unlink fa-2x"></i></a></li>-->            
 
@@ -210,7 +212,7 @@
             <li unselectable='on' onselectstart='return false;' onmousedown='duplicateObject();' draggable="false" class="mode"><a><i class="fa fa-clone fa-flip-horizontal fa-2x clicMenu"> </i> </a></li>
             <li class="verticalLeftDivider verticalRightDivider verticalRightDivider2" unselectable='on' onselectstart='return false;' onmousedown='deleteObject();' draggable="false" class="mode"><a><i class="fa fa-remove fa-2x"> </i> </a></li>
 
-            
+
 
 
 
@@ -1341,10 +1343,18 @@
 
 
 
-
-
-
-
+//            var svgns = "http://www.w3.org/2000/svg";
+//            var rect = document.createElementNS(svgns, 'rect');
+//            rect.setAttributeNS(null, 'x', 100);
+//            rect.setAttributeNS(null, 'y', 100);
+//            rect.setAttributeNS(null, 'height', '50');
+//            rect.setAttributeNS(null, 'width', '50');
+//            rect.setAttributeNS(null, 'fill', '#' + Math.round(0xffffff * Math.random()).toString(16));
+//            
+//            var pepe = flattenToPaths(rect);
+//
+//            console.log("pepe:");
+//            console.log(pepe);
 
 
 

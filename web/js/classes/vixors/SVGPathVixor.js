@@ -19,7 +19,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         theExtractor.fill = theExtractor.trueColor;
         theExtractor.stroke = 'black';
         theExtractor.strokeDashArray = [5, 5];
-        theExtractor.strokeWidth = 4;        
+        theExtractor.strokeWidth = 4;
         canvas.renderAll();
 
         setTimeout(function () {
@@ -116,8 +116,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
     },
     initialize: function (path, options) {
 
-        console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$ options");
-        console.log(options);
+//        console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$ options");
+//        console.log(options);
 
         options || (options = {});
 
@@ -312,19 +312,21 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
 
             theVixor.moving = false;
-            canvas.renderAll();
+//            canvas.renderAll();
         };
         this.onMouseDown = function (options) {
 
             var theVixor = this;
 
-            if (LOG)
-                console.log("widgetMousedown");
+
+            console.log("Color region extractor mouse down");
 
             var theEvent = options;
             theEvent = options['e'];
 
             if (theEvent) {
+
+
 
                 var canvasCoords = getCanvasCoordinates(theEvent);
                 var coordX = canvasCoords.x;
@@ -435,8 +437,13 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
 
         };
+
+
+
+
     },
     associateInteractionEvents: function () {
+
         var theVixor = this;
         theVixor.on({
             'mouseup': function (options) {
@@ -451,16 +458,16 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         });
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
-        if (updater == 'rx') {
-            if (updatedProperty == 'area') {
+        if (updater === 'rx') {
+            if (updatedProperty === 'area') {
                 return value * this.ry * Math.PI;
             }
-        } else if (updater == 'ry') {
-            if (updatedProperty == 'area') {
+        } else if (updater === 'ry') {
+            if (updatedProperty === 'area') {
                 return value * this.rx * Math.PI;
             }
-        } else if (updater == 'area') {
-            if (updatedProperty == 'rx' || updatedProperty == 'ry') {
+        } else if (updater === 'area') {
+            if (updatedProperty === 'rx' || updatedProperty === 'ry') {
                 return Math.sqrt(value / Math.PI);
             }
         }
@@ -595,15 +602,17 @@ Vixor.call(SVGPathVixor.prototype);
 
 function addSVGPathVixorToCanvas(path, options) {
 
-    console.log("%c addSVGPathVixorToCanvas OPTIONS: ", "background: rgb(143,98,153); color: white;");
-    console.log(options);
+    if (LOG) {
+        console.log("%c addSVGPathVixorToCanvas OPTIONS: ", "background: rgb(143,98,153); color: white;");
+        console.log(options);
+    }
 
     var colorRegionExtractor = new SVGPathVixor(path, options);
 
-    if (LOG)
+    if (LOG) {
         console.log("colorRegionExtractor:");
-    if (LOG)
         console.log(colorRegionExtractor);
+    }
 
     canvas.add(colorRegionExtractor);
 
@@ -617,6 +626,7 @@ function addSVGPathVixorToCanvas(path, options) {
         if (typeof options.scaleY !== 'undefined') {
             colorRegionExtractor.scaleY = options.scaleY;
         }
+        colorRegionExtractor.associateInteractionEvents();
     }
 
     if (options.shouldExpand) {

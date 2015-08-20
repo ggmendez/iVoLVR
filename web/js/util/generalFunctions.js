@@ -1615,22 +1615,22 @@ function duplicateObject() {
                 // ungrouping the CLONED group is here
                 var items = clonedGroup._objects;
                 clonedGroup._restoreObjectsState();
-                
+
                 canvas.remove(clonedGroup);
 
                 for (var i = 0; i < items.length; i++) {
-                    var item = items[i];                    
+                    var item = items[i];
                     canvas.add(item);
                     item.setCoords();
                     item.group = null;
                 }
-                
-                
+
+
                 for (var i = 0; i < items.length; i++) {
-                    
-                    
-                    
-                    var item = items[i];                    
+
+
+
+                    var item = items[i];
                     if (item.isMark) {
                         item.animateBirth(false, null, null, i !== items.length - 1);
                         if (item.positionElements()) {
@@ -1669,7 +1669,7 @@ function duplicateObject() {
                 copy = fabric.util.object.clone(activeObject);
             }
 
-            
+
 
             canvas.add(copy);
             var canvasActualCenter = getActualCanvasCenter();
@@ -1680,7 +1680,7 @@ function duplicateObject() {
             if (copy.isMark) {
                 copy.animateBirth();
             }
-            
+
             if (copy.positionElements()) {
                 copy.positionElements();
             }
@@ -1868,6 +1868,106 @@ function addMarkFromSVGString(file, SVGString) {
 
 }
 
+function printUntransformedProperties(object) {
+    console.log("Object's UNTRANSFORMED PROPERTIES:");
+    console.log("untransformedAngle: " + object.untransformedAngle);
+    console.log("untransformedX: " + object.untransformedX);
+    console.log("untransformedY: " + object.untransformedY);
+    console.log("untransformedScaleX: " + object.untransformedScaleX);
+    console.log("untransformedScaleY: " + object.untransformedScaleY);
+}
+
+function polyArea(poly) {
+    var area = 0, pts = poly.points, len = pts.numberOfItems;
+    for (var i = 0; i < len; ++i) {
+        var p1 = pts.getItem(i), p2 = pts.getItem((i + len - 1) % len);
+        area += (p2.x + p1.x) * (p2.y - p1.y);
+    }
+    return Math.abs(area / 2);
+}
+
+
+//*** This code is copyright 2011 by Gavin Kistner, !@phrogz.net
+//*** It is covered under the license viewable at http://phrogz.net/JS/_ReuseLicense.txt
+//*** Reuse or modification is free provided you abide by the terms of that license.
+//*** (Including the first two lines above in your source code satisfies the conditions.)
+function pathToPolygon(path, samples) {
+    if (!samples)
+        samples = 0;
+    var poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+
+    // Put all path segments in a queue
+    for (var segs = [], s = path.pathSegList, i = s.numberOfItems - 1; i >= 0; --i)
+        segs[i] = s.getItem(i);
+    var segments = segs.concat();
+
+    var seg, lastSeg, points = [], x, y;
+    var addSegmentPoint = function (s) {
+
+        if (s.pathSegType == SVGPathSeg.PATHSEG_CLOSEPATH) {
+
+        } else {
+            if (s.pathSegType % 2 == 1 && s.pathSegType > 1) {
+                // All odd-numbered path types are relative, except PATHSEG_CLOSEPATH (1)
+                x += s.x;
+                y += s.y;
+            } else {
+                x = s.x;
+                y = s.y;
+            }
+            var lastPoint = points[points.length - 1];
+            if (!lastPoint || x != lastPoint[0] || y != lastPoint[1]) {
+
+                if (!isNaN(x) && !isNaN(y)) {
+                    points.push([x, y]);
+                }
+
+            }
+        }
+    };
+
+    for (var d = 0, len = path.getTotalLength(), step = len / samples; d <= len; d += step) {
+        var seg = segments[path.getPathSegAtLength(d)];
+        var pt = path.getPointAtLength(d);
+        if (seg != lastSeg) {
+            lastSeg = seg;
+            while (segs.length && segs[0] != seg) {
+                addSegmentPoint(segs.shift());
+            }
+        }
+        var lastPoint = points[points.length - 1];
+        if (!lastPoint || pt.x != lastPoint[0] || pt.y != lastPoint[1]) {
+            points.push([pt.x, pt.y]);
+        }
+    }
+    for (var i = 0, len = segs.length; i < len; ++i) {
+        addSegmentPoint(segs[i]);
+    }
+    for (var i = 0, len = points.length; i < len; ++i) {
+        points[i] = points[i].join(',');
+    }
+
+    var pointsString = points.join(' ');
+
+    /*console.log("pointsString:");
+     console.log(pointsString);*/
+
+    poly.setAttribute('points', pointsString);
+    return poly;
+}
+
+
+function computePathArea(object) {
+    var SVGPathString = object;
+    if (object.path) {
+        SVGPathString = getSVGPathString(object);
+    }
+    var svgPath = document.createElementNS('http://www.w3.org/2000/svg', "path");
+    svgPath.setAttributeNS(null, "d", SVGPathString);
+    var polygon = pathToPolygon(svgPath, 100);
+    return polyArea(polygon);
+}
+
 function onSVGFileReadComplete(event, file, asSingleMark) {
 
     // if (LOG) console.log("File name");
@@ -1880,43 +1980,157 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
 
         addMarkFromSVGString(file, SVGString);
 
+
     } else {
 
-//        console.log("SVGString:");
-//        console.log(SVGString);
+        var parser = new DOMParser();
+        var svgDoc = parser.parseFromString(SVGString, "image/svg+xml");
 
-        fabric.loadSVGFromString(SVGString, function (objects) {
+        console.log("svgDoc:");
+        console.log(svgDoc);
+
+
+        var svgDocument = $(svgDoc);
+        var svgNode = svgDocument.find('svg');
+        var children = svgNode.children();
+        
+        var newPaths = new Array();
+
+        children.each(function () {
+
+            var child = $(this);
+            var tagName = this.tagName;
+
+            if (tagName !== 'path') {
+
+                var paths = flattenToPaths(this);
+                paths.forEach(function (path) {
+                    $(path).removeAttr('transform');
+                    newPaths.push(path);
+                });
+            
+                child.remove();
+                
+            }
+
+        });
+        
+        
+        newPaths.forEach(function (path) {
+            svgNode.append(path);
+        });
+        
+//        var children = svgNode.children();
+//        children.each(function () {
+//            var child = $(this);
+//            child.removeAttr('transform');
+//        });
+
+        
+        SVGString = (new XMLSerializer()).serializeToString(svgDoc);
+        console.log("SVGString after flattenning: ");
+        
+        console.log(formatXml(SVGString));
+        
+
+
+
+        fabric.loadSVGFromString(SVGString, function (objects, options) {
+            
+            objects.forEach(function (object) {
+                canvas.add(object);
+            });
+            canvas.renderAll();
+            
+            return;
+            
+
+            var canvasActualCenter = getActualCanvasCenter();
+            var group = new fabric.Group(objects);
+            group.setPositionByOrigin(canvasActualCenter, 'center', 'center');
+
+            group._restoreObjectsState();
+
+            var padding = 12;
+            var parentObject = new fabric.Rect({
+                originX: 'center',
+                originY: 'center',
+                left: canvasActualCenter.x,
+                top: canvasActualCenter.y,
+                width: group.getWidth() + padding,
+                height: group.getHeight() + padding,
+                fill: 'rgba(255, 255, 255, 0.5)',
+                stroke: 'black',
+                strokeWidth: 3,
+            });
+
+            parentObject.widgets = new Array();
+
+            parentObject.on('moving', function (option) {
+                objectMoving(option, parentObject);
+            });
+
+            canvas.add(parentObject);
 
             objects.forEach(function (object) {
 
-                console.log("object:");
-                console.log(object);
+                object.setCoords();
 
-                object.stroke = 'transparent';
-                object.strokeWidth = 0;
-//                object.hasBorders = false;
-//                object.hasControls = false;
-                object.hasRotatingPoint = false;
-                object.lockScalingX = true;
-                object.lockScalingY = true;
-                object.lockRotation = true;
+                var rbgColor = new fabric.Color(object.fill);
+                var source = rbgColor.getSource();
+                var r = source[0];
+                var g = source[1];
+                var b = source[2];
 
-                if (object._parseDimensions) {
+                var fillColor = rgb(r, g, b);
 
-                    updatePathCoords(object);
+                var thePath = object.path;
+                if (thePath) {
 
-                    object.setCoords();
+                    var objectCenter = object.getPointByOrigin('center', 'center');
+
+                    var vixorOptions = {
+                        left: objectCenter.x,
+                        top: objectCenter.y,
+                        fillColor: fillColor,
+                        fill: fillColor,
+                        stroke: darkenrgb(r, g, b),
+                        markAsSelected: false,
+                        thePath: thePath,
+                        opacity: 1,
+                        permanentOpacity: 1,
+                        movingOpacity: 0.3,
+                        isWidget: true,
+                        parentObject: parentObject,
+                        angle: 0,
+                        untransformedScaleX: 1,
+                        untransformedScaleY: 1,
+                        area: computePathArea(object),
+                        trueColor: rgb(r, g, b),
+                        trueColorDarker: darkenrgb(r, g, b),
+                        animateAtBirth: false
+                    };
+
+                    var theVixor = addSVGPathVixorToCanvas(vixorOptions.thePath, vixorOptions);
+                    parentObject.widgets.push(theVixor);
+                    computeUntransformedProperties(theVixor);
+
+                } else {
+
+                    console.log("This element NOT an SVG path:");
+                    console.log(object);
+
 
                 }
 
 
+
+
             });
 
-            canvas.add.apply(canvas, objects);
-
-            canvas.setActiveObject(objects[1]);
-
             canvas.renderAll();
+
+
         });
 
 
@@ -3669,7 +3883,7 @@ function deactivateSquaredSelection(restore1FingerCanvasOperation) {
 /* FREE selecction */
 function activateFreeSelection() {
     activateDrawing();
-    canvas.isFreeSelectionMode = true;    
+    canvas.isFreeSelectionMode = true;
     canvas.defaultCursor = 'default';
 }
 function deactivateFreeSelection(restore1FingerCanvasOperation) {
@@ -4552,15 +4766,24 @@ function JSTSPolygonToSVGPath(JSTSPolygon) {
 }
 
 function getSVGPathString(pathObject) {
-    var points = pathObject.path;
-    var SVGPathString = "";
-    points.forEach(function (point) {
-        point.forEach(function (element) {
-            SVGPathString += element + " ";
-        });
+    var items = pathObject.path;
+    var stringsArray = new Array();
+    items.forEach(function (item) {
+        stringsArray.push(item.join(' '));
     });
-    return SVGPathString;
+    return stringsArray.join(' ');
 }
+
+//function getSVGPathString(pathObject) {
+//    var points = pathObject.path;
+//    var SVGPathString = "";
+//    points.forEach(function (point) {
+//        point.forEach(function (element) {
+//            SVGPathString += element + " ";
+//        });
+//    });
+//    return SVGPathString;
+//}
 
 function computePolylineTrajectory(polyline) {
     var line = {p1: polyline[0], p2: polyline[polyline.length - 1]};
@@ -5314,10 +5537,6 @@ function getPathLineIntersection(polyline, line) {
 
 function getActualCanvasCenter() {
     var canvasCenter = canvas.getCenter();
-
-    console.log("************ ----------------- canvasCenter:");
-    console.log(canvasCenter);
-
     var panningX = canvas.viewportTransform[4];
     var panningY = canvas.viewportTransform[5];
     var actualCanvasCenter = {x: canvasCenter.left - panningX, y: canvasCenter.top - panningY};

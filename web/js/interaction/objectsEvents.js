@@ -712,11 +712,11 @@ function objectDoubleTap(theEvent, targetObject) {
                             console.log(massCenter);
 
 
+                            var thePath = pathString;
 
 
 
-
-                            var widget = new fabric.Path(pathString);
+                            var widget = new fabric.Path(thePath);
 
                             widget.isColorSelector = true;
 
@@ -749,12 +749,18 @@ function objectDoubleTap(theEvent, targetObject) {
                             var initialX = globalPointer.x;
                             var initialY = globalPointer.y;
 
-
+                            var filledArea = Number(response['filledArea']);
+                            var contourArea = Number(response['contourArea']);
+                            var pathArea = computePathArea(thePath);
+                                                       
+                            console.log("filledArea: " + filledArea);
+                            console.log("contourArea: " + contourArea);
+                            console.log("pathArea: " + pathArea);
 
                             widget.filledArea = parseInt(response['filledArea']);
                             widget.contourArea = parseInt(response['contourArea']);
 
-                            var area = parseInt(response['filledArea']);
+                            var area = contourArea;
 
                             if (LOG)
                                 console.log("widget.filledArea: " + widget.filledArea);
