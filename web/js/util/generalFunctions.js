@@ -1946,10 +1946,10 @@ function pathToPolygon(path, samples) {
 
             while (segs.length && segs[0] != seg) {
 
-                var x1 = segs[0].x;
-                var y1 = segs[0].y;
-                var x2 = seg.x;
-                var y2 = seg.y;
+//                var x1 = segs[0].x;
+//                var y1 = segs[0].y;
+//                var x2 = seg.x;
+//                var y2 = seg.y;
 
 //                if (LOG) {
 //                    console.log("segs.length: " + segs.length);
@@ -1958,12 +1958,12 @@ function pathToPolygon(path, samples) {
 //                    console.log(seg.x + " , " + seg.y);
 //                }
 
-                if (typeof x1 === 'undefined' || typeof y1 === 'undefined' || typeof x2 === 'undefined' || typeof y2 === 'undefined') {
-                    console.log("Forcing break. UNDEFINED values found!");
-                    break;
-                } else {
+//                if (typeof x1 === 'undefined' || typeof y1 === 'undefined' || typeof x2 === 'undefined' || typeof y2 === 'undefined') {
+//                    console.log("Forcing break. UNDEFINED values found!");
+//                    break;
+//                } else {
                     addSegmentPoint(segs.shift());
-                }
+//                }
 
 
             }
@@ -2012,9 +2012,8 @@ function computePathArea(object) {
     }
     var svgPath = document.createElementNS('http://www.w3.org/2000/svg', "path");
     svgPath.setAttributeNS(null, "d", SVGPathString);
-    var polygon = pathToPolygon(svgPath, 100);
+    var polygon = pathToPolygon(svgPath, 50);
     return polyArea(polygon);
-    return 1000;
 }
 
 function onSVGFileReadComplete(event, file, asSingleMark) {
@@ -2035,8 +2034,8 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
         var parser = new DOMParser();
         var svgDoc = parser.parseFromString(SVGString, "image/svg+xml");
 
-        console.log("svgDoc:");
-        console.log(svgDoc);
+//        console.log("svgDoc:");
+//        console.log(svgDoc);
 
 
         var svgDocument = $(svgDoc);
@@ -2077,9 +2076,8 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
 
 
         SVGString = (new XMLSerializer()).serializeToString(svgDoc);
-        console.log("SVGString after flattenning: ");
-
-        console.log(formatXml(SVGString));
+//        console.log("SVGString after flattenning: ");
+//        console.log(formatXml(SVGString));
 
 
 

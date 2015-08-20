@@ -16,8 +16,8 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
             options.radius = Math.abs(radius);
         }
 
-        console.log("0000000000000000000000000000000000000000000000000000 CIRCULAR MARK options:");
-        console.log(options);
+//        console.log("0000000000000000000000000000000000000000000000000000 CIRCULAR MARK options:");
+//        console.log(options);
 
         this.callSuper('initialize', options);
         this.set('strokeWidth', options.strokeWidth || 2);

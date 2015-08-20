@@ -22,7 +22,6 @@
         <link rel="stylesheet" type="text/css" href="./css/generators.css" />    
 
         <link rel="stylesheet" type="text/css" href="./css/fonts/fontawesome/css/font-awesome.css" media="all" />
-        <!--<link rel="stylesheet" type="text/css" href="./css/fonts/font-awesome-4.2.0/css/font-awesome.css" media="all" />-->
         <link rel="stylesheet" type="text/css" href="./css/fonts/font-awesome-4.4.0/css/font-awesome.css" media="all" />
 
         <link rel="stylesheet" href="./js/alertify.js-0.3.11/themes/alertify.core.css" />
