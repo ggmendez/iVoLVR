@@ -1927,16 +1927,64 @@ function pathToPolygon(path, samples) {
     };
 
     for (var d = 0, len = path.getTotalLength(), step = len / samples; d <= len; d += step) {
+
+        if (step <= 0.00001) {
+            break;
+        }
+
+//        if (LOG) {
+//            console.log("step: " + step);
+//            console.log("d: " + d);
+//            console.log("len: " + len);
+//            console.log("d <= len: " + d <= len);
+//        }
+
         var seg = segments[path.getPathSegAtLength(d)];
         var pt = path.getPointAtLength(d);
         if (seg != lastSeg) {
             lastSeg = seg;
+
             while (segs.length && segs[0] != seg) {
-                addSegmentPoint(segs.shift());
+
+                var x1 = segs[0].x;
+                var y1 = segs[0].y;
+                var x2 = seg.x;
+                var y2 = seg.y;
+
+//                if (LOG) {
+//                    console.log("segs.length: " + segs.length);
+//                    console.log("segs[0] != seg: " + segs[0] != seg);
+//                    console.log(segs[0].x + " , " + segs[0].y);
+//                    console.log(seg.x + " , " + seg.y);
+//                }
+
+                if (typeof x1 === 'undefined' || typeof y1 === 'undefined' || typeof x2 === 'undefined' || typeof y2 === 'undefined') {
+                    console.log("Forcing break. UNDEFINED values found!");
+                    break;
+                } else {
+                    addSegmentPoint(segs.shift());
+                }
+
+
             }
+
+//            if (LOG) {
+//                console.log("segs:");
+//                console.log(segs);
+//            }
+
         }
         var lastPoint = points[points.length - 1];
+
+//        if (LOG) {
+//            console.log("lastPoint: ");
+//            console.log(lastPoint);
+//        }
+
         if (!lastPoint || pt.x != lastPoint[0] || pt.y != lastPoint[1]) {
+//            if (LOG) {
+//                console.log("pushing");
+//            }
             points.push([pt.x, pt.y]);
         }
     }
@@ -1966,6 +2014,7 @@ function computePathArea(object) {
     svgPath.setAttributeNS(null, "d", SVGPathString);
     var polygon = pathToPolygon(svgPath, 100);
     return polyArea(polygon);
+    return 1000;
 }
 
 function onSVGFileReadComplete(event, file, asSingleMark) {
@@ -1993,7 +2042,7 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
         var svgDocument = $(svgDoc);
         var svgNode = svgDocument.find('svg');
         var children = svgNode.children();
-        
+
         var newPaths = new Array();
 
         children.each(function () {
@@ -2008,42 +2057,42 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
                     $(path).removeAttr('transform');
                     newPaths.push(path);
                 });
-            
+
                 child.remove();
-                
+
             }
 
         });
-        
-        
+
+
         newPaths.forEach(function (path) {
             svgNode.append(path);
         });
-        
+
 //        var children = svgNode.children();
 //        children.each(function () {
 //            var child = $(this);
 //            child.removeAttr('transform');
 //        });
 
-        
+
         SVGString = (new XMLSerializer()).serializeToString(svgDoc);
         console.log("SVGString after flattenning: ");
-        
+
         console.log(formatXml(SVGString));
-        
+
 
 
 
         fabric.loadSVGFromString(SVGString, function (objects, options) {
-            
-            objects.forEach(function (object) {
-                canvas.add(object);
-            });
-            canvas.renderAll();
-            
-            return;
-            
+
+//            objects.forEach(function (object) {
+//                canvas.add(object);
+//            });
+//            canvas.renderAll();
+//            
+//            return;
+
 
             var canvasActualCenter = getActualCanvasCenter();
             var group = new fabric.Group(objects);
@@ -2051,7 +2100,7 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
 
             group._restoreObjectsState();
 
-            var padding = 12;
+            var padding = 20;
             var parentObject = new fabric.Rect({
                 originX: 'center',
                 originY: 'center',
@@ -2060,9 +2109,28 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
                 width: group.getWidth() + padding,
                 height: group.getHeight() + padding,
                 fill: 'rgba(255, 255, 255, 0.5)',
-                stroke: 'black',
-                strokeWidth: 3,
+                type: "importedImage",
+                isImage: true,
+                isImportedImage: true,
+                hasBorders: false,
+                hasRotatingPoint: false,
+                hasControls: false,
+                lockRotation: true,
+                lockScalingX: true,
+                lockScalingY: true,
             });
+
+            parentObject.applySelectedStyle = function () {
+                parentObject.stroke = widget_selected_stroke_color;
+                parentObject.strokeDashArray = widget_selected_stroke_dash_array;
+                parentObject.strokeWidth = widget_selected_stroke_width;
+            };
+
+            parentObject.applyUnselectedStyle = function () {
+                parentObject.stroke = 'black';
+                parentObject.strokeDashArray = [];
+                parentObject.strokeWidth = 2;
+            };
 
             parentObject.widgets = new Array();
 
@@ -2071,6 +2139,7 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
             });
 
             canvas.add(parentObject);
+
 
             objects.forEach(function (object) {
 
@@ -2106,6 +2175,7 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
                         untransformedScaleX: 1,
                         untransformedScaleY: 1,
                         area: computePathArea(object),
+//                        area: 100,
                         trueColor: rgb(r, g, b),
                         trueColorDarker: darkenrgb(r, g, b),
                         animateAtBirth: false
@@ -2127,6 +2197,9 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
 
 
             });
+
+            canvas.setActiveObject(parentObject);
+
 
             canvas.renderAll();
 

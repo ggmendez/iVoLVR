@@ -85,12 +85,11 @@ var Connector = fabric.util.createClass(fabric.Line, {
                 fill: this.filledArrow ? this.arrowColor : '',
                 angle: angle,
                 opacity: this.opacity,
-                
                 hasBorders: false,
                 hasControls: false,
                 hasRotatingPoint: false,
                 selectable: true
-                
+
             });
             triangle.left = this.x1 + (((i + 1) * deltaX) / (this.nTriangles + 1));
             triangle.top = this.y1 + (((i + 1) * deltaY) / (this.nTriangles + 1));
@@ -164,7 +163,6 @@ var Connector = fabric.util.createClass(fabric.Line, {
             });
         }
 
-//        this.positionTriangles();
     },
     split: function (splitPoint, line) {
 
@@ -590,6 +588,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
             triangle.render(ctx);
         }
         ctx.restore();
+
     },
     hide: function () {
         this.opacity = 0;
@@ -626,6 +625,10 @@ var Connector = fabric.util.createClass(fabric.Line, {
         });
     },
     positionTriangles: function () {
+
+        if (this.group) {
+            return;
+        }
 
 //        if (LOG) console.log("%cRe-positioning triangles", "background: yellow");
 
