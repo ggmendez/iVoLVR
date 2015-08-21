@@ -280,7 +280,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
                         var markOptions = {
                             left: coordX,
                             top: coordY,
-                            fill: lastAddedConnector.arrowColor,
+//                            fill: lastAddedConnector.arrowColor,
+                            fill: lastAddedConnector.source.fillColor,
                             stroke: theVixor.trueColorDarker,
                             area: theVixor.getVisualPropertyByAttributeName('area').value.number,
                             label: '',
@@ -334,8 +335,12 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
                 if (LOG)
                     console.log("theVixor.area: " + theVixor.area);
+                
+                console.log("theVixor:");
+                console.log(theVixor);
 
-                var newConnector = new Connector({source: theVixor, x2: coordX, y2: coordY, arrowColor: theVixor.trueColor, filledArrow: true, value: theVixor.area});
+                var newConnector = new Connector({source: theVixor, x2: coordX, y2: coordY, arrowColor: theVixor.colorForStroke, filledArrow: true, value: theVixor.area});
+//                var newConnector = new Connector({source: theVixor, x2: coordX, y2: coordY, arrowColor: theVixor.trueColor, filledArrow: true, value: theVixor.area});
                 newConnector.widget = theVixor;
                 theVixor.connectors.push(newConnector);
 

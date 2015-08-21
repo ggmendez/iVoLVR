@@ -61,6 +61,8 @@ function checkForRetinaDisplay() {
 
         // finally set the scale of the context
         c.getContext('2d').scale(window.devicePixelRatio, window.devicePixelRatio);
+        
+        canvas.renderAll();
 
     }
 
