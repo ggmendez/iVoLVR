@@ -574,56 +574,72 @@ var Mark = function () {
 
 
     };
-    this.remove = function () {
+
+    this.remove = function (shouldDelete) {
 
         var theMark = this;
-        var iText = theMark.iText;
-        var visualProperties = theMark.visualProperties;
-        var backgroundRect = theMark.backgroundRect;
 
-        var waitingTime = 0;
 
-        theMark.xVisualProperty.disconnect(false, true);
-        theMark.yVisualProperty.disconnect(false, true);
+        if (shouldDelete) {
 
-        // Only the last visual property should be able to check whether or not to refresh the canvas
-        var totalVisualProperties = visualProperties.length;
-        for (var i = 0; i < totalVisualProperties; i++) {
-            var visualProperty = visualProperties[i];
-            visualProperty.disconnect((i === totalVisualProperties - 1) && theMark.isCompressed, true);
-        }
 
-        if (!theMark.isCompressed) {
-            waitingTime = 550;
-            theMark.compress(true);
-        }
+            var iText = theMark.iText;
+            var visualProperties = theMark.visualProperties;
+            var backgroundRect = theMark.backgroundRect;
 
-        setTimeout(function () {
+            var waitingTime = 0;
 
-            var secondWaiting = 350;
-            hideWithAnimation(theMark, true);
+            theMark.xVisualProperty.disconnect(false, true);
+            theMark.yVisualProperty.disconnect(false, true);
+
+            // Only the last visual property should be able to check whether or not to refresh the canvas
+            var totalVisualProperties = visualProperties.length;
+            for (var i = 0; i < totalVisualProperties; i++) {
+                var visualProperty = visualProperties[i];
+                visualProperty.disconnect((i === totalVisualProperties - 1) && theMark.isCompressed, true);
+            }
+
+            if (!theMark.isCompressed) {
+                waitingTime = 550;
+                theMark.compress(true);
+            }
 
             setTimeout(function () {
 
-                if (iText && iText.canvas) {
-                    iText.remove();
-                }
+                var secondWaiting = 350;
+                hideWithAnimation(theMark, true);
 
-                if (backgroundRect && backgroundRect.canvas) {
-                    backgroundRect.remove();
-                }
+                setTimeout(function () {
 
-                if (theMark && theMark.canvas) {
-                    theMark.callSuper('remove');
-                }
+                    if (iText && iText.canvas) {
+                        iText.remove();
+                    }
 
-            }, secondWaiting);
+                    if (backgroundRect && backgroundRect.canvas) {
+                        backgroundRect.remove();
+                    }
+
+                    if (theMark && theMark.canvas) {
+                        theMark.callSuper('remove');
+                    }
+
+                }, secondWaiting);
 
 
-        }, waitingTime);
+            }, waitingTime);
+
+        } else {
+            if (theMark.iText) {
+                theMark.iText.remove();
+            }
+            theMark.callSuper('remove');
+        }
+
+
 
 
     };
+
 
     this.getDefaultModifiableVisualPropertyByType = function (value) {
 
@@ -1130,7 +1146,19 @@ var Mark = function () {
 
         theMark.positionMarkConnectors();
 
-        var objectCenter = theMark.getCenterPoint();
+        var markCenter = null;
+
+        if (theMark.group) {
+            markCenter = getCenterPointWithinGroup(theMark);
+        } else {
+            markCenter = theMark.getCenterPoint();
+        }
+
+
+
+
+
+
         var boundingRect = theMark.getBoundingRect();
 
 //        drawRectAt(objectCenter, "blue");
@@ -1144,7 +1172,7 @@ var Mark = function () {
                 markRealRadius = theMark.propertiesRadius;
             }
             var wh = 2 * markRealRadius;
-            boundingRect = {top: objectCenter.y - markRealRadius, left: objectCenter.x - markRealRadius, width: wh, height: wh};
+            boundingRect = {top: markCenter.y - markRealRadius, left: markCenter.x - markRealRadius, width: wh, height: wh};
 
         } else if (theMark.isEllipticMark && (theMark.rx == theMark.ry) && (theMark.scaleX == theMark.scaleY)) {
 
@@ -1153,7 +1181,7 @@ var Mark = function () {
                 markRealRadius = theMark.propertiesRadius + 5;
             }
             var wh = 2 * markRealRadius * canvas.getZoom();
-            boundingRect = {top: objectCenter.y - markRealRadius, left: objectCenter.x - markRealRadius, width: wh, height: (2 * this.ry * this.scaleY) * canvas.getZoom()};
+            boundingRect = {top: markCenter.y - markRealRadius, left: markCenter.x - markRealRadius, width: wh, height: (2 * this.ry * this.scaleY) * canvas.getZoom()};
         }
 
         // The dimensions of the bounding rectangle are absolute, thus, the zoom level has to be taken into account
@@ -1189,7 +1217,8 @@ var Mark = function () {
 
         theMark.backgroundRect.setCoords();
 
-        var boundingRectCenterBottom = new fabric.Point(theMark.left, objectCenter.y + boundingRect.height / 2);
+        var boundingRectCenterBottom = new fabric.Point(markCenter.x, markCenter.y + boundingRect.height / 2);
+//        var boundingRectCenterBottom = new fabric.Point(theMark.left, objectCenter.y + boundingRect.height / 2);
 //        drawRectAt(boundingRectCenterBottom, "red");
 
         boundingRectCenterBottom.y += theMark.propertiesGap;
@@ -1201,31 +1230,50 @@ var Mark = function () {
         var i = 0;
         this.visualProperties.forEach(function (visualProperty) {
 
-            var x = theMark.left;
-            var y = theMark.top;
+            var x = markCenter.x;
+            var y = markCenter.y;
 
             // A different y position for each visual property is only needed when the Mark is expanded
             if (!theMark.isCompressed) {
                 y = boundingRectCenterBottom.y + i * theMark.propertiesSeparation;
             }
 
+            if (theMark.group) {
+                x = x - theMark.group.left - theMark.group.width / 2;
+                y = y - theMark.group.top - theMark.group.height / 2;
+            }
+
+
             visualProperty.left = x;
             visualProperty.top = y;
+
             visualProperty.setCoords();
 
             visualProperty.inConnectors.forEach(function (inConnector) {
                 if (theMark.isCompressed) {
-                    inConnector.set({'x2': theMark.left, 'y2': theMark.top});
+                    inConnector.set({'x2': markCenter.x, 'y2': markCenter.y});
                 } else {
-                    inConnector.set({'x2': visualProperty.left, 'y2': visualProperty.top});
+                    var visualPropertyCenter = null;
+                    if (visualProperty.group) {
+                        visualPropertyCenter = getCenterPointWithinGroup(visualProperty);
+                    } else {
+                        visualPropertyCenter = visualProperty.getCenterPoint();
+                    }
+                    inConnector.set({'x2': visualPropertyCenter.x, 'y2': visualPropertyCenter.y});
                 }
             });
 
             visualProperty.outConnectors.forEach(function (outConnector) {
                 if (theMark.isCompressed) {
-                    outConnector.set({'x1': theMark.left, 'y1': theMark.top});
+                    outConnector.set({'x1': markCenter.x, 'y1': markCenter.y});
                 } else {
-                    outConnector.set({'x1': visualProperty.left, 'y1': visualProperty.top});
+                    var visualPropertyCenter = null;
+                    if (visualProperty.group) {
+                        visualPropertyCenter = getCenterPointWithinGroup(visualProperty);
+                    } else {
+                        visualPropertyCenter = visualProperty.getCenterPoint();
+                    }
+                    outConnector.set({'x1': visualPropertyCenter.x, 'y1': visualPropertyCenter.y});
                 }
             });
 
@@ -1235,7 +1283,7 @@ var Mark = function () {
 
         });
 
-//      theMark.setCoords();
+
 
     };
 
@@ -1922,7 +1970,7 @@ function changeMarkShape(theMark, shapeValue) {
                 if (LOG)
                     console.log(options);
 
-                theMark.remove();
+                theMark.remove(false);
 
                 // Creating a svg path group in the same way the other marks are created is complicated, because the SVGPATHGROUP_MARK has synchronization issues (because of the amount of information it stores)
                 // Because of this, when the destination should be a SVGPATHGROUP_MARK, the approach used is cloning, instead of creating the mark from scratch

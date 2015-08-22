@@ -100,69 +100,78 @@ function canvasSelectionCleared(option) {
         event.preventDefault();
     }
     canvasDeselectAllObjects();
+    
+    
 
-    // this is done to guarantee that the marks' labels are not going to be missplaced and, thus, they can be grouped again with no problems
-    canvas.forEachObject(function (object) {
-        if (object.positionElements) {
-            object.positionElements();
-        }
-    });
+//    // this is done to guarantee that the marks' labels are not going to be missplaced and, thus, they can be grouped again with no problems
+//    canvas.forEachObject(function (object) {
+//        object.setCoords();
+//        
+//        if (object.positionElements) {
+//            object.positionElements();
+//        }
+//        updateConnectorsPositions(object);
+//
+//    });
+
+
+
 
 
 }
 
 groupDrawBorders = function (ctx) {
 
-        if (!this.hasBorders) {
-            return this;
-        }
-
-        ctx.save();
-
-        ctx.setLineDash([7, 7]);
-
-        ctx.fillStyle = 'rgba(229,238,244,0.3)';
-
-        ctx.globalAlpha = this.isMoving ? this.borderOpacityWhenMoving : 1;
-        ctx.strokeStyle = this.borderColor;
-        ctx.lineWidth = 3;
-
-        var wh = this._calculateCurrentDimensions(true),
-                width = wh.x,
-                height = wh.y;
-        if (this.group) {
-            width = width * this.group.scaleX;
-            height = height * this.group.scaleY;
-        }
-
-        ctx.fillRect(
-                ~~(-(width / 2)) - 0.5, // offset needed to make lines look sharper
-                ~~(-(height / 2)) - 0.5,
-                ~~(width) + 1, // double offset needed to make lines look sharper
-                ~~(height) + 1
-                );
-
-        ctx.strokeRect(
-                ~~(-(width / 2)) - 0.5, // offset needed to make lines look sharper
-                ~~(-(height / 2)) - 0.5,
-                ~~(width) + 1, // double offset needed to make lines look sharper
-                ~~(height) + 1
-                );
-
-        if (this.hasRotatingPoint && this.isControlVisible('mtr') && !this.get('lockRotation') && this.hasControls) {
-
-            var rotateHeight = -height / 2;
-
-            ctx.beginPath();
-            ctx.moveTo(0, rotateHeight);
-            ctx.lineTo(0, rotateHeight - this.rotatingPointOffset);
-            ctx.closePath();
-            ctx.stroke();
-        }
-
-        ctx.restore();
+    if (!this.hasBorders) {
         return this;
-    };
+    }
+
+    ctx.save();
+
+    ctx.setLineDash([7, 7]);
+
+    ctx.fillStyle = 'rgba(229,238,244,0.3)';
+
+    ctx.globalAlpha = this.isMoving ? this.borderOpacityWhenMoving : 1;
+    ctx.strokeStyle = this.borderColor;
+    ctx.lineWidth = 3;
+
+    var wh = this._calculateCurrentDimensions(true),
+            width = wh.x,
+            height = wh.y;
+    if (this.group) {
+        width = width * this.group.scaleX;
+        height = height * this.group.scaleY;
+    }
+
+    ctx.fillRect(
+            ~~(-(width / 2)) - 0.5, // offset needed to make lines look sharper
+            ~~(-(height / 2)) - 0.5,
+            ~~(width) + 1, // double offset needed to make lines look sharper
+            ~~(height) + 1
+            );
+
+    ctx.strokeRect(
+            ~~(-(width / 2)) - 0.5, // offset needed to make lines look sharper
+            ~~(-(height / 2)) - 0.5,
+            ~~(width) + 1, // double offset needed to make lines look sharper
+            ~~(height) + 1
+            );
+
+    if (this.hasRotatingPoint && this.isControlVisible('mtr') && !this.get('lockRotation') && this.hasControls) {
+
+        var rotateHeight = -height / 2;
+
+        ctx.beginPath();
+        ctx.moveTo(0, rotateHeight);
+        ctx.lineTo(0, rotateHeight - this.rotatingPointOffset);
+        ctx.closePath();
+        ctx.stroke();
+    }
+
+    ctx.restore();
+    return this;
+};
 
 function canvasSelectionCreated(option) {
 
@@ -171,8 +180,11 @@ function canvasSelectionCreated(option) {
     if (event) {
         event.preventDefault();
     }
-    
+
     var createdGroup = option.target;
+
+//    drawRectAt(new fabric.Point(createdGroup.left, createdGroup.top), "red");    
+
     createdGroup.lockScalingX = true;
     createdGroup.lockScalingY = true;
     createdGroup.lockRotation = true;
@@ -190,60 +202,17 @@ function canvasSelectionCreated(option) {
     });
 
     createdGroup.drawBorders = groupDrawBorders;
-    
-    
-    /*createdGroup.drawBorders = function (ctx) {
 
-        if (!this.hasBorders) {
-            return this;
-        }
-
-        ctx.save();
-
-        ctx.setLineDash([7, 7]);
-
-        ctx.fillStyle = 'rgba(229,238,244,0.2)';
-
-        ctx.globalAlpha = this.isMoving ? this.borderOpacityWhenMoving : 1;
-        ctx.strokeStyle = this.borderColor;
-        ctx.lineWidth = 3;
-
-        var wh = this._calculateCurrentDimensions(true),
-                width = wh.x,
-                height = wh.y;
-        if (this.group) {
-            width = width * this.group.scaleX;
-            height = height * this.group.scaleY;
-        }
-
-        ctx.fillRect(
-                ~~(-(width / 2)) - 0.5, // offset needed to make lines look sharper
-                ~~(-(height / 2)) - 0.5,
-                ~~(width) + 1, // double offset needed to make lines look sharper
-                ~~(height) + 1
-                );
-
-        ctx.strokeRect(
-                ~~(-(width / 2)) - 0.5, // offset needed to make lines look sharper
-                ~~(-(height / 2)) - 0.5,
-                ~~(width) + 1, // double offset needed to make lines look sharper
-                ~~(height) + 1
-                );
-
-        if (this.hasRotatingPoint && this.isControlVisible('mtr') && !this.get('lockRotation') && this.hasControls) {
-
-            var rotateHeight = -height / 2;
-
-            ctx.beginPath();
-            ctx.moveTo(0, rotateHeight);
-            ctx.lineTo(0, rotateHeight - this.rotatingPointOffset);
-            ctx.closePath();
-            ctx.stroke();
-        }
-
-        ctx.restore();
-        return this;
-    };*/
+    createdGroup.on('moving', function (option) {
+        console.log("Moving selection");
+        var selectedObjects = createdGroup._objects;
+        selectedObjects.forEach(function (object) {
+            if (object.positionElements) {
+                object.positionElements();
+            }
+            updateConnectorsPositions(object);
+        });
+    });
 
     var selectedObjects = createdGroup._objects;
     if (selectedObjects) {
@@ -254,11 +223,21 @@ function canvasSelectionCreated(option) {
         }
 
         if (totalSelectedObjects > 0) {
-
             selectedObjects.forEach(function (object) {
                 if (object.addToGroup) {
                     object.addToGroup(createdGroup);
                 }
+
+
+//                if (object.isMark) {
+//                    
+//                    var center = object.getCenterPoint();
+//                    
+//                    
+////                    drawRectAt(new fabric.Point(createdGroup.left + object.left + createdGroup.width/2, createdGroup.top + object.top + createdGroup.height/2), "black");
+//                    drawRectAt(new fabric.Point(createdGroup.left + center.x + createdGroup.width/2, createdGroup.top + center.y + createdGroup.height/2), "black");
+//                }
+
             });
         }
 

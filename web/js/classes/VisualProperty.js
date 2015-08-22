@@ -28,6 +28,8 @@ var VisualProperty = function () {
             parentObject.addToGroup(theGroup); // this will add the visual property to the given group
         }
     };
+    
+    
 
     this.disconnect = function (refreshCanvas, removeAfterDisconnection) {
         var theVisualProperty = this;

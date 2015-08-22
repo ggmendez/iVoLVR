@@ -146,6 +146,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
         this.set('colorForStroke', options.colorForStroke || this.stroke);
 
+
         this.createRectBackground();
 
         this.set('connectors', new Array());
@@ -281,7 +282,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
                             left: coordX,
                             top: coordY,
 //                            fill: lastAddedConnector.arrowColor,
-                            fill: lastAddedConnector.source.fillColor,
+                            fill: theVixor.trueColor,
                             stroke: theVixor.trueColorDarker,
                             area: theVixor.getVisualPropertyByAttributeName('area').value.number,
                             label: '',

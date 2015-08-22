@@ -50,7 +50,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
         this.set('transparentCorners', false);
         this.set('hasRotatingPoint', false);
 
-        this.set('selectable', true);
+        this.set('selectable', false);
 
         this.set('evented', false);
 
@@ -58,7 +58,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
         this.set('hasControls', false);
         this.set('hasRotatingPoint', false);
 
-        this.set('triangles', new Array());
+        
         this.set('arrowColor', options.arrowColor || this.source.fill);
         this.set('stroke', options.stroke || this.arrowColor);
         this.set('strokeDashArray', options.strokeDashArray || [7, 7]);
@@ -68,33 +68,12 @@ var Connector = fabric.util.createClass(fabric.Line, {
         if (this.hidden) {
             this.opacity = 0;
         }
-
-        var deltaX = this.x2 - this.x1;
-        var deltaY = this.y2 - this.y1;
-
-        var connectorLength = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        this.nTriangles = Math.round(connectorLength / this.arrowSeparation, 0);
-        var angle = fabric.util.radiansToDegrees(Math.atan(Math.abs(deltaY) / Math.abs(deltaX)) + Math.PI / 2);
-        for (var i = 0; i < this.nTriangles; i++) {
-            var triangle = new fabric.Path("M0 0 L" + this.arrowSize / 2 + " " + this.arrowSize + "L" + this.arrowSize + " " + 0, {
-                originX: 'center',
-                originY: 'center',
-                width: this.arrowSize,
-                height: this.arrowSize,
-                stroke: this.arrowColor,
-                fill: this.filledArrow ? this.arrowColor : '',
-                angle: angle,
-                opacity: this.opacity,
-                hasBorders: false,
-                hasControls: false,
-                hasRotatingPoint: false,
-                selectable: true
-
-            });
-            triangle.left = this.x1 + (((i + 1) * deltaX) / (this.nTriangles + 1));
-            triangle.top = this.y1 + (((i + 1) * deltaY) / (this.nTriangles + 1));
-            this.triangles.push(triangle);
-        }
+        
+        this.triangle = [
+            [3, 0],
+            [-10, -6],
+            [-10, 6]
+        ];
 
         var connector = this;
 
@@ -114,9 +93,9 @@ var Connector = fabric.util.createClass(fabric.Line, {
                 }
                 connector.set({'x1': massCenter.x, 'y1': massCenter.y});
                 connector.setCoords();
-                if (LOG)
+                if (LOG) {
                     console.log("connector source scaling");
-//                }
+                }
             });
             this.source.on('modified', function (options) {
                 var massCenter = this.getPointByOrigin('center', 'center');
@@ -215,26 +194,11 @@ var Connector = fabric.util.createClass(fabric.Line, {
                             }
                         });
 
-
-
-
-
                     }
                 });
 
             }
         });
-
-
-
-
-
-
-
-
-
-
-
 
     },
     contract: function (toDestination, doNotRemoveOnComplete, doNotRefreshCanvas) {
@@ -262,8 +226,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
         theConnector.animate(yProp, endY, {
             duration: duration,
             easing: easing,
-            onChange: function () {
-                theConnector.positionTriangles();
+            onChange: function () {                
                 if (!doNotRefreshCanvas) {
                     canvas.renderAll();
                 }
@@ -305,7 +268,6 @@ var Connector = fabric.util.createClass(fabric.Line, {
                 shouldAnimate: shouldAnimate
             };
 
-//            this.destination.trigger('inValueUpdated', options);
             this.destination.inValueUpdated(options); // instead of using an event, we call a function
         }
     },
@@ -364,15 +326,9 @@ var Connector = fabric.util.createClass(fabric.Line, {
 
             theConnection.animate('x2', massCenter.x, {
                 duration: duration,
-                onChange: function () {
-                    theConnection.positionTriangles();
-                }
             });
             theConnection.animate('y2', massCenter.y, {
                 duration: duration,
-                onChange: function () {
-                    theConnection.positionTriangles();
-                }
             });
 
             // Refreshing the screen
@@ -405,100 +361,6 @@ var Connector = fabric.util.createClass(fabric.Line, {
             alertify.error("No destination provided for this connector", "", 2000);
         }
     },
-//    setDestination: function (destination, shouldAnimate, doNotBlink) {
-//
-//        var theConnection = this;
-//
-//        if (LOG) console.log("%c setDestination " + shouldAnimate, "background:blue; color: white");
-//
-//        if (LOG) console.log("destination:");
-//        if (LOG) console.log(destination);
-//
-//        var massCenter = destination.getPointByOrigin('center', 'center');
-//        if (destination.getCompressedMassPoint) {
-//            massCenter = destination.getCompressedMassPoint();
-//        }
-//
-//        if (LOG) console.log("massCenter:");
-//        if (LOG) console.log(massCenter);
-//
-//        if (destination) {
-//
-//            var duration = 250;
-//
-//            theConnection.animate('x2', massCenter.x, {
-//                duration: duration,
-//                onChange: function () {
-//                    theConnection.positionTriangles();
-//                }
-//            });
-//            theConnection.animate('y2', massCenter.y, {
-//                duration: duration,
-//                onChange: function () {
-//                    theConnection.positionTriangles();
-//                }
-//            });
-//
-//            // Refreshing the screen
-//            fabric.util.animate({
-//                duration: duration,
-//                onChange: function () {
-//                    canvas.renderAll();
-//                },
-//                onComplete: function () {
-//                    canvas.renderAll();
-//                }
-//            });
-//
-//            theConnection.destination = destination;
-//            theConnection.destination.on('moving', function (options) {
-//                if (LOG) console.log("The destination of this connector is being moved");
-//                massCenter = destination.getPointByOrigin('center', 'center');
-//                if (destination.getCompressedMassPoint) {
-//                    massCenter = destination.getCompressedMassPoint();
-//                }
-//                theConnection.set({'x2': massCenter.x, 'y2': massCenter.y});
-//                theConnection.setCoords();
-//                theConnection.positionTriangles();
-////                canvas.renderAll();
-//            });
-//            theConnection.destination.on('scaling', function (options) {
-//                massCenter = destination.getPointByOrigin('center', 'center');
-//                if (destination.getCompressedMassPoint) {
-//                    massCenter = destination.getCompressedMassPoint();
-//                }
-//                theConnection.set({'x2': massCenter.x, 'y2': massCenter.y});
-//                theConnection.setCoords();
-//                theConnection.positionTriangles();
-////                canvas.renderAll();
-////                    if (LOG) console.log("connector destination scaling");
-//            });
-//            theConnection.destination.on('modified', function (options) {
-//                massCenter = destination.getPointByOrigin('center', 'center');
-//                if (destination.getCompressedMassPoint) {
-//                    massCenter = destination.getCompressedMassPoint();
-//                }
-//                theConnection.set({'x2': massCenter.x, 'y2': massCenter.y});
-//                theConnection.setCoords();
-//                theConnection.positionTriangles();
-////                canvas.renderAll();
-////                    if (LOG) console.log("connector destination scaling");
-//            });
-//
-//            if (LOG) console.log("The destination of this connector is: " + destination.type);
-//
-//            var options = {
-//                newInConnection: theConnection,
-//                shouldAnimate: shouldAnimate,
-//                doNotBlink: doNotBlink,
-//            };
-//            theConnection.destination.trigger('newInConnection', options);
-//
-//        } else {
-//            alertify.error("No destination provided for this connector", "", 2000);
-//        }
-//    },
-
 
     setSource: function (source) {
         if (source) {
@@ -506,60 +368,10 @@ var Connector = fabric.util.createClass(fabric.Line, {
             this.source = source;
         }
     },
-//    setSource: function (source) {
-//        if (source) {
-//            var connector = this;
-//            this.source = source;
-//            this.source.on('moving', function (options) {
-//
-//                var massCenter = source.getPointByOrigin('center', 'center');
-//                if (source.getCompressedMassPoint) {
-//                    massCenter = source.getCompressedMassPoint();
-//                }
-//
-//                connector.set({'x1': massCenter.x, 'y1': massCenter.y});
-////                connector.set({'x1': this.left, 'y1': this.top});
-//
-//                connector.setCoords();
-//                connector.positionTriangles();
-//                canvas.renderAll();
-//            });
-//            this.source.on('scaling', function (options) {
-//
-//                var massCenter = source.getPointByOrigin('center', 'center');
-//                if (source.getCompressedMassPoint) {
-//                    massCenter = source.getCompressedMassPoint();
-//                }
-//
-//                connector.set({'x1': massCenter.x, 'y1': massCenter.y});
-//
-////                connector.set({'x1': this.left, 'y1': this.top});
-//                connector.setCoords();
-//                connector.positionTriangles();
-//                canvas.renderAll();
-//            });
-//            this.source.on('modified', function (options) {
-//
-//                var massCenter = source.getPointByOrigin('center', 'center');
-//                if (source.getCompressedMassPoint) {
-//                    massCenter = source.getCompressedMassPoint();
-//                }
-//
-//                connector.set({'x1': massCenter.x, 'y1': massCenter.y});
-//
-////                connector.set({'x1': this.left, 'y1': this.top});
-//                connector.setCoords();
-//                connector.positionTriangles();
-//                canvas.renderAll();
-//            });
-//        }
-//    },
+
     remove: function () {
         if (LOG)
             console.log("removing connector");
-        this.triangles.forEach(function (triangle) {
-            canvas.remove(triangle);
-        });
         this.callSuper('remove');
         if (!canvas.renderOnAddRemove) {
             canvas.renderAll();
@@ -574,19 +386,63 @@ var Connector = fabric.util.createClass(fabric.Line, {
             arrowSeparation: this.get('arrowSeparation'),
             arrowSize: this.get('arrowSize'),
             arrowColor: this.get('arrowColor'),
-            nTriangles: this.get('nTriangles')
         });
     },
     _render: function (ctx) {
-        ctx.save();
-        this.positionTriangles();
+
         this.callSuper('_render', ctx);
-        ctx.translate(-this.left - this.width / 2, -this.top - this.height / 2);
-        for (var i = 0; i < this.nTriangles; i++) {
-            var triangle = this.triangles[i];
-            triangle.opacity = this.opacity;
-            triangle.render(ctx);
+        
+        ctx.save();
+
+        ctx.fillStyle = ctx.strokeStyle;
+
+        var x1 = -this.width / 2;
+        var y1 = this.height / 2;
+        var x2 = this.width / 2;
+        var y2 = -this.height / 2;                
+
+        if (this.y1 < this.y2) {
+            y1 = -this.height / 2;
+            y2 = this.height / 2;
         }
+        
+        if (this.x1 > this.x2) {
+            x1 = this.width / 2;
+            x2 = -this.width / 2;
+        }
+        
+        var deltaX = x2 - x1;
+        var deltaY = y2 - y1;
+        var angle = Math.atan(deltaY / deltaX);
+        if (this.x1 > this.x2) {
+            angle += fabric.util.degreesToRadians(180);
+        }
+
+        var p1 = {x: x1, y: y1};
+        var p2 = {x: x2, y: y2};
+        var line = {p1: p1, p2: p2};
+        var length = computeLength(line);
+
+        var step = 50;
+        var cummulatedDistance = step;
+
+        while (true) {
+
+            if (cummulatedDistance >= length) {
+                break;
+            }
+
+            var point = getPointAlongLine(line, cummulatedDistance);
+            var x = point.x;
+            var y = point.y;
+            moveTo(x, y);
+
+            drawFilledPolygon(translateShape(rotateShape(this.triangle, angle), x, y), ctx);
+            
+            cummulatedDistance += step;
+
+        }
+
         ctx.restore();
 
     },
@@ -594,19 +450,11 @@ var Connector = fabric.util.createClass(fabric.Line, {
         this.opacity = 0;
         this.canvas.connectorsHidden = true;
         this.hidden = true;
-        for (var i = 0; i < this.nTriangles; i++) {
-            var triangle = this.triangles[i];
-            triangle.opacity = 0;
-        }
     },
     show: function () {
         this.opacity = 1;
         this.canvas.connectorsHidden = false;
         this.hidden = false;
-        for (var i = 0; i < this.nTriangles; i++) {
-            var triangle = this.triangles[i];
-            triangle.opacity = 1;
-        }
     },
     toggleVisibility: function () {
         if (this.hidden) {
@@ -619,209 +467,17 @@ var Connector = fabric.util.createClass(fabric.Line, {
         this.fill = color;
         this.arrowColor = color;
         this.stroke = color;
-        this.triangles.forEach(function (triangle) {
-            triangle.fill = color;
-            triangle.stroke = color;
-        });
     },
-    positionTriangles: function () {
-
-        if (this.group) {
-            return;
-        }
-
-//        if (LOG) console.log("%cRe-positioning triangles", "background: yellow");
-
-        var deltaX = this.x2 - this.x1;
-        var deltaY = this.y2 - this.y1;
-
-        var connectorLength = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-        var nTriangles = Math.round(connectorLength / this.arrowSeparation, 0);
-        this.nTriangles = nTriangles;
-
-//        if (LOG) console.log("You need to draw " + nTriangles + " triangles");
-
-
-        var diff = nTriangles - this.triangles.length;
-
-
-//        if (LOG) console.log("diff:");
-//        if (LOG) console.log(diff);
-
-        if (diff > 0) {
-
-//            if (LOG) console.log("Voy a agregar " + diff + " triángulos");
-
-            for (var i = nTriangles; i < nTriangles + diff; i++) {
-
-//                if (LOG) console.log("Agregando triángulo " + i);
-
-//                var triangle = new fabric.Triangle({
-                var triangle = new fabric.Path("M0 0 L" + this.arrowSize / 2 + " " + this.arrowSize + "L" + this.arrowSize + " " + 0, {
-                    originX: 'center',
-                    originY: 'center',
-//                width: this.arrowSize+2*i,
-//                height: this.arrowSize+2*i,
-                    width: this.arrowSize,
-                    height: this.arrowSize,
-                    fill: this.filledArrow ? this.arrowColor : '',
-                    stroke: this.arrowColor,
-                    angle: angle,
-                    opacity: this.opacity
-                });
-
-                triangle.left = this.x1 + (((i + 1) * deltaX) / (nTriangles + 1));
-                triangle.top = this.y1 + (((i + 1) * deltaY) / (nTriangles + 1));
-
-                this.triangles.push(triangle);
-            }
-        }
-
-
-
-        var angle = fabric.util.radiansToDegrees(Math.atan(deltaY / deltaX));
-
-        if (angle > 0) {
-            if (this.x1 > this.x2 && this.y1 > this.y2) {
-                angle += 90;
-            } else {
-                angle -= 90;
-            }
-        } else if (angle < 0) {
-            if (this.x1 == this.x2) {
-                if (this.y1 < this.y2) {
-                    angle -= 270;
-                } else {
-                    angle += 270;
-
-                }
-            } else if (this.x1 < this.x2 && this.y1 > this.y2) {
-                angle += 270;
-            } else {
-                angle -= 270;
-            }
-        } else {
-
-            if (this.y1 == this.y2) {
-                if (this.x1 < this.x2) {
-                    angle -= 90;
-                } else {
-                    angle += 90;
-                }
-            } else {
-                if (this.y1 < this.y2) {
-                    angle -= 180;
-                } else {
-                    angle += 180;
-
-                }
-            }
-        }
-
-        for (var i = 0; i < this.triangles.length; i++) {
-            if (i < nTriangles) {
-                this.triangles[i].left = this.x1 + (((i + 1) * deltaX) / (nTriangles + 1));
-                this.triangles[i].top = this.y1 + (((i + 1) * deltaY) / (nTriangles + 1));
-                this.triangles[i].angle = angle;
-            } else {
-//                this.triangles[i].opacity = 0;
-            }
-        }
-//        if (this.source) {
-//            canvas.bringToFront(this.source);
-//        }
-//        if (this.destination) {
-//            canvas.bringToFront(this.destination);
-//        }
-    }
+    
 });
 
 
-
-//function createConnectorFromXMLNode(connectorNode) {
-//
-//    var fromID = Number(connectorNode.attr('from'));
-//    var toID = Number(connectorNode.attr('to'));
-//
-//    var source = getFabricElementByXmlID(fromID);
-//    var destination = getFabricElementByXmlID(toID);
-//    console.log("%c" + "source:", "background: black; color: rgb(240,205,90);");
-//    console.log(source);
-//    
-//    console.log("%c" + "destination:", "background: black; color: rgb(240,205,90);");
-//    console.log(destination);
-//
-//    if (source !== null && destination !== null) {
-//
-//        var arrowColor = connectorNode.attr('arrowColor');
-//        var strokeWidth = Number(connectorNode.attr('strokeWidth'));
-//        var filledArrow = connectorNode.attr('filledArrow') === 'true';
-//        var opacity = Number(connectorNode.attr('opacity'));
-//
-//        var connector = new Connector({
-//            source: source,
-//            x1: source.left,
-//            y1: source.top,
-//            destination: destination,
-//            x2: destination.left,
-//            y2: destination.top,
-//            arrowColor: arrowColor,
-//            filledArrow: filledArrow,
-//            strokeWidth: strokeWidth,
-//            opacity: opacity
-//        });
-//        
-//        console.log("%c source.left: " + source.left, "background: rgb(255,192,36); color: white;");
-//        console.log("%c source.top: " + source.top, "background: rgb(255,192,36); color: white;");
-//        console.log("%c destination.left: " + destination.left, "background: rgb(255,192,36); color: white;");
-//        console.log("%c destination.top: " + destination.top, "background: rgb(255,192,36); color: white;");
-//
-//        source.outConnectors.push(connector);
-//        destination.inConnectors.push(connector);
-//
-//        canvas.add(connector);
-//
-//        if (source.isOperator || source.isLocator) {
-////            source.bringToFront();
-//            bringToFront(source);
-//        }
-//
-//        if (destination.isOperator || destination.isMark) {
-////            destination.bringToFront();
-//            bringToFront(destination);
-//        }
-//        
-//        return true;
-//
-//    } else {
-//
-//        // This means that either the source or the destination of this connector is not available in the canvas yet 
-//        // We store the connector in the pendingConnections array, so that, objects that might be late, ask for their connections
-//        // to be made when they become available. This call will be only executed for objects that might be delayed (SVGGroupMarks, for instance)
-//        
-//        // We need to check if this connection has not been previously added to this array.
-//        if ($.inArray(connectorNode, pendingConnections) === -1) { // If the connection is NOT in the array
-//            pendingConnections.push(connectorNode);
-//        }
-//                        
-//        return false;
-//
-//    }
-//
-//}
-
 function createConnectorFromXMLNode(connectorNode) {
 
-//    var fromID = Number(connectorNode.attr('from'));
-//    var toID = Number(connectorNode.attr('to'));
     var fromID = connectorNode.attr('from');
     var toID = connectorNode.attr('to');
 
     console.log("%c" + "Attempting new connection between " + fromID + " and " + toID, "font-weight: bold; font-size: 15px; background: black; color: rgb(240,205,90);");
-
-//    var source = getFabricElementByXmlID(fromID);
-//    var destination = getFabricElementByXmlID(toID);
 
     var source = connectableElements[fromID];
     var destination = connectableElements[toID];
@@ -832,12 +488,6 @@ function createConnectorFromXMLNode(connectorNode) {
     if (!destination || typeof destination === 'undefined') {
         console.log("%c" + "Destination NOT found!", "font-weight: bold; font-size: 15px; background: black; color: rgb(215,240,90);");
     }
-
-//    console.log("%c" + "source:", "background: black; color: rgb(240,205,90);");
-//    console.log(source);
-//    
-//    console.log("%c" + "destination:", "background: black; color: rgb(240,205,90);");
-//    console.log(destination);
 
     if (typeof source !== 'undefined' && typeof destination !== 'undefined' && source !== null && destination !== null) {
 
@@ -850,11 +500,6 @@ function createConnectorFromXMLNode(connectorNode) {
         var y1 = source.top;
         var x2 = destination.left;
         var y2 = destination.top;
-
-//        console.log("%c x1: " + x1, "background: rgb(149,121,205); color: black;");
-//        console.log("%c y1: " + y1, "background: rgb(149,121,205); color: black;");
-//        console.log("%c x2: " + x2, "background: rgb(149,121,205); color: black;");
-//        console.log("%c y2: " + y2, "background: rgb(149,121,205); color: black;");
 
         var connector = new Connector({
             source: source,
@@ -869,33 +514,20 @@ function createConnectorFromXMLNode(connectorNode) {
             opacity: opacity
         });
 
-
-
         source.outConnectors.push(connector);
         destination.inConnectors.push(connector);
 
         canvas.add(connector);
 
         if (source.isOperator || source.isLocator) {
-//            source.bringToFront();
             bringToFront(source);
         }
 
         if (destination.isOperator || destination.isMark) {
-//            destination.bringToFront();
             bringToFront(destination);
         }
-
         console.log("%c" + "Connection created from " + fromID + " to " + toID, "background: rgb(255,192,36); color: white;");
-
-//        console.log("%c" + "Current state of pendingConnections pool:", "background: rgb(255,192,36); color: white;");
-//        console.log(pendingConnections);
-
-
         return true;
-
     }
-
     return false;
-
 }

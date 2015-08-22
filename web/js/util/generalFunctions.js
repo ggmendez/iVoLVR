@@ -61,7 +61,7 @@ function checkForRetinaDisplay() {
 
         // finally set the scale of the context
         c.getContext('2d').scale(window.devicePixelRatio, window.devicePixelRatio);
-        
+
         canvas.renderAll();
 
     }
@@ -1550,7 +1550,7 @@ function deleteObject() {
             // confirm dialog
             alertify.confirm("Are you sure you want to remove the selected object?", function (e) {
                 if (e) {
-                    obj.remove();
+                    obj.remove(true);
                     canvas.renderAll();
                     alertify.log("Object removed", "", 3000);
                 }
@@ -1964,7 +1964,7 @@ function pathToPolygon(path, samples) {
 //                    console.log("Forcing break. UNDEFINED values found!");
 //                    break;
 //                } else {
-                    addSegmentPoint(segs.shift());
+                addSegmentPoint(segs.shift());
 //                }
 
 
@@ -5861,6 +5861,8 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+
+
 function hideWithAnimation(object, refreshCanvas) {
     var duration = 300;
     var easing = fabric.util.ease['easeInCubic'];
@@ -6017,24 +6019,43 @@ function computeDeltaE2000(fabricColor1, fabricColor2) {
 }
 
 function updateConnectorsPositions(object) {
+    
+    console.log("updateConnectorsPositions ");
+    console.log(object);
+    
+    if (!object) {
+        return;
+    }
 
     object.setCoords();
     var connectionPoint = null;
-    if (object.getCompressedMassPoint) {
-        connectionPoint = object.getCompressedMassPoint();
+
+    if (object.group) {
+
+        connectionPoint = getCenterPointWithinGroup(object);
+
     } else {
-        connectionPoint = object.getCenterPoint();
+        if (object.getCompressedMassPoint) {
+            connectionPoint = object.getCompressedMassPoint();
+        } else {
+            connectionPoint = object.getCenterPoint();
+        }
     }
+
     if (object.inConnectors) {
         object.inConnectors.forEach(function (inConnector) {
-            inConnector.set({'x2': connectionPoint.x, 'y2': connectionPoint.y});
-            inConnector.setCoords();
+            if (!inConnector.group) {
+                inConnector.set({'x2': connectionPoint.x, 'y2': connectionPoint.y});
+                inConnector.setCoords();
+            }
         });
     }
     if (object.outConnectors) {
         object.outConnectors.forEach(function (outConnector) {
-            outConnector.set({'x1': connectionPoint.x, 'y1': connectionPoint.y});
-            outConnector.setCoords();
+            if (!outConnector.group) {
+                outConnector.set({'x1': connectionPoint.x, 'y1': connectionPoint.y});
+                outConnector.setCoords();
+            }
         });
     }
 }
@@ -7603,4 +7624,11 @@ function getObjectLength(object) {
             size++;
     }
     return size;
+}
+
+
+function getCenterPointWithinGroup(object) {
+    var group = object.group;
+    var centerPoint = object.getCenterPoint();
+    return new fabric.Point(group.left + centerPoint.x + group.width / 2, group.top + centerPoint.y + group.height / 2);
 }

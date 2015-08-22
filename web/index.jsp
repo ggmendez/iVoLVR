@@ -590,7 +590,7 @@
                     canvas.viewportTop = canvas.viewportTransform[5];
                     gestureSetEnabled(manager, 'pinch', false);
 
-                } else {
+                } else if (!canvas.getActiveObject()) {
                     console.log("Starting selection");
                 }
 
@@ -624,7 +624,7 @@
                         canvas.absolutePan(new fabric.Point(x, y));
                     }
 
-                } else {
+                } else if (!canvas.getActiveObject()) {
 
                     /**************************************/
                     /********** SQUARE SELECTING **********/
@@ -674,7 +674,7 @@
                     canvas.defaultCursor = "-webkit-grab";
                     gestureSetEnabled(manager, 'pinch', true);
 
-                } else {
+                } else if (!canvas.getActiveObject()) {
 
                     console.log("Square selection ended");
 
