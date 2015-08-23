@@ -183,7 +183,7 @@ var Mark = function () {
             lockScalingY: true,
             lockMovementX: true,
             lockMovementY: true,
-            selectable: true,
+            selectable: false,
             evented: false,
             editable: false
         });

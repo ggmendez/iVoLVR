@@ -78,6 +78,10 @@ function canvasBeforeSelectionCleared(option) {
     console.log(option);
 
     var group = option.target;
+    if (!group) {
+        return;
+    }
+    
     group.compress();
 
     var selectedObjects = group._objects;
@@ -292,6 +296,8 @@ function canvasSelectionCreated(option) {
             button.flipX = false;
             button.flipY = false;
             button.setPositionByOrigin(position, originX, originY);
+            
+//            bringToFront(button);
 
         }
 

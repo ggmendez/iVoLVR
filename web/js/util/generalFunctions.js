@@ -977,25 +977,25 @@ function setBrushMode(mode) {
     $(drawingMenu).mouseout();
 }
 
-function bringToFront() {
-    if (canvas.getActiveObject()) {
-        canvas.bringToFront(canvas.getActiveObject());
-    } else if (canvas.getActiveGroup()) {
-        alertify.error("Select only one object");
-    } else {
-        alertify.error("No objects selected");
-    }
-}
-
-function bringForward() {
-    if (canvas.getActiveObject()) {
-        canvas.bringForward(canvas.getActiveObject());
-    } else if (canvas.getActiveGroup()) {
-        alertify.error("Select only one object");
-    } else {
-        alertify.error("No objects selected");
-    }
-}
+//function bringToFront() {
+//    if (canvas.getActiveObject()) {
+//        canvas.bringToFront(canvas.getActiveObject());
+//    } else if (canvas.getActiveGroup()) {
+//        alertify.error("Select only one object");
+//    } else {
+//        alertify.error("No objects selected");
+//    }
+//}
+//
+//function bringForward() {
+//    if (canvas.getActiveObject()) {
+//        canvas.bringForward(canvas.getActiveObject());
+//    } else if (canvas.getActiveGroup()) {
+//        alertify.error("Select only one object");
+//    } else {
+//        alertify.error("No objects selected");
+//    }
+//}
 
 function sendToBack() {
     if (canvas.getActiveObject()) {
@@ -6067,7 +6067,6 @@ function updateConnectorsPositions(object) {
 function bringConnectorsToFront(object) {
     if (object.inConnectors) {
         object.inConnectors.forEach(function (inConnector) {
-//            inConnector.bringToFront();
             bringToFront(inConnector);
         });
     }
