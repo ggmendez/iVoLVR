@@ -77,7 +77,10 @@ function canvasBeforeSelectionCleared(option) {
     console.log("option:");
     console.log(option);
 
-    var selectedObjects = option.target._objects;
+    var group = option.target;
+    group.compress();
+
+    var selectedObjects = group._objects;
     if (selectedObjects) {
         var totalSelectedObjects = selectedObjects.length;
         console.log("Total objects in the selection to clear: " + totalSelectedObjects);
@@ -90,6 +93,8 @@ function canvasBeforeSelectionCleared(option) {
 
         }
     }
+
+
 }
 
 
@@ -100,24 +105,6 @@ function canvasSelectionCleared(option) {
         event.preventDefault();
     }
     canvasDeselectAllObjects();
-    
-    
-
-//    // this is done to guarantee that the marks' labels are not going to be missplaced and, thus, they can be grouped again with no problems
-//    canvas.forEachObject(function (object) {
-//        object.setCoords();
-//        
-//        if (object.positionElements) {
-//            object.positionElements();
-//        }
-//        updateConnectorsPositions(object);
-//
-//    });
-
-
-
-
-
 }
 
 groupDrawBorders = function (ctx) {
@@ -183,6 +170,8 @@ function canvasSelectionCreated(option) {
 
     var createdGroup = option.target;
 
+    createdGroup.set('alignmentButtons', new Array());
+
 //    drawRectAt(new fabric.Point(createdGroup.left, createdGroup.top), "red");    
 
     createdGroup.lockScalingX = true;
@@ -194,16 +183,15 @@ function canvasSelectionCreated(option) {
     createdGroup.padding = 10;
     createdGroup.borderColor = '#ffce0a';
 
-    createdGroup.setShadow({
-        color: 'red',
-        blur: 10,
-        offsetX: 20,
-        offsetY: 20
-    });
+    createdGroup.isCompressed = true;
+
 
     createdGroup.drawBorders = groupDrawBorders;
 
     createdGroup.on('moving', function (option) {
+
+        createdGroup.positionAlignmentButtons();
+
         console.log("Moving selection");
         var selectedObjects = createdGroup._objects;
         selectedObjects.forEach(function (object) {
@@ -212,6 +200,165 @@ function canvasSelectionCreated(option) {
             }
             updateConnectorsPositions(object);
         });
+    });
+
+    createdGroup.addAlignmentButtons = function () {
+
+        this.alignmentButtons = new Object();
+
+        var leftArrow = 'm -1879.8776,2895.2123 -10.8181,0 0,50.1239 10.8181,0 z m 19.3112,10.2276 -17.0832,14.8572 17.0832,14.8569 0,-8.5417 28.76,0 0,-12.6307 -28.76,0 z';
+        var leftButton = new fabric.Path(leftArrow, {
+            originX: 'center',
+            originY: 'center',
+            strokeWidth: 2,
+            stroke: 'rgb(40,40,40)',
+            fill: 'rgb(153, 153, 153)',
+            selectable: false,
+            evented: true,
+            opacity: 1,
+            permanentOpacity: 1,
+            movingOpacity: 1,
+            angle: 0,
+            direction: 'left'
+        });
+        this.alignmentButtons['left'] = leftButton;
+
+        var rightButton = fabric.util.object.clone(leftButton);
+        rightButton.angle = 180;
+        rightButton.direction = 'right';
+        this.alignmentButtons['right'] = rightButton;
+
+        var topButton = fabric.util.object.clone(leftButton);
+        topButton.angle = 90;
+        topButton.direction = 'top';
+        this.alignmentButtons['top'] = topButton;
+
+        var bottomButton = fabric.util.object.clone(leftButton);
+        bottomButton.angle = 270;
+        bottomButton.direction = 'bottom';
+        this.alignmentButtons['bottom'] = bottomButton;
+
+    };
+
+    createdGroup.positionAlignmentButtons = function () {
+
+        createdGroup.setCoords();
+
+        var leftTop = createdGroup.getPointByOrigin('left', 'top');
+        leftTop.x -= createdGroup.padding;
+        leftTop.y -= createdGroup.padding;
+
+        var rightBottom = createdGroup.getPointByOrigin('right', 'bottom');
+        rightBottom.x += createdGroup.padding;
+        rightBottom.y += createdGroup.padding;
+
+//        drawRectAt(rightBottom, "red");
+
+        for (var name in createdGroup.alignmentButtons) {
+
+            var button = createdGroup.alignmentButtons[name];
+            console.log(name + ":");
+            console.log(button);
+
+            var x, y, originX, originY, angle;
+
+            if (name === 'top') {
+                x = leftTop.x - 10;
+                y = leftTop.y;
+                originX = 'left';
+                originY = 'top';
+            } else if (name === 'left') {
+                x = leftTop.x;
+                y = leftTop.y - 10;
+                originX = 'left';
+                originY = 'bottom';
+            } else if (name === 'bottom') {
+                x = rightBottom.x + 10;
+                y = rightBottom.y;
+                originX = 'left';
+                originY = 'top';
+            } else if (name === 'right') {
+                x = rightBottom.x;
+                y = rightBottom.y + 10;
+                originX = 'left'; // because this is rotated
+                originY = 'bottom';
+            }
+
+
+            var position = new fabric.Point(x, y);
+
+//            drawRectAt(position, "blue");
+
+            button.flipX = false;
+            button.flipY = false;
+            button.setPositionByOrigin(position, originX, originY);
+
+        }
+
+    };
+
+    function animateScale(group, object, from, to, removeAfterAnimation) {
+
+        object.scaleX = from;
+        object.scaleY = from;
+
+        var duration = 300;
+        var easing = fabric.util.ease['easeOutBack'];
+        object.animate('scaleX', to, {
+            duration: duration,
+            easing: easing,
+        });
+        object.animate('scaleY', to, {
+            duration: duration,
+            onChange: function () {
+                group.positionAlignmentButtons();
+                canvas.renderAll();
+            },
+            onComplete: function () {
+                if (removeAfterAnimation) {
+                    object.remove();
+                }
+                group.positionAlignmentButtons();
+                canvas.renderAll();
+            },
+            easing: easing,
+        });
+    }
+
+    createdGroup.expand = function () {
+        if (!createdGroup.isCompressed) {
+            return;
+        }
+        createdGroup.positionAlignmentButtons();
+        for (var name in createdGroup.alignmentButtons) {
+            var button = createdGroup.alignmentButtons[name];
+            canvas.add(button);
+            animateScale(createdGroup, button, 0, 1, false);
+        }
+        createdGroup.isCompressed = false;
+    };
+
+    createdGroup.compress = function () {
+        if (createdGroup.isCompressed) {
+            return;
+        }
+        createdGroup.positionAlignmentButtons();
+        for (var name in createdGroup.alignmentButtons) {
+            var button = createdGroup.alignmentButtons[name];
+            animateScale(createdGroup, button, 1, 0, true);
+        }
+        createdGroup.isCompressed = true;
+        canvas.renderAll();
+    };
+
+    createdGroup.addAlignmentButtons();
+
+    createdGroup.on('doubleTap', function (option) {
+        if (createdGroup.isCompressed) {
+            createdGroup.expand(true);
+        } else {
+            createdGroup.compress(true);
+        }
     });
 
     var selectedObjects = createdGroup._objects;
@@ -227,17 +374,6 @@ function canvasSelectionCreated(option) {
                 if (object.addToGroup) {
                     object.addToGroup(createdGroup);
                 }
-
-
-//                if (object.isMark) {
-//                    
-//                    var center = object.getCenterPoint();
-//                    
-//                    
-////                    drawRectAt(new fabric.Point(createdGroup.left + object.left + createdGroup.width/2, createdGroup.top + object.top + createdGroup.height/2), "black");
-//                    drawRectAt(new fabric.Point(createdGroup.left + center.x + createdGroup.width/2, createdGroup.top + center.y + createdGroup.height/2), "black");
-//                }
-
             });
         }
 
@@ -1532,6 +1668,7 @@ function canvasDoubleTap(hammerEvent) {
     hammerEvent.preventDefault();
 
     var activeObject = canvas.getActiveObject();
+    var activeGroup = canvas.getActiveGroup();
 
     if (activeObject) {
 
@@ -1547,6 +1684,11 @@ function canvasDoubleTap(hammerEvent) {
             var options = {event: hammerEvent};
             activeObject.trigger('doubleTap', options);
         }
+
+    } else if (activeGroup) {
+
+        var options = {event: hammerEvent};
+        activeGroup.trigger('doubleTap', options);
 
     } else {
 

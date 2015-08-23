@@ -1243,9 +1243,9 @@ var Mark = function () {
                 y = y - theMark.group.top - theMark.group.height / 2;
             }
 
-
+            // remember that left and top are properties that are relative TO THE GROUP (if any, otherwise, they are relative to the canvas)
             visualProperty.left = x;
-            visualProperty.top = y;
+            visualProperty.top = y;                        
 
             visualProperty.setCoords();
 

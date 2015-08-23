@@ -2061,6 +2061,10 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
 
                 child.remove();
 
+            } else {
+                
+                console.log("tagName: " + tagName);
+                
             }
 
         });
@@ -6020,8 +6024,8 @@ function computeDeltaE2000(fabricColor1, fabricColor2) {
 
 function updateConnectorsPositions(object) {
     
-    console.log("updateConnectorsPositions ");
-    console.log(object);
+//    console.log("updateConnectorsPositions ");
+//    console.log(object);
     
     if (!object) {
         return;

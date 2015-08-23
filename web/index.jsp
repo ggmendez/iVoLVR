@@ -1030,7 +1030,7 @@
 
                 var options1 = {
                     left: 100,
-                    top: 100,
+                    top: 400,
                     fill: rgb(122, 176, 114),
                     stroke: darkenrgb(122, 176, 114),
                     area: 2000,
@@ -1042,7 +1042,7 @@
 
                 var options2 = {
                     left: 400,
-                    top: 100,
+                    top: 400,
                     fill: rgb(255, 151, 40),
                     stroke: darkenrgb(255, 151, 40),
                     area: 12000,
@@ -1053,7 +1053,7 @@
                 addMarkToCanvas(RECTANGULAR_MARK, options2);
                 var options3 = {
                     left: 650,
-                    top: 100,
+                    top: 400,
                     fill: rgb(180, 115, 168),
                     colorForStroke: darkenrgb(180, 115, 168),
                     fontFamily: 'Miguta',
@@ -1066,7 +1066,7 @@
                 addMarkToCanvas(FATFONT_MARK, options3);
                 var options4 = {
                     left: 850,
-                    top: 135,
+                    top: 400,
                     fill: rgb(225, 79, 75),
                     stroke: darkenrgb(225, 79, 75),
                     width: 100,
@@ -1359,7 +1359,7 @@
 
 
 
-
+            addSampleMarksToCanvas();
 
 
 
