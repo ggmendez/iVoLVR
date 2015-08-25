@@ -219,7 +219,7 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
                     
                     value = createNumericValue(rawValue); // NUMBER
                     
-                } else {
+                } else if ( isColor(rawValue) ) {
                     
                     /*var theMoment = parseStringAsMomentDate(rawValue);
                     
@@ -232,6 +232,11 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
                         value = createStringValue(rawValue); // STRING
                         
                     }*/
+                    
+                    value = createColorValue(rawValue); // COLOR
+                    
+                    
+                } else {
                     
                     value = createStringValue(rawValue); // STRING
                     

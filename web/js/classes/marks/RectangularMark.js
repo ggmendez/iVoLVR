@@ -331,7 +331,7 @@ var RectangularMark = fabric.util.createClass(fabric.Rect, {
             options.fontSize = Math.round((theMark.width + theMark.height) / 2);
             options.stroke = '';
 
-        } else if (newShapeType === FILLEDPATH_MARK || newShapeType === SVGPATHGROUP_MARK) {
+        } else if (newShapeType === FILLEDPATH_MARK || newShapeType === PATH_MARK || newShapeType === SVGPATHGROUP_MARK) {
 
             options.targetWidth = theMark.width;
             options.targetHeight = theMark.height;

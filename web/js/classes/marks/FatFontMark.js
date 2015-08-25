@@ -248,9 +248,7 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
             return this;
         }
 
-        var padding = this.padding,
-                padding2 = padding * 2,
-                vpt = this.getViewportTransform();
+        var padding = this.padding, padding2 = padding * 2, vpt = this.getViewportTransform();
 
         ctx.save();
 
@@ -259,7 +257,6 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
         ctx.strokeStyle = widget_selected_stroke_color;
         ctx.lineWidth = widget_selected_stroke_width;
         ctx.setLineDash(widget_selected_stroke_dash_array);
-
 
         var scaleX = 1 / this._constrainScale(this.scaleX),
                 scaleY = 1 / this._constrainScale(this.scaleY);
@@ -353,7 +350,7 @@ var FatFontMark = fabric.util.createClass(fabric.IText, {
             options.fontSize = Math.round((theMark.width + theMark.height) / 2);
             options.stroke = '';
 
-        } else if (newShapeType == FILLEDPATH_MARK || newShapeType == SVGPATHGROUP_MARK) {
+        } else if (newShapeType === PATH_MARK || newShapeType == FILLEDPATH_MARK || newShapeType == SVGPATHGROUP_MARK) {
 
             options.targetWidth = theMark.width;
             options.targetHeight = theMark.height;

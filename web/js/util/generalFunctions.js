@@ -191,7 +191,14 @@ function hideOpenTooltips() {
         if (autoClose) {
             tooltip.tooltipster("hide", function () {
                 var a = this[0];
-                document.body.removeChild(a);
+
+                if ($(document.body).has($(a))) {
+                    console.log("Removing tooltip...");
+                    $(a).remove();
+                }
+
+
+//                document.body.removeChild(a);
             });
         }
     });
@@ -1896,7 +1903,7 @@ function polyArea(poly) {
 function pathToPolygon(path, samples) {
     if (!samples)
         samples = 0;
-    var poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    var thePolygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
 
     // Put all path segments in a queue
     for (var segs = [], s = path.pathSegList, i = s.numberOfItems - 1; i >= 0; --i)
@@ -1930,7 +1937,7 @@ function pathToPolygon(path, samples) {
 
     for (var d = 0, len = path.getTotalLength(), step = len / samples; d <= len; d += step) {
 
-        if (step <= 0.00001) {
+        if (step <= 0) {
             break;
         }
 
@@ -1993,19 +2000,55 @@ function pathToPolygon(path, samples) {
     for (var i = 0, len = segs.length; i < len; ++i) {
         addSegmentPoint(segs[i]);
     }
+
+    var svgAbsolutePathString = "M ";
+    var xs = new Array();
+    var ys = new Array();
+
     for (var i = 0, len = points.length; i < len; ++i) {
+
+        var x = points[i][0];
+        var y = points[i][1];
+
+        if (typeof x !== 'undefined' && typeof y !== 'undefined') {
+            xs.push(x);
+            ys.push(y);
+            svgAbsolutePathString += (x + "," + y + " L ");
+        }
+
+
         points[i] = points[i].join(',');
     }
 
+//    console.log("SVGString:");
+//    console.log(svgAbsolutePathString);
+
     var pointsString = points.join(' ');
 
-    /*console.log("pointsString:");
-     console.log(pointsString);*/
+//    console.log("pointsString:");
+//    console.log(pointsString);
 
-    poly.setAttribute('points', pointsString);
-    return poly;
+    thePolygon.setAttribute('points', pointsString);
+
+    svgAbsolutePathString = svgAbsolutePathString.substr(0, svgAbsolutePathString.length - 2);
+
+    return {SVGPolygon: thePolygon, svgAbsolutePathString: svgAbsolutePathString, xs: xs, ys: ys};
 }
 
+
+function fabricPathToSVGPolygon(fabricPathObject, nSamples) {
+    var SVGPathString = fabricPathObject;
+    if (fabricPathObject.path) {
+        SVGPathString = getSVGPathString(fabricPathObject);
+    }
+    var svgPath = document.createElementNS('http://www.w3.org/2000/svg', "path");
+    svgPath.setAttributeNS(null, "d", SVGPathString);
+    return pathToPolygon(svgPath, nSamples);
+}
+
+function computePolygonArea(SVGPolygon) {
+    return polyArea(SVGPolygon);
+}
 
 function computePathArea(object) {
     var SVGPathString = object;
@@ -2014,7 +2057,11 @@ function computePathArea(object) {
     }
     var svgPath = document.createElementNS('http://www.w3.org/2000/svg', "path");
     svgPath.setAttributeNS(null, "d", SVGPathString);
-    var polygon = pathToPolygon(svgPath, 50);
+
+    var result = pathToPolygon(svgPath, 500);
+
+    var polygon = result.SVGPolygon;
+
     return polyArea(polygon);
 }
 
@@ -2051,7 +2098,14 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
             var child = $(this);
             var tagName = this.tagName;
 
-            if (tagName !== 'path') {
+            if (tagName !== 'text') {
+
+                /*console.log("child:");
+                 console.log(child);*/
+
+//            if (tagName !== 'path' && tagName !== 'text') {
+
+                console.log("FLATTENING RESULTS:");
 
                 var paths = flattenToPaths(this);
                 paths.forEach(function (path) {
@@ -2062,9 +2116,9 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
                 child.remove();
 
             } else {
-                
+
                 console.log("tagName: " + tagName);
-                
+
             }
 
         });
@@ -2074,11 +2128,6 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
             svgNode.append(path);
         });
 
-//        var children = svgNode.children();
-//        children.each(function () {
-//            var child = $(this);
-//            child.removeAttr('transform');
-//        });
 
 
         SVGString = (new XMLSerializer()).serializeToString(svgDoc);
@@ -2090,12 +2139,7 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
 
         fabric.loadSVGFromString(SVGString, function (objects, options) {
 
-//            objects.forEach(function (object) {
-//                canvas.add(object);
-//            });
-//            canvas.renderAll();
-//            
-//            return;
+
 
 
             var canvasActualCenter = getActualCanvasCenter();
@@ -2148,26 +2192,82 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
             objects.forEach(function (object) {
 
                 object.setCoords();
+                var objectCenter = object.getPointByOrigin('center', 'center');
 
-                var rbgColor = new fabric.Color(object.fill);
-                var source = rbgColor.getSource();
-                var r = source[0];
-                var g = source[1];
-                var b = source[2];
+                var objectFill = object.fill;
+                var visualPropertyFill = '';
 
-                var fillColor = rgb(r, g, b);
+                var fillColor = object.fill;
+                var strokeColor = object.stroke;
 
-                var thePath = object.path;
-                if (thePath) {
+                var darkenedColor = '';
+                var trueColorDarker = '';
 
-                    var objectCenter = object.getPointByOrigin('center', 'center');
+                if (!objectFill || objectFill === '' || objectFill === 'none') {
+                    objectFill = '';
+                }
+
+                if (!strokeColor || strokeColor === '' || strokeColor === 'none') {
+                    strokeColor = '';
+                    if (objectFill !== '') {
+                        var rbgColor = new fabric.Color(objectFill);
+                        var source = rbgColor.getSource();
+                        var r = source[0];
+                        var g = source[1];
+                        var b = source[2];
+                        trueColorDarker = darkenrgb(r, g, b);
+                    }
+                } else {
+                    trueColorDarker = strokeColor;
+                }
+
+
+                if (objectFill === '' && strokeColor !== '') {
+                    var rbgColor = new fabric.Color(strokeColor);
+                    var source = rbgColor.getSource();
+                    var r = source[0];
+                    var g = source[1];
+                    var b = source[2];
+
+                    visualPropertyFill = lightenrgb(r, g, b, 20);
+                } else {
+                    visualPropertyFill = objectFill;
+                }
+
+                var type = object.type;
+
+                if (type === 'path') {
+
+                    var result = fabricPathToSVGPolygon(object, 500);
+
+                    var polygon = result.SVGPolygon;
+                    var thePath = result.svgAbsolutePathString;
+                    var xs = result.xs;
+                    var ys = result.ys;
+
+                    var area = computePolygonArea(polygon);
+
+
+
+                    /*console.log("thePath:");
+                     console.log(thePath);
+                     
+                     console.log("object.transformMatrix:");
+                     console.log(object.transformMatrix);
+                     
+                     console.log("object.transform:");
+                     console.log(object.transform);
+                     
+                     console.log("thePath:");
+                     console.log(thePath);*/
 
                     var vixorOptions = {
                         left: objectCenter.x,
                         top: objectCenter.y,
                         fillColor: fillColor,
                         fill: fillColor,
-                        stroke: darkenrgb(r, g, b),
+                        stroke: strokeColor,
+                        isFilled: fillColor !== '',
                         markAsSelected: false,
                         thePath: thePath,
                         opacity: 1,
@@ -2178,27 +2278,61 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
                         angle: 0,
                         untransformedScaleX: 1,
                         untransformedScaleY: 1,
-                        area: computePathArea(object),
-//                        area: 100,
-                        trueColor: rgb(r, g, b),
-                        trueColorDarker: darkenrgb(r, g, b),
-                        animateAtBirth: false
+                        area: area,
+                        trueColor: fillColor,
+                        visualPropertyFill: visualPropertyFill,
+                        trueColorDarker: trueColorDarker, // this value will be used as the stroke of the visual properties of the vixor
+                        colorForStroke: trueColorDarker,
+                        animateAtBirth: false,
+                        strokeWidth: object.strokeWidth,
                     };
 
-                    var theVixor = addSVGPathVixorToCanvas(vixorOptions.thePath, vixorOptions);
+                    var theVixor = addSVGPathVixorToCanvas(thePath, vixorOptions);
                     parentObject.widgets.push(theVixor);
                     computeUntransformedProperties(theVixor);
 
-                } else {
+                } else if (type === 'text') {
 
-                    console.log("This element NOT an SVG path:");
-                    console.log(object);
+                    /*console.log("object:");
+                     console.log(object);*/
+
+                    var string = object.text;
+
+                    var textOptions = {
+                        originX: 'center',
+                        originY: 'center',
+                        left: objectCenter.x,
+                        top: objectCenter.y,
+                        fill: fillColor,
+                        stroke: darkenedColor,
+                        markAsSelected: false,
+                        opacity: 1,
+                        permanentOpacity: 1,
+                        movingOpacity: 0.3,
+                        isWidget: true,
+                        parentObject: parentObject,
+                        angle: 0,
+                        untransformedScaleX: 1,
+                        untransformedScaleY: 1,
+                        animateAtBirth: false,
+                    };
+
+//                    var text = new fabric.Text(string, textOptions);
+                    var text = new SVGText(string, textOptions);
+                    parentObject.widgets.push(text);
+                    computeUntransformedProperties(text);
+
+                    canvas.add(text);
+
+                    text.appl
+
+
+
+
+
 
 
                 }
-
-
-
 
             });
 
@@ -6023,10 +6157,10 @@ function computeDeltaE2000(fabricColor1, fabricColor2) {
 }
 
 function updateConnectorsPositions(object) {
-    
+
 //    console.log("updateConnectorsPositions ");
 //    console.log(object);
-    
+
     if (!object) {
         return;
     }
@@ -7150,74 +7284,8 @@ function addVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
 
             if (theText) {
 
-                var options = {
-                    left: x,
-                    top: y
-                };
 
-                if (theText.endsWith('%')) {
-                    theText = theText.substring(0, theText.length - 1);
-                }
-
-                if ($.isNumeric(theText)) {
-
-                    // is it a NUMBER
-
-                    options.theType = "number";
-                    options.unscaledValue = Number(theText);
-
-                } else {
-
-                    if (canBeCurrency(theText)) {
-
-                        // are you sure? It may be a string representing MONEY
-
-                        var find = ',';
-                        var re = new RegExp(find, 'g');
-                        theText = theText.replace(re, '');
-
-                        print(theText, "blue", "white");
-
-                        options.theType = "number";
-                        options.unscaledValue = Number(theText);
-
-
-                    } else {
-
-                        // Is it a DATE?
-                        var dateAndTime = moment(theText, getDateAndTimeFormats(), true);
-
-                        if (dateAndTime.isValid()) {
-
-                            console.log(theText + " was a VALID DATE!!!)");
-
-                            options.theType = "dateAndTime";
-                            options.theMoment = dateAndTime;
-
-                        } else {
-
-                            // ok, it's just TEXT
-
-                            options.theType = "string";
-                            options.string = theText;
-
-                        }
-
-                    }
-
-
-
-
-
-
-
-                }
-
-                console.log("options:");
-                console.log(options);
-
-
-                var theVisualVariable = CreateDataType(options);
+                var theVisualVariable = createBestVisualVariableFromText(theText, x, y);
 
                 if (addToCanvas) {
                     canvas.add(theVisualVariable);
@@ -7251,6 +7319,190 @@ function addVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
 
 }
 
+
+function createBestVisualVariableFromText(theText, x, y) {
+
+    var options = {
+        left: x,
+        top: y
+    };
+
+    if (theText.endsWith('%')) {
+        theText = theText.substring(0, theText.length - 1);
+    }
+
+    if ($.isNumeric(theText)) {
+
+        // is it a NUMBER
+
+        options.theType = "number";
+        options.unscaledValue = Number(theText);
+
+    } else {
+
+        if (canBeCurrency(theText)) {
+
+            // are you sure? It may be a string representing MONEY
+
+            var find = ',';
+            var re = new RegExp(find, 'g');
+            theText = theText.replace(re, '');
+
+            print(theText, "blue", "white");
+
+            options.theType = "number";
+            options.unscaledValue = Number(theText);
+
+
+        } else {
+
+            // Is it a DATE?
+            var dateAndTime = moment(theText, getDateAndTimeFormats(), true);
+
+            if (dateAndTime.isValid()) {
+
+                console.log(theText + " was a VALID DATE!!!)");
+
+                options.theType = "dateAndTime";
+                options.theMoment = dateAndTime;
+
+            } else {
+
+                if (isColor(theText)) {
+                    
+                    // This is a color
+                    options.theType = "color";
+                    options.theColor = theText;
+                    
+                } else {
+                    // ok, it's just TEXT
+
+                    options.theType = "string";
+                    options.string = theText;
+                }
+
+
+
+
+            }
+
+        }
+
+
+
+
+
+
+
+    }
+
+    console.log("options:");
+    console.log(options);
+
+
+    var theVisualVariable = CreateDataType(options);
+
+    return theVisualVariable;
+
+}
+
+
+function createBestValueFromText(theText) {
+
+    if (theText.endsWith('%')) {
+        theText = theText.substring(0, theText.length - 1);
+    }
+
+    if ($.isNumeric(theText)) {
+
+        // is it a NUMBER        
+        var unscaledValue = Number(theText);
+
+        return createNumericValue(unscaledValue);
+
+    } else {
+
+        if (canBeCurrency(theText)) {
+
+            // are you sure? It may be a string representing MONEY
+            var find = ',';
+            var re = new RegExp(find, 'g');
+            theText = theText.replace(re, '');
+            var unscaledValue = Number(theText);
+            return createNumericValue(unscaledValue);
+
+        } else {
+
+            // Is it a DATE?
+            var dateAndTime = moment(theText, getDateAndTimeFormats(), true);
+
+            if (dateAndTime.isValid()) {
+
+                return createDateAndTimeValue(dateAndTime);
+
+            } else {
+
+
+
+                if (isColor(theText)) {
+
+                    // What if it is color?!
+
+                    return createColorValue(theText);
+
+                } else {
+
+                    // ok, it's just TEXT
+                    return createStringValue(theText);
+
+                }
+
+
+
+
+
+            }
+
+        }
+
+
+
+
+
+
+
+    }
+
+    console.log("options:");
+    console.log(options);
+
+
+    var theVisualVariable = CreateDataType(options);
+
+    return theVisualVariable;
+
+}
+
+
+function isColor(text) {
+
+    var isHEXFormat = fabric.Color.reHex.exec(text);
+    if (isHEXFormat) {
+        return true;
+    }
+
+    var isHSLaFormat = fabric.Color.reHSLa.exec(text);
+    if (isHSLaFormat) {
+        return true;
+    }
+
+    var isRGBaFormat = fabric.Color.reRGBa.exec(text);
+    if (isRGBaFormat) {
+        return true;
+    }
+
+    return false;
+}
 
 function canvasDropFunction(ev, ui) {
 
@@ -7445,12 +7697,16 @@ function canvasDropFunction(ev, ui) {
                 fill: rgb(0, 153, 255),
                 stroke: darkenrgb(0, 153, 255),
                 label: '',
-                angle: 35,
+                angle: 0,
                 markAsSelected: false,
                 animateAtBirth: true,
-                thePath: 'M 0 0 L 50 0 L 75 50 L 100 -50 L 125 0 L 175 0',
+//                thePath: 'M 0 0 L 50 0 L 75 50 L 100 -50 L 125 0 L 175 0',
+//                thePath: 'm 1.7937471,-0.9 0,283.38502 499.4765529,0',
+                thePath: 'm 4.2874742 -0.9 l 0 283.38502 l 499.4765558 0',
             };
             var pathMarkPrototype = addMarkToCanvas(PATH_MARK, options);
+            console.log("pathMarkPrototype:");
+            console.log(pathMarkPrototype);
 
         } else if (id === "rectPrototype") {
 

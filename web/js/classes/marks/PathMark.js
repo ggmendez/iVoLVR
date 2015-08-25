@@ -3,6 +3,8 @@ PathMark = fabric.util.createClass(fabric.Path, {
     isPathMark: true,
     initialize: function (path, options) {
 
+
+
         options || (options = {});
         options.fill = options.fill || options.visualPropertyFill;
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
@@ -18,7 +20,7 @@ PathMark = fabric.util.createClass(fabric.Path, {
         this.callSuper('initialize', path, options);
 
         this.set('strokeWidth', options.strokeWidth || 4);
-        this.set('originalStrokeWidth', options.strokeWidth || 2);
+        this.set('originalStrokeWidth', options.strokeWidth || this.strokeWidth);
         this.set('perPixelTargetFind', false);
 
         this.set('visualPropertyFill', options.fill);
@@ -39,13 +41,13 @@ PathMark = fabric.util.createClass(fabric.Path, {
 
         this.createIText();
 
-        this.set('shape', {shape: PATH_MARK, path: this});
+//        this.set('shape', {shape: PATH_MARK, path: this});
 
         this.createRectBackground();
 
         if (options.targetWidth) {
             var theWidth = options.targetWidth / this.width;
-            this.set('finalScaleX', theWidth);
+//            this.set('finalScaleX', theWidth);
             this.set("the_width", options.targetWidth);
         } else {
             this.set("the_width", this.width);
@@ -53,7 +55,7 @@ PathMark = fabric.util.createClass(fabric.Path, {
 
         if (options.targetHeight) {
             var theHeight = options.targetHeight / this.height;
-            this.set('finalScaleY', theHeight);
+//            this.set('finalScaleY', theHeight);
             this.set("the_height", options.targetHeight);
         } else {
             this.set("the_height", this.height);
@@ -64,12 +66,12 @@ PathMark = fabric.util.createClass(fabric.Path, {
         var angleValue = null;
 
         if (options.values) {
-            widthValue = options.values.width || createNumericValue(this.width, null, null, 'pixels');
-            heightValue = options.values.height || createNumericValue(this.height, null, null, 'pixels');
+            widthValue = options.values.width || createNumericValue(this.the_width || this.width, null, null, 'pixels');
+            heightValue = options.values.height || createNumericValue(this.the_height || this.height, null, null, 'pixels');
             angleValue = options.values.angle || createNumericValue(-this.angle, null, null, 'degrees');
         } else {
-            widthValue = createNumericValue(this.width, null, null, 'pixels');
-            heightValue = createNumericValue(this.height, null, null, 'pixels');
+            widthValue = createNumericValue(this.the_width || this.width, null, null, 'pixels');
+            heightValue = createNumericValue(this.the_height || this.height, null, null, 'pixels');
             angleValue = createNumericValue(-this.angle, null, null, 'degrees');
         }
 
@@ -138,10 +140,10 @@ PathMark = fabric.util.createClass(fabric.Path, {
 
         var XYValues = extractXYValues(this, true);
 
-        if (LOG)
-            console.log("XYValues:");
-        if (LOG)
-            console.log(XYValues);
+//        if (LOG) {
+        console.log("XYValues:");
+        console.log(XYValues);
+//        }
 
         var coordinates = createFunctionCoordinatesFromValues(XYValues.xValues, XYValues.yValues);
 
@@ -153,8 +155,10 @@ PathMark = fabric.util.createClass(fabric.Path, {
         var yCollectionVisualProperty = this.getVisualPropertyByAttributeName('yCollection');
         yCollectionVisualProperty.value = coordinates.YCoordinates;
 
-        this.scaledX = this.scaleCoordiates(this.xCollection, 'x');
-        this.scaledY = this.scaleCoordiates(this.yCollection, 'y');
+//        this.scaledX = this.scaleCoordiates(this.xCollection, 'x', this.width);
+//        this.scaledY = this.scaleCoordiates(this.yCollection, 'y', this.height);
+        this.scaledX = this.scaleCoordiates(this.xCollection, 'x', options.targetWidth || this.width);
+        this.scaledY = this.scaleCoordiates(this.yCollection, 'y', options.targetHeight || this.height);
         this.updatePoints();
 
         this.setCoreVisualPropertiesValues(options.values);
@@ -163,16 +167,16 @@ PathMark = fabric.util.createClass(fabric.Path, {
 
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
-        if (updater == 'rx') {
-            if (updatedProperty == 'area') {
+        if (updater === 'rx') {
+            if (updatedProperty === 'area') {
                 return value * this.ry * Math.PI;
             }
-        } else if (updater == 'ry') {
-            if (updatedProperty == 'area') {
+        } else if (updater === 'ry') {
+            if (updatedProperty === 'area') {
                 return value * this.rx * Math.PI;
             }
-        } else if (updater == 'area') {
-            if (updatedProperty == 'rx' || updatedProperty == 'ry') {
+        } else if (updater === 'area') {
+            if (updatedProperty === 'rx' || updatedProperty === 'ry') {
                 return Math.sqrt(value / Math.PI);
             }
         }
@@ -192,23 +196,21 @@ PathMark = fabric.util.createClass(fabric.Path, {
         var oldMin = getArrayMin(numbers);
         var oldMax = getArrayMax(numbers);
         var newMin = 0;
-//        var newMax = theMark.getWidth();
 
         theMark.setCoords();
 
         /*if (LOG) console.log("theMark.getScaleX():");
          if (LOG) console.log(theMark.getScaleX());*/
 
-        if (LOG)
+        if (LOG) {
             console.log("theMark.the_height:");
-        if (LOG)
             console.log(theMark.the_height);
-
-        if (LOG)
+        }
+        
+        if (LOG) {
             console.log("theMark.getScaleY():");
-        if (LOG)
             console.log(theMark.getScaleY());
-
+        }
 
         var newMax = max;
         if (!newMax) {
@@ -313,6 +315,9 @@ PathMark = fabric.util.createClass(fabric.Path, {
         var previousLeft = theMark.left;
         var previousTop = theMark.top;
 
+        console.log("theMark.scaledX.length: " + theMark.scaledX.length);
+        console.log("theMark.scaledY.length: " + theMark.scaledY.length);
+
         var maxPointsToPlot = Math.min(theMark.scaledX.length, theMark.scaledY.length);
 
 
@@ -324,14 +329,16 @@ PathMark = fabric.util.createClass(fabric.Path, {
 
             theMark.path.push(["L", theMark.scaledX[i], theMark.scaledY[i]]);
 
-            /*if (LOG) console.log("theMark.path[i]:");
-             if (LOG) console.log(theMark.path[i]);*/
+//            if (LOG) {
+            console.log("theMark.path[i]:");
+            console.log(theMark.path[i]);
+//            }
         }
 
-        if (LOG)
-            console.log("thePath.path:");
-        if (LOG)
-            console.log(theMark.path);
+//        if (LOG) {
+        console.log("thePath.path:");
+        console.log(theMark.path);
+//        }
 
 
 
@@ -432,7 +439,7 @@ PathMark = fabric.util.createClass(fabric.Path, {
         });
     },
     positionLabel: function () {
-        
+
         if (this.group) {
             return;
         }
@@ -635,28 +642,19 @@ Mark.call(PathMark.prototype);
 
 function addPathMarkToCanvas(path, options) {
 
-    if (LOG) {
-        console.log("path BEFORE");
-        console.log(path);
-    }
-
+    console.log("options:");
+    console.log(options);
 
     if (typeof path === 'undefined') {
         path = (options.values && options.values.shape) ? options.values.shape.path : '';
     }
 
-    if (LOG) {
-        console.log("path AFTER");
-        console.log(path);
-    }
-
-
     var svgPathMark = new PathMark(path, options);
 
-    if (LOG)
-        console.log("svgPathMark:");
-    if (LOG)
-        console.log(svgPathMark);
+//    if (LOG) {
+    console.log("svgPathMark:");
+    console.log(svgPathMark);
+//    }
 
     canvas.add(svgPathMark);
 

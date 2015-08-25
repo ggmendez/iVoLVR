@@ -246,8 +246,8 @@ var Mark = function () {
             hasBorders: false,
             selectable: true,
             evented: true,
-            rx: 10,
-            ry: 10
+            rx: 15,
+            ry: 15
         });
         backgroundRect.on({
             'doubleTap': function (options) {
@@ -353,12 +353,6 @@ var Mark = function () {
 
         theMark.animate('scaleY', scaleY, scaleYAnimationOptions);
 
-//        theMark.animate('scaleY', scaleY, {
-//            duration: duration,
-//            easing: easing,
-//            onChange: doNotRefreshCanvas ? null : canvas.renderAll.bind(canvas),
-//            onComplete: doNotRefreshCanvas ? null : canvas.renderAll.bind(canvas),
-//        });
 
     };
     this.applySelectedStyle = function (selectConnectors) {
@@ -427,6 +421,7 @@ var Mark = function () {
         });
     };
     this.changeProperty = function (property, value) {
+        
         if (LOG)
             console.log("%cchangeProperty " + property + " with NO animation", "background:blue; color:yellow;");
         var theMark = this;
@@ -445,8 +440,16 @@ var Mark = function () {
                 theMark.generateScaledCoordinates('y', value);
             }
             updatePathCoords(theMark);
-            theMark.scaleX = 1;
-            theMark.scaleY = 1;
+            
+            if (property === 'width') {
+                theMark.scaleX = 1;
+            } else if (property === 'height') {
+                theMark.scaleY = 1;
+            }
+            
+//            theMark.scaleX = 1;
+//            theMark.scaleY = 1;
+            
             theMark.left = previousLeft;
             theMark.top = previousTop;
             theMark.setCoords();
@@ -686,7 +689,13 @@ var Mark = function () {
         theMark.label = '' + theString;
 
         theMark.iText.text = theMark.label;
+        
         theMark.positionElements();
+
+        setTimeout(function () {
+            theMark.positionElements();
+        }, 450);
+        
     };
 
     this.setColorProperty = function (colorValue) {
@@ -1245,7 +1254,7 @@ var Mark = function () {
 
             // remember that left and top are properties that are relative TO THE GROUP (if any, otherwise, they are relative to the canvas)
             visualProperty.left = x;
-            visualProperty.top = y;                        
+            visualProperty.top = y;
 
             visualProperty.setCoords();
 
@@ -1908,23 +1917,17 @@ function changeMarkShape(theMark, shapeValue) {
         svgPathGroupMark = shapeValue.svgPathGroupMark;
     }
 
-//    if (shapeValue.path) {
-//        path = shapeValue.path;
-//    } else if (shapeValue.svgPathGroupMark) {
-//        svgPathGroupMark = shapeValue.svgPathGroupMark;
-//    }
-
-    if (LOG)
+//    if (LOG) {
         console.log("shapeValue:");
-    if (LOG)
         console.log(shapeValue);
+//    }
 
     newShape = shapeValue.shape;
 
-    if (LOG)
+//    if (LOG) {
         console.log("newShape");
-    if (LOG)
         console.log(newShape);
+//    }
 
 
 //    if (LOG) console.log("The received path:");
@@ -1965,10 +1968,10 @@ function changeMarkShape(theMark, shapeValue) {
                     options.thePath = path;
                 }
 
-                if (LOG)
+//                if (LOG) {
                     console.log("****** Options to create the new mark: ******");
-                if (LOG)
                     console.log(options);
+//                }
 
                 theMark.remove(false);
 
@@ -1992,10 +1995,10 @@ function changeMarkShape(theMark, shapeValue) {
                     newMark = addMarkToCanvas(newShape, options);
                 }
 
-                if (LOG)
+                if (LOG) {
                     console.log("++++++ The created mark ++++++");
-                if (LOG)
                     console.log(newMark);
+                }
 
                 copyVisualPropertiesConnectors(theMark, newMark);
 

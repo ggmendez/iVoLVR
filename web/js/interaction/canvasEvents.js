@@ -29,10 +29,8 @@
 
 
 function canvasObjectSelected(option) {
-
-
-
-    if (LOG)
+    
+//    if (LOG)
         console.log("canvasObjectSelected");
 
     var event = option.e;
@@ -54,15 +52,13 @@ function canvasObjectSelected(option) {
 
 
     if (selectedObject) {
-        if (selectedObject.isWidget) {
-            widgetApplySelectedStyle(selectedObject);
-        } else if (selectedObject.isOutput) {
-
-            selectedObject.applySelectedStyle(true);
-
-        } else if (selectedObject.isOperator) {
-            selectedObject.applySelectedStyle(true);
-        } else if (selectedObject.applySelectedStyle) {
+        
+//        if (selectedObject.isWidget) {
+//            widgetApplySelectedStyle(selectedObject);
+//
+//        } else 
+            
+        if (selectedObject.applySelectedStyle) {
 
             selectedObject.applySelectedStyle(true);
         }
@@ -81,23 +77,27 @@ function canvasBeforeSelectionCleared(option) {
     if (!group) {
         return;
     }
-    
-    group.compress();
 
-    var selectedObjects = group._objects;
-    if (selectedObjects) {
-        var totalSelectedObjects = selectedObjects.length;
-        console.log("Total objects in the selection to clear: " + totalSelectedObjects);
+    var type = group.type;
 
-        if (totalSelectedObjects > 0) {
-            selectedObjects.forEach(function (object) {
-                object.lockMovementX = object.previousLockMovementX;
-                object.lockMovementY = object.previousLockMovementY;
-            });
+    if (type === 'group') {
 
+        group.compress();
+
+        var selectedObjects = group._objects;
+        if (selectedObjects) {
+            var totalSelectedObjects = selectedObjects.length;
+            console.log("Total objects in the selection to clear: " + totalSelectedObjects);
+
+            if (totalSelectedObjects > 0) {
+                selectedObjects.forEach(function (object) {
+                    object.lockMovementX = object.previousLockMovementX;
+                    object.lockMovementY = object.previousLockMovementY;
+                });
+
+            }
         }
     }
-
 
 }
 
@@ -296,7 +296,7 @@ function canvasSelectionCreated(option) {
             button.flipX = false;
             button.flipY = false;
             button.setPositionByOrigin(position, originX, originY);
-            
+
 //            bringToFront(button);
 
         }

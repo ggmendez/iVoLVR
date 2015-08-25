@@ -514,14 +514,6 @@ var VisualProperty = function () {
 
                             }
 
-
-
-
-                        } else if (targetObject.isAggregator) {
-
-                            var connector = getLastElementOfArray(this.outConnectors);
-                            targetObject.addConnector(connector, canvasCoords);
-
                         } else { // This makes no sense, so, the added connector is just removed
                             var connector = this.outConnectors.pop();
                             connector.remove();

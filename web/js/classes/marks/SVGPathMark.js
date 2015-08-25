@@ -127,16 +127,16 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         };
     },
     computeUpdatedValueOf: function (updater, value, updatedProperty) {
-        if (updater == 'rx') {
-            if (updatedProperty == 'area') {
+        if (updater === 'rx') {
+            if (updatedProperty === 'area') {
                 return value * this.ry * Math.PI;
             }
-        } else if (updater == 'ry') {
-            if (updatedProperty == 'area') {
+        } else if (updater === 'ry') {
+            if (updatedProperty === 'area') {
                 return value * this.rx * Math.PI;
             }
-        } else if (updater == 'area') {
-            if (updatedProperty == 'rx' || updatedProperty == 'ry') {
+        } else if (updater === 'area') {
+            if (updatedProperty === 'rx' || updatedProperty === 'ry') {
                 return Math.sqrt(value / Math.PI);
             }
         }

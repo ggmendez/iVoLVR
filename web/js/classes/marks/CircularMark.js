@@ -256,7 +256,7 @@ var CircularMark = fabric.util.createClass(fabric.Circle, {
             options.fontSize = Math.round(theMark.radius * 2);
             options.stroke = '';
 
-        } else if (newShapeType === FILLEDPATH_MARK || newShapeType === SVGPATHGROUP_MARK) {
+        } else if (newShapeType === PATH_MARK || newShapeType === FILLEDPATH_MARK || newShapeType === SVGPATHGROUP_MARK) {
 
             options.targetWidth = theMark.radius * 2;
             options.targetHeight = theMark.radius * 2;

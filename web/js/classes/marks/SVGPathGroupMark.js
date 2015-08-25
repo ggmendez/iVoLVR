@@ -347,11 +347,7 @@ SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
             options.stroke = '';
             options.markAsSelected = false;
 
-        } else if (newShapeType === FILLEDPATH_MARK) {
-
-
-
-        } else if (newShapeType === SVGPATHGROUP_MARK) {
+        } else if (newShapeType === PATH_MARK || newShapeType === FILLEDPATH_MARK || newShapeType === SVGPATHGROUP_MARK) {
             options.targetWidth = theMark.the_width;
             options.targetHeight = theMark.the_height;
         }

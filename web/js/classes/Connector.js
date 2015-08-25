@@ -187,7 +187,6 @@ var Connector = fabric.util.createClass(fabric.Line, {
                                 var options = {
                                     connector: connector
                                 };
-
                                 connector.destination.trigger('inConnectionRemoved', options);
                                 connector.source.trigger('outConnectionRemoved', options);
                                 connector.remove();
@@ -209,8 +208,9 @@ var Connector = fabric.util.createClass(fabric.Line, {
         var xProp = 'x2';
         var yProp = 'y2';
 
-        var easing = fabric.util.ease['easeInCirc'];
-        var duration = 500;
+        var easing = fabric.util.ease['easeOutElastic'];
+//        var duration = 750;
+        var duration = 2000;
 
         if (toDestination) {
             endX = theConnector.destination.left;

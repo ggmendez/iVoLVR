@@ -984,6 +984,7 @@ function objectDoubleTap(theEvent, targetObject) {
                                 trueColor: rgb(r, g, b),
                                 trueColorDarker: darkenrgb(r, g, b),
                                 animateAtBirth: true,
+                                isFilled: true,
                             };
 
                             var theVixor = addVixorToCanvas(COLOR_REGION_EXTRACTOR, vixorOptions);

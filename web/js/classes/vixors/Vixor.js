@@ -108,8 +108,8 @@ var Vixor = function () {
             hasBorders: false,
             selectable: true,
             evented: true,
-            rx: 10,
-            ry: 10
+//            rx: 10,
+//            ry: 10
         });
         backgroundRect.on({
             'doubleTap': function (options) {
@@ -179,7 +179,7 @@ var Vixor = function () {
         if (LOG)
             console.log("At the vixor");
         this.stroke = widget_selected_stroke_color;
-        this.strokeWidth = widget_selected_stroke_width;
+        this.strokeWidth = this.strokeWidthWhenSelected || widget_selected_stroke_width;
         this.strokeDashArray = widget_selected_stroke_dash_array;
     };
     this.applyUnselectedStyle = function () {

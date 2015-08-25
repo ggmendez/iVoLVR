@@ -64,6 +64,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         addAttributeWithValue(extractorNode, "type", theExtractor.getExtractorType());
         appendElementWithValue(extractorNode, "left", theExtractor.left);
         appendElementWithValue(extractorNode, "top", theExtractor.top);
+        appendElementWithValue(extractorNode, "isFilled", theExtractor.isFilled);
 
         appendElementWithValue(extractorNode, "untransformedAngle", theExtractor.untransformedAngle);
         appendElementWithValue(extractorNode, "untransformedX", theExtractor.untransformedX);
@@ -93,16 +94,25 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
     getExtractorType: function () {
         return COLOR_REGION_EXTRACTOR;
     },
-    setCoreVisualPropertiesValues: function (values) {
+    setCoreVisualPropertiesValues: function (values, isFilled) {
 
         var shapeValue = null;
         var fillValue = null;
 
+        var pathType = null;
+        if (isFilled) {
+            pathType = FILLEDPATH_MARK;
+        } else {
+            pathType = PATH_MARK;
+        }
+
         if (values) {
-            shapeValue = values.shape || createShapeValue(FILLEDPATH_MARK, this.path);
+//            shapeValue = values.shape || createShapeValue(FILLEDPATH_MARK, this.path);
+            shapeValue = values.shape || createShapeValue(pathType, this.path);
             fillValue = values.trueColor || createColorValue(new fabric.Color(this.trueColor));
         } else {
-            shapeValue = createShapeValue(FILLEDPATH_MARK, this.path);
+//            shapeValue = createShapeValue(FILLEDPATH_MARK, this.path);
+            shapeValue = createShapeValue(pathType, this.path);
             fillValue = createColorValue(new fabric.Color(this.trueColor));
         }
 
@@ -130,7 +140,15 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         if (!options.values) {
             options.values = {};
         }
-        options.values.shape = createShapeValue(FILLEDPATH_MARK, path);
+
+        var pathType = null;
+        if (options.isFilled) {
+            pathType = FILLEDPATH_MARK;
+        } else {
+            pathType = PATH_MARK;
+        }
+
+        options.values.shape = createShapeValue(pathType, path);
 
         this.set('lockScalingX', true);
         this.set('lockScalingY', true);
@@ -156,7 +174,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
         this.set('specificProperties', new Array());
 
-        this.set('visualPropertyFill', options.trueColor);
+        this.set('visualPropertyFill', options.visualPropertyFill || options.trueColor);
         this.set('visualPropertyStroke', options.trueColorDarker);
 
         var widthValue = null;
@@ -182,7 +200,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
         this.createVisualProperties();
 
-        this.setCoreVisualPropertiesValues(options.values);
+        this.setCoreVisualPropertiesValues(options.values, options.isFilled);
 
         this.applyXmlIDs(options.xmlIDs);
 
@@ -190,6 +208,17 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
         this.set('permanentOpacity', 1);
         this.set('movingOpacity', 1);
+
+        if (!this.isFilled) {
+            this.applySelectedStyle = function () {
+            };
+            this.applyUnselectedStyle = function () {
+            };
+        }
+
+
+
+        this.hasBorders = true;
 
         this.onMouseUp = function (options) {
 
@@ -234,7 +263,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
                             // removing the last connector added when the widget was down clicked 
                             var connector = theVixor.connectors.pop();
-                            canvas.remove(connector);
+                            connector.contract();
 
                         } else {
 
@@ -282,7 +311,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
                             left: coordX,
                             top: coordY,
 //                            fill: lastAddedConnector.arrowColor,
-                            fill: theVixor.trueColor,
+                            fill: theVixor.visualPropertyFill || theVixor.trueColor,
                             stroke: theVixor.trueColorDarker,
                             area: theVixor.getVisualPropertyByAttributeName('area').value.number,
                             label: '',
@@ -307,8 +336,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
             } else {
                 // removing the last connector added when the widget was down clicked 
                 var connector = theVixor.connectors.pop();
-                canvas.remove(connector);
-
+                connector.contract();
             }
 
 
@@ -336,7 +364,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
                 if (LOG)
                     console.log("theVixor.area: " + theVixor.area);
-                
+
                 console.log("theVixor:");
                 console.log(theVixor);
 
@@ -443,9 +471,86 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
 
         };
+    },
+    _render: function (ctx) {
+        this.callSuper('_render', ctx);
+        if (this.iText) {
+            this.positionLabel();
+        }
+    },
+    drawBorders: function (ctx) {
+
+        if (!this.hasBorders || this.group || this.isFilled) {
+            return this;
+        }
+
+        var padding = this.padding,
+                padding2 = padding * 2,
+                vpt = this.getViewportTransform();
+
+        ctx.save();
+
+        ctx.globalAlpha = this.isMoving ? this.borderOpacityWhenMoving : 1;
+
+        ctx.strokeStyle = widget_selected_stroke_color;
+        ctx.lineWidth = widget_selected_stroke_width;
+        ctx.setLineDash(widget_selected_stroke_dash_array);
+
+        var scaleX = 1 / this._constrainScale(this.scaleX),
+                scaleY = 1 / this._constrainScale(this.scaleY);
 
 
 
+        var w = this.getWidth(),
+                h = this.getHeight(),
+                strokeWidth = this.strokeWidth,
+                capped = this.strokeLineCap === 'round' || this.strokeLineCap === 'square',
+                vLine = this.type === 'line' && this.width === 0,
+                hLine = this.type === 'line' && this.height === 0,
+                sLine = vLine || hLine,
+                strokeW = (capped && hLine) || !sLine,
+                strokeH = (capped && vLine) || !sLine;
+
+        if (vLine) {
+            w = strokeWidth / scaleX;
+        }
+        else if (hLine) {
+            h = strokeWidth / scaleY;
+        }
+        if (strokeW) {
+            w += strokeWidth / scaleX;
+        }
+        if (strokeH) {
+            h += strokeWidth / scaleY;
+        }
+        var wh = fabric.util.transformPoint(new fabric.Point(w, h), vpt, true),
+                width = wh.x,
+                height = wh.y;
+        if (this.group) {
+            width = width * this.group.scaleX;
+            height = height * this.group.scaleY;
+        }
+
+        ctx.strokeRect(
+                ~~(-(width / 2) - padding) - 0.5, // offset needed to make lines look sharper
+                ~~(-(height / 2) - padding) - 0.5,
+                ~~(width + padding2) + 1, // double offset needed to make lines look sharper
+                ~~(height + padding2) + 1
+                );
+
+        if (this.hasRotatingPoint && this.isControlVisible('mtr') && !this.get('lockRotation') && this.hasControls) {
+
+            var rotateHeight = (-height - (padding * 2)) / 2;
+
+            ctx.beginPath();
+            ctx.moveTo(0, rotateHeight);
+            ctx.lineTo(0, rotateHeight - this.rotatingPointOffset);
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        ctx.restore();
+        return this;
 
     },
     associateInteractionEvents: function () {

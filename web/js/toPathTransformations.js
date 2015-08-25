@@ -1,8 +1,10 @@
+//Taken from: http://phrogz.net/svg/transformations.js
+
 (function(scope){
 var PRES_ATTRIBUTES = ['style', 'alignment-baseline', 'baseline-shift', 'clip', 'clip-path', 'clip-rule', 'color', 'color-interpolation', 'color-interpolation-filters', 'color-profile', 'color-rendering', 'cursor', 'direction', 'display', 'dominant-baseline', 'enable-background', 'fill', 'fill-opacity', 'fill-rule', 'filter', 'flood-color', 'flood-opacity', 'font-family', 'font-size', 'font-size-adjust', 'font-stretch', 'font-style', 'font-variant', 'font-weight', 'glyph-orientation-horizontal', 'glyph-orientation-vertical', 'image-rendering', 'kerning', 'letter-spacing', 'lighting-color', 'marker-end', 'marker-mid', 'marker-start', 'mask', 'opacity', 'overflow', 'pointer-events', 'shape-rendering', 'stop-color', 'stop-opacity', 'stroke', 'stroke-dasharray', 'stroke-dashoffset', 'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit', 'stroke-opacity', 'stroke-width', 'text-anchor', 'text-decoration', 'text-rendering', 'unicode-bidi', 'visibility', 'word-spacing', 'writing-mode', 'class'];
         var copyPresentation = function copyPresentation(source, dest){
         for (var i = PRES_ATTRIBUTES.length - 1; i >= 0; --i){
-            var att = PRES_ATTRIBUTES[i];
+        var att = PRES_ATTRIBUTES[i];
                 if (source.hasAttribute(att)) {
         dest.setAttribute(att, source.getAttribute(att));
         } else {
@@ -216,7 +218,7 @@ Z.add = function(z1, z2){ return z1.plus(z2); };
                 Object.defineProperty(Z.prototype, 'theta', { get:getAngle, set:setAngle });
                 Object.defineProperty(Z.prototype, 'conj', { get:conjugate });
                 Object.defineProperty(Z.prototype, 'conjugate', { get:conjugate });
-                })(Z);
+        })(Z);
         (function(scope){
         var p, z = new Z;
                 scope.mxy = function(svg, evt){

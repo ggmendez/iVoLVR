@@ -331,7 +331,7 @@ var EllipticMark = fabric.util.createClass(fabric.Ellipse, {
             options.stroke = '';
             options.markAsSelected = false;
 
-        } else if (newShapeType == FILLEDPATH_MARK || newShapeType == SVGPATHGROUP_MARK) {
+        } else if (newShapeType === PATH_MARK || newShapeType == FILLEDPATH_MARK || newShapeType == SVGPATHGROUP_MARK) {
 
             options.targetWidth = theMark.rx * 2;
             options.targetHeight = theMark.ry * 2;
