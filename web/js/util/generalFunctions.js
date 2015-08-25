@@ -158,11 +158,11 @@ function getBase64Image(img) {
     return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
 }
 
-function print(content, background, foreground) {
-    background = background || '#FFFFFF';
-    foreground = foreground || '#000000';
-    console.log("%c" + content, "background: " + background + "; color: " + foreground);
-}
+//function print(content, background, foreground) {
+//    background = background || '#FFFFFF';
+//    foreground = foreground || '#000000';
+//    console.log("%c" + content, "background: " + background + "; color: " + foreground);
+//}
 
 function isValidURL(aString) {
     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
@@ -1794,15 +1794,14 @@ function onDataFileReadComplete(event, file) {
             JSONString: fileContent,
         });
 
-
-
-        canvas.add(aDataWidget);
-
         var canvasActualCenter = getActualCanvasCenter();
         aDataWidget.left = canvasActualCenter.x;
         aDataWidget.top = canvasActualCenter.y;
-
         aDataWidget.setCoords();
+
+        canvas.add(aDataWidget);
+        aDataWidget.animateBirth();
+
         aDataWidget.parseJSONString();
 
     } else if (isCSVFile.exec(file.name)) {
@@ -1811,13 +1810,15 @@ function onDataFileReadComplete(event, file) {
             fileName: file.name,
             CSVString: fileContent,
         });
-        canvas.add(aDataWidget);
 
         var canvasActualCenter = getActualCanvasCenter();
         aDataWidget.left = canvasActualCenter.x;
         aDataWidget.top = canvasActualCenter.y;
-
         aDataWidget.setCoords();
+
+        canvas.add(aDataWidget);
+        aDataWidget.animateBirth();
+
         aDataWidget.parseCSVString();
 
     } else if (isXMLFile.exec(file.name)) {
@@ -3677,7 +3678,7 @@ function expandMarks() {
     var maxVisualProperties = -1;
     var allTheMarks = new Array();
     canvas.forEachObject(function (object) {
-        if (object.isMark) {
+        if (object.isMark && object.isCompressed) {
             allTheMarks.push(object);
             if (object.visualProperties.length > maxVisualProperties) {
                 markWithMoreVisualProperties = object;
@@ -3692,13 +3693,15 @@ function expandMarks() {
 
 //    if (LOG) console.log(allTheMarks);
 
+    // So that the one that has more visual properties is the last one, the one that will control the refreshing of the canvas
     allTheMarks.push(markWithMoreVisualProperties);
 
 //    if (LOG) console.log(allTheMarks);
-
-    var i = 0;
-    for (i = 0; i < allTheMarks.length; i++) {
-        allTheMarks[i].expand(i == allTheMarks.length - 1);
+    
+    for (var i = 0; i < allTheMarks.length; i++) {
+        var refreshCanvas = (i === allTheMarks.length - 1);
+        console.log("refreshCanvas: " + refreshCanvas);
+        allTheMarks[i].expand(refreshCanvas);
     }
 }
 
@@ -3707,7 +3710,7 @@ function compressMarks() {
     var maxVisualProperties = -1;
     var allTheMarks = new Array();
     canvas.forEachObject(function (object) {
-        if (object.isMark) {
+        if (object.isMark  && !object.isCompressed) {
             allTheMarks.push(object);
             if (object.visualProperties.length > maxVisualProperties) {
                 markWithMoreVisualProperties = object;
@@ -7090,18 +7093,21 @@ function removeUselessTags(parsedHTML) {
         }
     });
 
-    console.log("filteredNodes: ");
-    console.log(filteredNodes);
+    /*console.log("filteredNodes: ");
+    console.log(filteredNodes);*/
 
     return filteredNodes;
 
 }
 
-function addVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
+function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
 
-    print("addVisualElementFromHTML FUNCTION. x: " + x + " y: " + y);
+    var x = canvasCoords.x;
+    var y = canvasCoords.y;
+
+    /*console.log("addVisualElementFromHTML FUNCTION. x: " + x + " y: " + y);
     console.log("Received parsedHTML:");
-    console.log(parsedHTML);
+    console.log(parsedHTML);*/
 
     parsedHTML = removeUselessTags(parsedHTML);
 
@@ -7114,22 +7120,17 @@ function addVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
         var jQueryElement = $(htmlElement);
         var elementType = htmlElement.nodeName.toUpperCase();
 
-        console.log("elementType: " + elementType);
-
+        /*console.log("elementType: " + elementType);
         console.log("htmlElement:");
         console.log(htmlElement);
-
         console.log("jQueryElement: ");
-        console.log(jQueryElement);
+        console.log(jQueryElement);*/
 
         if (elementType === "TABLE") {
 
-            console.log(jQueryElement);
+            /*console.log(jQueryElement);
             console.log(jQueryElement[0]);
-            console.log(jQueryElement['0']);
-
-
-
+            console.log(jQueryElement['0']);*/
 
             var allRows = htmlElement.getElementsByTagName("tr");
             var totalRows = allRows.length;
@@ -7156,15 +7157,15 @@ function addVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
 
                         start = 1;
 
-                        console.log("The selected table DOES CONTAIN a headers row.");
+//                        console.log("The selected table DOES CONTAIN a headers row.");
 
                     } else {
 
-                        console.log("The selected table DOES *NOT* CONTAIN a headers row");
+//                        console.log("The selected table DOES *NOT* CONTAIN a headers row");
 
                         totalVariables = firstRow.getElementsByTagName("td").length;
 
-                        console.log("totalColumns: " + totalVariables);
+//                        console.log("totalColumns: " + totalVariables);
 
                         for (var i = 0; i < totalVariables; i++) {
                             var variableName = "VAR_" + (i + 1);
@@ -7175,11 +7176,10 @@ function addVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
 
                     csvString = csvString.substring(0, csvString.length - 1) + "\n";
 
-                    console.log("The variables are:");
+                    /*console.log("The variables are:");
                     console.log(colNames);
-
                     console.log("The CSV string is:");
-                    console.log(csvString);
+                    console.log(csvString);*/
 
                     for (var i = start; i < totalRows; i++) {
 
@@ -7202,8 +7202,8 @@ function addVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
 
                     csvString = csvString.substring(0, csvString.length - 1);
 
-                    console.log("Final CSV string: ");
-                    console.log(csvString);
+                    /*console.log("Final CSV string: ");
+                    console.log(csvString);*/
 
 
                     if (!canvas.totalTables) {
@@ -7214,13 +7214,20 @@ function addVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
                         fileName: "TABLE_" + (canvas.totalTables++),
                         CSVString: csvString,
                     });
-                    canvas.add(aDataWidget);
+
+
+
 
 
                     aDataWidget.left = x;
                     aDataWidget.top = y;
-
                     aDataWidget.setCoords();
+
+
+                    canvas.add(aDataWidget);
+                    aDataWidget.animateBirth();
+
+
                     aDataWidget.parseCSVString();
 
 
@@ -7284,15 +7291,66 @@ function addVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
 
             if (theText) {
 
+//                var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isOperator', 'isFunctionInput', 'isAggregator', 'isMark', 'isPlayer', 'isDataType', 'isVerticalCollection', 'isMapperInput', 'isMapperOutput', 'isFunctionValuesCollection']);
+                var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isMark']);
 
-                var theVisualVariable = createBestVisualVariableFromText(theText, x, y);
+                if (targetObject) {
 
-                if (addToCanvas) {
-                    canvas.add(theVisualVariable);
-                    theVisualVariable.animateBirth(false, null, null, false);
+                    var value = createBestValueFromText(theText);
+
+                    if (targetObject.isVisualProperty) {
+
+                        blink(targetObject, false);
+                        targetObject.setValue(value, true, true);
+
+                    } else if (targetObject.isMark) {
+
+                        var attribute = null;
+
+                        if (value.isStringData) {
+                            attribute = 'label';
+                        } else if (value.isColorData) {
+                            attribute = 'fill';
+                        }
+
+                        if (attribute !== null) {
+
+                            var visualProperty = targetObject.getVisualPropertyByAttributeName(attribute);
+
+                            if (targetObject.isCompressed) {
+                                blink(targetObject, true);
+                            } else {
+                                blink(targetObject, !visualProperty);
+                            }
+
+                            if (visualProperty) {
+                                if (!targetObject.isCompressed) {
+                                    blink(visualProperty, attribute === 'label');
+                                }
+                                visualProperty.setValue(value, true, true);
+                            }
+
+                        }
+
+                    }
+
+
+                } else {
+
+                    var theVisualVariable = createBestVisualVariableFromText(theText, x, y);
+
+                    if (addToCanvas) {
+                        canvas.add(theVisualVariable);
+                        theVisualVariable.animateBirth(false, null, null, false);
+                    }
+
+                    return theVisualVariable;
+
                 }
 
-                return theVisualVariable;
+
+
+
 
             }
 
@@ -7309,7 +7367,7 @@ function addVisualElementFromHTML(parsedHTML, x, y, addToCanvas) {
 
             var htmlElementType = currentElement.nodeName.toUpperCase();
 
-            console.log("htmlElementType: " + htmlElementType);
+            /*console.log("htmlElementType: " + htmlElementType);*/
 
         });
 
@@ -7348,7 +7406,7 @@ function createBestVisualVariableFromText(theText, x, y) {
             var re = new RegExp(find, 'g');
             theText = theText.replace(re, '');
 
-            print(theText, "blue", "white");
+            console.log(theText);
 
             options.theType = "number";
             options.unscaledValue = Number(theText);
@@ -7369,11 +7427,11 @@ function createBestVisualVariableFromText(theText, x, y) {
             } else {
 
                 if (isColor(theText)) {
-                    
+
                     // This is a color
                     options.theType = "color";
                     options.theColor = theText;
-                    
+
                 } else {
                     // ok, it's just TEXT
 

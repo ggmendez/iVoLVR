@@ -282,6 +282,42 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
 //        theDataWidget.createVisualVariables();
 
     },
+    
+    animateBirth: function (markAsSelected, finalScaleX, finalScaleY, doNotRefreshCanvas) {
+
+        var theMark = this;
+        var scaleX = finalScaleX || this.scaleX;
+        var scaleY = finalScaleY || this.scaleY;
+        this.set('scaleX', 0);
+        this.set('scaleY', 0);
+
+        if (markAsSelected) {
+            this.applySelectedStyle(false);
+        }
+
+        var easing = fabric.util.ease['easeOutElastic'];
+        var duration = 1200;
+
+        theMark.animate('scaleX', scaleX, {
+            duration: duration,
+            easing: easing
+        });
+
+        var scaleYAnimationOptions = {};
+        scaleYAnimationOptions['duration'] = duration;
+        scaleYAnimationOptions['easing'] = easing;
+
+        if (!doNotRefreshCanvas) {
+            scaleYAnimationOptions['onChange'] = refresherFunction;
+            scaleYAnimationOptions['onComplete'] = refresherFunction;
+        }
+
+        theMark.animate('scaleY', scaleY, scaleYAnimationOptions);
+
+
+    },
+    
+    
     loadData: function () {
 
         var theDataWidget = this;
