@@ -2,6 +2,9 @@
 var Mark = function () {
 
     this.set('isMark', true);
+
+    this.set('isAlignable', true);
+
     this.set('xmlNodeName', 'mark');
 
     this.set('isClonable', 'true');
@@ -203,29 +206,23 @@ var Mark = function () {
 
     this.addToGroup = function (theGroup) {
         var theMark = this;
-
         if (theMark.group !== theGroup) {
             theGroup.addWithUpdate(theMark);
         }
-
-        if (theMark.iText && (theMark.iText.group !== theGroup)) {
+        if (theMark.iText && theMark.iText.text && (theMark.iText.group !== theGroup)) {
             theGroup.addWithUpdate(theMark.iText);
         }
-
         if (!theMark.isCompressed) {
             if (theMark.backgroundRect && (theMark.backgroundRect.group !== theGroup)) {
                 theGroup.addWithUpdate(theMark.backgroundRect);
             }
-
             theMark.visualProperties.forEach(function (visualProperty) {
                 if (visualProperty.group !== theGroup) {
                     theGroup.addWithUpdate(visualProperty);
                 }
             });
         }
-
     };
-
 
     this.createRectBackground = function () {
         var theMark = this;
@@ -421,7 +418,7 @@ var Mark = function () {
         });
     };
     this.changeProperty = function (property, value) {
-        
+
         if (LOG)
             console.log("%cchangeProperty " + property + " with NO animation", "background:blue; color:yellow;");
         var theMark = this;
@@ -440,16 +437,16 @@ var Mark = function () {
                 theMark.generateScaledCoordinates('y', value);
             }
             updatePathCoords(theMark);
-            
+
             if (property === 'width') {
                 theMark.scaleX = 1;
             } else if (property === 'height') {
                 theMark.scaleY = 1;
             }
-            
+
 //            theMark.scaleX = 1;
 //            theMark.scaleY = 1;
-            
+
             theMark.left = previousLeft;
             theMark.top = previousTop;
             theMark.setCoords();
@@ -689,13 +686,13 @@ var Mark = function () {
         theMark.label = '' + theString;
 
         theMark.iText.text = theMark.label;
-        
+
         theMark.positionElements();
 
         setTimeout(function () {
             theMark.positionElements();
         }, 450);
-        
+
     };
 
     this.setColorProperty = function (colorValue) {
@@ -862,8 +859,9 @@ var Mark = function () {
 
     this.expand = function (refreshCanvas) {
 
-        if (!this.isCompressed)
+        if (!this.isCompressed || this.group) { // No expansion is allowed if a mark is contained by a group
             return;
+        }
 
 //        if (LOG) console.log("%cExpanding", "background:red; color:white");
 //        if (LOG) console.log("refreshCanvas: " + refreshCanvas + " - " + this.type);
@@ -880,7 +878,7 @@ var Mark = function () {
         var easing = fabric.util.ease['easeOutCubic'];
 
         var boundingRect = theMark.getBoundingRect();
-        var objectCenter = theMark.getCenterPoint();
+        var markCenter = theMark.getCenterPoint();
 
         if (theMark.isCircularMark && (theMark.scaleX == theMark.scaleY)) {
             var markRealRadius = theMark.radius * theMark.scaleX;
@@ -888,7 +886,7 @@ var Mark = function () {
                 markRealRadius = theMark.propertiesRadius + 5;
             }
             var wh = 2 * markRealRadius;
-            boundingRect = {top: objectCenter.y - markRealRadius, left: objectCenter.x - markRealRadius, width: wh, height: wh};
+            boundingRect = {top: markCenter.y - markRealRadius, left: markCenter.x - markRealRadius, width: wh, height: wh};
 
         } else if (theMark.isEllipticMark && (theMark.rx == theMark.ry) && (theMark.scaleX == theMark.scaleY)) {
 
@@ -897,7 +895,7 @@ var Mark = function () {
                 markRealRadius = theMark.propertiesRadius + 5;
             }
             var wh = 2 * markRealRadius * canvas.getZoom();
-            boundingRect = {top: objectCenter.y - markRealRadius, left: objectCenter.x - markRealRadius, width: wh, height: (2 * this.ry * this.scaleY) * canvas.getZoom()};
+            boundingRect = {top: markCenter.y - markRealRadius, left: markCenter.x - markRealRadius, width: wh, height: (2 * this.ry * this.scaleY) * canvas.getZoom()};
         }
 
         // The dimensions of the bounding rectangle are absolute, thus, the zoom level has to be taken into account
@@ -943,7 +941,7 @@ var Mark = function () {
             bringToFront(theMark.iText);
         }
 
-        var boundingRectCenterBottom = new fabric.Point(theMark.left, objectCenter.y + boundingRect.height / 2);
+        var boundingRectCenterBottom = new fabric.Point(theMark.left, markCenter.y + boundingRect.height / 2);
 //        var boundingRectCenterBottom = new fabric.Point(theMark.left, boundingRect.top + boundingRect.height);
 //        drawRectAt(boundingRectCenterBottom, "green");
         boundingRectCenterBottom.y += theMark.propertiesGap;
@@ -1035,7 +1033,7 @@ var Mark = function () {
 
     this.compress = function (refreshCanvas) {
 
-        if (this.isCompressed)
+        if (this.isCompressed || this.group) // No compression is allowed if the mark is included in a group
             return;
 
 //        if (LOG) console.log("%cCompressing", "background:green; color:white");
@@ -1143,6 +1141,72 @@ var Mark = function () {
         this.iText.permanentOpacity = 1;
         this.iText.evented = true;
         this.labelVisible = true;
+    };
+
+    this.animatePositionProperty = function (property, endValue, duration, easing, refreshCanvas) {
+
+        var theMark = this;
+
+        var originX = null, originY = null, coordinate = null, otherCoordinate = null;
+
+        if (property === 'top' || property === 'bottom') {
+            originX = 'center';
+            originY = property;
+            coordinate = 'y';
+        } else if (property === 'left' || property === 'right') {
+            originX = property;
+            originY = 'center';
+            coordinate = 'x';
+        }
+
+        if (!originX || !originY || !coordinate) {
+            return;
+        }
+
+        otherCoordinate = coordinate === 'x' ? 'y' : 'x';
+
+        duration = duration || 500;
+        easing = easing || fabric.util.ease['easeOutBack'];
+
+        var centerPoint = theMark.getPointByOrigin(originX, originY);
+        var startValue = centerPoint[coordinate];
+        var constantValue = centerPoint[otherCoordinate];
+
+        if (startValue === endValue) {
+//            blink(theMark, refreshCanvas, 0.075);
+            return;
+        }
+
+        fabric.util.animate({
+            duration: duration,
+            easing: easing,
+            startValue: startValue,
+            endValue: endValue,
+            onChange: function (currentValue) {
+
+                var newPoint = null;
+                if (coordinate === 'x') {
+                    newPoint = new fabric.Point(currentValue, constantValue);
+                } else {
+                    newPoint = new fabric.Point(constantValue, currentValue);
+                }
+
+                theMark.setPositionByOrigin(newPoint, originX, originY);
+                theMark.positionElements();
+
+                if (refreshCanvas) {
+                    canvas.renderAll();
+                }
+            },
+            onComplete: function () {
+                if (refreshCanvas) {
+                    canvas.renderAll();
+                }
+            }
+        });
+
+
+
     };
 
     this.positionElements = function () {
@@ -1918,15 +1982,15 @@ function changeMarkShape(theMark, shapeValue) {
     }
 
 //    if (LOG) {
-        console.log("shapeValue:");
-        console.log(shapeValue);
+    console.log("shapeValue:");
+    console.log(shapeValue);
 //    }
 
     newShape = shapeValue.shape;
 
 //    if (LOG) {
-        console.log("newShape");
-        console.log(newShape);
+    console.log("newShape");
+    console.log(newShape);
 //    }
 
 
@@ -1969,8 +2033,8 @@ function changeMarkShape(theMark, shapeValue) {
                 }
 
 //                if (LOG) {
-                    console.log("****** Options to create the new mark: ******");
-                    console.log(options);
+                console.log("****** Options to create the new mark: ******");
+                console.log(options);
 //                }
 
                 theMark.remove(false);

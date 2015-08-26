@@ -29,9 +29,9 @@
 
 
 function canvasObjectSelected(option) {
-    
+
 //    if (LOG)
-        console.log("canvasObjectSelected");
+    console.log("canvasObjectSelected");
 
     var event = option.e;
     if (event) {
@@ -52,12 +52,12 @@ function canvasObjectSelected(option) {
 
 
     if (selectedObject) {
-        
+
 //        if (selectedObject.isWidget) {
 //            widgetApplySelectedStyle(selectedObject);
 //
 //        } else 
-            
+
         if (selectedObject.applySelectedStyle) {
 
             selectedObject.applySelectedStyle(true);
@@ -82,7 +82,9 @@ function canvasBeforeSelectionCleared(option) {
 
     if (type === 'group') {
 
-        group.compress();
+        if (group.compress) {
+            group.compress();
+        }
 
         var selectedObjects = group._objects;
         if (selectedObjects) {
@@ -104,6 +106,10 @@ function canvasBeforeSelectionCleared(option) {
 
 function canvasSelectionCleared(option) {
     console.log("canvasSelectionCleared");
+
+    console.log("option:");
+    console.log(option);
+
     var event = option.e;
     if (event) {
         event.preventDefault();
@@ -206,6 +212,65 @@ function canvasSelectionCreated(option) {
         });
     });
 
+    function alignObjectsTo(objects, alignmentProperty) {
+
+        console.log("alignmentProperty: " + alignmentProperty);
+
+        var maxCoordinate = null;
+        var alignableObjects = new Array();
+
+        var originX = null, originY = null, coordinate = null, otherCoordinate = null;
+        if (alignmentProperty === 'top' || alignmentProperty === 'bottom') {
+            originX = 'center';
+            originY = alignmentProperty;
+            coordinate = 'y';
+        } else if (alignmentProperty === 'left' || alignmentProperty === 'right') {
+            originX = alignmentProperty;
+            originY = 'center';
+            coordinate = 'x';
+        }
+
+        objects.forEach(function (object) {
+            if (object.isAlignable) {
+                var centerPoint = object.getPointByOrigin(originX, originY);
+                var currentCoordinate = centerPoint[coordinate];
+                if (maxCoordinate === null) {
+                    maxCoordinate = currentCoordinate;
+                } else {
+                    if (alignmentProperty === 'bottom' || alignmentProperty === 'right') {
+                        if (currentCoordinate > maxCoordinate) {
+                            maxCoordinate = currentCoordinate;
+                        }
+                    } else {
+                        if (currentCoordinate < maxCoordinate) {
+                            maxCoordinate = currentCoordinate;
+                        }
+                    }
+                }
+                alignableObjects.push(object);
+            }
+        });
+
+        var duration = 500;
+        var easing = fabric.util.ease['easeOutBounce'];
+
+        alignableObjects.forEach(function (object) {
+            object.animatePositionProperty(alignmentProperty, maxCoordinate, duration, easing, false);
+        });
+
+        fabric.util.animate({
+            duration: duration,
+            startValue: 1,
+            easing: easing,
+            endValue: duration,
+            onChange: refresherFunction,
+            onComplete: refresherFunction
+        });
+
+
+    }
+
+
     createdGroup.addAlignmentButtons = function () {
 
         this.alignmentButtons = new Object();
@@ -242,7 +307,61 @@ function canvasSelectionCreated(option) {
         bottomButton.direction = 'bottom';
         this.alignmentButtons['bottom'] = bottomButton;
 
+        var groupedObjects = createdGroup._objects;
+        var alignmentButtons = this.alignmentButtons;
+        for (var name in alignmentButtons) {
+            var button = alignmentButtons[name];
+            button.on({
+                'mousedown': function (options) {
+                    var theButton = this;
+                    setTimeout(function () {
+                        
+                        var leftTop = new fabric.Point(createdGroup.left, createdGroup.top);
+                        
+                        var alignmentProperty = theButton.direction;
+                        alignObjectsTo(groupedObjects, alignmentProperty);
+                        
+                        
+                        setTimeout(function () {
+                            
+//                            regroupObjects (groupedObjects, leftTop);
+                            
+                            createdGroup.left = leftTop.x;
+                            createdGroup.top = leftTop.y;
+                            
+                            createdGroup.lockMovementX = false;
+                            createdGroup.lockMovementY = false;
+                                    
+                            createdGroup.setCoords();
+                            canvas.add(createdGroup);
+                            canvas.renderAll();
+                            
+                            
+                        }, 700);
+                        
+                        
+                    }, 100);
+                },
+            });
+        }
+
     };
+    
+    function regroupObjects (objects, leftTop) {
+        var group = new fabric.Group (objects, {
+            left: leftTop.x,
+            top: leftTop.y,
+        });
+//        group.setPositionByOrigin(groupCenter, 'center', 'center');
+//        group.setCoords();
+//        
+//        objects.forEach(function (object) {
+//            group.addWithUpdate(object);
+//        });
+        
+        canvas.add(group);
+        canvas.renderAll();
+    }
 
     createdGroup.positionAlignmentButtons = function () {
 
@@ -261,21 +380,33 @@ function canvasSelectionCreated(option) {
         for (var name in createdGroup.alignmentButtons) {
 
             var button = createdGroup.alignmentButtons[name];
-            console.log(name + ":");
-            console.log(button);
 
-            var x, y, originX, originY, angle;
+            var x, y, originX, originY;
 
             if (name === 'top') {
-                x = leftTop.x - 10;
+
+//                x = leftTop.x - 10;
+//                y = leftTop.y;
+//                originX = 'left';
+//                originY = 'top';
+    
+                x = rightBottom.x + 10;
                 y = leftTop.y;
                 originX = 'left';
-                originY = 'top';
-            } else if (name === 'left') {
-                x = leftTop.x;
-                y = leftTop.y - 10;
-                originX = 'left';
                 originY = 'bottom';
+
+            } else if (name === 'left') {
+                
+//                x = leftTop.x;
+//                y = leftTop.y - 10;
+//                originX = 'left';
+//                originY = 'bottom';
+
+                x = leftTop.x;
+                y = rightBottom.y + 10;
+                originX = 'left';
+                originY = 'top';
+                
             } else if (name === 'bottom') {
                 x = rightBottom.x + 10;
                 y = rightBottom.y;
@@ -288,16 +419,12 @@ function canvasSelectionCreated(option) {
                 originY = 'bottom';
             }
 
-
             var position = new fabric.Point(x, y);
-
 //            drawRectAt(position, "blue");
 
             button.flipX = false;
             button.flipY = false;
             button.setPositionByOrigin(position, originX, originY);
-
-//            bringToFront(button);
 
         }
 
