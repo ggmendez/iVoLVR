@@ -1146,6 +1146,7 @@ var Mark = function () {
     this.animatePositionProperty = function (property, endValue, duration, easing, refreshCanvas) {
 
         var theMark = this;
+        theMark.setCoords();
 
         var originX = null, originY = null, coordinate = null, otherCoordinate = null;
 
@@ -1193,12 +1194,14 @@ var Mark = function () {
 
                 theMark.setPositionByOrigin(newPoint, originX, originY);
                 theMark.positionElements();
+                theMark.setCoords();
 
                 if (refreshCanvas) {
                     canvas.renderAll();
                 }
             },
             onComplete: function () {
+                theMark.setCoords();
                 if (refreshCanvas) {
                     canvas.renderAll();
                 }

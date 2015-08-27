@@ -176,7 +176,7 @@ function createSquareSelectionFromGroup(createdGroup) {
                         alignObjectsTo(groupedObjects, alignmentProperty);
 
                         setTimeout(function () {
-                            regroupObjects(createdGroup._objects);
+                            regroupObjects(groupedObjects);
                         }, 550);
 
                     }, 100);
@@ -335,23 +335,26 @@ function createSquareSelectionFromGroup(createdGroup) {
 
 function regroupObjects(objects) {
 
-    var group = new fabric.Group(objects);
-
-    group.regrouped = true; // used to decide further actions on the clearing of a selection
+    var group = new fabric.Group([]);
+    
+    objects.forEach(function (object) {
+        group.addWithUpdate(object);
+    });
 
     createSquareSelectionFromGroup(group);
     
-    group.setCoords();
+    group.regrouped = true; // used to decide further actions on the clearing of a selection
 
-//    group.expand();
+    
 
     canvas.add(group);
+    
+//    group.setCoords();
 
     canvas.setActiveGroup(group);
+    
+    group.expand();
 
-    canvas.renderAll();
-
-//    group.regrouped = false;
 }
 
 function alignObjectsTo(objects, alignmentProperty) {
@@ -372,10 +375,10 @@ function alignObjectsTo(objects, alignmentProperty) {
         originX = alignmentProperty;
         originY = 'center';
         coordinate = 'x';
-    } 
-    
+    }
+
     else if (alignmentProperty === 'distributeHorizontally') {
-        
+
         var toSort = new Array();
         var totalObjectsWidth = 0;
 
@@ -420,9 +423,9 @@ function alignObjectsTo(objects, alignmentProperty) {
         });
 
         return;
-        
-    } 
-    
+
+    }
+
     else if (alignmentProperty === 'distributeVertically') {
 
         var toSort = new Array();
@@ -491,7 +494,7 @@ function alignObjectsTo(objects, alignmentProperty) {
             alignableObjects.push(object);
         }
     });
-    
+
     if (alignmentProperty === 'bottom') {
         easing = fabric.util.ease['easeOutBounce'];
     } else if (alignmentProperty === 'top') {
@@ -518,7 +521,7 @@ function animateAlignmentButtonScale(group, object, from, to, removeAfterAnimati
     object.scaleX = from;
     object.scaleY = from;
 
-    var duration = 300;
+    var duration = 400;
     var easing = fabric.util.ease['easeOutBack'];
     object.animate('scaleX', to, {
         duration: duration,

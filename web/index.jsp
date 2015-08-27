@@ -1374,6 +1374,9 @@
 
             applyActiveMenuButtonStyle($("#squaredSelectionButton"));
             activateSquaredSelection();
+            
+//            canvas.absolutePan(new fabric.Point(100,100));
+//            canvas.renderAll();
 
         </script>
 
