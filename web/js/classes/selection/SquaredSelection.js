@@ -345,15 +345,11 @@ function regroupObjects(objects) {
     
     group.regrouped = true; // used to decide further actions on the clearing of a selection
 
-    
-
-    canvas.add(group);
-    
-//    group.setCoords();
+    canvas.add(group);    
 
     canvas.setActiveGroup(group);
     
-    group.expand();
+//    group.expand();
 
 }
 
