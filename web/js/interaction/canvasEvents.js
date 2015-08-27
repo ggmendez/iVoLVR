@@ -273,6 +273,8 @@ function canvasSelectionCreated(option) {
 
     createdGroup.addAlignmentButtons = function () {
 
+        var cloneGroup = fabric.util.object.clone(createdGroup);
+
         this.alignmentButtons = new Object();
 
         var leftArrow = 'm -1879.8776,2895.2123 -10.8181,0 0,50.1239 10.8181,0 z m 19.3112,10.2276 -17.0832,14.8572 17.0832,14.8569 0,-8.5417 28.76,0 0,-12.6307 -28.76,0 z';
@@ -315,50 +317,86 @@ function canvasSelectionCreated(option) {
                 'mousedown': function (options) {
                     var theButton = this;
                     setTimeout(function () {
-                        
+
                         var leftTop = new fabric.Point(createdGroup.left, createdGroup.top);
-                        
+
                         var alignmentProperty = theButton.direction;
                         alignObjectsTo(groupedObjects, alignmentProperty);
-                        
-                        
+
+
                         setTimeout(function () {
-                            
-//                            regroupObjects (groupedObjects, leftTop);
-                            
+
+//                            createdGroup._objects.forEach(function (object){
+//                                createdGroup.removeWithUpdate(object);
+//                            });
+
+                            groupedObjects.forEach(function (object) {
+
+                                createdGroup.removeWithUpdate(object);
+
+                                object.setCoords();
+
+                                object.lockMovementX = false;
+                                object.lockMovementY = false;
+
+                                createdGroup.addWithUpdate(object);
+
+                                canvas.remove(object);
+                            });
+
                             createdGroup.left = leftTop.x;
                             createdGroup.top = leftTop.y;
-                            
+//                            
                             createdGroup.lockMovementX = false;
                             createdGroup.lockMovementY = false;
-                                    
+                            
+//                            createdGroup.expand();
+//                                    
                             createdGroup.setCoords();
+                            canvas.setActiveObject(createdGroup);
                             canvas.add(createdGroup);
                             canvas.renderAll();
-                            
-                            
-                        }, 700);
-                        
-                        
+
+
+                        }, 550);
+
+
                     }, 100);
                 },
             });
         }
 
     };
-    
-    function regroupObjects (objects, leftTop) {
-        var group = new fabric.Group (objects, {
+
+    function regroupObjects(objects, leftTop) {
+
+        var group = new fabric.Group();
+
+        objects.forEach(function (object) {
+            group.addWithUpdate(object);
+            canvas.remove(object);
+        });
+
+        var group = new fabric.Group(objects, {
             left: leftTop.x,
             top: leftTop.y,
         });
+
+
+
+
+
+        return group;
+
+
+
 //        group.setPositionByOrigin(groupCenter, 'center', 'center');
 //        group.setCoords();
 //        
 //        objects.forEach(function (object) {
 //            group.addWithUpdate(object);
 //        });
-        
+
         canvas.add(group);
         canvas.renderAll();
     }
@@ -389,14 +427,14 @@ function canvasSelectionCreated(option) {
 //                y = leftTop.y;
 //                originX = 'left';
 //                originY = 'top';
-    
+
                 x = rightBottom.x + 10;
                 y = leftTop.y;
                 originX = 'left';
                 originY = 'bottom';
 
             } else if (name === 'left') {
-                
+
 //                x = leftTop.x;
 //                y = leftTop.y - 10;
 //                originX = 'left';
@@ -406,7 +444,7 @@ function canvasSelectionCreated(option) {
                 y = rightBottom.y + 10;
                 originX = 'left';
                 originY = 'top';
-                
+
             } else if (name === 'bottom') {
                 x = rightBottom.x + 10;
                 y = rightBottom.y;
