@@ -1269,6 +1269,12 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         child.parentObject = theLocator;
         child.untransformedScaleX = 1;
         child.untransformedScaleY = 1;
+        
+        
+        
+        
+        
+        
 
 //        console.log("???????????????????????? BEFORE");
 //
@@ -1416,8 +1422,10 @@ var Locator = fabric.util.createClass(fabric.Circle, {
 
                             var connector = getLastElementOfArray(theLocator.outConnectors);
                             connector.setDestination(targetObject, true);
-
                             theLocator.addChild(targetObject, connector, true, true, true);
+
+                            targetObject.lockMovementX = true;
+                            targetObject.lockMovementY = true;
 
                         }
 

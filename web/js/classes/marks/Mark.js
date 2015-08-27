@@ -1581,7 +1581,12 @@ var Mark = function () {
                 theMark.positionElements();
 
 
-                this.activateCopyingMode();
+                if (theMark.parentObject && theMark.parentObject.isLocator) {
+                    theMark.lockMovementX = false;
+                    theMark.lockMovementY = false;
+                }
+
+//                this.activateCopyingMode();
 
 
             },
@@ -1702,6 +1707,11 @@ var Mark = function () {
 
             },
             'mouseup': function (options) {
+                
+                if (theMark.parentObject && theMark.parentObject.isLocator) {
+                    theMark.lockMovementX = true;
+                    theMark.lockMovementY = true;
+                }
 
                 if (this.copyingMode) {
 
@@ -1728,7 +1738,8 @@ var Mark = function () {
                     console.log("%c" + "this.copyingMode: " + this.copyingMode, "background: #572a82; color: white;");
                 }
 
-
+                console.log("this.lockMovementX: " + this.lockMovementX);
+                console.log("this.lockMovementY: " + this.lockMovementY);
 
 
                 if (this.copyingMode) {

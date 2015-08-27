@@ -79,7 +79,11 @@
         <script type="text/javascript" src="./js/classes/vixors/TextualVixor.js"></script>
         <script type="text/javascript" src="./js/classes/vixors/SVGText.js"></script>
         <script type="text/javascript" src="./js/classes/TextInput.js"></script>
-        <script type="text/javascript" src="./js/classes/FreeSelection.js"></script>
+        
+        <!--<script type="text/javascript" src="./js/classes/FreeSelection.js"></script>-->
+        
+        <script type="text/javascript" src="./js/classes/selection/SquaredSelection.js"></script>
+        
         <script type="text/javascript" src="./js/classes/Player.js"></script>        
         <script type="text/javascript" src="./js/classes/LabeledRect.js"></script>
         <script type="text/javascript" src="./js/classes/DataWidget.js"></script>
@@ -996,8 +1000,8 @@
             });
 
             // When the system starts up, the panning mode is active by default
-            applyActiveMenuButtonStyle($("#panningModeButton"));
-            activatePanningMode();
+//            applyActiveMenuButtonStyle($("#panningModeButton"));
+//            activatePanningMode();
 
 
 //            deactivateScribbleMode();
@@ -1050,7 +1054,7 @@
 
                 var options2 = {
                     left: 400,
-                    top: 400,
+                    top: 200,
                     fill: rgb(255, 151, 40),
                     stroke: darkenrgb(255, 151, 40),
                     area: 12000,
@@ -1368,8 +1372,8 @@
 //            showWebPage();
 
 
-
-
+            applyActiveMenuButtonStyle($("#squaredSelectionButton"));
+            activateSquaredSelection();
 
         </script>
 

@@ -6267,6 +6267,56 @@ function getCoordinateComparator(coordinate) {
     }
 }
 
+function compareByCentralX(object1, object2) {
+    
+    var center1 = null;
+    if (object1.group) {
+        center1 = getCenterPointWithinGroup(object1);
+    } else {
+        center1 = object1.getCenterPoint();
+    }
+    
+    var center2 = null;
+    if (object2.group) {
+        center2 = getCenterPointWithinGroup(object2);
+    } else {
+        center2 = object2.getCenterPoint();
+    }
+        
+    if (center1.x < center2.x) {
+        return -1;
+    } else if (center1.x > center2.x) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+function compareByCentralY(object1, object2) {
+    
+    var center1 = null;
+    if (object1.group) {
+        center1 = getCenterPointWithinGroup(object1);
+    } else {
+        center1 = object1.getCenterPoint();
+    }
+    
+    var center2 = null;
+    if (object2.group) {
+        center2 = getCenterPointWithinGroup(object2);
+    } else {
+        center2 = object2.getCenterPoint();
+    }
+        
+    if (center1.y < center2.y) {
+        return -1;
+    } else if (center1.y > center2.y) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 function compareByX(coordinate1, coordinate2) {
     if (coordinate1.x < coordinate2.x) {
         return -1;
