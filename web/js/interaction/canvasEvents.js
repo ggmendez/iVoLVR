@@ -81,9 +81,12 @@ function canvasBeforeSelectionCleared(option) {
 
     var type = group.type;
 
-    if (type === 'group') {
+    if (!group.isVixor && !group.isMark && type === 'group') {
 
         if (group.compress) {
+            
+            alert("Heheh");
+            
             group.compress();
         }
 
