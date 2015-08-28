@@ -390,6 +390,11 @@ var Mark = function () {
         }
     };
     this.blink = function () {
+
+        console.log("BLINKING MARK");
+        console.log("this.lockMovementX: " + this.lockMovementX);
+        console.log("this.lockMovementY: " + this.lockMovementY);
+
         var theMark = this;
         var increment = 0.3;
         var duration = 100;
@@ -412,7 +417,12 @@ var Mark = function () {
                 theMark.animate('scaleY', '-=' + increment, {
                     duration: 1100,
                     onChange: canvas.renderAll.bind(canvas),
-                    easing: fabric.util.ease['easeOutElastic']
+                    easing: fabric.util.ease['easeOutElastic'],
+                    onComplete: function () {
+                        console.log("BLINKING MARK FINISHED");
+                        console.log("theMark.lockMovementX: " + theMark.lockMovementX);
+                        console.log("theMark.lockMovementY: " + theMark.lockMovementY);
+                    }
                 });
             }
         });
@@ -1201,6 +1211,18 @@ var Mark = function () {
                 }
             },
             onComplete: function () {
+                
+                var newPoint = null;
+                if (coordinate === 'x') {
+                    newPoint = new fabric.Point(endValue, constantValue);
+                } else {
+                    newPoint = new fabric.Point(constantValue, endValue);
+                }
+
+                theMark.setPositionByOrigin(newPoint, originX, originY);
+                theMark.positionElements();
+                
+                
                 theMark.setCoords();
                 if (refreshCanvas) {
                     canvas.renderAll();
@@ -1571,6 +1593,10 @@ var Mark = function () {
                 fabric.util.removeFromArray(theMark.inConnectors, removedConnection);
 
                 theMark.parentObject = null;
+                
+                theMark.lockMovementX = false;
+                theMark.lockMovementY = false;
+                        
 
                 if (LOG)
                     console.log("After: ");
@@ -1583,8 +1609,12 @@ var Mark = function () {
                     console.log("This mark has been pressed");
                 theMark.positionElements();
 
+                
 
                 if (theMark.parentObject && theMark.parentObject.isLocator) {
+                    
+                    theMark.blink();
+                    
                     theMark.lockMovementX = false;
                     theMark.lockMovementY = false;
                 }
@@ -1710,7 +1740,10 @@ var Mark = function () {
 
             },
             'mouseup': function (options) {
-                
+
+                console.log("theMark.lockMovementX: " + theMark.lockMovementX);
+                console.log("theMark.lockMovementY: " + theMark.lockMovementY);
+
                 if (theMark.parentObject && theMark.parentObject.isLocator) {
                     theMark.lockMovementX = true;
                     theMark.lockMovementY = true;
@@ -1736,58 +1769,63 @@ var Mark = function () {
             },
             'mousedown': function (options) {
 
-                if (LOG) {
-                    console.log("%c" + "MOUSE DOWN over a mark!", "background: #572a82; color: white;");
-                    console.log("%c" + "this.copyingMode: " + this.copyingMode, "background: #572a82; color: white;");
+//                if (LOG) {
+                console.log("%c" + "MOUSE DOWN over a mark!", "background: #572a82; color: white;");
+//                    console.log("%c" + "this.copyingMode: " + this.copyingMode, "background: #572a82; color: white;");
+
+                if (theMark.parentObject && theMark.parentObject.isLocator) {
+                    theMark.lockMovementX = true;
+                    theMark.lockMovementY = true;
                 }
 
-                console.log("this.lockMovementX: " + this.lockMovementX);
-                console.log("this.lockMovementY: " + this.lockMovementY);
-
-
-                if (this.copyingMode) {
-
-                    this.currentCopy = this.clone();
-                    this.currentCopy.applyUnselectedStyle(false);
-                    this.currentCopy.opacity = 0.6;
-                    this.currentCopy.evented = false;
-                    canvas.add(this.currentCopy);
-
-                    if (LOG) {
-                        console.log("%c" + "Clone added to canvas!", "background: #6dce8d; color: black;");
-                    }
+//                }
 
 
 
 
+//                if (this.copyingMode) {
+//
+//                    this.currentCopy = this.clone();
+//                    this.currentCopy.applyUnselectedStyle(false);
+//                    this.currentCopy.opacity = 0.6;
+//                    this.currentCopy.evented = false;
+//                    canvas.add(this.currentCopy);
+//
+//                    if (LOG) {
+//                        console.log("%c" + "Clone added to canvas!", "background: #6dce8d; color: black;");
+//                    }
+//
+//
+//
+//
+//
+//
+//
+//                } else {
+
+                if (!theMark.isCompressed) {
+                    bringToFront(theMark.backgroundRect);
+                    theMark.visualProperties.forEach(function (visualProperty) {
+                        if (visualProperty.canvas) {
+                            bringToFront(visualProperty);
 
 
+                            visualProperty.inConnectors.forEach(function (inConnection) {
+                                bringToFront(inConnection);
+                            });
+                            visualProperty.outConnectors.forEach(function (outConnection) {
+                                bringToFront(outConnection);
+                            });
 
-                } else {
-
-                    if (!theMark.isCompressed) {
-                        bringToFront(theMark.backgroundRect);
-                        theMark.visualProperties.forEach(function (visualProperty) {
-                            if (visualProperty.canvas) {
-                                bringToFront(visualProperty);
-
-
-                                visualProperty.inConnectors.forEach(function (inConnection) {
-                                    bringToFront(inConnection);
-                                });
-                                visualProperty.outConnectors.forEach(function (outConnection) {
-                                    bringToFront(outConnection);
-                                });
-
-                            }
-                        });
-                        if (theMark.iText) {
-                            bringToFront(theMark.iText);
                         }
+                    });
+                    if (theMark.iText) {
+                        bringToFront(theMark.iText);
                     }
-                    bringToFront(theMark);
-
                 }
+                bringToFront(theMark);
+
+//                }
 
             },
             'selected': function (options) {

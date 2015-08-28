@@ -1311,6 +1311,21 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         yVisualProperty.evented = true;
         repositionWidget(theLocator, yVisualProperty);
         yVisualProperty.setCoords();
+        
+        
+        
+        // We do this before the blinking, to keep consistency among all the values set to the x and y properties of the marks
+        // If this computation is done after or during the blinking, there will be problems related to the uncertainty
+        // of the position of the marks 
+        
+        var relativeX = theLocator.getPointByOrigin('center', 'center').x - child.getPointByOrigin('center', 'center').x;
+        var relativeY = theLocator.getPointByOrigin('center', 'center').y - child.getPointByOrigin('center', 'center').y;
+
+        child.xVisualProperty.value = createNumericValue(-relativeX);
+        child.yVisualProperty.value = createNumericValue(relativeY);
+        
+        
+        
 
         if (blinkChild) {
             child.blink();
@@ -1350,11 +1365,7 @@ var Locator = fabric.util.createClass(fabric.Circle, {
             canvas.setActiveObject(child);
         }
 
-        var relativeX = theLocator.getPointByOrigin('center', 'center').x - child.getPointByOrigin('center', 'center').x;
-        var relativeY = theLocator.getPointByOrigin('center', 'center').y - child.getPointByOrigin('center', 'center').y;
-
-        child.xVisualProperty.value = createNumericValue(-relativeX);
-        child.yVisualProperty.value = createNumericValue(relativeY);
+        
 
     },
     associateEvents: function () {
@@ -1689,7 +1700,7 @@ function addLocator(options) {
     options.hasControls = false;
     options.hasBorders = false;
 
-    options.perPixelTargetFind = 'true';
+//    options.perPixelTargetFind = 'true';
 
     var newLocator = new Locator(options);
     canvas.add(newLocator);
@@ -1716,29 +1727,6 @@ function addLocator(options) {
             easing: easing
         });
     }
-
-//    setTimeout(function () {
-//
-//        var secondWait = 0;
-//        if (options.shouldExpand) {
-//            secondWait = 550;
-//            newLocator.expand(true);
-//        }
-//
-//        setTimeout(function () {
-//            if (options.selectedMarkXmlID) {
-//                console.log("options.selectedMarkXmlID:");
-//                console.log(options.selectedMarkXmlID);
-//                newLocator.trigger('markSelected', getFabricElementByXmlID(options.selectedMarkXmlID));
-//            }
-//            
-//            objectMoving(null, newLocator);
-//            
-//        }, secondWait);
-//
-//    }, waitingTime);
-
-
 
 
     console.log("newLocator:");

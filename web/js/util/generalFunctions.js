@@ -3472,14 +3472,7 @@ function canvasDeselectAllObjects() {
 
         if (object && object.applyUnselectedStyle) {
             object.applyUnselectedStyle(true);
-        }
-
-//      if (object.isOutput || object.isOperator || object.isFunction) {
-//         object.applyUnselectedStyle(true);
-//
-//      }
-
-        else if (object && object.isWidget) {
+        } else if (object && object.isWidget) {
             widgetApplyUnselectedStyle(object);
         }
     });
@@ -6696,6 +6689,12 @@ function newConnectionReleasedOnCanvas(connection, coordX, coordY) {
     console.log("%cNEW connection released on canvas", "background: rgb(56,27,65); color: white;");
 
     var theValue = connection.value;
+    
+    if (!theValue) {
+        connection.contract();
+        return;
+    }
+                    
     var destination = null;
 
     // First, we have to check if this is a collection
@@ -6705,7 +6704,7 @@ function newConnectionReleasedOnCanvas(connection, coordX, coordY) {
             top: coordY,
             left: coordX,
             values: theValue,
-        }
+        };
 
         destination = addVerticalCollection(options);
 

@@ -1,4 +1,5 @@
 var LOG = false;
+//var LOG = true;
 
 LINE_TEXT_EXTRACTOR = "line";
 BLOCK_TEXT_EXTRACTOR = "block";

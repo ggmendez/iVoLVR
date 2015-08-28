@@ -115,6 +115,54 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
             shapeValue = createShapeValue(pathType, this.path);
             fillValue = createColorValue(new fabric.Color(this.trueColor));
         }
+        
+        
+        
+        
+        
+        var XYValues = extractXYValues(this, true);
+
+//        if (LOG) {
+        console.log("XYValues:");
+        console.log(XYValues);
+//        }
+
+        var coordinates = createFunctionCoordinatesFromValues(XYValues.xValues, XYValues.yValues);
+
+        this.set("xCollection", coordinates.XCoordinates);
+        var xCollectionVisualProperty = this.getVisualPropertyByAttributeName('xCollection');
+        xCollectionVisualProperty.value = coordinates.XCoordinates;
+
+        this.set("yCollection", coordinates.YCoordinates);
+        var yCollectionVisualProperty = this.getVisualPropertyByAttributeName('yCollection');
+        yCollectionVisualProperty.value = coordinates.YCoordinates;
+
+//        this.scaledX = this.scaleCoordiates(this.xCollection, 'x', this.width);
+//        this.scaledY = this.scaleCoordiates(this.yCollection, 'y', this.height);
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
         if (LOG) {
             console.log("shapeValue:");
@@ -193,6 +241,12 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
 
         this.specificProperties.push({attribute: "shape", readable: true, writable: false, types: ['string', 'object'], updatesTo: [], dataTypeProposition: 'isShapeData'});
         this.specificProperties.push({attribute: "fill", readable: true, writable: false, types: ['string'], updatesTo: [], dataTypeProposition: 'isColorData'});
+        
+        
+        this.specificProperties.push({attribute: "xCollection", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData'});
+        this.specificProperties.push({attribute: "yCollection", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData'});
+        
+        
 
         this.specificProperties.push({attribute: "width", readable: true, writable: false, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: widthValue});
         this.specificProperties.push({attribute: "height", readable: true, writable: false, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: heightValue});

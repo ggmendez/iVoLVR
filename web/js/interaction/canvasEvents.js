@@ -52,16 +52,17 @@ function canvasObjectSelected(option) {
 
 
     if (selectedObject) {
-
-//        if (selectedObject.isWidget) {
-//            widgetApplySelectedStyle(selectedObject);
-//
-//        } else 
-
+        
         if (selectedObject.applySelectedStyle) {
 
             selectedObject.applySelectedStyle(true);
-        }
+            
+        } 
+        else if (selectedObject.isWidget) {
+            
+            widgetApplySelectedStyle(selectedObject);
+            
+        } 
     }
 
 }
