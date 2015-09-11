@@ -421,6 +421,9 @@
                     <h6 id="draggableWidgetsListH6" onclick="togglePanelVisibility('#draggableWidgetsList', false);" style="cursor: pointer;" class="nonSelection sectionHeader"><span class="fa fa-angle-down" style="margin-right: 5px;"></span>Collections</h6>
                     <ul id="draggableWidgetsList" class="horizontalButtomsRow">
 
+                        <li id="collectionGetterWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-angellist"></i></a></li>
+                                                <li id="collectionAttributeSelectorWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-archive"></i></a></li>
+                        
                         <!--                        <li id="collectionGetterWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-angellist"></i></a></li>
                                                 <li id="collectionAttributeSelectorWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-archive"></i></a></li>-->
 
@@ -549,7 +552,8 @@
 
             var canvasContainerElement = document.querySelector("#canvasContainer");
             var manager = new Hammer.Manager(canvasContainerElement);
-            manager.add(new Hammer.Tap({event: 'doubletap', taps: 2, threshold: 500, interval: 1000, time: 600, posThreshold: 75}));
+//            manager.add(new Hammer.Tap({event: 'doubletap', taps: 2, threshold: 500, interval: 1000, time: 600, posThreshold: 75}));            
+            manager.add(new Hammer.Tap({event: 'doubletap', taps: 2, threshold: 75, interval: 400, time: 600, posThreshold: 25}));            
             manager.add(new Hammer.Press({event: 'press', time: 450}));
             var pan1Finger = new Hammer.Pan({event: 'pan1Finger', pointers: 1});
             manager.add(pan1Finger);
@@ -1249,14 +1253,20 @@
                  console.log(text);*/
 
                 if (e.dataTransfer.types) {
-                    [].forEach.call(e.dataTransfer.types, function (type) {
-//                        console.log("***" + entities(e.dataTransfer.getData(type) + ' (content-type: ' + type + ')'));
-//                        console.log("***" + e.dataTransfer.getData(type) + ' (content-type: ' + type + ')');
-
+                    
+                    console.log("e.dataTransfer.types:");
+                    console.log(e.dataTransfer.types);
+                    
+                    var totalTypes = e.dataTransfer.types.length;
+                    for (var i=0; i<totalTypes; i++) {
+                        var type = e.dataTransfer.types[i];
+                        
+                        
                         var contentType = type;
                         var dataString = e.dataTransfer.getData(type);
 
                         console.log("content-type " + contentType);
+                        console.log("dataString: " + dataString);
 
                         if (contentType === "text/html") {
 
@@ -1264,15 +1274,201 @@
 
                             console.log("***" + dataString, 'red', 'white');
 
-                            addVisualElementFromHTML(parsedHTML, canvasCoords, true);
+                            var found = addVisualElementFromHTML(parsedHTML, canvasCoords, true);
+                            
+                            if (found) {
+                                break;
+                            }
+                            
+//                            break;
 
 
-                        } else {
-//                            console.log("***" + dataString);
+//                        } else if (contentType === "text/uri-list") {
+                        } else if (false) {
+
+                            var url = dataString;
+
+                            showWebPage(url);
+                            
+//                            break;
+
+//                        } else if (contentType === "text/plain") {
+                        } else if (false) {
+
+                            var x = canvasCoords.x;
+                            var y = canvasCoords.y;
+
+                            var theText = dataString;
+
+                            var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isMark']);
+
+                            if (targetObject) {
+
+                                var value = createBestValueFromText(theText);
+
+                                if (targetObject.isVisualProperty) {
+
+                                    blink(targetObject, false);
+                                    targetObject.setValue(value, true, true);
+
+                                } else if (targetObject.isMark) {
+
+                                    var attribute = null;
+
+                                    if (value.isStringData) {
+                                        attribute = 'label';
+                                    } else if (value.isColorData) {
+                                        attribute = 'fill';
+                                    }
+
+                                    if (attribute !== null) {
+
+                                        var visualProperty = targetObject.getVisualPropertyByAttributeName(attribute);
+
+                                        if (targetObject.isCompressed) {
+                                            blink(targetObject, true);
+                                        } else {
+                                            blink(targetObject, !visualProperty);
+                                        }
+
+                                        if (visualProperty) {
+                                            if (!targetObject.isCompressed) {
+                                                blink(visualProperty, attribute === 'label');
+                                            }
+                                            visualProperty.setValue(value, true, true);
+                                        }
+
+                                    }
+
+                                }
+
+
+                            } else {
+
+                                var theVisualVariable = createBestVisualVariableFromText(theText, x, y);
+
+
+                                canvas.add(theVisualVariable);
+                                theVisualVariable.animateBirth(false, null, null, false);
+
+
+                                return theVisualVariable;
+
+                            }
+
+
+                            break;
+
                         }
-
-
-                    });
+                        
+                        
+                    }
+                    
+//                    e.dataTransfer.types.forEach(function (type) {
+//                        
+//                        
+////                    [].forEach.call(e.dataTransfer.types, function (type) {
+////                        console.log("***" + entities(e.dataTransfer.getData(type) + ' (content-type: ' + type + ')'));
+////                        console.log("***" + e.dataTransfer.getData(type) + ' (content-type: ' + type + ')');
+//
+//                        var contentType = type;
+//                        var dataString = e.dataTransfer.getData(type);
+//
+//                        console.log("content-type " + contentType);
+//                        console.log("dataString: " + dataString);
+//
+//                        if (contentType === "text/html") {
+//
+//                            var parsedHTML = $.parseHTML(dataString);
+//
+//                            console.log("***" + dataString, 'red', 'white');
+//
+//                            addVisualElementFromHTML(parsedHTML, canvasCoords, true);
+//                            
+//                            break;
+//
+//
+//                        } else if (contentType === "text/uri-list") {
+//
+//                            var url = dataString;
+//
+//                            showWebPage(url);
+//                            
+//                            break;
+//
+//                        } else if (contentType === "text/plain") {                        
+//
+//                            var x = canvasCoords.x;
+//                            var y = canvasCoords.y;
+//
+//                            var theText = dataString;
+//
+//                            var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isMark']);
+//
+//                            if (targetObject) {
+//
+//                                var value = createBestValueFromText(theText);
+//
+//                                if (targetObject.isVisualProperty) {
+//
+//                                    blink(targetObject, false);
+//                                    targetObject.setValue(value, true, true);
+//
+//                                } else if (targetObject.isMark) {
+//
+//                                    var attribute = null;
+//
+//                                    if (value.isStringData) {
+//                                        attribute = 'label';
+//                                    } else if (value.isColorData) {
+//                                        attribute = 'fill';
+//                                    }
+//
+//                                    if (attribute !== null) {
+//
+//                                        var visualProperty = targetObject.getVisualPropertyByAttributeName(attribute);
+//
+//                                        if (targetObject.isCompressed) {
+//                                            blink(targetObject, true);
+//                                        } else {
+//                                            blink(targetObject, !visualProperty);
+//                                        }
+//
+//                                        if (visualProperty) {
+//                                            if (!targetObject.isCompressed) {
+//                                                blink(visualProperty, attribute === 'label');
+//                                            }
+//                                            visualProperty.setValue(value, true, true);
+//                                        }
+//
+//                                    }
+//
+//                                }
+//
+//
+//                            } else {
+//
+//                                var theVisualVariable = createBestVisualVariableFromText(theText, x, y);
+//
+//
+//                                canvas.add(theVisualVariable);
+//                                theVisualVariable.animateBirth(false, null, null, false);
+//
+//
+//                                return theVisualVariable;
+//
+//                            }
+//
+//
+//                            break;
+//
+//                        }
+//
+//
+//                    });
+                    
+                    
+                    
                 } else {
                     console.log(e.dataTransfer.getData('Text'));
                 }
@@ -1379,6 +1575,11 @@
 
 //            canvas.absolutePan(new fabric.Point(100,100));
 //            canvas.renderAll();
+
+
+            var bubbleSound = new Audio("audio/bubble.wav"); // buffers automatically when created
+            var popSound = new Audio("audio/pop.wav"); // buffers automatically when created
+
 
         </script>
 

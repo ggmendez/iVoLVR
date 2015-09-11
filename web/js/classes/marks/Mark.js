@@ -1211,7 +1211,7 @@ var Mark = function () {
                 }
             },
             onComplete: function () {
-                
+
                 var newPoint = null;
                 if (coordinate === 'x') {
                     newPoint = new fabric.Point(endValue, constantValue);
@@ -1221,8 +1221,8 @@ var Mark = function () {
 
                 theMark.setPositionByOrigin(newPoint, originX, originY);
                 theMark.positionElements();
-                
-                
+
+
                 theMark.setCoords();
                 if (refreshCanvas) {
                     canvas.renderAll();
@@ -1593,10 +1593,10 @@ var Mark = function () {
                 fabric.util.removeFromArray(theMark.inConnectors, removedConnection);
 
                 theMark.parentObject = null;
-                
+
                 theMark.lockMovementX = false;
                 theMark.lockMovementY = false;
-                        
+
 
                 if (LOG)
                     console.log("After: ");
@@ -1609,12 +1609,12 @@ var Mark = function () {
                     console.log("This mark has been pressed");
                 theMark.positionElements();
 
-                
+
 
                 if (theMark.parentObject && theMark.parentObject.isLocator) {
-                    
+
                     theMark.blink();
-                    
+
                     theMark.lockMovementX = false;
                     theMark.lockMovementY = false;
                 }
@@ -1697,18 +1697,22 @@ var Mark = function () {
 
                     if (this.parentObject && this.parentObject.isLocator) {
 
-                        if (LOG)
-                            console.log("This mark has a parent object");
+                        if (!this.lockMovementX && !this.lockMovementY) {
+//                            if (LOG)
+                                console.log("This mark has a parent object");
 
-                        computeUntransformedProperties(this);
-                        this.parentObject.trigger('markMoving', this);
+                            computeUntransformedProperties(this);
+                            this.parentObject.trigger('markMoving', this);
+                        }
+
+
                     }
 
                 }
 
             },
             'rotating': function (options) {
-                if (LOG)
+//                if (LOG)
                     console.log("rotating event");
                 theMark.positionElements();
 
@@ -1729,7 +1733,7 @@ var Mark = function () {
 
             },
             'scaling': function (options) {
-                if (LOG)
+//                if (LOG)
                     console.log("scaling event");
                 theMark.positionElements();
 
@@ -1868,11 +1872,17 @@ var Mark = function () {
         var theParentObject = theMark.parentObject;
 
         if (theParentObject && theParentObject.isLocator && !theParentObject.isCompressed && theParentObject.selectedMark === theMark) {
+            
+            ctx.save();
 
             var relativeX = theParentObject.getPointByOrigin('center', 'center').x - theMark.getPointByOrigin('center', 'center').x;
             var relativeY = theParentObject.getPointByOrigin('center', 'center').y - theMark.getPointByOrigin('center', 'center').y;
 
-            ctx.save();
+            
+
+//            ctx.rotate(-fabric.util.degreesToRadians(theMark.getAngle()));
+            
+            
 
             ctx.setLineDash([8, 8]);
             ctx.beginPath();
@@ -1893,6 +1903,8 @@ var Mark = function () {
                 ctx.moveTo(0, 0);
                 ctx.lineTo(relativeX, 0);
             }
+            
+            
 
             ctx.stroke();
 
@@ -1933,6 +1945,9 @@ var Mark = function () {
             }
 
             ctx.closePath();
+            
+            
+            
             ctx.restore();
         }
 
@@ -1943,6 +1958,9 @@ var Mark = function () {
 
 /* Function to add outputs to Canvas*/
 function addMarkToCanvas(markType, options) {
+        
+    bubbleSound.play();
+    
 //    if (LOG) {
 //        console.log("%cThe birth of this mark will be animated...", "background: red; color: white;");
 //    }

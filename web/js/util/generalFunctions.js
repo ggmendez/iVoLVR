@@ -1303,7 +1303,7 @@ function loadWebPage(displayerElementID, url) {
 
 
 
-function showWebPage() {
+function showWebPage(url) {
 
     console.log("showWebPage");
 
@@ -1321,13 +1321,15 @@ function showWebPage() {
 //    var defaultURL = 'http://www.st-andrews.ac.uk';
 //    var defaultURL = 'https://en.wikipedia.org/wiki/List_of_countries_by_oil_production';
     var defaultURL = 'http://www.w3schools.com/html/html_tables.asp';
+    
+    url = url || defaultURL;
 
     var inputsContainer = $('<div />', {id: 'inputsContainer', style: 'width: 100%; overflow: hidden;'});
 
     var urlLabel = $('<label/>', {text: "URL:", style: "float: left; margin-top: 18px; font-size: 18px;"});
     var aSpan = $('<span/>', {style: 'display: block; overflow: hidden; padding: 0 5px'});
 
-    var urlInputField = $('<input/>', {id: 'urlInputField', type: 'text', value: defaultURL, style: 'margin-top: 8px; font-size: 18px; width: 100%; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box'});
+    var urlInputField = $('<input/>', {id: 'urlInputField', type: 'text', value: url, style: 'margin-top: 8px; font-size: 18px; width: 100%; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box'});
 
     var closeButton = $('<button/>', {style: "margin-top: 2px; float:right; -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; border-color: #000; border-style: solid; border-width: 2px; color: black;"});
     var closeLi = $('<li/>', {class: "fa fa-close fa-2x", style: "margin-left: -22px; margin-top: -12px; height: 0px; width: 20px;"});
@@ -2081,67 +2083,75 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
 
     } else {
 
-        var parser = new DOMParser();
-        var svgDoc = parser.parseFromString(SVGString, "image/svg+xml");
+        var flattenFile = true;
+
+        if (flattenFile) {
+
+            var parser = new DOMParser();
+            var svgDoc = parser.parseFromString(SVGString, "image/svg+xml");
 
 //        console.log("svgDoc:");
 //        console.log(svgDoc);
 
+            var svgDocument = $(svgDoc);
+            var svgNode = svgDocument.find('svg');
+            var children = svgNode.children();
 
-        var svgDocument = $(svgDoc);
-        var svgNode = svgDocument.find('svg');
-        var children = svgNode.children();
+            var newPaths = new Array();
 
-        var newPaths = new Array();
+            children.each(function () {
 
-        children.each(function () {
+                var child = $(this);
+                var tagName = this.tagName;
 
-            var child = $(this);
-            var tagName = this.tagName;
+                if (tagName !== 'text') {
 
-            if (tagName !== 'text') {
-
-                /*console.log("child:");
-                 console.log(child);*/
+                    /*console.log("child:");
+                     console.log(child);*/
 
 //            if (tagName !== 'path' && tagName !== 'text') {
 
-                console.log("FLATTENING RESULTS:");
+                    console.log("FLATTENING RESULTS:");
 
-                var paths = flattenToPaths(this);
-                paths.forEach(function (path) {
-                    $(path).removeAttr('transform');
-                    newPaths.push(path);
-                });
+                    var paths = flattenToPaths(this);
+                    paths.forEach(function (path) {
+                        $(path).removeAttr('transform');
+                        newPaths.push(path);
+                    });
 
-                child.remove();
+                    child.remove();
 
-            } else {
+                } else {
 
-                console.log("tagName: " + tagName);
+                    console.log("tagName: " + tagName);
 
-            }
+                }
 
-        });
-
-
-        newPaths.forEach(function (path) {
-            svgNode.append(path);
-        });
+            });
 
 
+            newPaths.forEach(function (path) {
+                svgNode.append(path);
+            });
 
-        SVGString = (new XMLSerializer()).serializeToString(svgDoc);
+
+
+            SVGString = (new XMLSerializer()).serializeToString(svgDoc);
 //        console.log("SVGString after flattenning: ");
 //        console.log(formatXml(SVGString));
 
 
 
 
+        }
+
+
+
+
+
+
+
         fabric.loadSVGFromString(SVGString, function (objects, options) {
-
-
-
 
             var canvasActualCenter = getActualCanvasCenter();
             var group = new fabric.Group(objects);
@@ -2212,10 +2222,20 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
                     strokeColor = '';
                     if (objectFill !== '') {
                         var rbgColor = new fabric.Color(objectFill);
+
+//                        console.log("objectFill:");
+//                        console.log(objectFill);
+
                         var source = rbgColor.getSource();
-                        var r = source[0];
-                        var g = source[1];
-                        var b = source[2];
+
+                        var r = 0.5, g = 0.5, b = 0.5;
+
+                        if (source) {
+                            r = source[0];
+                            g = source[1];
+                            b = source[2];
+                        }
+
                         trueColorDarker = darkenrgb(r, g, b);
                     }
                 } else {
@@ -2242,7 +2262,7 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
                     var result = fabricPathToSVGPolygon(object, 500);
 
                     var polygon = result.SVGPolygon;
-                    var thePath = result.svgAbsolutePathString;
+                    var thePath = flattenFile ? result.svgAbsolutePathString : object.path;
                     var xs = result.xs;
                     var ys = result.ys;
 
@@ -2294,8 +2314,8 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
 
                 } else if (type === 'text') {
 
-                    /*console.log("object:");
-                     console.log(object);*/
+                    console.log("object:");
+                    console.log(object);
 
                     var string = object.text;
 
@@ -2316,24 +2336,64 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
                         untransformedScaleX: 1,
                         untransformedScaleY: 1,
                         animateAtBirth: false,
+                        
+                        
+                        
+                        
                     };
 
-//                    var text = new fabric.Text(string, textOptions);
-                    var text = new SVGText(string, textOptions);
-                    parentObject.widgets.push(text);
-                    computeUntransformedProperties(text);
-
-                    canvas.add(text);
-
-                    text.appl
 
 
 
+//                    console.log("textOptions:");
+//                    console.log(textOptions);
+
+                    console.log("string:");
+                    console.log(string);
+
+                    if (string && string !== '') {
+                        
+//                        drawRectAt(objectCenter, "red");
+
+
+                        object.parentObject = parentObject;
+
+//                        object.isVixor = true;
+                        
+                        object.originX = 'center';
+                        object.originY = 'center';
+//                        object.left = objectCenter.x;
+//                        object.top = objectCenter.y;
+//                        
+//                        object.setPositionByOrigin(objectCenter, 'center', 'center');
+                        
+//                        object.isWidget = true;
+                        object.permanentOpacity = 1;
+                        object.movingOpacity = 0.3;
+                        object.untransformedScaleX = 1;
+                        object.untransformedScaleY = 1;
+                        
+                        parentObject.widgets.push(object);
+                        
+                        addSVGTextBehaviour(object);
+                        
+                        computeUntransformedProperties(object);
+                        
+                        
+
+                        canvas.add(object);
+                        
+                        
+
+                    } 
 
 
 
-
-                }
+                } else {
+                        
+                        canvas.add(object);
+                        
+                    }
 
             });
 
@@ -3690,7 +3750,7 @@ function expandMarks() {
     allTheMarks.push(markWithMoreVisualProperties);
 
 //    if (LOG) console.log(allTheMarks);
-    
+
     for (var i = 0; i < allTheMarks.length; i++) {
         var refreshCanvas = (i === allTheMarks.length - 1);
         console.log("refreshCanvas: " + refreshCanvas);
@@ -3703,7 +3763,7 @@ function compressMarks() {
     var maxVisualProperties = -1;
     var allTheMarks = new Array();
     canvas.forEachObject(function (object) {
-        if (object.isMark  && !object.isCompressed) {
+        if (object.isMark && !object.isCompressed) {
             allTheMarks.push(object);
             if (object.visualProperties.length > maxVisualProperties) {
                 markWithMoreVisualProperties = object;
@@ -4794,10 +4854,10 @@ function polylineToSVGPathString(polyline) {
 
 function pathToPolyline2(svgPathPoints) {
 
-    if (LOG)
+    if (LOG) {
         console.log("svgPathPoints:");
-    if (LOG)
         console.log(svgPathPoints);
+    }
 
     var polyline = new Array();
     var x, y, i;
@@ -4805,7 +4865,9 @@ function pathToPolyline2(svgPathPoints) {
     for (i = 0; i < n; i++) {
         x = svgPathPoints[i][1];
         y = svgPathPoints[i][2];
-        polyline.push({x: x, y: y});
+        if (x !== null && y !== null && typeof x !== 'undefined' && typeof y !== 'undefined' && !isNaN(x) && !isNaN(y)) {
+            polyline.push({x: x, y: y});
+        }
     }
 
     // The points in the curve should always been indicated from left to rigth
@@ -5678,6 +5740,7 @@ function processScribbleFromPath(drawnPath) {
                                         trueColorDarker: darkenrgb(r, g, b),
                                         animateAtBirth: true,
                                         markAsSelected: true,
+                                        isFilled: true,
                                     };
 
                                     var theVixor = addVixorToCanvas(COLOR_REGION_EXTRACTOR, vixorOptions);
@@ -6261,21 +6324,21 @@ function getCoordinateComparator(coordinate) {
 }
 
 function compareByCentralX(object1, object2) {
-    
+
     var center1 = null;
     if (object1.group) {
         center1 = getCenterPointWithinGroup(object1);
     } else {
         center1 = object1.getCenterPoint();
     }
-    
+
     var center2 = null;
     if (object2.group) {
         center2 = getCenterPointWithinGroup(object2);
     } else {
         center2 = object2.getCenterPoint();
     }
-        
+
     if (center1.x < center2.x) {
         return -1;
     } else if (center1.x > center2.x) {
@@ -6286,21 +6349,21 @@ function compareByCentralX(object1, object2) {
 }
 
 function compareByCentralY(object1, object2) {
-    
+
     var center1 = null;
     if (object1.group) {
         center1 = getCenterPointWithinGroup(object1);
     } else {
         center1 = object1.getCenterPoint();
     }
-    
+
     var center2 = null;
     if (object2.group) {
         center2 = getCenterPointWithinGroup(object2);
     } else {
         center2 = object2.getCenterPoint();
     }
-        
+
     if (center1.y < center2.y) {
         return -1;
     } else if (center1.y > center2.y) {
@@ -6386,15 +6449,26 @@ function updatePathCoords(path) {
 function extractXYValues(fabricPath, useAlternativeExtraction) {
 
     var points = fabricPath.path;
+    console.log("points:");
+    console.log(points);
+
     var polyline = useAlternativeExtraction ? pathToPolyline2(points) : pathToPolyline(points);
+
+    console.log("polyline:");
+    console.log(polyline);
+
     // simplifying the user-trced polyline
     var tolerance = 0.5;
     var highQuality = true;
     var simplifiedPolyline = simplify(polyline, tolerance, highQuality);
 
+//    console.log("simplifiedPolyline:");
+//    console.log(simplifiedPolyline);
+
     var x = new Array();
     var y = new Array();
     simplifiedPolyline.forEach(function (point) {
+//        console.log(point.x + " , " + point.y);        
         x.push(point.x);
         y.push(point.y);
     });
@@ -6403,11 +6477,13 @@ function extractXYValues(fabricPath, useAlternativeExtraction) {
     var yValues = new Array();
 
     var minX = getArrayMin(x);
+//    console.log("minX: " + minX);
     x.forEach(function (xValue) {
         xValues.push(xValue - minX);
     });
 
     var maxY = getArrayMax(y);
+//    console.log("maxY: " + maxY);
     y.forEach(function (yValue) {
         yValues.push(maxY - yValue);
     });
@@ -6689,12 +6765,12 @@ function newConnectionReleasedOnCanvas(connection, coordX, coordY) {
     console.log("%cNEW connection released on canvas", "background: rgb(56,27,65); color: white;");
 
     var theValue = connection.value;
-    
+
     if (!theValue) {
         connection.contract();
         return;
     }
-                    
+
     var destination = null;
 
     // First, we have to check if this is a collection
@@ -7143,7 +7219,7 @@ function removeUselessTags(parsedHTML) {
     });
 
     /*console.log("filteredNodes: ");
-    console.log(filteredNodes);*/
+     console.log(filteredNodes);*/
 
     return filteredNodes;
 
@@ -7155,8 +7231,8 @@ function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
     var y = canvasCoords.y;
 
     /*console.log("addVisualElementFromHTML FUNCTION. x: " + x + " y: " + y);
-    console.log("Received parsedHTML:");
-    console.log(parsedHTML);*/
+     console.log("Received parsedHTML:");
+     console.log(parsedHTML);*/
 
     parsedHTML = removeUselessTags(parsedHTML);
 
@@ -7169,17 +7245,17 @@ function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
         var jQueryElement = $(htmlElement);
         var elementType = htmlElement.nodeName.toUpperCase();
 
-        /*console.log("elementType: " + elementType);
-        console.log("htmlElement:");
-        console.log(htmlElement);
-        console.log("jQueryElement: ");
-        console.log(jQueryElement);*/
+        console.log("elementType: " + elementType);
+         console.log("htmlElement:");
+         console.log(htmlElement);
+         console.log("jQueryElement: ");
+         console.log(jQueryElement);
 
         if (elementType === "TABLE") {
 
             /*console.log(jQueryElement);
-            console.log(jQueryElement[0]);
-            console.log(jQueryElement['0']);*/
+             console.log(jQueryElement[0]);
+             console.log(jQueryElement['0']);*/
 
             var allRows = htmlElement.getElementsByTagName("tr");
             var totalRows = allRows.length;
@@ -7226,9 +7302,9 @@ function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
                     csvString = csvString.substring(0, csvString.length - 1) + "\n";
 
                     /*console.log("The variables are:");
-                    console.log(colNames);
-                    console.log("The CSV string is:");
-                    console.log(csvString);*/
+                     console.log(colNames);
+                     console.log("The CSV string is:");
+                     console.log(csvString);*/
 
                     for (var i = start; i < totalRows; i++) {
 
@@ -7252,7 +7328,7 @@ function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
                     csvString = csvString.substring(0, csvString.length - 1);
 
                     /*console.log("Final CSV string: ");
-                    console.log(csvString);*/
+                     console.log(csvString);*/
 
 
                     if (!canvas.totalTables) {
@@ -7279,7 +7355,7 @@ function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
 
                     aDataWidget.parseCSVString();
 
-
+                    return aDataWidget;
 
 
 
@@ -7307,7 +7383,7 @@ function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
                         values: values
                     };
 
-                    addVerticalCollection(options);
+                    return addVerticalCollection(options);
 
                 }
             }
@@ -7331,6 +7407,8 @@ function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
             };
 
             importImageToCanvas(options);
+            
+            return true;
 
 //                    } else if (elementType === "A" || elementType === "SPAN" || elementType === "H2") {
         } else {
@@ -7807,9 +7885,9 @@ function canvasDropFunction(ev, ui) {
                 angle: 0,
                 markAsSelected: false,
                 animateAtBirth: true,
-//                thePath: 'M 0 0 L 50 0 L 75 50 L 100 -50 L 125 0 L 175 0',
+                thePath: 'M 0 0 L 50 0 L 75 50 L 100 -50 L 125 0 L 175 0',
 //                thePath: 'm 1.7937471,-0.9 0,283.38502 499.4765529,0',
-                thePath: 'm 4.2874742 -0.9 l 0 283.38502 l 499.4765558 0',
+//                thePath: 'm 4.2874742 -0.9 l 0 283.38502 l 499.4765558 0',
             };
             var pathMarkPrototype = addMarkToCanvas(PATH_MARK, options);
             console.log("pathMarkPrototype:");
@@ -7997,4 +8075,48 @@ function getCenterPointWithinGroup(object) {
     var group = object.group;
     var centerPoint = object.getCenterPoint();
     return new fabric.Point(group.left + centerPoint.x + group.width / 2, group.top + centerPoint.y + group.height / 2);
+}
+
+
+
+function scaleCoordiates(object, coordinates, coordinate, max) {
+
+    var numbers = new Array();
+    coordinates.forEach(function (value) {
+        numbers.push(value.number);
+    });
+
+    var oldMin = getArrayMin(numbers);
+    var oldMax = getArrayMax(numbers);
+    var newMin = 0;
+
+    object.setCoords();
+
+    if (LOG) {
+        console.log("object.the_height:");
+        console.log(object.the_height);
+    }
+
+    if (LOG) {
+        console.log("object.getScaleY():");
+        console.log(object.getScaleY());
+    }
+
+    var newMax = max;
+    if (!newMax) {
+        if (coordinate === 'x') {
+            newMax = object.the_width;
+        } else {
+            newMax = object.the_height;
+        }
+    }
+
+    if (LOG) {
+        console.log("oldMin, oldMax, newMin, newMax");
+        console.log(oldMin, oldMax, newMin, newMax);
+    }
+
+    var scaledCoordinates = changeRangeToArray(numbers, oldMin, oldMax, newMin, newMax);
+
+    return scaledCoordinates;
 }

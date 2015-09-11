@@ -127,6 +127,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         console.log(XYValues);
 //        }
 
+
+
         var coordinates = createFunctionCoordinatesFromValues(XYValues.xValues, XYValues.yValues);
 
         this.set("xCollection", coordinates.XCoordinates);
@@ -137,31 +139,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         var yCollectionVisualProperty = this.getVisualPropertyByAttributeName('yCollection');
         yCollectionVisualProperty.value = coordinates.YCoordinates;
 
-//        this.scaledX = this.scaleCoordiates(this.xCollection, 'x', this.width);
-//        this.scaledY = this.scaleCoordiates(this.yCollection, 'y', this.height);
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        this.scaledX = scaleCoordiates(this, this.xCollection, 'x', this.width);
+        this.scaledY = scaleCoordiates(this, this.yCollection, 'y', this.height);
         
 
         if (LOG) {
@@ -390,7 +369,9 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
             } else {
                 // removing the last connector added when the widget was down clicked 
                 var connector = theVixor.connectors.pop();
-                connector.contract();
+                if (connector) {
+                    connector.contract();
+                }
             }
 
 
@@ -403,7 +384,7 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
             var theVixor = this;
 
 
-            console.log("Color region extractor mouse down");
+//            console.log("Color region extractor mouse down");
 
             var theEvent = options;
             theEvent = options['e'];
@@ -419,8 +400,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
                 if (LOG)
                     console.log("theVixor.area: " + theVixor.area);
 
-                console.log("theVixor:");
-                console.log(theVixor);
+//                console.log("theVixor:");
+//                console.log(theVixor);
 
                 var newConnector = new Connector({source: theVixor, x2: coordX, y2: coordY, arrowColor: theVixor.colorForStroke, filledArrow: true, value: theVixor.area});
 //                var newConnector = new Connector({source: theVixor, x2: coordX, y2: coordY, arrowColor: theVixor.trueColor, filledArrow: true, value: theVixor.area});

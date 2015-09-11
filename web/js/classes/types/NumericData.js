@@ -104,7 +104,7 @@ var NumericData = fabric.util.createClass(fabric.Path, {
     },
     setValue: function (numericValue, refreshCanvas, shouldAnimate) {
 
-        console.log("%c +++ setting value of NUMERICDATA class with refreshCanvas: " + refreshCanvas + ", shouldAnimate: " + shouldAnimate, "background: #008000; color: white;");
+//        console.log("%c +++ setting value of NUMERICDATA class with refreshCanvas: " + refreshCanvas + ", shouldAnimate: " + shouldAnimate, "background: #008000; color: white;");
 
 
         var theDataType = this;
@@ -352,8 +352,10 @@ function showNumericValue(holderElement, allowEdition) {
     });
 
     okButton.click(function () {
-
-        var currentUnscaledValue = Number($("#unscaledValueTextField").val());
+        
+        
+        var inputValue = $("#unscaledValueTextField").val();
+        var currentUnscaledValue = Number(inputValue);
         var selectedInPrefix = $("#prefixSelector option:selected").text();
         var selectedOutPrefix = $("#outputTypeSelector option:selected").text();
         var selectedUnits = $("#inputUnitsTextField").val();

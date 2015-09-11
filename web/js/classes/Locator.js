@@ -304,6 +304,8 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         });
     },
     positionChild: function (property, value, theMark, shouldAnimate) {
+        
+        console.log("positionChild function at LOCATOR class");
 
         var theLocator = this;
 
@@ -1566,6 +1568,8 @@ var Locator = fabric.util.createClass(fabric.Circle, {
 //                this.computeOutputValue(shouldAnimate);
 //            },
             'markMoving': function (theMark) {
+                
+                console.log("markMoving EVENT at LOCATOR class");
 
                 theLocator.xAxisArrow.inConnectors.forEach(function (inConnector) {
                     inConnector.contract();

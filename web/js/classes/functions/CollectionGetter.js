@@ -172,249 +172,153 @@ var CollectionGetter = fabric.util.createClass(fabric.Rect, {
         theNumber.off('mousedown');
         theNumber.off('pressed');
 
-//        theNumber.on({
-//            'pressed': function (options) {
-//
-//                theNumber.bringToFront();
-//                theNumber.lockMovementX = true;
-//                theNumber.lockMovementY = true;
-//                blink(theNumber, true, 0.35);
-//                theNumber.connecting = true;
-//
-//                var newConnector = new Connector({source: theNumber, x2: theNumber.left, y2: theNumber.top, arrowColor: theNumber.colorForStroke, filledArrow: true, strokeWidth: 1});
-//                theNumber.outConnectors.push(newConnector);
-//                canvas.add(newConnector);
-//
-//            },
-//            'mouseup': function (options) {
-//                var theNumber = this;
-//                theNumber.lockMovementX = true;
-//                theNumber.lockMovementY = false;
-//
-//                if (theNumber.connecting) {
-//
-//                    var theEvent = options['e'];
-//                    var canvasCoords = getCanvasCoordinates(theEvent);
-//
-//                    var coordX = canvasCoords.x;
-//                    var coordY = canvasCoords.y;
-//
-//                    var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isOperator', 'isFunctionInput', 'isAggregator', 'isDataType', 'isMapperInput', 'isVerticalCollection', 'isMark', 'isNumericFunctionInput']);
-//
-//                    var connector = getLastElementOfArray(theNumber.outConnectors);
-//
-//                    if (targetObject) {
-//
-//                        if (targetObject !== this) {
-//
-//                            if (targetObject.isMark) {
-//
-//                                var connector = getLastElementOfArray(this.outConnectors);
-//
-//                                var theSource = connector.source;
-//                                var theDestination = connector.destination;
-//
-//                                var visualProperty = targetObject.getDefaultModifiableVisualPropertyByType(theNumber.value);
-//
-//                                if (visualProperty) {
-//
-//                                    connector.setDestination(visualProperty, true);
-//
-//                                    setTimeout(function () {
-//
-//                                        if (theSource) {
-//                                            theSource.bringToFront();
-//                                        }
-//                                        if (theDestination) {
-//                                            theDestination.bringToFront();
-//                                        }
-//                                    }, 50);
-//
-//                                } else {
-//
-//                                    var connector = this.outConnectors.pop();
-//                                    connector.contract();
-//
-//                                }
-//
-//
-//
-//                            } else if (targetObject.isVerticalCollection) {
-//
-//                                addVisualVariableToCollection(theNumber, targetObject, connector);
-//
-//
-//                            } else if (targetObject.isVisualProperty || targetObject.isFunctionInput || targetObject.isDataType || targetObject.isMapperInput || targetObject.isNumericFunctionInput) {
-//
-//                                connector.setDestination(targetObject, true);
-//
-//                                setTimeout(function () {
-//                                    connector.source.bringToFront();
-//                                    connector.destination.bringToFront();
-//                                }, 50);
-//
-//                            } else if (targetObject.isOperator) {
-//
-//                                if (theNumber.isDurationData) {
-//                                    connector.value = theNumber.value.convert("isNumericData");
-//                                }
-//
-//                                if (connector.value) {
-//
-//                                    connector.setDestination(targetObject, true);
-//
-//                                    setTimeout(function () {
-//                                        connector.source.bringToFront();
-//                                        connector.destination.bringToFront();
-//                                    }, 50);
-//
-//                                } else {
-//                                    connector.contract();
-//                                }
-//
-//
-//
-//                            } else if (targetObject.isAggregator) {
-//
-//                                targetObject.addConnector(connector, canvasCoords);
-//
-//                            } else { // This makes no sense, so, the added connector is just removed
-//                                connector = theNumber.outConnectors.pop();
-//                                if (connector) {
-//                                    connector.contract();
-//                                }
-//                            }
-//
-//                        } else {
-//                            connector = theNumber.outConnectors.pop();
-//                            if (connector) {
-//                                connector.contract();
-//                            }
-//                        }
-//
-//                    } else {
-//
-//                        // This number is released on the canvas
-//                        connector = theNumber.outConnectors.pop();
-//                        if (connector) {
-//                            connector.contract();
-//                        }
-//
-//                    }
-//
-//                } else {
-//
-//                    if (theMapper) {
-//
-//                        var eventOptions = {collection: theCollection, manipulatedElement: theNumber};
-//                        theMapper.trigger('collectionElementManipulationStopped', eventOptions);
-//
-//                        // sorting the visual values of the collection according to their y coordinate so that, when iterating over then, they 
-//                        // appear ordered
-//                        theCollection.theNumbers.sort(compareByTop);
-//
-//                    }
-//
-//
-//                }
-//
-//                theNumber.connecting = false;
-//
-//            },
-//            'moving': function (options) {
-//
-//                var theNumber = this;
-//                var event = options.e;
-//                var canvasCoords = getCanvasCoordinates(event);
-//
-//                if (theNumber.connecting) {
-//
+        theNumber.on({
+            'mousedown': function (options) {
+
+                theNumber.connecting = true;
+
+                var newConnector = new Connector({source: theNumber, x2: theNumber.left, y2: theNumber.top, arrowColor: 'blue', filledArrow: true, strokeWidth: 1});
+                theNumber.outConnectors.push(newConnector);
+                canvas.add(newConnector);
+
+            },
+            'mouseup': function (options) {
+                var theNumber = this;
+
+                if (theNumber.connecting) {
+
+                    var theEvent = options['e'];
+                    var canvasCoords = getCanvasCoordinates(theEvent);
+
+                    var coordX = canvasCoords.x;
+                    var coordY = canvasCoords.y;
+
+                    var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isOperator', 'isFunctionInput', 'isAggregator', 'isDataType', 'isMapperInput', 'isVerticalCollection', 'isMark', 'isNumericFunctionInput']);
+
+                    var connector = getLastElementOfArray(theNumber.outConnectors);
+
+                    if (targetObject) {
+
+                        if (targetObject !== this) {
+
+                            if (targetObject.isMark) {
+
+                                var connector = getLastElementOfArray(this.outConnectors);
+
+                                var theSource = connector.source;
+                                var theDestination = connector.destination;
+
+                                var visualProperty = targetObject.getDefaultModifiableVisualPropertyByType(theNumber.value);
+
+                                if (visualProperty) {
+
+                                    connector.setDestination(visualProperty, true);
+
+                                    setTimeout(function () {
+
+                                        if (theSource) {
+                                            theSource.bringToFront();
+                                        }
+                                        if (theDestination) {
+                                            theDestination.bringToFront();
+                                        }
+                                    }, 50);
+
+                                } else {
+
+                                    var connector = this.outConnectors.pop();
+                                    connector.contract();
+
+                                }
+
+
+
+                            } else if (targetObject.isVerticalCollection) {
+
+                                addVisualVariableToCollection(theNumber, targetObject, connector);
+
+
+                            } else if (targetObject.isVisualProperty || targetObject.isFunctionInput || targetObject.isDataType || targetObject.isMapperInput || targetObject.isNumericFunctionInput) {
+
+                                connector.setDestination(targetObject, true);
+
+                                setTimeout(function () {
+                                    connector.source.bringToFront();
+                                    connector.destination.bringToFront();
+                                }, 50);
+
+                            } else if (targetObject.isOperator) {
+
+                                if (theNumber.isDurationData) {
+                                    connector.value = theNumber.value.convert("isNumericData");
+                                }
+
+                                if (connector.value) {
+
+                                    connector.setDestination(targetObject, true);
+
+                                    setTimeout(function () {
+                                        connector.source.bringToFront();
+                                        connector.destination.bringToFront();
+                                    }, 50);
+
+                                } else {
+                                    connector.contract();
+                                }
+
+
+
+                            } else if (targetObject.isAggregator) {
+
+                                targetObject.addConnector(connector, canvasCoords);
+
+                            } else { // This makes no sense, so, the added connector is just removed
+                                connector = theNumber.outConnectors.pop();
+                                if (connector) {
+                                    connector.contract();
+                                }
+                            }
+
+                        } else {
+                            connector = theNumber.outConnectors.pop();
+                            if (connector) {
+                                connector.contract();
+                            }
+                        }
+
+                    } else {
+
+                        // This number is released on the canvas
+                        var lastAddedConnector = getLastElementOfArray(theNumber.outConnectors);
+                        newConnectionReleasedOnCanvas(lastAddedConnector, coordX, coordY);
+
+
+                    }
+
+                }
+
+                theNumber.connecting = false;
+
+            },
+            'moving': function (options) {
+
+                var theNumber = this;
+                var event = options.e;
+                var canvasCoords = getCanvasCoordinates(event);
+
+                if (theNumber.connecting) {
+
 //                    if (LOG)
-//                        console.log("Connecting");
-//
-//                    // A connector is being taken out of this visual value
-//                    var lastAddedConnector = getLastElementOfArray(theNumber.outConnectors);
-//                    lastAddedConnector.set({x2: canvasCoords.x, y2: canvasCoords.y});
-//
-//                } else {
-//
-//                    var pointer = canvas.getPointer(event);
-//                    var dataTypeCenter = theNumber.getCenterPoint();
-//
-//                    var pointerRelativeToCenter = {x: pointer.x - dataTypeCenter.x, y: pointer.y - dataTypeCenter.y};
-//                    if (LOG)
-//                        console.log("pointerRelativeToCenter:");
-//                    if (LOG)
-//                        console.log(pointerRelativeToCenter);
-//
-//                    if (LOG)
-//                        console.log("dataType.width * dataType.scaleX:");
-//                    if (LOG)
-//                        console.log(theNumber.width * theNumber.scaleX);
-//
-//                    if (LOG)
-//                        console.log("dataType.height * dataType.scaleY:");
-//                    if (LOG)
-//                        console.log(theNumber.height * theNumber.scaleY);
-//
-//                    var theCollectionLeftTop = theCollection.getPointByOrigin('left', 'top');
-//                    var theCollectionRightBottom = theCollection.getPointByOrigin('right', 'bottom');
-//
-//                    if (LOG)
-//                        console.log("theCollectionLeftTop:");
-//                    if (LOG)
-//                        console.log(theCollectionLeftTop);
-//
-//                    if (LOG)
-//                        console.log("theCollectionRightBottom:");
-//                    if (LOG)
-//                        console.log(theCollectionRightBottom);
-//
-//                    var startingY = theCollection.compressedHeight + theCollectionLeftTop.y + theCollection.strokeWidth + 1;
-//                    var endingY = theCollectionRightBottom.y - 5;
-//
-//                    var topDataType = canvasCoords.y - ((theNumber.height * theNumber.scaleY / 2) + pointerRelativeToCenter.y);
-//                    var bottomDataType = canvasCoords.y + ((theNumber.height * theNumber.scaleY / 2) - pointerRelativeToCenter.y);
-//
-////                        drawRectAt(new fabric.Point(dataType.left, topDataType), 'red');
-////                        drawRectAt(new fabric.Point(dataType.left, bottomDataType), 'green');
-//
-//                    if (topDataType < startingY) {
-//
-//                        theNumber.lockMovementY = true;
-//                        theNumber.setPositionByOrigin(new fabric.Point(theCollection.left, startingY), 'center', 'top');
-//
-//                    } else if (bottomDataType > endingY) {
-//
-//                        theNumber.lockMovementY = true;
-//                        theNumber.setPositionByOrigin(new fabric.Point(theCollection.left, endingY), 'center', 'bottom');
-//
-//                    } else {
-//
-//                        theNumber.lockMovementY = false;
-//
-//                    }
-//
-//                    theNumber.setCoords();
-//                    theNumber.relativeY = theNumber.getPointByOrigin('center', 'top').y - theCollection.getPointByOrigin('center', 'top').y;
-//
-//                    if (theMapper) {
-//
-//                        var eventOptions = {collection: theCollection, movedElement: theNumber};
-//                        theMapper.trigger('collectionElementMoved', eventOptions);
-//
-//                        // sorting the visual values of the collection according to their y coordinate so that, when iterating over then, they 
-//                        // appear ordered
-//                        theCollection.theNumbers.sort(compareByTop);
-//
-//                    }
-//
-//
-//
-//                }
-//
-//            }
-//        });
+                    console.log("Connecting");
+
+                    // A connector is being taken out of this visual value
+                    var lastAddedConnector = getLastElementOfArray(theNumber.outConnectors);
+                    lastAddedConnector.set({x2: canvasCoords.x, y2: canvasCoords.y});
+
+                }
+
+            },
+        });
 
 
 
@@ -518,20 +422,20 @@ var CollectionGetter = fabric.util.createClass(fabric.Rect, {
 
             },
             'collectionElementManipulationStopped': function (options) {
-                
+
                 var theCollectionGetter = this;
 
                 var shouldAnimate = false;
 
                 var movedElement = options.movedElement;
-                                                                
+
                 var outputValue = theCollectionGetter.computeOutput();
-                
+
                 console.log("outputValue: ");
                 console.log(outputValue);
-                
+
                 theCollectionGetter.outputPoint.setValue(outputValue, true);
-                
+
                 canvas.renderAll();
 
             },
@@ -542,7 +446,7 @@ var CollectionGetter = fabric.util.createClass(fabric.Rect, {
                 var theCollectionGetter = this;
 
                 var theCollection = theCollectionGetter.theCollection;
-                
+
                 var changedVisualValue = options.visualValue;
 
                 var outputValue = theCollectionGetter.computeOutput();
@@ -554,7 +458,7 @@ var CollectionGetter = fabric.util.createClass(fabric.Rect, {
                 var shouldAnimate = false;
 
                 var theCollectionGetter = this;
-                
+
                 var theCollection = theCollectionGetter.theCollection;
                 theCollection.visualValues.sort(compareByTop);
                 var outputValue = theCollectionGetter.computeOutput();
@@ -577,8 +481,8 @@ var CollectionGetter = fabric.util.createClass(fabric.Rect, {
                 var maxIndex = theCollection.getSize();
 
                 console.log("+++++ numericValue: ");
-                console.log(numericValue);                                
-                
+                console.log(numericValue);
+
                 var index = Number(numericValue.number.toFixed(0)); // removing decimals, if any
 
                 if (index < 1) {
@@ -603,12 +507,24 @@ var CollectionGetter = fabric.util.createClass(fabric.Rect, {
 
                 } else {
 
-                    console.log("Algo hay que hacer aquí...");
-                                                            
                     var outputValue = theCollectionGetter.computeOutput();
                     theCollectionGetter.outputPoint.setValue(outputValue, false);
 
+                    changedVisualValue.outConnectors.forEach(function (outConnector) {
+                        
+                        
+                        console.log("index: " + index);
+                        
+                        outConnector.setValue(createNumericValue(Number(index.toFixed(0))), false, false);
+                    });
+
                 }
+
+
+
+
+
+
 
             },
         });
@@ -982,7 +898,7 @@ var CollectionGetter = fabric.util.createClass(fabric.Rect, {
 
         if (theCollection && !theCollection.isEmpty()) {
 
-            var index = theNumber.value.number - 1; 
+            var index = theNumber.value.number - 1;
             index = Number(index.toFixed(0));
 
             console.log("************** position: ");

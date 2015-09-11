@@ -856,7 +856,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
 //            var minXNumber = Math.min.apply(Math, theFunction.xCoordinates.map(f));
 //            var maXNumber = Math.max.apply(Math, theFunction.xCoordinates.map(f));
             var minXNumber = Math.min.apply(Math, theFunction.coordinatesX.map(f));
-            var maXNumber = Math.max.apply(Math, theFunction.coordinatesY.map(f));
+            var maXNumber = Math.max.apply(Math, theFunction.coordinatesX.map(f));
             var minXValue = createNumericValue(minXNumber);
             var maxXValue = createNumericValue(maXNumber);
             theFunction.minX.setValue(minXValue);

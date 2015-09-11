@@ -361,7 +361,7 @@ var Operator = fabric.util.createClass(fabric.Circle, {
                 // Updating the value that should be output by this operator
                 this.computeOutputValue(shouldAnimate);
 
-                var newConnector = new Connector({source: this, x2: this.left, y2: this.top, arrowColor: this.colorForStroke, filledArrow: true, strokeWidth: 3});
+                var newConnector = new Connector({strokeWidth: 3, source: this, x2: this.left, y2: this.top, arrowColor: this.colorForStroke, filledArrow: true});
                 this.outConnectors.push(newConnector);
                 canvas.add(newConnector);
 
