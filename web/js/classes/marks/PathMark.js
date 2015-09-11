@@ -151,10 +151,12 @@ PathMark = fabric.util.createClass(fabric.Path, {
         this.set("xCollection", coordinates.XCoordinates);
         var xCollectionVisualProperty = this.getVisualPropertyByAttributeName('xCollection');
         xCollectionVisualProperty.value = coordinates.XCoordinates;
+        xCollectionVisualProperty.isCollection = true;
 
         this.set("yCollection", coordinates.YCoordinates);
         var yCollectionVisualProperty = this.getVisualPropertyByAttributeName('yCollection');
         yCollectionVisualProperty.value = coordinates.YCoordinates;
+        yCollectionVisualProperty.isCollection = true;
 
 //        this.scaledX = this.scaleCoordiates(this.xCollection, 'x', this.width);
 //        this.scaledY = this.scaleCoordiates(this.yCollection, 'y', this.height);
@@ -183,11 +185,12 @@ PathMark = fabric.util.createClass(fabric.Path, {
         }
     },
     scaleCoordiates: function (coordinates, coordinate, max) {
-
-        /*if (LOG) console.log("Before scaling " + coordinate + " coordinates: ");
-         if (LOG) console.log(coordinates);*/
-
+       
         var theMark = this;
+        
+        return scaleCoordiates(theMark, coordinates, coordinate, max);
+        
+        /*
 
         var numbers = new Array();
         coordinates.forEach(function (value) {
@@ -199,9 +202,6 @@ PathMark = fabric.util.createClass(fabric.Path, {
         var newMin = 0;
 
         theMark.setCoords();
-
-        /*if (LOG) console.log("theMark.getScaleX():");
-         if (LOG) console.log(theMark.getScaleX());*/
 
         if (LOG) {
             console.log("theMark.the_height:");
@@ -222,11 +222,6 @@ PathMark = fabric.util.createClass(fabric.Path, {
             }
         }
 
-
-
-
-
-
         if (LOG)
             console.log("oldMin, oldMax, newMin, newMax");
         if (LOG)
@@ -234,10 +229,7 @@ PathMark = fabric.util.createClass(fabric.Path, {
 
         var scaledCoordinates = changeRangeToArray(numbers, oldMin, oldMax, newMin, newMax);
 
-        /*if (LOG) console.log("scaledCoordinates:");
-         if (LOG) console.log(scaledCoordinates);*/
-
-        return scaledCoordinates;
+        return scaledCoordinates;*/
     },
     setBothCoordinates: function (xCoordinates, yCoordinates, shouldAnimate) {
 

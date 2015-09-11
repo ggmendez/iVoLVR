@@ -20,7 +20,7 @@ var VisualProperty = function () {
     this.set('hasBorders', false);
     this.set('hasControls', false);
     this.set('hasRotatingPoint', false);
-    
+
     this.addToGroup = function (theGroup) {
         var theVisualProperty = this;
         var parentObject = theVisualProperty.parentObject;
@@ -28,8 +28,8 @@ var VisualProperty = function () {
             parentObject.addToGroup(theGroup); // this will add the visual property to the given group
         }
     };
-    
-    
+
+
 
     this.disconnect = function (refreshCanvas, removeAfterDisconnection) {
         var theVisualProperty = this;
@@ -591,18 +591,6 @@ var VisualProperty = function () {
                 canvas.add(newConnector);
 
             },
-//            'inConnectionRemoved': function (options) {
-//                if (LOG) console.log("%cinConnectionRemoved VISUAL PROPERTY", "background:pink; color:black;");
-//                var theVisualProperty = this;
-//                var removedConnection = options.connector;
-//                fabric.util.removeFromArray(theVisualProperty.inConnectors, removedConnection);
-//            },
-//            'outConnectionRemoved': function (options) {
-//                if (LOG) console.log("%coutConnectionRemoved VISUAL PROPERTY", "background:pink; color:black;");
-//                var theVisualProperty = this;
-//                var removedConnection = options.connector;
-//                fabric.util.removeFromArray(theVisualProperty.outConnectors, removedConnection);
-//            },
             'inConnectionRemoved': standarInConnectionRemovedHandler,
             'outConnectionRemoved': standarOutConnectionRemovedHandler,
             'newInConnection': function (options) {
@@ -911,35 +899,92 @@ var VisualProperty = function () {
 
         if (this.selected) {
 
+
+
             if (this.readable && this.writable) {
 
-                ctx.save();
-                ctx.beginPath();
-                ctx.strokeStyle = this.fill;
-                ctx.lineWidth = widget_selected_stroke_width - 1;
-                ctx.arc(0, 0, this.width / 2 - widget_selected_stroke_width / 2 + 1, 0, 2 * Math.PI);
-                ctx.stroke();
-                ctx.closePath();
-                ctx.restore();
 
-                ctx.save();
-                ctx.beginPath();
-                ctx.strokeStyle = 'white';
-                ctx.lineWidth = widget_selected_stroke_width / 2;
-                ctx.arc(0, 0, this.width / 2 + widget_selected_stroke_width / 4, 0, 2 * Math.PI);
-                ctx.stroke();
-                ctx.closePath();
-                ctx.restore();
+                if (this.isCollection) { // When this is a collective visual property
+                    
+                    console.log("Collective visual property selected");
 
-                ctx.save();
-                ctx.beginPath();
-                ctx.setLineDash([7, 7]);
-                ctx.strokeStyle = widget_selected_stroke_color;
-                ctx.lineWidth = widget_selected_stroke_width;
-                ctx.arc(0, 0, this.width / 2, 0, 2 * Math.PI);
-                ctx.stroke();
-                ctx.closePath();
-                ctx.restore();
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.strokeStyle = this.fill;
+                    ctx.lineWidth = widget_selected_stroke_width - 1;
+                    
+                    ctx.arc(0, 0, this.width / 2 - widget_selected_stroke_width / 2 + 1.5, -Math.PI, 0);                    
+                    ctx.lineTo(this.width / 2 - widget_selected_stroke_width / 2 + 1.5, this.width / 2 - widget_selected_stroke_width / 2 + 1.5);
+                    ctx.lineTo(-(this.width / 2 - widget_selected_stroke_width / 2 + 1.5), this.width / 2 - widget_selected_stroke_width / 2 + 1.5);
+                    ctx.lineTo(-(this.width / 2 - widget_selected_stroke_width / 2 + 1.5), 0);
+                    
+                    ctx.stroke();
+                    ctx.closePath();
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = widget_selected_stroke_width / 2;
+                    
+                    ctx.arc(0, 0, this.width / 2 + widget_selected_stroke_width / 4 + 1, -Math.PI, 0);                    
+                    ctx.lineTo(this.width / 2 + widget_selected_stroke_width / 4, this.width / 2 + widget_selected_stroke_width / 4 + 1);
+                    ctx.lineTo(-(this.width / 2 + widget_selected_stroke_width / 4), this.width / 2 + widget_selected_stroke_width / 4 + 1);
+                    ctx.lineTo(-(this.width / 2 + widget_selected_stroke_width / 4), 0);
+                    
+                    ctx.stroke();
+                    ctx.closePath();
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.setLineDash([7, 7]);
+                    ctx.strokeStyle = widget_selected_stroke_color;
+                    ctx.lineWidth = widget_selected_stroke_width;
+                    
+                    ctx.arc(0, 0, this.width / 2 + 1, -Math.PI, 0);
+                    ctx.lineTo(this.width / 2 + 1, this.width / 2 + 1);
+                    ctx.lineTo(-(this.width / 2 + 1), this.width / 2 + 1);
+                    ctx.lineTo(-(this.width / 2 + 1), 0);
+                    
+                    ctx.stroke();
+                    ctx.closePath();
+                    ctx.restore();
+
+                } else {
+
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.strokeStyle = this.fill;
+                    ctx.lineWidth = widget_selected_stroke_width - 1;
+                    ctx.arc(0, 0, this.width / 2 - widget_selected_stroke_width / 2 + 1, 0, 2 * Math.PI);
+                    ctx.stroke();
+                    ctx.closePath();
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'white';
+                    ctx.lineWidth = widget_selected_stroke_width / 2;
+                    ctx.arc(0, 0, this.width / 2 + widget_selected_stroke_width / 4, 0, 2 * Math.PI);
+                    ctx.stroke();
+                    ctx.closePath();
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.setLineDash([7, 7]);
+                    ctx.strokeStyle = widget_selected_stroke_color;
+                    ctx.lineWidth = widget_selected_stroke_width;
+                    ctx.arc(0, 0, this.width / 2, 0, 2 * Math.PI);
+                    ctx.stroke();
+                    ctx.closePath();
+                    ctx.restore();
+
+
+                }
+
+
 
             } else if (this.readable) {
 

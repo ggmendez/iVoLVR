@@ -272,7 +272,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
         }
     },
     applySelectedStyle: function (selectSource, selectDestination) {
-        this.strokeWidth = 3;
+        this.strokeWidth = this.selectedStrokeWidth || 3;
         if (selectSource) {
             if (this.source && this.source.applySelectedStyle) {
                 this.source.applySelectedStyle(false);
@@ -285,7 +285,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
         }
     },
     applyUnselectedStyle: function (unselectSource, unselectDestination) {
-        this.strokeWidth = 1;
+        this.strokeWidth = this.originalStrokeWidth || 1;
         if (unselectSource) {
             if (this.source && this.source.applyUnselectedStyle) {
                 this.source.applyUnselectedStyle(false);
@@ -299,6 +299,8 @@ var Connector = fabric.util.createClass(fabric.Line, {
         }
     },
     setDestination: function (destination, shouldAnimate, doNotBlink) {
+        
+        popSound.play();
 
         var theConnection = this;
 

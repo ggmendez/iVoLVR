@@ -1,4 +1,6 @@
 function createSquareSelectionFromGroup(createdGroup) {
+    
+    createdGroup.isSelection = true;
 
     createdGroup.applySquaredSelectionStyle = function () {
         createdGroup.lockScalingX = true;

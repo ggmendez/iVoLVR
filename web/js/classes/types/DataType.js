@@ -14,7 +14,6 @@ var DataType = function () {
     this.set('hasBorders', false);
     this.set('hasControls', false);
     this.set('hasRotatingPoint', false);
-
     this.set('scaleX', 1.2);
     this.set('scaleY', 1.2);
 
@@ -23,7 +22,7 @@ var DataType = function () {
         theVisualValue.xmlID = from++;
         return from;
     };
-    
+
     this.executePendingConnections = function () {
         var theDataType = this;
         executePendingConnections(theDataType.xmlID);
@@ -201,9 +200,15 @@ var DataType = function () {
                 var theDataType = this;
                 theDataType.expand();
             },
+                        
+            'scaling': function (options) {
+                console.log("Scaling datatype");
+            },
+            
             'moving': function (options) {
                 var theDataType = this;
                 if (theDataType.lockMovementX && theDataType.lockMovementY) {
+                    theDataType.connecting = true;
                     var theEvent = options.e;
                     if (theEvent) {
                         var canvasCoords = getCanvasCoordinates(theEvent);
@@ -231,6 +236,7 @@ var DataType = function () {
             'mouseup': function (options) {
 
                 var theDataType = this;
+                theDataType.connecting = false;
 
                 if (LOG)
                     console.log("Mouse UP over a Visual Variable");
@@ -340,7 +346,20 @@ var DataType = function () {
                             } else {
                                 connector = theDataType.outConnectors.pop();
                                 if (connector) {
-                                    connector.contract();
+//                                    connector.contract();
+
+                                    var options = {
+                                        connector: connector
+                                    };
+
+                                    if (connector.destination) {
+                                        connector.destination.trigger('inConnectionRemoved', options);
+                                    }
+                                    if (connector.source) {
+                                        connector.source.trigger('outConnectionRemoved', options);
+                                    }
+
+                                    connector.remove();
                                 }
                             }
 
@@ -377,45 +396,80 @@ var DataType = function () {
 
                         var canvasCoords = getCanvasCoordinates(theEvent);
 
-                        var theCollection = findPotentialDestination(canvasCoords, ['isVerticalCollection']);
+                        var targetObject = findPotentialDestination(canvasCoords, ['isVerticalCollection', 'isVisualProperty']);
 
-                        if (theCollection) {
+                        if (targetObject) {
 
-                            addVisualVariableToCollection(theDataType, theCollection, null, true);
+                            if (targetObject.isVerticalCollection) {
 
-                            if (theCollection.isCompressed) {
+                                var theCollection = targetObject;
 
-                                theDataType.opacity = 0;
+                                addVisualVariableToCollection(theDataType, theCollection, null, true);
 
-                            } else {
+                                if (theCollection.isCompressed) {
 
-                                var theMapper = theCollection.mapper;
-
-                                if (theMapper) {
-
-                                    var otherCollection = theMapper.getOtherCollection(theCollection);
-
-                                    if (LOG)
-                                        console.log("%ctheCollection.getTotalValues(): " + theCollection.getTotalValues(), "background: red; color: white;");
-                                    if (LOG)
-                                        console.log("%cotherCollection.getTotalValues(): " + otherCollection.getTotalValues(), "background: red; color: white;");
-
-
-
-                                    var collectionGrew = theCollection.getTotalValues() >= otherCollection.getTotalValues();
-
-                                    if (LOG)
-                                        console.log("%ccollectionGrew: " + collectionGrew, "background: red; color: white;");
-
-//                                    if (!collectionGrew) {
-//                                        hideWithAnimation(theDataType);
-//                                    }
-
+                                    theDataType.opacity = 0;
 
                                 } else {
-                                    hideWithAnimation(theDataType);
+
+                                    var theMapper = theCollection.mapper;
+
+                                    if (theMapper) {
+
+                                        var otherCollection = theMapper.getOtherCollection(theCollection);
+
+                                        if (LOG)
+                                            console.log("%ctheCollection.getTotalValues(): " + theCollection.getTotalValues(), "background: red; color: white;");
+                                        if (LOG)
+                                            console.log("%cotherCollection.getTotalValues(): " + otherCollection.getTotalValues(), "background: red; color: white;");
+
+
+
+                                        var collectionGrew = theCollection.getTotalValues() >= otherCollection.getTotalValues();
+
+                                        if (LOG)
+                                            console.log("%ccollectionGrew: " + collectionGrew, "background: red; color: white;");
+
+
+
+                                    } else {
+                                        hideWithAnimation(theDataType);
+                                    }
                                 }
+
+
+
+                            } else if (targetObject.isVisualProperty) {
+
+                                // TODO: IMPORTANT: The following code is NOT checking the types of the incomming value and the one that the visual property should receive
+                                // This should be checked in the future
+
+                                if (theDataType.outConnectors.length === 0) {
+
+                                    var theVisualProperty = targetObject;
+
+                                    var value = theDataType.value;
+
+                                    theDataType.inConnectors.forEach(function (inConnector) {
+                                        inConnector.contract();
+                                    });
+
+                                    hideWithAnimation(theDataType, false);
+                                    blink(theVisualProperty, true, 0.65);
+
+                                    setTimeout(function () {
+                                        theVisualProperty.setValue(value, true, true);
+                                    }, 350);
+
+                                }
+
+
+
+
                             }
+
+
+
 
 
 
@@ -428,6 +482,8 @@ var DataType = function () {
 
 
                 }
+
+
 
 
 
@@ -550,6 +606,9 @@ var DataType = function () {
 
 
             },
+            
+            
+            
 //            'inValueUpdated': function (options) {
 //
 //                var theDataType = this;
@@ -598,7 +657,7 @@ var DataType = function () {
         var markAsSelected = options.markAsSelected;
         var shouldAnimate = options.shouldAnimate;
 
-        console.log("%c inValueUpdated function DATATYPE class shouldAnimate: " + shouldAnimate, "background: #8B0000; color: white");
+//        console.log("%c inValueUpdated function DATATYPE class shouldAnimate: " + shouldAnimate, "background: #8B0000; color: white");
 
         var updatedValue = inConnection.value;
 
@@ -651,7 +710,7 @@ function CreateDataTypeFromValue(value) {
     if (value.isNumericData) {
 
         /*console.log("--------------- ************************* value:");
-        console.log(value);*/
+         console.log(value);*/
 
         var options = {unscaledValue: value.unscaledValue, inPrefix: value.inPrefix, outPrefix: value.outPrefix, units: value.units};
         return new NumericData(options);
@@ -896,7 +955,7 @@ function createVisualVariableFromXMLNode(visualValueXmlNode) {
 
     canvas.add(visualValue);
     visualValue.animateBirth(false, null, null, true);
-            
+
     visualValue.executePendingConnections();
 
     return visualValue;

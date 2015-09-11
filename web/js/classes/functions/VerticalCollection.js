@@ -116,9 +116,23 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
     },
     applySelectedStyle: function () {
         this.selected = true;
+        this.inConnectors.forEach(function (inConnector) {
+            inConnector.applySelectedStyle();
+            inConnector.source.applySelectedStyle();
+        });
+        this.outConnectors.forEach(function (outConnector) {
+            outConnector.applySelectedStyle();
+            outConnector.destination.applySelectedStyle();
+        });
     },
     applyUnselectedStyle: function () {
         this.selected = false;
+        this.inConnectors.forEach(function (inConnector) {
+            inConnector.applyUnselectedStyle();
+        });
+        this.outConnectors.forEach(function (outConnector) {
+            outConnector.applyUnselectedStyle();
+        });
     },
     addTypeIcon: function (iconName, blinkingFactor, doNotBlinkCollection) {
 

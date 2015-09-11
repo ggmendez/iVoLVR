@@ -81,7 +81,8 @@ function canvasBeforeSelectionCleared(option) {
 
     var type = group.type;
 
-    if (type === 'group') {
+//    if (!group.isVixor && !group.isMark && type === 'group') {
+    if (type === 'group' && group.isSelection) {
 
         if (group.compress) {
             group.compress();
@@ -132,7 +133,7 @@ function canvasSelectionCreated(option) {
         event.preventDefault();
     }
 
-    var createdGroup = option.target;
+    var createdGroup = option.target;    
 
     createSquareSelectionFromGroup(createdGroup);
 }
@@ -1189,8 +1190,9 @@ function closePotentiallyOpenMenus() {
 
 function canvasMouseDown(option) {
 
-    if (LOG)
+//    if (LOG)
         console.log("canvasMouseDown");
+    
     var event = option.e;
     event.preventDefault();
 
