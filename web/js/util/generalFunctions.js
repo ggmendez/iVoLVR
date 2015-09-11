@@ -7239,6 +7239,8 @@ function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
 
                             var element = $(currentCols[j]);
                             var data = element.text().trim();
+                            
+                            data = replaceAll(data, ",", "");
 
                             csvString += data + ",";
 

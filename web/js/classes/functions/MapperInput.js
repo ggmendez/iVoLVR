@@ -26,7 +26,16 @@ var MapperInput = fabric.util.createClass(fabric.Path, {
     updateConnectorsPositions: function () {
         updateConnectorsPositions(this);
     },
-    inValueUpdated: function (options) {       
+    
+    setValue: function (value, shouldAnimate) {
+        var theMapperInput = this;
+        theMapperInput.value = value;
+        theMapperInput.outConnectors.forEach(function (outConnector) {
+            outConnector.setValue(value, false, shouldAnimate);
+        });
+    },
+    
+    inValueUpdated: function (options) {
 
         var theMapperInput = this;
 
@@ -36,7 +45,7 @@ var MapperInput = fabric.util.createClass(fabric.Path, {
 
         var updatedValue = inConnection.value;
         var theMapper = theMapperInput.mapper;
-        
+
         console.log("Updating value of the input of a mapper. shouldAnimate: " + shouldAnimate);
 
         if (LOG)
@@ -58,11 +67,102 @@ var MapperInput = fabric.util.createClass(fabric.Path, {
         var theMapperInput = this;
 
         theMapperInput.on({
+            'pressed': function (options) {
+
+
+                theMapperInput.connecting = true;
+
+                theMapperInput.lockMovementY = true;
+                blink(theMapperInput, true, 0.45);
+
+                var newConnector = new Connector({value: theMapperInput.value, source: theMapperInput, x2: theMapperInput.left, y2: theMapperInput.top, arrowColor: theMapperInput.colorForStroke, filledArrow: true, strokeWidth: 1});
+
+                theMapperInput.outConnectors.push(newConnector);
+                canvas.add(newConnector);
+
+            },
             'mouseup': function (options) {
                 var theMapperInput = this;
-                var theMapper = theMapperInput.mapper;
+
+
+                if (theMapperInput.connecting) {
+
+                    // Do the things that should be done when 
+
+                    var theEvent = options.e;
+                    var canvasCoords = getCanvasCoordinates(theEvent);
+
+                    var coordX = canvasCoords.x;
+                    var coordY = canvasCoords.y;
+
+                    var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isOperator', 'isNumericFunctionInput', 'isAggregator', 'isMark', 'isPlayer', 'isDataType', 'isVerticalCollection', 'isMapperInput', 'isMapperOutput', 'isFunctionValuesCollection']);
+                    var connector = getLastElementOfArray(theMapperInput.outConnectors);
+
+                    if (!targetObject) {
+
+                        newConnectionReleasedOnCanvas(connector, coordX, coordY);
+                        
+                    } else {
+
+                        if (targetObject !== theMapperInput) {
+
+
+                            if (targetObject.isOperator || targetObject.isVisualProperty || targetObject.isFunctionInput || targetObject.isDataType || targetObject.isVerticalCollection || targetObject.isMapperInput || targetObject.isNumericFunctionOutput || targetObject.isNumericFunctionInput || targetObject.isFunctionValuesCollection) {
+
+                                connector.setDestination(targetObject, true);
+
+                                if (!targetObject.isVerticalCollection) {
+
+                                    setTimeout(function () {
+//                                        connector.source.bringToFront();
+//                                        connector.destination.bringToFront();
+                                        bringToFront(connector.source);
+                                        bringToFront(connector.destination);
+                                    }, 50);
+
+                                }
+
+                            } else if (targetObject.isAggregator) {
+
+                                targetObject.addConnector(connector, canvasCoords);
+
+                            } else { // This makes no sense, so, the added connector is just removed
+                                connector = theMapperInput.outConnectors.pop();
+                                if (connector) {
+                                    connector.contract();
+                                }
+                            }
+
+                        } else {
+
+                            connector = theMapperInput.outConnectors.pop();
+                            if (connector) {
+                                connector.contract();
+                            }
+
+                        }
+
+                    }
+
+                    theMapperInput.connecting = false;
+
+                }
+
+
+                theMapperInput.lockMovementY = false;
+
+
+
+
+
+
+
+
+
+
+                /*var theMapper = theMapperInput.mapper;
                 var inCollection = theMapper.getInCollection();
-                var outCollection = theMapper.getOutCollection();
+                var outCollection = theMapper.getOutCollection();*/
                 /*inCollection.matchingY = null;
                  outCollection.matchingY = null;*/
             },
@@ -86,59 +186,75 @@ var MapperInput = fabric.util.createClass(fabric.Path, {
                         return;
                     }
 
-                    var theMapperOutput = theMapper.outputPoint;
+                    if (theMapperInput.connecting) {
 
-                    theMapperInput.inConnectors.forEach(function (inConnector) {
-                        inConnector.contract();
-                    });
-
-                    var inCollection = theMapper.getInCollection();
-                    var outCollection = theMapper.getOutCollection();
-                    var theCollectionLeftTop = inCollection.getPointByOrigin('left', 'top');
-                    var theCollectionRightBottom = inCollection.getPointByOrigin('right', 'bottom');
-
-                    var diff = 0;
-                    var theFirstElement = inCollection.getVisualValueAt(0);
-                    if (theFirstElement) {
-                        diff = (theMapperInput.getHeight() - theFirstElement.getHeight()) / 2 + (theMapperInput.strokeWidth + theFirstElement.strokeWidth) / 2;
-                    }
-
-                    var startingY = inCollection.compressedHeight + theCollectionLeftTop.y + inCollection.strokeWidth + 1 - diff;
-                    var endingY = theCollectionRightBottom.y;
-
-                    var top = canvasCoords.y - ((theMapperInput.height * theMapperInput.scaleY / 2) + pointerRelativeToCenter.y);
-                    var bottom = canvasCoords.y + ((theMapperInput.height * theMapperInput.scaleY / 2) - pointerRelativeToCenter.y);
-
-                    if (top < startingY) {
-
-                        theMapperInput.lockMovementY = true;
-                        theMapperInput.setPositionByOrigin(new fabric.Point(theMapperInput.left, startingY), 'center', 'top');
-
-                    } else if (bottom > endingY) {
-
-                        theMapperInput.lockMovementY = true;
-                        theMapperInput.setPositionByOrigin(new fabric.Point(theMapperInput.left, endingY), 'center', 'bottom');
+                        var lastAddedConnector = getLastElementOfArray(theMapperInput.outConnectors);
+                        lastAddedConnector.set({x2: canvasCoords.x, y2: canvasCoords.y});
 
                     } else {
 
-                        theMapperInput.lockMovementY = false;
+
+                        var theMapperOutput = theMapper.outputPoint;
+
+                        theMapperInput.inConnectors.forEach(function (inConnector) {
+                            inConnector.contract();
+                        });
+
+                        var inCollection = theMapper.getInCollection();
+                        var outCollection = theMapper.getOutCollection();
+                        var theCollectionLeftTop = inCollection.getPointByOrigin('left', 'top');
+                        var theCollectionRightBottom = inCollection.getPointByOrigin('right', 'bottom');
+
+                        var diff = 0;
+                        var theFirstElement = inCollection.getVisualValueAt(0);
+                        if (theFirstElement) {
+                            diff = (theMapperInput.getHeight() - theFirstElement.getHeight()) / 2 + (theMapperInput.strokeWidth + theFirstElement.strokeWidth) / 2;
+                        }
+
+                        var startingY = inCollection.compressedHeight + theCollectionLeftTop.y + inCollection.strokeWidth + 1 - diff;
+                        var endingY = theCollectionRightBottom.y;
+
+                        var top = canvasCoords.y - ((theMapperInput.height * theMapperInput.scaleY / 2) + pointerRelativeToCenter.y);
+                        var bottom = canvasCoords.y + ((theMapperInput.height * theMapperInput.scaleY / 2) - pointerRelativeToCenter.y);
+
+                        if (top < startingY) {
+
+                            theMapperInput.lockMovementY = true;
+                            theMapperInput.setPositionByOrigin(new fabric.Point(theMapperInput.left, startingY), 'center', 'top');
+
+                        } else if (bottom > endingY) {
+
+                            theMapperInput.lockMovementY = true;
+                            theMapperInput.setPositionByOrigin(new fabric.Point(theMapperInput.left, endingY), 'center', 'bottom');
+
+                        } else {
+
+                            theMapperInput.lockMovementY = false;
+
+                        }
+
+                        theMapperInput.relativeY = theMapperInput.top - theMapper.getPointByOrigin('center', 'top').y;
+
+                        theMapperOutput.top = theMapperInput.top;
+                        theMapperOutput.relativeY = theMapperOutput.top - theMapper.getPointByOrigin('center', 'top').y;
+
+                        theMapperOutput.updateConnectorsPositions();
+
+                        inCollection.matchingY = theMapperInput.top - inCollection.getPointByOrigin('center', 'top').y;
+                        outCollection.matchingY = theMapperOutput.top - outCollection.getPointByOrigin('center', 'top').y;
+
+                        theMapperInput.setCoords();
+
+                        var outputValue = theMapper.computeOutput();
+                        theMapper.outputPoint.setValue(outputValue, false);
+                        
+                        var inputValue = theMapper.computeInput();
+                        theMapper.inputPoint.setValue(inputValue, false);
 
                     }
 
-                    theMapperInput.relativeY = theMapperInput.top - theMapper.getPointByOrigin('center', 'top').y;
 
-                    theMapperOutput.top = theMapperInput.top;
-                    theMapperOutput.relativeY = theMapperOutput.top - theMapper.getPointByOrigin('center', 'top').y;
 
-                    theMapperOutput.updateConnectorsPositions();
-
-                    inCollection.matchingY = theMapperInput.top - inCollection.getPointByOrigin('center', 'top').y;
-                    outCollection.matchingY = theMapperOutput.top - outCollection.getPointByOrigin('center', 'top').y;
-
-                    theMapperInput.setCoords();
-
-                    var outputValue = theMapper.computeOutput();
-                    theMapper.outputPoint.setValue(outputValue, false);
 
 
                 }
@@ -195,7 +311,7 @@ var MapperInput = fabric.util.createClass(fabric.Path, {
                     } else {
 
                         var homogeneousType = getHomogeneousType(incomingValue);
-                        
+
                         console.log("%c" + "homogeneousType: " + homogeneousType, "background: #a13566; color: white;");
                         console.log("%c" + "theMapperInput.dataTypeProposition: " + theMapperInput.dataTypeProposition, "background: #56c796; color: black;");
 

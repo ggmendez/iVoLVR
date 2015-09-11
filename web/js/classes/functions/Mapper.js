@@ -28,11 +28,11 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         mapperLocation.y += theMapper.compressedHeight / 2 + theMapper.strokeWidth / 2;
         appendElementWithValue(mapperNode, "left", mapperLocation.x);
         appendElementWithValue(mapperNode, "top", mapperLocation.y);
-        
+
         var actualCenter = theMapper.getCenterPoint();
         appendElementWithValue(mapperNode, "centerX", actualCenter.x);
         appendElementWithValue(mapperNode, "centerY", actualCenter.y);
-        
+
         appendElementWithValue(mapperNode, "inputPosition", theMapper.inputPosition);
         appendElementWithValue(mapperNode, "isExpanded", !theMapper.isCompressed);
 
@@ -1275,6 +1275,52 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         }
 
     },
+    
+    computeInput: function (inputYCoordinate) {
+        
+        var theMapper = this;
+
+        if (!inputYCoordinate) {
+            inputYCoordinate = theMapper.inputPoint.top;
+            theMapper.inputPosition = inputYCoordinate;
+        }
+
+        // Finding the corresponding value on the outCollection
+
+        /*console.log("inputYCoordinate:");
+         console.log(inputYCoordinate);*/
+
+        if (theMapper.inCollection && !theMapper.inCollection.isEmpty()) {
+            var containingRange = theMapper.inCollection.getVisualRangeContainingYCoordinate(inputYCoordinate);
+            if (containingRange) {
+                var fromVisualValue = containingRange.from;
+                var toVisualValue = containingRange.to;
+
+                var fromValue = fromVisualValue.value;
+                var toValue = toVisualValue.value;
+
+                if (fromValue.isNumericData && toValue.isNumericData) {
+
+                    var oldMinY = fromVisualValue.getCenterPoint().y;
+                    var oldMaxY = toVisualValue.getCenterPoint().y;
+                    var newMinY = fromVisualValue.value.number;
+                    var newMaxY = toVisualValue.value.number;
+                    var outputValue = changeRange(inputYCoordinate, oldMinY, oldMaxY, newMinY, newMaxY);
+                    
+                    var inputValue = createNumericValue(outputValue); 
+                    return inputValue;
+                    
+                    
+                    theMapper.inputPoint.value = inputValue;
+                    theMapper.inputPoint.outConnectors.forEach(function (outConnector) {
+                        outConnector.setValue(inputValue, false, false);
+                    });
+
+                }
+            }
+        }
+    },
+    
     computeOutput: function (inputYCoordinate) {
 
         /*console.log("Starting to compute the output of the mapper...");*/
@@ -1290,6 +1336,8 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
         /*console.log("inputYCoordinate:");
          console.log(inputYCoordinate);*/
+
+        
 
         if (theMapper.outCollection && !theMapper.outCollection.isEmpty()) {
 
@@ -1418,19 +1466,19 @@ function addMapper(options) {
         theMapper.expand(true);
 
         setTimeout(function () {
-            
+
             var mapperCenter = new fabric.Point(options.centerX, options.centerY);
             var inCollectionCenter = new fabric.Point(options.inCollectionOptions.centerX, options.inCollectionOptions.centerY);
             var outCollectionCenter = new fabric.Point(options.outCollectionOptions.centerX, options.outCollectionOptions.centerY);
-            
+
             theMapper.setPositionByOrigin(mapperCenter, 'center', 'center');
             theMapper.inCollection.setPositionByOrigin(inCollectionCenter, 'center', 'center');
-            theMapper.outCollection.setPositionByOrigin(outCollectionCenter, 'center', 'center');            
-            
+            theMapper.outCollection.setPositionByOrigin(outCollectionCenter, 'center', 'center');
+
             if (options.inputPosition && options.inputPosition !== -1) {
                 theMapper.moveInputPointTo(options.inputPosition, true);
             }
-            
+
         }, 720);
 
     }
