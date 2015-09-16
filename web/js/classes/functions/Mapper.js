@@ -899,8 +899,6 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
 
         }
-
-
     },
     evaluateSingleNumber: function (value) {
 
@@ -1030,11 +1028,256 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         return newYCoordinate;
 
     },
+    evaluateSingleDate: function (value) {
+
+        var theMapper = this;
+
+        /*console.log("********************************************************************************************************************");
+         console.log("********************************************************************************************************************");
+         console.log("%cEvaluating A NUMBER this single value:", "background: " + theMapper.fill);
+         console.log(value);*/
+
+        var inCollection = theMapper.getInCollection();
+        var valuesArray = inCollection.getValues();
+
+
+        var closestResults = getClosestDate(value, valuesArray);
+
+        var closestValue = closestResults.closestValue;
+
+        var closestElementPosition = closestResults.position;
+
+        var minimumValue = theMapper.getInCollection().getValueAt(closestElementPosition);
+
+        var beforeValue = null;
+        var afterValue = null;
+        var secondLowestValue = null;
+        var secondLowestPosition = null;
+
+        var firstVisualValue = null;
+        var secondVisualValue = null;
+
+        // checking for bounday cases
+        if (closestElementPosition === 0) { // is the closest value the FIRST element of the collection? The, there is nothing before
+
+            console.log("%c ++++ CASE 1", "background: yellow; color: black;");
+
+            secondLowestValue = theMapper.getInCollection().getValueAt(closestElementPosition + 1);
+            secondLowestPosition = closestElementPosition + 1;
+            firstVisualValue = theMapper.getInCollection().getVisualValueAt(closestElementPosition);
+            secondVisualValue = theMapper.getInCollection().getVisualValueAt(secondLowestPosition);
+
+        } else if (closestElementPosition === inCollection.getTotalValues() - 1) { // is the closest value the LAST element of the collection? Then, there is nothing after
+
+            console.log("%c ++++ CASE 2", "background: yellow; color: black;");
+
+            secondLowestValue = theMapper.getInCollection().getValueAt(closestElementPosition - 1);
+            secondLowestPosition = closestElementPosition - 1;
+            firstVisualValue = theMapper.getInCollection().getVisualValueAt(closestElementPosition);
+            secondVisualValue = theMapper.getInCollection().getVisualValueAt(secondLowestPosition);
+
+        } else {
+
+            console.log("%c ++++ CASE 3", "background: yellow; color: black;");
+
+            // The closest element is somewhere in the middle of the collection
+            beforeValue = theMapper.getInCollection().getValueAt(closestElementPosition - 1); // the before element
+            afterValue = theMapper.getInCollection().getValueAt(closestElementPosition + 1); // the after element
+
+            secondLowestValue = null;
+            secondLowestPosition = null;
+            if (beforeValue.number < afterValue.number) {
+                secondLowestValue = beforeValue;
+                secondLowestPosition = closestElementPosition - 1;
+
+            } else {
+                secondLowestValue = afterValue;
+                secondLowestPosition = closestElementPosition + 1;
+
+            }
+
+            firstVisualValue = theMapper.getInCollection().getVisualValueAt(closestElementPosition);
+            secondVisualValue = theMapper.getInCollection().getVisualValueAt(secondLowestPosition);
+
+        }
+
+        console.log("%c beforeValue: ", "beforeValue: " + theMapper.fill);
+        console.log(beforeValue);
+
+        console.log("%c afterValue: ", "afterValue: " + theMapper.fill);
+        console.log(afterValue);
+
+        console.log("%c secondLowestPosition: " + secondLowestPosition, "background: " + theMapper.fill);
+
+        console.log("%c secondLowestValue: ", "background: " + theMapper.fill);
+        console.log(secondLowestValue);
+
+
+        var newYCoordinate = changeRange(value.moment.valueOf(), firstVisualValue.value.moment.valueOf(), secondVisualValue.value.moment.valueOf(), firstVisualValue.getCenterPoint().y, secondVisualValue.getCenterPoint().y);
+
+        console.log("newYCoordinate:" + newYCoordinate);
+
+
+//        drawRectAt(new fabric.Point(firstVisualValue.getCenterPoint().x, newYCoordinate), 'blue');
+
+
+        /*var x = 0;
+         var newYCoordinate = firstVisualValue.getCenterPoint().y;
+         
+         if (d !== 0) {
+         
+         x = (Math.pow(d, 2) - Math.pow(r, 2), +Math.pow(R, 2)) / (2 * d); // only when this distance exists, x is computed ( http://mathworld.wolfram.com/Circle-CircleIntersection.html )
+         
+         if (x > d) {
+         x = d / 2;
+         }
+         
+         var oldMinY = 0;
+         var oldMaxY = d;
+         var newMinY = firstVisualValue.getCenterPoint().y;
+         var newMaxY = secondVisualValue.getCenterPoint().y;
+         newYCoordinate = changeRange(x, oldMinY, oldMaxY, newMinY, newMaxY);
+         }*/
+
+
+
+        /*drawRectAt(firstVisualValue.getCenterPoint(), 'green');
+         drawRectAt(secondVisualValue.getCenterPoint(), 'red');*/
+
+
+        console.log("newYCoordinate:");
+        console.log(newYCoordinate);
+
+        return newYCoordinate;
+
+    },
+    evaluateSingleString: function (value) {
+
+        console.log("evaluateSingleString:");
+        console.log("value.string: " + value.string);
+
+        var theMapper = this;
+
+        var inCollection = theMapper.getInCollection();
+        var valuesArray = inCollection.getValues();
+
+        var closestElementPosition = -1;
+
+        for (var i = 0; i < valuesArray.length; i++) {
+            var currentString = valuesArray[i].string;
+            if (currentString === value.string) {
+
+                console.log("currentString: " + currentString);
+                console.log("value.string: " + value.string);
+
+                closestElementPosition = i;
+                break;
+            }
+        }
+
+
+
+
+
+
+
+
+
+        if (closestElementPosition !== -1) {
+
+
+
+            var beforeValue = null;
+            var afterValue = null;
+            var secondLowestValue = null;
+            var secondLowestPosition = null;
+
+            var firstVisualValue = null;
+            var secondVisualValue = null;
+
+            // checking for bounday cases
+            if (closestElementPosition === 0) { // is the closest value the FIRST element of the collection? The, there is nothing before
+
+                console.log("%c ++++ CASE 1", "background: yellow; color: black;");
+
+                secondLowestValue = theMapper.getInCollection().getValueAt(closestElementPosition + 1);
+                secondLowestPosition = closestElementPosition + 1;
+                firstVisualValue = theMapper.getInCollection().getVisualValueAt(closestElementPosition);
+                secondVisualValue = theMapper.getInCollection().getVisualValueAt(secondLowestPosition);
+
+            } else if (closestElementPosition === inCollection.getTotalValues() - 1) { // is the closest value the LAST element of the collection? Then, there is nothing after
+
+                console.log("%c ++++ CASE 2", "background: yellow; color: black;");
+
+                secondLowestValue = theMapper.getInCollection().getValueAt(closestElementPosition - 1);
+                secondLowestPosition = closestElementPosition - 1;
+                firstVisualValue = theMapper.getInCollection().getVisualValueAt(closestElementPosition);
+                secondVisualValue = theMapper.getInCollection().getVisualValueAt(secondLowestPosition);
+
+            } else {
+
+                console.log("%c ++++ CASE 3", "background: yellow; color: black;");
+
+                // The closest element is somewhere in the middle of the collection
+                beforeValue = theMapper.getInCollection().getValueAt(closestElementPosition - 1); // the before element
+                afterValue = theMapper.getInCollection().getValueAt(closestElementPosition + 1); // the after element
+
+                secondLowestValue = null;
+                secondLowestPosition = null;
+                if (beforeValue.number < afterValue.number) {
+                    secondLowestValue = beforeValue;
+                    secondLowestPosition = closestElementPosition - 1;
+
+                } else {
+                    secondLowestValue = afterValue;
+                    secondLowestPosition = closestElementPosition + 1;
+
+                }
+
+                firstVisualValue = theMapper.getInCollection().getVisualValueAt(closestElementPosition);
+                secondVisualValue = theMapper.getInCollection().getVisualValueAt(secondLowestPosition);
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            var closestVisualValue = theMapper.getInCollection().getVisualValueAt(closestElementPosition);
+            drawRectAt(closestVisualValue.getCenterPoint(), "red");
+            var newYCoordinate = closestVisualValue.getCenterPoint().y;
+//            blink(closestVisualValue, true);
+            return newYCoordinate;
+        } else {
+            return null;
+        }
+
+
+
+
+
+
+    },
     evaluateSingleValue: function (value) {
         if (value.isNumericData) {
             return this.evaluateSingleNumber(value);
         } else if (value.isColorData) {
             return this.evaluateSingleColor(value);
+        } else if (value.isDateAndTimeData) {
+            return this.evaluateSingleDate(value);
+        } else if (value.isStringData) {
+            return this.evaluateSingleString(value);
         }
     },
     evaluateSingleColor: function (value) {
@@ -1252,8 +1495,6 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
                 outputValues.push(output);
             });
 
-
-
             theMapper.outputPoint.setValue(outputValues, shouldAnimate);
 
             /*console.log("RESULTS OF THE EVALUATION PROCESS:", "background: red; color: white;");
@@ -1266,18 +1507,23 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
             var outputValue = theMapper.computeOutput(evaluationResult);
 
-            theMapper.outputPoint.setValue(outputValue, shouldAnimate);
+            if (outputValue) {
 
-            if (!theMapper.isCompressed) {
-                theMapper.moveInputPointTo(evaluationResult, shouldAnimate);
+                theMapper.outputPoint.setValue(outputValue, shouldAnimate);
+
+                if (!theMapper.isCompressed) {
+                    theMapper.moveInputPointTo(evaluationResult, shouldAnimate);
+                }
+
             }
+
+
 
         }
 
     },
-    
     computeInput: function (inputYCoordinate) {
-        
+
         var theMapper = this;
 
         if (!inputYCoordinate) {
@@ -1293,6 +1539,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         if (theMapper.inCollection && !theMapper.inCollection.isEmpty()) {
             var containingRange = theMapper.inCollection.getVisualRangeContainingYCoordinate(inputYCoordinate);
             if (containingRange) {
+
                 var fromVisualValue = containingRange.from;
                 var toVisualValue = containingRange.to;
 
@@ -1306,21 +1553,30 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
                     var newMinY = fromVisualValue.value.number;
                     var newMaxY = toVisualValue.value.number;
                     var outputValue = changeRange(inputYCoordinate, oldMinY, oldMaxY, newMinY, newMaxY);
-                    
-                    var inputValue = createNumericValue(outputValue); 
+
+                    var inputValue = createNumericValue(outputValue);
                     return inputValue;
-                    
-                    
-                    theMapper.inputPoint.value = inputValue;
-                    theMapper.inputPoint.outConnectors.forEach(function (outConnector) {
-                        outConnector.setValue(inputValue, false, false);
-                    });
+
+                } else if (fromValue.isDateAndTimeData && toValue.isDateAndTimeData) {
+
+                    var oldMinY = fromVisualValue.getCenterPoint().y;
+                    var oldMaxY = toVisualValue.getCenterPoint().y;
+                    var newMinY = fromVisualValue.value.moment.valueOf();
+                    var newMaxY = toVisualValue.value.moment.valueOf();
+                    var outputValue = changeRange(inputYCoordinate, oldMinY, oldMaxY, newMinY, newMaxY);
+
+                    var inputValue = createDateAndTimeValue(moment(outputValue));
+                    return inputValue;
+
+
 
                 }
+
+
+
             }
         }
     },
-    
     computeOutput: function (inputYCoordinate) {
 
         /*console.log("Starting to compute the output of the mapper...");*/
@@ -1337,7 +1593,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         /*console.log("inputYCoordinate:");
          console.log(inputYCoordinate);*/
 
-        
+
 
         if (theMapper.outCollection && !theMapper.outCollection.isEmpty()) {
 
@@ -1361,7 +1617,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
                     return createNumericValue(outputValue);
 
-                } else {
+                } else if (fromValue.isColorData && toValue.isColorData) {
 
                     // An interpolated value will be generated for each 5 vertical pixels
 
@@ -1420,6 +1676,16 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
                     }
 
+                } else if (fromValue.isStringData && toValue.isStringData) {
+
+                    var diff1 = Math.abs(inputYCoordinate - fromVisualValue.getCenterPoint().y);
+                    var diff2 = Math.abs(inputYCoordinate - toVisualValue.getCenterPoint().y);
+
+                    if (diff1 > diff2) {
+                        return toValue;
+                    } else {
+                        return fromValue;
+                    }
                 }
 
 
@@ -1432,7 +1698,8 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
                 console.log("The evaluated value is NOT within the given range. A default value is returned.");
 
-                return createDefaultValueByTypeProposition(theMapper.outCollection.dataTypeProposition);
+//                return createDefaultValueByTypeProposition(theMapper.outCollection.dataTypeProposition);
+                return null;
 
             }
 

@@ -26,7 +26,6 @@ var MapperInput = fabric.util.createClass(fabric.Path, {
     updateConnectorsPositions: function () {
         updateConnectorsPositions(this);
     },
-    
     setValue: function (value, shouldAnimate) {
         var theMapperInput = this;
         theMapperInput.value = value;
@@ -34,7 +33,6 @@ var MapperInput = fabric.util.createClass(fabric.Path, {
             outConnector.setValue(value, false, shouldAnimate);
         });
     },
-    
     inValueUpdated: function (options) {
 
         var theMapperInput = this;
@@ -101,7 +99,7 @@ var MapperInput = fabric.util.createClass(fabric.Path, {
                     if (!targetObject) {
 
                         newConnectionReleasedOnCanvas(connector, coordX, coordY);
-                        
+
                     } else {
 
                         if (targetObject !== theMapperInput) {
@@ -161,8 +159,8 @@ var MapperInput = fabric.util.createClass(fabric.Path, {
 
 
                 /*var theMapper = theMapperInput.mapper;
-                var inCollection = theMapper.getInCollection();
-                var outCollection = theMapper.getOutCollection();*/
+                 var inCollection = theMapper.getInCollection();
+                 var outCollection = theMapper.getOutCollection();*/
                 /*inCollection.matchingY = null;
                  outCollection.matchingY = null;*/
             },
@@ -246,10 +244,15 @@ var MapperInput = fabric.util.createClass(fabric.Path, {
                         theMapperInput.setCoords();
 
                         var outputValue = theMapper.computeOutput();
-                        theMapper.outputPoint.setValue(outputValue, false);
+                        if (outputValue) {
+                            theMapper.outputPoint.setValue(outputValue, false);
+                        }
                         
                         var inputValue = theMapper.computeInput();
-                        theMapper.inputPoint.setValue(inputValue, false);
+                        if (inputValue) {
+                            theMapper.inputPoint.setValue(inputValue, false);
+                        }
+
 
                     }
 

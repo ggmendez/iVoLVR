@@ -55,6 +55,7 @@ function addSVGTextBehaviour(textFabricObject) {
                         var connector = getLastElementOfArray(this.outConnectors);
 
                         connector.setDestination(targetObject, true);
+                        
 
                         if (!targetObject.isVerticalCollection) {
 
@@ -110,8 +111,11 @@ function addSVGTextBehaviour(textFabricObject) {
                                         bringToFront(theSource);
                                     }
                                     if (theDestination) {
-                                        bringToFront(theDestination);
+                                        bringToFront(theDestination);                                        
                                     }
+                                    
+                                    targetObject.bringElementsToFront();
+                                    
                                 }, 50);
 
                             } else {
@@ -159,6 +163,10 @@ function addSVGTextBehaviour(textFabricObject) {
 //            canvas.renderAll();
     };
     textFabricObject.onMouseDown = function (options) {
+        
+        
+        
+        console.log("Mouse down over a text object");
 
         var theEvent = options;
         theEvent = options['e'];

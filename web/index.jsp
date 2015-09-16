@@ -125,6 +125,8 @@
         <script type="text/javascript" src="./js/jquery.drag.resize.js"></script>
 
         <script type="text/javascript" src="./js/toPathTransformations.js"></script>
+        
+        <script type="text/javascript" src="./js/LevenshteinDistance/lib/levenshtein.js"></script>
 
         <% new OpenCVLoader();%>
 
@@ -421,8 +423,8 @@
                     <h6 id="draggableWidgetsListH6" onclick="togglePanelVisibility('#draggableWidgetsList', false);" style="cursor: pointer;" class="nonSelection sectionHeader"><span class="fa fa-angle-down" style="margin-right: 5px;"></span>Collections</h6>
                     <ul id="draggableWidgetsList" class="horizontalButtomsRow">
 
-                        <li id="collectionGetterWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-angellist"></i></a></li>
-                                                <li id="collectionAttributeSelectorWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-archive"></i></a></li>
+<!--                        <li id="collectionGetterWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-angellist"></i></a></li>
+                                                <li id="collectionAttributeSelectorWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-archive"></i></a></li>-->
                         
                         <!--                        <li id="collectionGetterWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-angellist"></i></a></li>
                                                 <li id="collectionAttributeSelectorWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-archive"></i></a></li>-->
@@ -676,10 +678,16 @@
                         var crossedConnectors = getConnectorsCrossedByLine(line);
                         if (LOG)
                             console.log(crossedConnectors.length + " connectors crossed!");
-                        crossedConnectors.forEach(function (object) {
+                        
+                        var totalConnectors = crossedConnectors.length;
+                        var i = 0;
+                        
+                        crossedConnectors.forEach(function (object) {                            
+                            var refreshCanvas = i === (totalConnectors - 1);
                             var connector = object.connector;
                             var splitPoint = object.splitPoint;
-                            connector.split(splitPoint, line);
+                            connector.split(splitPoint, line, refreshCanvas);
+                            i++;
                         });
                         canvas.pan1Fingerstarted = false;
                     }
@@ -1579,9 +1587,11 @@
 
             var bubbleSound = new Audio("audio/bubble.wav"); // buffers automatically when created
             var popSound = new Audio("audio/pop.wav"); // buffers automatically when created
-
+            
 
         </script>
+        
+        
 
 
 

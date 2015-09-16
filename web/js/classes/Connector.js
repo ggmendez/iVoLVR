@@ -58,7 +58,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
         this.set('hasControls', false);
         this.set('hasRotatingPoint', false);
 
-        
+
         this.set('arrowColor', options.arrowColor || this.source.fill);
         this.set('stroke', options.stroke || this.arrowColor);
         this.set('strokeDashArray', options.strokeDashArray || [7, 7]);
@@ -68,7 +68,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
         if (this.hidden) {
             this.opacity = 0;
         }
-        
+
         this.triangle = [
             [3, 0],
             [-10, -6],
@@ -143,7 +143,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
         }
 
     },
-    split: function (splitPoint, line) {
+    split: function (splitPoint, line, refreshCanvas) {
 
         var connector = this;
 
@@ -161,20 +161,35 @@ var Connector = fabric.util.createClass(fabric.Line, {
             angle: angle
         });
         canvas.add(l);
-        canvas.renderAll();
+        if (refreshCanvas) {
+            canvas.renderAll();
+        }
+
 
         l.animate('y1', '+=15', {
             duration: 200,
-            onChange: canvas.renderAll.bind(canvas),
+            onChange: function () {
+                if (refreshCanvas) {
+                    canvas.renderAll();
+                }
+            },
         });
         l.animate('y2', '-=15', {
             duration: 200,
-            onChange: canvas.renderAll.bind(canvas),
+            onChange: function () {
+                if (refreshCanvas) {
+                    canvas.renderAll();
+                }
+            },
             onComplete: function () {
 
                 l.animate('angle', '+=540', {
                     duration: 500,
-                    onChange: canvas.renderAll.bind(canvas),
+                    onChange: function () {
+                        if (refreshCanvas) {
+                            canvas.renderAll();
+                        }
+                    },
                     onComplete: function () {
                         l.remove();
 
@@ -182,7 +197,11 @@ var Connector = fabric.util.createClass(fabric.Line, {
                         connector.animate('opacity', 0, {
                             duration: 450,
                             easing: easing,
-                            onChange: canvas.renderAll.bind(canvas),
+                            onChange: function () {
+                                if (refreshCanvas) {
+                                    canvas.renderAll();
+                                }
+                            },
                             onComplete: function () {
                                 var options = {
                                     connector: connector
@@ -226,7 +245,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
         theConnector.animate(yProp, endY, {
             duration: duration,
             easing: easing,
-            onChange: function () {                
+            onChange: function () {
                 if (!doNotRefreshCanvas) {
                     canvas.renderAll();
                 }
@@ -299,7 +318,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
         }
     },
     setDestination: function (destination, shouldAnimate, doNotBlink) {
-        
+
         popSound.play();
 
         var theConnection = this;
@@ -363,14 +382,12 @@ var Connector = fabric.util.createClass(fabric.Line, {
             alertify.error("No destination provided for this connector", "", 2000);
         }
     },
-
     setSource: function (source) {
         if (source) {
             var connector = this;
             this.source = source;
         }
     },
-
     remove: function () {
         if (LOG)
             console.log("removing connector");
@@ -393,7 +410,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
     _render: function (ctx) {
 
         this.callSuper('_render', ctx);
-        
+
         ctx.save();
 
         ctx.fillStyle = ctx.strokeStyle;
@@ -401,18 +418,18 @@ var Connector = fabric.util.createClass(fabric.Line, {
         var x1 = -this.width / 2;
         var y1 = this.height / 2;
         var x2 = this.width / 2;
-        var y2 = -this.height / 2;                
+        var y2 = -this.height / 2;
 
         if (this.y1 < this.y2) {
             y1 = -this.height / 2;
             y2 = this.height / 2;
         }
-        
+
         if (this.x1 > this.x2) {
             x1 = this.width / 2;
             x2 = -this.width / 2;
         }
-        
+
         var deltaX = x2 - x1;
         var deltaY = y2 - y1;
         var angle = Math.atan(deltaY / deltaX);
@@ -440,7 +457,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
             moveTo(x, y);
 
             drawFilledPolygon(translateShape(rotateShape(this.triangle, angle), x, y), ctx);
-            
+
             cummulatedDistance += step;
 
         }
@@ -470,7 +487,6 @@ var Connector = fabric.util.createClass(fabric.Line, {
         this.arrowColor = color;
         this.stroke = color;
     },
-    
 });
 
 

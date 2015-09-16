@@ -5,10 +5,28 @@ var dataWidgetFillColor = rgb(226, 227, 227);
 var childrenFillColor = rgb(2, 128, 204);
 var childrenStrokeColor = darkenrgb(2, 128, 204);
 //var variableLabelColor = rgb(255,255,255);
-var variableLabelColor = rgb(0,0,0);
+var variableLabelColor = rgb(0, 0, 0);
 
 var DataWidget = fabric.util.createClass(fabric.Object, {
     type: 'aggregator',
+    toSVG: function (reviver) {
+        var markup = this._createBaseSVGMarkup(), x = this.left, y = this.top;
+        if (!(this.group && this.group.type === 'path-group')) {
+            x = -this.width / 2;
+            y = -this.height / 2;
+        }
+        markup.push(
+                '<rect ',
+                'x="', x, '" y="', y,
+                '" rx="', this.get('rx'), '" ry="', this.get('ry'),
+                '" width="', this.width, '" height="', this.height,
+                '" style="', this.getSvgStyles(),
+                '" transform="', this.getSvgTransform(),
+                this.getSvgTransformMatrix(),
+                '"/>\n');
+
+        return reviver ? reviver(markup.join('')) : markup.join('');
+    },
     initialize: function (options) {
         options || (options = {});
         this.callSuper('initialize', options);
@@ -30,7 +48,7 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
         this.childrenStrokeWidth = 3;
         this.additionalWidth = 2 * this.childrenRadius + 10;
         this.verticalSpace = 4;
-        
+
 
         this.indent = 15;
 
@@ -92,7 +110,7 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
             top: this.top,
             fontSize: 22,
             textAlign: 'center',
-            fontWeight : 'bold',
+            fontWeight: 'bold',
             fontFamily: 'calibri',
             hasControls: false,
             hasBorders: false,
@@ -157,10 +175,10 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
 
 
 //        this.compressedHeight = 2 * this.gap + this.iText.height;
-        
+
         this.compressedHeight = 70;
-        
-        
+
+
         this.set('height', options.height || this.compressedHeight);
 
 //        this.on('mouseup', function (option) {
@@ -184,11 +202,11 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
         canvas.renderAll();
     },
     parseCSVString: function () {
-        
-        
+
+
         console.log("this.CSVString:");
         console.log(this.CSVString);
-        
+
         var theDataWidget = this;
 
 
@@ -200,66 +218,67 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
         });
 
         var fields = parsingResults.meta.fields;
-        
+
         console.log("fields: ");
         console.log(fields);
-        
+
         var data = {};
-        
+
         fields.forEach(function (field) {
             var values = new Array();
             parsingResults.data.forEach(function (row) {
                 var rawValue = row[field];
-                
+
                 var value = null;
-                
+
                 /*if (LOG) console.log(rawValue);*/
-                
-                if ( $.isNumeric(rawValue) ) {
-                    
+
+                if ($.isNumeric(rawValue)) {
+
                     value = createNumericValue(rawValue); // NUMBER
-                    
-                } else if ( isColor(rawValue) ) {
-                    
-                    /*var theMoment = parseStringAsMomentDate(rawValue);
-                    
-                    if (theMoment) {
-                        
-                        value = createDateAndTimeValue(theMoment); // DATE AND TIME
-                        
-                    } else {
-                        
-                        value = createStringValue(rawValue); // STRING
-                        
-                    }*/
-                    
+
+                } else if (isColor(rawValue)) {
+
+
                     value = createColorValue(rawValue); // COLOR
-                    
-                    
+
+
                 } else {
-                    
-                    value = createStringValue(rawValue); // STRING
-                    
+
+                    var theMoment = parseStringAsMomentDate(rawValue);
+
+                    if (theMoment) {
+
+                        value = createDateAndTimeValue(theMoment); // DATE AND TIME
+
+                    } else {
+
+                        value = createStringValue(rawValue); // STRING
+
+                    }
+
+//                    value = createStringValue(rawValue); // STRING
+
                 }
-                
+
                 values.push(value);
             });
-            
+
             data[field] = values;
-            
+
             /*if (LOG) console.log("******************************");*/
-            
+
         });
 
         /*if (LOG) console.log("parsingResults:");
-        if (LOG) console.log(parsingResults);
+         if (LOG) console.log(parsingResults);
+         
+         if (LOG) console.log("fields:");
+         if (LOG) console.log(fields);
+         
+         if (LOG) console.log("data:");
+         if (LOG) console.log(data);*/
 
-        if (LOG) console.log("fields:");
-        if (LOG) console.log(fields);
-
-        if (LOG) console.log("data:");
-        if (LOG) console.log(data);*/
-        
         theDataWidget.data = data;
         $.each(data, function (key, val) {
             theDataWidget.variables.push(key);
@@ -270,10 +289,12 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
     parseJSONString: function () {
         var theDataWidget = this;
         var data = jQuery.parseJSON(this.JSONString);
-                
-        if (LOG) console.log("data:");
-        if (LOG) console.log(data);
-        
+
+        if (LOG)
+            console.log("data:");
+        if (LOG)
+            console.log(data);
+
         theDataWidget.data = data;
         $.each(data, function (key, val) {
             theDataWidget.variables.push(key);
@@ -282,7 +303,6 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
 //        theDataWidget.createVisualVariables();
 
     },
-    
     animateBirth: function (markAsSelected, finalScaleX, finalScaleY, doNotRefreshCanvas) {
 
         var theMark = this;
@@ -312,12 +332,7 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
             scaleYAnimationOptions['onComplete'] = refresherFunction;
         }
 
-        theMark.animate('scaleY', scaleY, scaleYAnimationOptions);
-
-
-    },
-    
-    
+        theMark.animate('scaleY', scaleY, scaleYAnimationOptions);   },
     loadData: function () {
 
         var theDataWidget = this;
@@ -347,7 +362,8 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
 
 // Set another completion function for the request above
         jqxhr.complete(function () {
-            if (LOG) console.log("second complete");
+            if (LOG)
+                console.log("second complete");
         });
 
 
@@ -373,8 +389,10 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
             $.each(data, function (key, val) {
                 theDataWidget.variables.push(key);
             });
-            if (LOG) console.log("theDataWidget.postCodes:");
-            if (LOG) console.log(theDataWidget.postCodes);
+            if (LOG)
+                console.log("theDataWidget.postCodes:");
+            if (LOG)
+                console.log(theDataWidget.postCodes);
         }).fail(function () {
 //            if (LOG) console.log("error");
         }).always(function () {
@@ -385,7 +403,8 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
 
 // Set another completion function for the request above
         jqxhr.complete(function () {
-            if (LOG) console.log("second complete");
+            if (LOG)
+                console.log("second complete");
         });
 
 
@@ -407,8 +426,10 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
             easing: easing,
             operator: this,
             onComplete: function () {
-                if (LOG) console.log(this);
-                if (LOG) console.log(self);
+                if (LOG)
+                    console.log(this);
+                if (LOG)
+                    console.log(self);
                 this.operator.animate('scaleX', '-=' + increment, {
                     duration: 1100,
                     onChange: canvas.renderAll.bind(canvas),
@@ -428,15 +449,15 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
                     easing: fabric.util.ease['easeOutElastic']
                 });
             }
-    });
+        });
     },
     addVariable: function (canvasCoords, variableName) {
 
-        var theDataWidget = this;        
-        var valuesArray = theDataWidget.data[variableName];        
+        var theDataWidget = this;
+        var valuesArray = theDataWidget.data[variableName];
         var typeProposition = valuesArray[0].getTypeProposition();
         var iconName = getIconNameByDataTypeProposition(typeProposition);
-        
+
         var options = {
             left: canvasCoords.x,
             top: canvasCoords.y,
@@ -463,15 +484,15 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
             ry: 10,
             labelColor: theDataWidget.variableLabelColor
         };
-        
-        
-        
-        
+
+
+
+
 
         var visualVariable = new LabeledRect(options);
-                
-        
-        
+
+
+
         visualVariable.set('value', valuesArray);
 
         theDataWidget.visualVariables.push(visualVariable);
@@ -497,9 +518,9 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
                     var canvasCoords = getCanvasCoordinates(theEvent);
                     var lastAddedConnector = getLastElementOfArray(this.outConnectors);
                     if (lastAddedConnector) {
-                        lastAddedConnector.set({x2: canvasCoords.x, y2: canvasCoords.y});                    
+                        lastAddedConnector.set({x2: canvasCoords.x, y2: canvasCoords.y});
                     }
-                    
+
                 }
 
             },
@@ -519,16 +540,16 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
 
 //                        if (targetObject.isVisualProperty || targetObject.isOperator || targetObject.isFunctionValuesCollection) {
                         if (targetObject.isVerticalCollection) {
-                            
+
                             var connector = getLastElementOfArray(visualVariable.outConnectors);
                             connector.setDestination(targetObject, true);
-                            
+
                         } else if (targetObject.isFunctionValuesCollection) {
 
                             var connector = getLastElementOfArray(visualVariable.outConnectors);
                             connector.setDestination(targetObject, true);
-                            
-                            
+
+
 
                             setTimeout(function () {
 //                                connector.source.bringToFront();
@@ -554,10 +575,10 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
                     }
 
                 } else {
-                                                            
-                    var lastAddedConnector = getLastElementOfArray(this.outConnectors);                    
+
+                    var lastAddedConnector = getLastElementOfArray(this.outConnectors);
                     newConnectionReleasedOnCanvas(lastAddedConnector, coordX, coordY);
-                    
+
                 }
             },
             'mousedown': function (option) {
@@ -565,13 +586,17 @@ var DataWidget = fabric.util.createClass(fabric.Object, {
 //                if (LOG) console.log("Mouse DOWN over a visual variable ");
 //                this.blink();
 
-                if (LOG) console.log(this.attribute);
-                if (LOG) console.log(this.parentObject.get(this.attribute));
-               
+                if (LOG)
+                    console.log(this.attribute);
+                if (LOG)
+                    console.log(this.parentObject.get(this.attribute));
+
                 var newConnector = new Connector({source: this, x2: this.left, y2: this.top, arrowColor: visualVariable.colorForStroke, filledArrow: true, strokeWidth: 3});
 
-                if (LOG) console.log("newConnector.value: ");
-                if (LOG) console.log(newConnector.value);
+                if (LOG)
+                    console.log("newConnector.value: ");
+                if (LOG)
+                    console.log(newConnector.value);
 
                 visualVariable.outConnectors.push(newConnector);
                 canvas.add(newConnector);

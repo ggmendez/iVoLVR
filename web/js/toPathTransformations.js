@@ -1,6 +1,7 @@
 //Taken from: http://phrogz.net/svg/transformations.js
 
 (function(scope){
+
 var PRES_ATTRIBUTES = ['style', 'alignment-baseline', 'baseline-shift', 'clip', 'clip-path', 'clip-rule', 'color', 'color-interpolation', 'color-interpolation-filters', 'color-profile', 'color-rendering', 'cursor', 'direction', 'display', 'dominant-baseline', 'enable-background', 'fill', 'fill-opacity', 'fill-rule', 'filter', 'flood-color', 'flood-opacity', 'font-family', 'font-size', 'font-size-adjust', 'font-stretch', 'font-style', 'font-variant', 'font-weight', 'glyph-orientation-horizontal', 'glyph-orientation-vertical', 'image-rendering', 'kerning', 'letter-spacing', 'lighting-color', 'marker-end', 'marker-mid', 'marker-start', 'mask', 'opacity', 'overflow', 'pointer-events', 'shape-rendering', 'stop-color', 'stop-opacity', 'stroke', 'stroke-dasharray', 'stroke-dashoffset', 'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit', 'stroke-opacity', 'stroke-width', 'text-anchor', 'text-decoration', 'text-rendering', 'unicode-bidi', 'visibility', 'word-spacing', 'writing-mode', 'class'];
         var copyPresentation = function copyPresentation(source, dest){
         for (var i = PRES_ATTRIBUTES.length - 1; i >= 0; --i){
@@ -36,6 +37,8 @@ var PRES_ATTRIBUTES = ['style', 'alignment-baseline', 'baseline-shift', 'clip', 
 
 
         transform = transform.multiply(localMatrix);
+                console.log("transform: ");
+                console.log(transform);
                 var results = [];
                 if (el.tagName == 'g'){
         for (var i = 0, len = el.childNodes.length; i < len; ++i){
@@ -43,6 +46,21 @@ var PRES_ATTRIBUTES = ['style', 'alignment-baseline', 'baseline-shift', 'clip', 
         results = results.concat(arguments.callee(el.childNodes[i], transform, svg));
         }
         }
+        } else if (el.tagName == 'text') {
+
+
+
+        console.log("el:");
+        console.log(el);
+
+
+        var x = el.getAttribute('x'), y = el.getAttribute('y');
+                var top = el.getAttribute('top'), left = el.getAttribute('left');
+                console.log("This is a text");
+                console.log("x: " + x);
+                console.log("y: " + y);
+                console.log("left: " + left);
+                console.log("top: " + top);
         } else{
 
         var path = doc.createElementNS(svgNS, 'path');

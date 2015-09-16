@@ -123,8 +123,8 @@ SVGPathVixor = fabric.util.createClass(fabric.Path, {
         var XYValues = extractXYValues(this, true);
 
 //        if (LOG) {
-        console.log("XYValues:");
-        console.log(XYValues);
+//        console.log("XYValues:");
+//        console.log(XYValues);
 //        }
 
 

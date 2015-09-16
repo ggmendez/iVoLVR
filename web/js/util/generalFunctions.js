@@ -1322,6 +1322,7 @@ function showWebPage(url) {
 //    var defaultURL = 'https://en.wikipedia.org/wiki/List_of_countries_by_oil_production';
     var defaultURL = 'http://www.w3schools.com/html/html_tables.asp';
     
+
     url = url || defaultURL;
 
     var inputsContainer = $('<div />', {id: 'inputsContainer', style: 'width: 100%; overflow: hidden;'});
@@ -1353,7 +1354,7 @@ function showWebPage(url) {
     var elementTop = $("#openWebPageButton").position().top + $("#openWebPageButton").height();
     var idealHeight = viewportHeight - elementTop - 150;
 
-    var webPageDisplayer = $('<iframe />', {id: 'webPageDisplayer', style: 'resize:both; overflow:auto; margin-top: 8px; min-width:600px; min-height: 500px; max-height:' + idealHeight + 'px; background-color: #fff; border-color: #000; border-style: solid; border-width: 1px;'});
+    var webPageDisplayer = $('<iframe />', {id: 'webPageDisplayer', style: 'resize:both; overflow:auto; margin-top: 8px; min-width:600px; min-height: 900px; max-height:' + idealHeight + 'px; background-color: #fff; border-color: #000; border-style: solid; border-width: 1px;'});
 
 
 
@@ -2084,6 +2085,7 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
     } else {
 
         var flattenFile = true;
+//        var flattenFile = false;
 
         if (flattenFile) {
 
@@ -2123,7 +2125,8 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
 
                 } else {
 
-                    console.log("tagName: " + tagName);
+//                    console.log("*************");
+//                    var flattenedText = flattenToPaths(this);
 
                 }
 
@@ -2152,6 +2155,7 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
 
 
         fabric.loadSVGFromString(SVGString, function (objects, options) {
+
 
             var canvasActualCenter = getActualCanvasCenter();
             var group = new fabric.Group(objects);
@@ -2314,7 +2318,26 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
 
                 } else if (type === 'text') {
 
-                    console.log("object:");
+//                    drawRectAt(object.getCenterPoint(), 'red');
+//                    drawRectAt(new fabric.Point(object.left, object.top), 'green');
+//                    drawRectAt(new fabric.Point(object.getLeft(), object.getTop()), 'yellow');
+//
+//                    var boundingRect = object.getBoundingRect();
+//                    console.log(boundingRect);
+//
+//                    drawRectAt(new fabric.Point(boundingRect.left, boundingRect.top), 'purple');
+//
+//                    console.log("object:");
+//                    console.log(object);
+//
+//                    object.setCoords();
+//
+//                    canvas.add(object);
+
+
+
+
+                    console.log("Text object found:");
                     console.log(object);
 
                     var string = object.text;
@@ -2336,11 +2359,12 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
                         untransformedScaleX: 1,
                         untransformedScaleY: 1,
                         animateAtBirth: false,
-                        
-                        
-                        
-                        
                     };
+                    
+                    
+                    console.log("object.left: " + object.left);
+                    console.log("object.top: " + object.top);
+                    
 
 
 
@@ -2352,32 +2376,24 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
                     console.log(string);
 
                     if (string && string !== '') {
-                        
-//                        drawRectAt(objectCenter, "red");
-
 
                         object.parentObject = parentObject;
-
-//                        object.isVixor = true;
-                        
                         object.originX = 'center';
                         object.originY = 'center';
-//                        object.left = objectCenter.x;
-//                        object.top = objectCenter.y;
-//                        
-//                        object.setPositionByOrigin(objectCenter, 'center', 'center');
-                        
-//                        object.isWidget = true;
                         object.permanentOpacity = 1;
                         object.movingOpacity = 0.3;
                         object.untransformedScaleX = 1;
                         object.untransformedScaleY = 1;
                         
+                        object.setCoords();
+
                         parentObject.widgets.push(object);
-                        
+
                         addSVGTextBehaviour(object);
-                        
+
                         computeUntransformedProperties(object);
+
+                        
                         
                         
 
@@ -2385,21 +2401,21 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
                         
                         
 
-                    } 
+
+
+                    }
 
 
 
                 } else {
-                        
-                        canvas.add(object);
-                        
-                    }
+
+                    canvas.add(object);
+
+                }
 
             });
 
             canvas.setActiveObject(parentObject);
-
-
             canvas.renderAll();
 
 
@@ -5905,6 +5921,12 @@ function getDateFormats() {
     if (!dateFormats) {
         dateFormats = new Array();
 
+        dateFormats.push('D MMMM YYYY');
+        dateFormats.push('D MMMM');
+        
+        dateFormats.push('dddd, D MMMM YYYY');
+        dateFormats.push('dddd, D MMMM');
+        
         dateFormats.push('DD MMMM');
         dateFormats.push('dddd DD MMMM');
 
@@ -5913,6 +5935,7 @@ function getDateFormats() {
         dateFormats.push('dddd D MMMM YYYY');
 
         dateFormats.push('MM-DD-YYYY');
+        dateFormats.push('DD/MM/YYYY');
         dateFormats.push('MM/DD/YYYY');
         dateFormats.push('MMMM DD, YYYY');
         dateFormats.push('MMMM DD YYYY');
@@ -6449,13 +6472,13 @@ function updatePathCoords(path) {
 function extractXYValues(fabricPath, useAlternativeExtraction) {
 
     var points = fabricPath.path;
-    console.log("points:");
-    console.log(points);
+//    console.log("points:");
+//    console.log(points);
 
     var polyline = useAlternativeExtraction ? pathToPolyline2(points) : pathToPolyline(points);
 
-    console.log("polyline:");
-    console.log(polyline);
+//    console.log("polyline:");
+//    console.log(polyline);
 
     // simplifying the user-trced polyline
     var tolerance = 0.5;
@@ -6589,6 +6612,30 @@ function getClosestElement(numericValue, arrayOfValues) {
     //no length
     return null;
 }
+
+function getClosestDate(dateValue, arrayOfDateValues) {
+    var i = 0, closest, closestDiff, currentDiff;
+    if (arrayOfDateValues.length) {
+        closest = arrayOfDateValues[0];
+        for (i; i < arrayOfDateValues.length; i++) {
+
+            closestDiff = dateValue.moment.diff(closest.moment);
+            currentDiff = dateValue.moment.diff(arrayOfDateValues[i].moment);
+
+            if (currentDiff < closestDiff) {
+                closest = arrayOfDateValues[i];
+            }
+            closestDiff = null;
+            currentDiff = null;
+        }
+        //returns first element that is closest to number
+        return {closestValue: closest, position: i - 2};
+    }
+    //no length
+    return null;
+}
+
+
 
 
 function getProportionalDistance(color1, color2, color3) {
@@ -7246,10 +7293,10 @@ function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
         var elementType = htmlElement.nodeName.toUpperCase();
 
         console.log("elementType: " + elementType);
-         console.log("htmlElement:");
-         console.log(htmlElement);
-         console.log("jQueryElement: ");
-         console.log(jQueryElement);
+        console.log("htmlElement:");
+        console.log(htmlElement);
+        console.log("jQueryElement: ");
+        console.log(jQueryElement);
 
         if (elementType === "TABLE") {
 
@@ -7315,7 +7362,7 @@ function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
 
                             var element = $(currentCols[j]);
                             var data = element.text().trim();
-                            
+
                             data = replaceAll(data, ",", "");
 
                             csvString += data + ",";
@@ -7409,7 +7456,7 @@ function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
             };
 
             importImageToCanvas(options);
-            
+
             return true;
 
 //                    } else if (elementType === "A" || elementType === "SPAN" || elementType === "H2") {
@@ -7431,6 +7478,8 @@ function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
 
                         blink(targetObject, false);
                         targetObject.setValue(value, true, true);
+
+                        popSound.play();
 
                     } else if (targetObject.isMark) {
 
@@ -7458,6 +7507,8 @@ function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
                                 }
                                 visualProperty.setValue(value, true, true);
                             }
+
+                            popSound.play();
 
                         }
 
@@ -7902,8 +7953,8 @@ function canvasDropFunction(ev, ui) {
                 top: y,
                 fill: rgb(225, 79, 75),
                 stroke: darkenrgb(225, 79, 75),
-                width: 90,
-                height: 50,
+                width: 50,
+                height: 90,
                 label: '',
                 markAsSelected: false,
                 animateAtBirth: true

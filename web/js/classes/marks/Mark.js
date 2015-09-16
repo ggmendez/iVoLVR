@@ -1559,6 +1559,32 @@ var Mark = function () {
         }
     };
 
+    this.bringElementsToFront = function () {
+        console.log("****************** bringElementsToFront");
+        var theMark = this;
+        if (!theMark.isCompressed) {
+            bringToFront(theMark.backgroundRect);
+            theMark.visualProperties.forEach(function (visualProperty) {
+                if (visualProperty.canvas) {
+                    bringToFront(visualProperty);
+
+
+                    visualProperty.inConnectors.forEach(function (inConnection) {
+                        bringToFront(inConnection);
+                    });
+                    visualProperty.outConnectors.forEach(function (outConnection) {
+                        bringToFront(outConnection);
+                    });
+
+                }
+            });
+            if (theMark.iText) {
+                bringToFront(theMark.iText);
+            }
+        }
+        bringToFront(theMark);
+    };
+
     this.associateEvents = function () {
         var theMark = this;
         theMark.on({
@@ -1699,7 +1725,7 @@ var Mark = function () {
 
                         if (!this.lockMovementX && !this.lockMovementY) {
 //                            if (LOG)
-                                console.log("This mark has a parent object");
+                            console.log("This mark has a parent object");
 
                             computeUntransformedProperties(this);
                             this.parentObject.trigger('markMoving', this);
@@ -1713,7 +1739,7 @@ var Mark = function () {
             },
             'rotating': function (options) {
 //                if (LOG)
-                    console.log("rotating event");
+                console.log("rotating event");
                 theMark.positionElements();
 
                 var visualProperty = theMark.getVisualPropertyByAttributeName('angle');
@@ -1734,7 +1760,7 @@ var Mark = function () {
             },
             'scaling': function (options) {
 //                if (LOG)
-                    console.log("scaling event");
+                console.log("scaling event");
                 theMark.positionElements();
 
                 if (theMark.parentObject && theMark.parentObject.isLocator) {
@@ -1807,27 +1833,33 @@ var Mark = function () {
 //
 //                } else {
 
-                if (!theMark.isCompressed) {
-                    bringToFront(theMark.backgroundRect);
-                    theMark.visualProperties.forEach(function (visualProperty) {
-                        if (visualProperty.canvas) {
-                            bringToFront(visualProperty);
+
+                theMark.bringElementsToFront();
+
+//                if (!theMark.isCompressed) {
+//                    bringToFront(theMark.backgroundRect);
+//                    theMark.visualProperties.forEach(function (visualProperty) {
+//                        if (visualProperty.canvas) {
+//                            bringToFront(visualProperty);
+//
+//
+//                            visualProperty.inConnectors.forEach(function (inConnection) {
+//                                bringToFront(inConnection);
+//                            });
+//                            visualProperty.outConnectors.forEach(function (outConnection) {
+//                                bringToFront(outConnection);
+//                            });
+//
+//                        }
+//                    });
+//                    if (theMark.iText) {
+//                        bringToFront(theMark.iText);
+//                    }
+//                }
+//                bringToFront(theMark);
 
 
-                            visualProperty.inConnectors.forEach(function (inConnection) {
-                                bringToFront(inConnection);
-                            });
-                            visualProperty.outConnectors.forEach(function (outConnection) {
-                                bringToFront(outConnection);
-                            });
 
-                        }
-                    });
-                    if (theMark.iText) {
-                        bringToFront(theMark.iText);
-                    }
-                }
-                bringToFront(theMark);
 
 //                }
 
@@ -1872,17 +1904,17 @@ var Mark = function () {
         var theParentObject = theMark.parentObject;
 
         if (theParentObject && theParentObject.isLocator && !theParentObject.isCompressed && theParentObject.selectedMark === theMark) {
-            
+
             ctx.save();
 
             var relativeX = theParentObject.getPointByOrigin('center', 'center').x - theMark.getPointByOrigin('center', 'center').x;
             var relativeY = theParentObject.getPointByOrigin('center', 'center').y - theMark.getPointByOrigin('center', 'center').y;
 
-            
+
 
 //            ctx.rotate(-fabric.util.degreesToRadians(theMark.getAngle()));
-            
-            
+
+
 
             ctx.setLineDash([8, 8]);
             ctx.beginPath();
@@ -1903,8 +1935,8 @@ var Mark = function () {
                 ctx.moveTo(0, 0);
                 ctx.lineTo(relativeX, 0);
             }
-            
-            
+
+
 
             ctx.stroke();
 
@@ -1945,9 +1977,9 @@ var Mark = function () {
             }
 
             ctx.closePath();
-            
-            
-            
+
+
+
             ctx.restore();
         }
 
@@ -1958,9 +1990,9 @@ var Mark = function () {
 
 /* Function to add outputs to Canvas*/
 function addMarkToCanvas(markType, options) {
-        
+
     bubbleSound.play();
-    
+
 //    if (LOG) {
 //        console.log("%cThe birth of this mark will be animated...", "background: red; color: white;");
 //    }

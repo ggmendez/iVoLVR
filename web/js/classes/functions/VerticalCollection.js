@@ -1138,13 +1138,22 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
     },
     getVisualRangeContainingYCoordinate: function (yCoordinate) {
+        
+        console.log("getVisualRangeContainingYCoordinate -> yCoordinate:" + yCoordinate);
 
         var theCollection = this;
+        
+        var top = Number(yCoordinate.toFixed(1));
 
         for (var j = 0; j < theCollection.visualValues.length - 1; j++) {
+                                    
             var visualValue1 = theCollection.getVisualValueAt(j);
             var visualValue2 = theCollection.getVisualValueAt(j + 1);
-            if (yCoordinate >= visualValue1.top && yCoordinate <= visualValue2.top) {
+            
+            var top1 = Number(visualValue1.top.toFixed(1));
+            var top2 = Number(visualValue2.top.toFixed(1));                        
+            
+            if (top >= top1 && top <= top2) {
                 return {from: visualValue1, to: visualValue2};
             }
         }

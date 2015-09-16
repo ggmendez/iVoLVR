@@ -90,7 +90,7 @@ function showStringValue(holderElement, allowEdition) {
 
     var labelString = $('<label/>', {text: 'String:', style: "margin-right: 5px; font-size: 18px; margin-top: 10px;"});
 
-    var stringField = $('<input />', {id: 'stringTextField', type: 'text', maxlength: 20, style: 'margin-top: 10px; font-size: 18px; width: 180px;', value: holderElement.value.string});
+    var stringField = $('<input />', {id: 'stringTextField', type: 'text', maxlength: 500, style: 'margin-top: 10px; font-size: 18px; width: 180px;', value: holderElement.value.string});
     stringField.prop('disabled', !allowEdition);
 
     var okButton = $('<button/>', {text: "OK", class: "square", style: "width: 35%; margin-left: 10%; float: left; border-color: #000; border-style: solid; border-width: 2px; color: black; "});
