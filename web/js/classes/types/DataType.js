@@ -404,7 +404,9 @@ var DataType = function () {
 
                                 var theCollection = targetObject;
 
-                                addVisualVariableToCollection(theDataType, theCollection, null, true);
+                                addVisualVariableToCollection(theDataType, theCollection, null, true, null);
+                                
+//                                addVisualVariableToCollection(theVisualVariable, theCollection);
 
                                 if (theCollection.isCompressed) {
 
@@ -705,7 +707,7 @@ function CreateDataType(options) {
 }
 
 
-function CreateDataTypeFromValue(value) {
+function CreateDataTypeFromValue(value) {   
 
     if (value.isNumericData) {
 
@@ -796,7 +798,9 @@ function createDefaultVisualValueByTypeProposition(dataTypeProposition, x, y) {
 
 
 
-function addVisualVariableToCollection(visualValue, collection, connector, useTheGivenVisualValue) {
+function addVisualVariableToCollection(visualValue, collection, connector, useTheGivenVisualValue, canvasCoords) {
+    
+    
 
     var value = visualValue.value;
 
@@ -812,7 +816,13 @@ function addVisualVariableToCollection(visualValue, collection, connector, useTh
             var collectionCenter = collection.getPointByOrigin('center', 'center');
             newVisualValue.top = collectionCenter.y;
             newVisualValue.left = collectionCenter.x;
+        } else if (canvasCoords) {
+            newVisualValue.top = canvasCoords.y;
+            newVisualValue.left = canvasCoords.x;
         }
+        
+        console.log("newVisualValue:");
+        console.log(newVisualValue);
 
         if (connector) {
             connector.setDestination(newVisualValue, true, true);

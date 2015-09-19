@@ -8,6 +8,12 @@ var DateAndTimeData = fabric.util.createClass(fabric.Path, {
 
         this.set('dataTypeProposition', 'isDateAndTimeData');
         this.set(this.dataTypeProposition, true);
+        
+        console.log("options:");
+        console.log(options);
+        
+        console.log("options.theMoment:");
+        console.log(options.theMoment);
 
         var theMoment = options.theMoment || moment();
 

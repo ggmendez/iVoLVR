@@ -122,7 +122,9 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
         });
         this.outConnectors.forEach(function (outConnector) {
             outConnector.applySelectedStyle();
-            outConnector.destination.applySelectedStyle();
+            if (outConnector.destination) {
+                outConnector.destination.applySelectedStyle();
+            }            
         });
     },
     applyUnselectedStyle: function () {
@@ -399,8 +401,6 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
         }
     },
     positionElements: function (valuesFinalScale, intendedNumberOfElements) {
-
-
 
         var theCollection = this;
         var topCenter = theCollection.getPointByOrigin('center', 'top');
@@ -1138,24 +1138,42 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
     },
     getVisualRangeContainingYCoordinate: function (yCoordinate) {
-        
-        console.log("getVisualRangeContainingYCoordinate -> yCoordinate:" + yCoordinate);
 
-        var theCollection = this;
+//        console.log("getVisualRangeContainingYCoordinate -> yCoordinate:" + yCoordinate);
+
         
+        
+        if (typeof yCoordinate === 'undefined') {
+            return;
+        }
+        
+        var theCollection = this;
+
         var top = Number(yCoordinate.toFixed(1));
 
         for (var j = 0; j < theCollection.visualValues.length - 1; j++) {
-                                    
+
             var visualValue1 = theCollection.getVisualValueAt(j);
             var visualValue2 = theCollection.getVisualValueAt(j + 1);
-            
-            var top1 = Number(visualValue1.top.toFixed(1));
-            var top2 = Number(visualValue2.top.toFixed(1));                        
-            
-            if (top >= top1 && top <= top2) {
-                return {from: visualValue1, to: visualValue2};
+
+            if (visualValue1 && visualValue2 && typeof visualValue1.top !== 'undefined' && typeof visualValue2.top !== 'undefined') {
+                
+//                console.log("visualValue1:");
+//                console.log(visualValue1);
+//                
+//                console.log("visualValue2:");
+//                console.log(visualValue2);
+                
+                var top1 = Number(visualValue1.top.toFixed(1));
+                var top2 = Number(visualValue2.top.toFixed(1));
+
+                if (top >= top1 && top <= top2) {
+                    return {from: visualValue1, to: visualValue2};
+                }
             }
+
+
+
         }
 
         return null;
@@ -1633,12 +1651,12 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
                         theCollection.expand(true, null, intendedNumberOfElements);
                     } else {
 
-                        if (LOG)
-                            console.log("%cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "background: blue; color: white;");
+
+                        console.log("%cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "background: blue; color: white;");
 
                         visualValue.relativeY = null;
                         theCollection.positionElements(theCollection.valueScale, intendedNumberOfElements);
-                        blink(visualValue, true, 0.3);
+                        blink(visualValue, true, 0.3, true);
                     }
 
 

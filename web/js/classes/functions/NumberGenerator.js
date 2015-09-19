@@ -348,11 +348,11 @@ var NumberGenerator = fabric.util.createClass(fabric.Rect, {
         var maxXValue = null;
 
         if (values !== null && typeof values !== 'undefined') {
-            minXValue = values.minX || new NumericData({unscaledValue: 0});
-            maxXValue = values.maxX || new NumericData({unscaledValue: 100});
+            minXValue = values.minX || createNumericValue(0);
+            maxXValue = values.maxX || createNumericValue(100);
         } else {
-            minXValue = new NumericData({unscaledValue: 0});
-            maxXValue = new NumericData({unscaledValue: 100});
+            minXValue = createNumericValue(0);
+            maxXValue = createNumericValue(100);
         }
 
         theGenerator.addNumericLimit('minX', minXValue, xmlIDs ? xmlIDs['minX'] : null);
@@ -377,7 +377,7 @@ var NumberGenerator = fabric.util.createClass(fabric.Rect, {
             opacity: 1, // The output point is not visible at the bigining. It will appear when the outCollection has values
             generator: theGenerator,
             value: outputValue,
-            xmlID: xmlIDs ? xmlIDs['output'] : null
+            xmlID: xmlIDs ? xmlIDs['output'] : null,
         });
         canvas.add(outputPoint);
         theGenerator.set('outputPoint', outputPoint);

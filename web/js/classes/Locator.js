@@ -3,7 +3,7 @@ var Locator = fabric.util.createClass(fabric.Circle, {
     isLocator: true,
     setXmlIDs: function (from) {
         var theLocator = this;
-        theLocator.xmlID = from++;                
+        theLocator.xmlID = from++;
         theLocator.xAxisArrow.xmlID = from++;
         theLocator.yAxisArrow.xmlID = from++;
         return from;
@@ -146,10 +146,10 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         addToConnectableElements(this);
         addToConnectableElements(this.xAxisArrow);
         addToConnectableElements(this.yAxisArrow);
-        
-        
-        
-        
+
+
+
+
         // This is now done by each mark as they are added to the canvas
         /*if (options.marks) {
          var marks = new Array();
@@ -230,7 +230,9 @@ var Locator = fabric.util.createClass(fabric.Circle, {
                     outConnector.applySelectedStyle(false, true);
                 } else {
                     outConnector.applySelectedStyle(false, false);
-                    outConnector.destination.applySelectedStyle(false);
+                    if (outConnector.destination) {
+                        outConnector.destination.applySelectedStyle(false);
+                    }                    
                 }
             });
         }
@@ -304,7 +306,7 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         });
     },
     positionChild: function (property, value, theMark, shouldAnimate) {
-        
+
         console.log("positionChild function at LOCATOR class");
 
         var theLocator = this;
@@ -1271,12 +1273,12 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         child.parentObject = theLocator;
         child.untransformedScaleX = 1;
         child.untransformedScaleY = 1;
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
 
 //        console.log("???????????????????????? BEFORE");
 //
@@ -1313,21 +1315,21 @@ var Locator = fabric.util.createClass(fabric.Circle, {
         yVisualProperty.evented = true;
         repositionWidget(theLocator, yVisualProperty);
         yVisualProperty.setCoords();
-        
-        
-        
+
+
+
         // We do this before the blinking, to keep consistency among all the values set to the x and y properties of the marks
         // If this computation is done after or during the blinking, there will be problems related to the uncertainty
         // of the position of the marks 
-        
+
         var relativeX = theLocator.getPointByOrigin('center', 'center').x - child.getPointByOrigin('center', 'center').x;
         var relativeY = theLocator.getPointByOrigin('center', 'center').y - child.getPointByOrigin('center', 'center').y;
 
         child.xVisualProperty.value = createNumericValue(-relativeX);
         child.yVisualProperty.value = createNumericValue(relativeY);
-        
-        
-        
+
+
+
 
         if (blinkChild) {
             child.blink();
@@ -1355,9 +1357,9 @@ var Locator = fabric.util.createClass(fabric.Circle, {
             }
         }
 
-        if (connector && connector.canvas) {
-            connector.sendToBack();
-        }
+//        if (connector && connector.canvas) {
+//            connector.sendToBack();
+//        }
 
 //        child.bringToFront();
         bringToFront(child);
@@ -1367,7 +1369,7 @@ var Locator = fabric.util.createClass(fabric.Circle, {
             canvas.setActiveObject(child);
         }
 
-        
+
 
     },
     associateEvents: function () {
@@ -1568,7 +1570,7 @@ var Locator = fabric.util.createClass(fabric.Circle, {
 //                this.computeOutputValue(shouldAnimate);
 //            },
             'markMoving': function (theMark) {
-                
+
                 console.log("markMoving EVENT at LOCATOR class");
 
                 theLocator.xAxisArrow.inConnectors.forEach(function (inConnector) {
@@ -1604,6 +1606,15 @@ var Locator = fabric.util.createClass(fabric.Circle, {
 
 //                drawRectAt(theMark.getCenterPoint(), generateRandomColor());
 //                drawRectAt(theMark.getCenterPoint(), theMark.fill);
+
+
+
+
+                var relativeX = theLocator.getPointByOrigin('center', 'center').x - theMark.getPointByOrigin('center', 'center').x;
+                var relativeY = theLocator.getPointByOrigin('center', 'center').y - theMark.getPointByOrigin('center', 'center').y;
+
+                theMark.xVisualProperty.setValue(createNumericValue(-relativeX), false, false);
+                theMark.yVisualProperty.setValue(createNumericValue(relativeY), false, false);
 
 
 

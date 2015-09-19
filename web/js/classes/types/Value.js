@@ -236,6 +236,14 @@ function Value(options) {
 
             }
 
+        } else if (this.isStringData) {
+            
+            if (newDataTypeProposition === 'isNumericData') {
+
+                return createNumericValue(Number(this.string));
+
+            }
+            
         } else if (this.isNumericData) {
 
             if (newDataTypeProposition === 'isStringData') {
@@ -249,6 +257,14 @@ function Value(options) {
             if (newDataTypeProposition === 'isStringData') {
 
                 return  new Value({isStringData: true, string: '' + this.color.toRgb()});
+
+            }
+
+        } else if (this.isDateAndTimeData) {
+
+            if (newDataTypeProposition === 'isStringData') {
+
+                return  new Value({isStringData: true, string: '' + this.getDisplayableString()});
 
             }
 

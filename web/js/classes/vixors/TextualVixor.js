@@ -483,11 +483,21 @@ var TextualVixor = fabric.util.createClass(fabric.Rect, {
                                 if (LOG)
                                     console.log(response);
                                 theVixor.recognizedStrings = response;
+                                
+                                console.log("theVixor.recognizedStrings:");
+                                console.log(theVixor.recognizedStrings);
 
 
                                 if (response && response.length > 0) {
+                                    
+                                    var mode = getMode(response);
+                                    
+                                    
 
-                                    theVixor.text = getMode(response);
+                                    theVixor.text = replaceAll(mode, '.', '');
+                                    
+                                    console.log("theVixor.text:");
+                                    console.log(theVixor.text);
 
 
 

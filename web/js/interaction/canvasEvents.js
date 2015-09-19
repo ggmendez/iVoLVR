@@ -52,17 +52,17 @@ function canvasObjectSelected(option) {
 
 
     if (selectedObject) {
-        
+
         if (selectedObject.applySelectedStyle) {
 
             selectedObject.applySelectedStyle(true);
-            
-        } 
+
+        }
         else if (selectedObject.isWidget) {
-            
+
             widgetApplySelectedStyle(selectedObject);
-            
-        } 
+
+        }
     }
 
 }
@@ -100,7 +100,7 @@ function canvasBeforeSelectionCleared(option) {
                 group.removeWithUpdate(item);
                 item.setCoords();
             }
-            
+
 //            group.destroy();
 
             canvas.renderAll();
@@ -133,7 +133,7 @@ function canvasSelectionCreated(option) {
         event.preventDefault();
     }
 
-    var createdGroup = option.target;    
+    var createdGroup = option.target;
 
     createSquareSelectionFromGroup(createdGroup);
 }
@@ -150,24 +150,100 @@ function canvasPathCreated(options) {
     if (canvas.isPathMarkDrawingMode) {
 
         var drawnPath = options.path;
-        var points = drawnPath.path;
-        var center = drawnPath.getCenterPoint();
 
-        var options = {
-            left: center.x,
-            top: center.y,
-            fill: rgb(0, 153, 255),
-            stroke: darkenrgb(0, 153, 255),
-            label: '',
-            markAsSelected: false,
-            thePath: points
-        };
-        addMarkToCanvas(PATH_MARK, options);
+        var minimunPathSide = 5;
 
-        drawnPath.remove();
+        if (drawnPath.getWidth() > minimunPathSide && drawnPath.getHeight() > minimunPathSide) {
 
-        applyInactiveMenuButtonStyle($("#drawPathMark"))
-        deactivatePathMarkDrawing(true);
+            var points = drawnPath.path;
+            var center = drawnPath.getCenterPoint();
+
+            var options = {
+                left: center.x,
+                top: center.y,
+                fill: rgb(0, 153, 255),
+                stroke: darkenrgb(0, 153, 255),
+                label: '',
+                markAsSelected: false,
+                thePath: points
+            };
+            addMarkToCanvas(PATH_MARK, options);
+
+            drawnPath.remove();
+
+            applyInactiveMenuButtonStyle($("#drawPathMark"))
+            deactivatePathMarkDrawing(true);
+
+        } else {
+
+            drawnPath.remove();
+
+            if (!canvas.collectedPoints) {
+                canvas.collectedPoints = new Array();
+                canvas.circles = new Array();
+                canvas.lines = new Array();
+            }
+
+            var point = drawnPath.getCenterPoint();
+            canvas.collectedPoints.push(point);
+
+            var circle = new fabric.Circle({
+                radius: 6,
+                fill: rgb(238, 189, 62),
+                originX: 'center',
+                originY: 'center',
+                left: point.x,
+                top: point.y
+            });
+            canvas.circles.push(circle);
+            canvas.add(circle);
+
+            if (canvas.collectedPoints.length >= 2) {
+
+                var last = canvas.collectedPoints[canvas.collectedPoints.length - 1];
+                var secondLast = canvas.collectedPoints[canvas.collectedPoints.length - 2];
+
+                var points = [secondLast.x, secondLast.y, secondLast.x, secondLast.y];
+                var line = new fabric.Line(points, {
+                    strokeWidth: 3,
+                    fill: '',
+                    stroke: rgb(238, 189, 62),
+                    originX: 'center',
+                    originY: 'center',
+                    perPixelTargetFind: true,
+                    strokeLineCap: 'round',
+                    strokeLineJoin: 'round'
+                });
+                canvas.add(line);
+                canvas.lines.push(line);
+
+                var duration = 100;
+
+                // growing the last line
+                line.animate('x2', last.x, {
+                    duration: duration,
+                });
+                line.animate('y2', last.y, {
+                    duration: duration,
+                    onChange: function () {
+                        canvas.renderAll();
+                    },
+                    onComplete: function () {
+                        bringToFront(canvas.circles[canvas.circles.length - 1]);
+                        bringToFront(canvas.circles[canvas.circles.length - 2]);
+                        canvas.renderAll();
+                    },
+                });
+
+            }
+
+
+
+
+        }
+
+
+
 
 
     } else if (canvas.isFilledMarkDrawingMode) {
@@ -197,26 +273,97 @@ function canvasPathCreated(options) {
 
         var drawnPath = options.path;
         var center = drawnPath.getCenterPoint();
-
         drawnPath.remove();
 
-        var XYValues = extractXYValues(drawnPath);
+        var minimunPathSide = 5;
 
-        var coordinates = createFunctionCoordinatesFromValues(XYValues.xValues, XYValues.yValues);
+        if (drawnPath.getWidth() > minimunPathSide && drawnPath.getHeight() > minimunPathSide) {
 
-        var options = {
-            top: center.y,
-            left: center.x,
-            coordinatesX: coordinates.XCoordinates,
-            coordinatesY: coordinates.YCoordinates,
-            pathWidth: drawnPath.getWidth(),
-            pathHeight: drawnPath.getHeight()
-        };
+            var XYValues = extractXYValues(drawnPath);
 
-        addNumericFunction(options);
+            var coordinates = createFunctionCoordinatesFromValues(XYValues.xValues, XYValues.yValues);
 
-        applyInactiveMenuButtonStyle($("#drawFunction"))
-        deactivateFunctionDrawing(true);
+            var options = {
+                top: center.y + 15,
+                left: center.x - 15,
+                coordinatesX: coordinates.XCoordinates,
+                coordinatesY: coordinates.YCoordinates,
+                pathWidth: drawnPath.getWidth(),
+                pathHeight: drawnPath.getHeight()
+            };
+
+            addNumericFunction(options);
+
+            applyInactiveMenuButtonStyle($("#drawFunction"))
+            deactivateFunctionDrawing(true);
+
+        } else {
+            
+            
+            if (!canvas.collectedPoints) {
+                canvas.collectedPoints = new Array();
+                canvas.circles = new Array();
+                canvas.lines = new Array();
+            }
+
+            var point = drawnPath.getCenterPoint();
+            canvas.collectedPoints.push(point);
+
+            var circle = new fabric.Circle({
+                radius: 6,
+                fill: rgb(238, 189, 62),
+                originX: 'center',
+                originY: 'center',
+                left: point.x,
+                top: point.y
+            });
+            canvas.circles.push(circle);
+            canvas.add(circle);
+
+            if (canvas.collectedPoints.length >= 2) {
+
+                var last = canvas.collectedPoints[canvas.collectedPoints.length - 1];
+                var secondLast = canvas.collectedPoints[canvas.collectedPoints.length - 2];
+
+                var points = [secondLast.x, secondLast.y, secondLast.x, secondLast.y];
+                var line = new fabric.Line(points, {
+                    strokeWidth: 3,
+                    fill: '',
+                    stroke: rgb(238, 189, 62),
+                    originX: 'center',
+                    originY: 'center',
+                    perPixelTargetFind: true,
+                    strokeLineCap: 'round',
+                    strokeLineJoin: 'round'
+                });
+                canvas.add(line);
+                canvas.lines.push(line);
+
+                var duration = 100;
+
+                // growing the last line
+                line.animate('x2', last.x, {
+                    duration: duration,
+                });
+                line.animate('y2', last.y, {
+                    duration: duration,
+                    onChange: function () {
+                        canvas.renderAll();
+                    },
+                    onComplete: function () {
+                        bringToFront(canvas.circles[canvas.circles.length - 1]);
+                        bringToFront(canvas.circles[canvas.circles.length - 2]);
+                        canvas.renderAll();
+                    },
+                });
+
+            }
+            
+            
+            
+        }
+
+
 
 
     } else if (canvas.isFreeSelectionMode) {
@@ -1191,8 +1338,8 @@ function closePotentiallyOpenMenus() {
 function canvasMouseDown(option) {
 
 //    if (LOG)
-        console.log("canvasMouseDown");
-    
+    console.log("canvasMouseDown");
+
     var event = option.e;
     event.preventDefault();
 

@@ -1320,8 +1320,10 @@ function showWebPage(url) {
 //    var defaultURL = 'http://www.wikipedia.com';
 //    var defaultURL = 'http://www.st-andrews.ac.uk';
 //    var defaultURL = 'https://en.wikipedia.org/wiki/List_of_countries_by_oil_production';
-    var defaultURL = 'http://www.w3schools.com/html/html_tables.asp';
-    
+//    var defaultURL = 'http://www.w3schools.com/html/html_tables.asp';
+    var defaultURL = 'http://localhost:8080/iVoLVR/BrestPerugia.html';
+//    var defaultURL = './PaperMemorability.html';
+
 
     url = url || defaultURL;
 
@@ -2360,11 +2362,11 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
                         untransformedScaleY: 1,
                         animateAtBirth: false,
                     };
-                    
-                    
+
+
                     console.log("object.left: " + object.left);
                     console.log("object.top: " + object.top);
-                    
+
 
 
 
@@ -2384,7 +2386,7 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
                         object.movingOpacity = 0.3;
                         object.untransformedScaleX = 1;
                         object.untransformedScaleY = 1;
-                        
+
                         object.setCoords();
 
                         parentObject.widgets.push(object);
@@ -2393,13 +2395,13 @@ function onSVGFileReadComplete(event, file, asSingleMark) {
 
                         computeUntransformedProperties(object);
 
-                        
-                        
-                        
+
+
+
 
                         canvas.add(object);
-                        
-                        
+
+
 
 
 
@@ -3559,7 +3561,7 @@ function getPotentialDateString(recognizedStrings) {
 }
 
 function getMode(array) {
-    if (array.length == 0)
+    if (array.length === 0)
         return null;
     var modeMap = {};
     var maxEl = array[0], maxCount = 1;
@@ -4095,11 +4097,104 @@ function activatePathMarkDrawing() {
 }
 function deactivatePathMarkDrawing(restore1FingerCanvasOperation) {
     deactivateDrawing();
+
+    if (canvas.collectedPoints) {
+        buildObjectFromConnectedPoints();
+    }
+
     canvas.isPathMarkDrawingMode = false;
     if (restore1FingerCanvasOperation) {
         restorePan1FingerBehaviour();
     }
+
 }
+
+function buildObjectFromConnectedPoints() {
+
+
+    var xs = new Array();
+    var ys = new Array();
+
+    var path = 'M ';
+    canvas.collectedPoints.forEach(function (point) {
+        var x = point.x;
+        var y = point.y;
+        path += (x + " " + y + " L ");
+        xs.push(x);
+        ys.push(y);
+    });
+
+    var maxY = getArrayMax(ys);
+    for (var i = 0; i < ys.length; i++) {
+        ys[i] = maxY - ys[i];
+    }
+
+    canvas.circles.forEach(function (circle) {
+        circle.remove();
+    });
+    canvas.lines.forEach(function (line) {
+        line.remove();
+    });
+
+
+    path = path.substring(0, path.length - 2);
+
+    if (canvas.isPathMarkDrawingMode) {
+        var options = {
+            fill: rgb(0, 153, 255),
+            stroke: darkenrgb(0, 153, 255),
+            label: '',
+            angle: 0,
+            markAsSelected: false,
+            animateAtBirth: true,
+            thePath: path,
+        };
+        var pathMarkPrototype = addMarkToCanvas(PATH_MARK, options);
+
+    } else if (canvas.isFunctionDrawingMode) {
+
+        var group = new fabric.Group([]);
+
+        canvas.circles.forEach(function (circle) {
+            group.addWithUpdate(circle);
+        });
+        canvas.lines.forEach(function (line) {
+            group.addWithUpdate(line);
+        });
+        
+//        canvas.add(group);
+//        group.setCoords();
+
+        var center = group.getCenterPoint();
+        var width = group.getWidth();
+        var height = group.getHeight();
+
+//        group.setPositionByOrigin(center, 'center', 'center');
+
+        drawRectAt(center, 'red');
+
+        // **************************************************
+        // Adding this as a function instead of a mark
+        var coordinates = createFunctionCoordinatesFromValues(xs, ys);
+        var options = {
+//            left: center.x -(2 * 40 - 4),
+            left: center.x - 15,
+            top: center.y + 15,
+            coordinatesX: coordinates.XCoordinates,
+            coordinatesY: coordinates.YCoordinates,
+            pathWidth: width - 12,
+            pathHeight: height - 12,
+        };
+        addNumericFunction(options);
+        // **************************************************
+
+    }
+
+    canvas.collectedPoints = null;
+    canvas.circles = null;
+    canvas.lines = null;
+}
+
 /**********************/
 
 
@@ -4134,6 +4229,11 @@ function activateFunctionDrawing() {
 }
 function deactivateFunctionDrawing(restore1FingerCanvasOperation) {
     deactivateDrawing();
+
+    if (canvas.collectedPoints) {
+        buildObjectFromConnectedPoints();
+    }
+
     canvas.isFunctionDrawingMode = false;
     if (restore1FingerCanvasOperation) {
         restorePan1FingerBehaviour();
@@ -5921,12 +6021,15 @@ function getDateFormats() {
     if (!dateFormats) {
         dateFormats = new Array();
 
+        dateFormats.push('DD.MMM.YYYY');
+        dateFormats.push('DD.MMM.YYYY / HH:mm');
+
         dateFormats.push('D MMMM YYYY');
         dateFormats.push('D MMMM');
-        
+
         dateFormats.push('dddd, D MMMM YYYY');
         dateFormats.push('dddd, D MMMM');
-        
+
         dateFormats.push('DD MMMM');
         dateFormats.push('dddd DD MMMM');
 
@@ -6109,7 +6212,7 @@ function hideWithAnimation(object, refreshCanvas) {
 }
 
 
-function blink(object, refreshCanvas, increment) {
+function blink(object, refreshCanvas, increment, positionConnectors) {
     if (!increment) {
         increment = 0.45;
     }
@@ -6128,6 +6231,9 @@ function blink(object, refreshCanvas, increment) {
     object.animate('scaleY', '+=' + increment, {
         duration: duration,
         onChange: function () {
+            if (positionConnectors) {
+                updateConnectorsPositions(object);
+            }
             if (refreshCanvas) {
                 canvas.renderAll();
             }
@@ -6137,6 +6243,9 @@ function blink(object, refreshCanvas, increment) {
             object.animate('scaleY', '-=' + increment, {
                 duration: 1100,
                 onChange: function () {
+                    if (positionConnectors) {
+                        updateConnectorsPositions(object);
+                    }
                     if (refreshCanvas) {
                         canvas.renderAll();
                     }
@@ -6614,22 +6723,47 @@ function getClosestElement(numericValue, arrayOfValues) {
 }
 
 function getClosestDate(dateValue, arrayOfDateValues) {
-    var i = 0, closest, closestDiff, currentDiff;
+    var closest, closestDiff, currentDiff, pos = 0;
     if (arrayOfDateValues.length) {
         closest = arrayOfDateValues[0];
-        for (i; i < arrayOfDateValues.length; i++) {
+        for (var i = 0; i < arrayOfDateValues.length; i++) {
 
-            closestDiff = dateValue.moment.diff(closest.moment);
-            currentDiff = dateValue.moment.diff(arrayOfDateValues[i].moment);
+            console.log("-------------------");
+            console.log("i: " + i);
+
+            var a = dateValue.moment.valueOf();
+            var b = closest.moment.valueOf();
+            var c = arrayOfDateValues[i].moment.valueOf();
+
+            console.log("a: " + a);
+            console.log("b: " + b);
+            console.log("c: " + c);
+
+            closestDiff = Math.abs(a - b);
+            currentDiff = Math.abs(a - c);
+
+//            closestDiff = dateValue.moment.diff(closest.moment);
+//            currentDiff = dateValue.moment.diff(arrayOfDateValues[i].moment);
+
+//            closestDiff = Math.abs(dateValue.moment.diff(closest.moment));
+//            currentDiff = Math.abs(dateValue.moment.diff(arrayOfDateValues[i].moment));
+
+            console.log("arrayOfDateValues[i].moment: ");
+            console.log(arrayOfDateValues[i].moment);
+
+            console.log("closestDiff: " + closestDiff);
+            console.log("currentDiff: " + currentDiff);
 
             if (currentDiff < closestDiff) {
                 closest = arrayOfDateValues[i];
+                pos = i;
+                console.log("%c" + "Changing closest i = " + i, "background: white; color: red;");
             }
             closestDiff = null;
             currentDiff = null;
         }
-        //returns first element that is closest to number
-        return {closestValue: closest, position: i - 2};
+        //returns first element that is closest to value
+        return {closestValue: closest, position: pos};
     }
     //no length
     return null;
@@ -7912,6 +8046,10 @@ function canvasDropFunction(ev, ui) {
         } else if (id === "numberGenerator") {
 
             addNumberGenerator({left: x, top: y});
+
+        } else if (id === "dateGenerator") {
+
+            addDateGenerator({left: x, top: y});
 
         } else if (id === "squarePrototype") {
 

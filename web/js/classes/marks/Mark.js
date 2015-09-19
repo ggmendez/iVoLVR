@@ -389,14 +389,14 @@ var Mark = function () {
             });
         }
     };
-    this.blink = function () {
+    this.blink = function (increment) {
 
         console.log("BLINKING MARK");
         console.log("this.lockMovementX: " + this.lockMovementX);
         console.log("this.lockMovementY: " + this.lockMovementY);
 
         var theMark = this;
-        var increment = 0.3;
+        increment = increment || 0.3;
         var duration = 100;
         var easing = fabric.util.ease['easeInCubic'];
         theMark.animate('scaleX', '+=' + increment, {
@@ -1639,7 +1639,7 @@ var Mark = function () {
 
                 if (theMark.parentObject && theMark.parentObject.isLocator) {
 
-                    theMark.blink();
+                    theMark.blink(0.2);
 
                     theMark.lockMovementX = false;
                     theMark.lockMovementY = false;

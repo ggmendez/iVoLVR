@@ -904,10 +904,10 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
         var theMapper = this;
 
-        /*console.log("********************************************************************************************************************");
+        console.log("********************************************************************************************************************");
          console.log("********************************************************************************************************************");
          console.log("%cEvaluating A NUMBER this single value:", "background: " + theMapper.fill);
-         console.log(value);*/
+         console.log(value);
 
         var inCollection = theMapper.getInCollection();
         var valuesArray = inCollection.getValues();
@@ -1034,7 +1034,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
         /*console.log("********************************************************************************************************************");
          console.log("********************************************************************************************************************");
-         console.log("%cEvaluating A NUMBER this single value:", "background: " + theMapper.fill);
+         console.log("%cEvaluating A DATE this single value:", "background: " + theMapper.fill);
          console.log(value);*/
 
         var inCollection = theMapper.getInCollection();
@@ -1056,6 +1056,8 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
         var firstVisualValue = null;
         var secondVisualValue = null;
+        
+        console.log("***************** closestElementPosition: " + closestElementPosition);
 
         // checking for bounday cases
         if (closestElementPosition === 0) { // is the closest value the FIRST element of the collection? The, there is nothing before
@@ -1086,36 +1088,49 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
             secondLowestValue = null;
             secondLowestPosition = null;
-            if (beforeValue.number < afterValue.number) {
-                secondLowestValue = beforeValue;
-                secondLowestPosition = closestElementPosition - 1;
-
+            
+            if (value.moment.valueOf() > closestValue.moment.valueOf()) {
+                secondVisualValue = theMapper.getInCollection().getVisualValueAt(closestElementPosition + 1);
             } else {
-                secondLowestValue = afterValue;
-                secondLowestPosition = closestElementPosition + 1;
-
+                secondVisualValue = theMapper.getInCollection().getVisualValueAt(closestElementPosition - 1);
             }
+            
+            
+//            if (beforeValue.moment.valueOf() < afterValue.moment.valueOf()) {
+//                secondLowestValue = beforeValue;
+//                secondLowestPosition = closestElementPosition - 1;
+//
+//            } else {
+//                secondLowestValue = afterValue;
+//                secondLowestPosition = closestElementPosition + 1;
+//
+//            }
 
             firstVisualValue = theMapper.getInCollection().getVisualValueAt(closestElementPosition);
-            secondVisualValue = theMapper.getInCollection().getVisualValueAt(secondLowestPosition);
+//            secondVisualValue = theMapper.getInCollection().getVisualValueAt(secondLowestPosition);
 
         }
+        
+        drawRectAt(firstVisualValue.getCenterPoint(), 'green');
+        drawRectAt(secondVisualValue.getCenterPoint(), 'red');
+        
+        
 
-        console.log("%c beforeValue: ", "beforeValue: " + theMapper.fill);
-        console.log(beforeValue);
-
-        console.log("%c afterValue: ", "afterValue: " + theMapper.fill);
-        console.log(afterValue);
-
-        console.log("%c secondLowestPosition: " + secondLowestPosition, "background: " + theMapper.fill);
-
-        console.log("%c secondLowestValue: ", "background: " + theMapper.fill);
-        console.log(secondLowestValue);
+//        console.log("%c beforeValue: ", "beforeValue: " + theMapper.fill);
+//        console.log(beforeValue);
+//
+//        console.log("%c afterValue: ", "afterValue: " + theMapper.fill);
+//        console.log(afterValue);
+//
+//        console.log("%c secondLowestPosition: " + secondLowestPosition, "background: " + theMapper.fill);
+//
+//        console.log("%c secondLowestValue: ", "background: " + theMapper.fill);
+//        console.log(secondLowestValue);
 
 
         var newYCoordinate = changeRange(value.moment.valueOf(), firstVisualValue.value.moment.valueOf(), secondVisualValue.value.moment.valueOf(), firstVisualValue.getCenterPoint().y, secondVisualValue.getCenterPoint().y);
 
-        console.log("newYCoordinate:" + newYCoordinate);
+//        console.log("newYCoordinate:" + newYCoordinate);
 
 
 //        drawRectAt(new fabric.Point(firstVisualValue.getCenterPoint().x, newYCoordinate), 'blue');

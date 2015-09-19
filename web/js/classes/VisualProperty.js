@@ -29,8 +29,6 @@ var VisualProperty = function () {
         }
     };
 
-
-
     this.disconnect = function (refreshCanvas, removeAfterDisconnection) {
         var theVisualProperty = this;
         theVisualProperty.inConnectors.forEach(function (inConnection) {
@@ -114,8 +112,13 @@ var VisualProperty = function () {
 
 
 
+
+
         var parentObject = theVisualProperty.parentObject;
         if (parentObject && (parentObject.isMark || parentObject.isVixor || parentObject.isNumericCollectionGenerator)) {
+
+
+
             parentObject.setProperty(theVisualProperty.attribute, value, theVisualProperty, shouldAnimate);
 
             if (renderCanvas) {
@@ -137,6 +140,14 @@ var VisualProperty = function () {
             });
 
 
+        } else if (parentObject && parentObject.isLocator) {
+            theVisualProperty.outConnectors.forEach(function (outConnector) {
+                if (LOG)
+                    console.log("The value that will be communicated to the connectors' destinations NNN:");
+                if (LOG)
+                    console.log(theVisualProperty.value);
+                outConnector.setValue(theVisualProperty.value.clone(), false, shouldAnimate);
+            });
         }
 
 
@@ -446,7 +457,8 @@ var VisualProperty = function () {
 
                             } else {
 
-                                addVisualVariableToCollection(theVisualProperty, targetObject, connector);
+                                addVisualVariableToCollection(theVisualProperty, targetObject, connector, false, canvasCoords);
+
                             }
 
 
@@ -905,19 +917,19 @@ var VisualProperty = function () {
 
 
                 if (this.isCollection) { // When this is a collective visual property
-                    
+
                     console.log("Collective visual property selected");
 
                     ctx.save();
                     ctx.beginPath();
                     ctx.strokeStyle = this.fill;
                     ctx.lineWidth = widget_selected_stroke_width - 1;
-                    
-                    ctx.arc(0, 0, this.width / 2 - widget_selected_stroke_width / 2 + 1.5, -Math.PI, 0);                    
+
+                    ctx.arc(0, 0, this.width / 2 - widget_selected_stroke_width / 2 + 1.5, -Math.PI, 0);
                     ctx.lineTo(this.width / 2 - widget_selected_stroke_width / 2 + 1.5, this.width / 2 - widget_selected_stroke_width / 2 + 1.5);
                     ctx.lineTo(-(this.width / 2 - widget_selected_stroke_width / 2 + 1.5), this.width / 2 - widget_selected_stroke_width / 2 + 1.5);
                     ctx.lineTo(-(this.width / 2 - widget_selected_stroke_width / 2 + 1.5), 0);
-                    
+
                     ctx.stroke();
                     ctx.closePath();
                     ctx.restore();
@@ -926,12 +938,12 @@ var VisualProperty = function () {
                     ctx.beginPath();
                     ctx.strokeStyle = 'white';
                     ctx.lineWidth = widget_selected_stroke_width / 2;
-                    
-                    ctx.arc(0, 0, this.width / 2 + widget_selected_stroke_width / 4 + 1, -Math.PI, 0);                    
+
+                    ctx.arc(0, 0, this.width / 2 + widget_selected_stroke_width / 4 + 1, -Math.PI, 0);
                     ctx.lineTo(this.width / 2 + widget_selected_stroke_width / 4, this.width / 2 + widget_selected_stroke_width / 4 + 1);
                     ctx.lineTo(-(this.width / 2 + widget_selected_stroke_width / 4), this.width / 2 + widget_selected_stroke_width / 4 + 1);
                     ctx.lineTo(-(this.width / 2 + widget_selected_stroke_width / 4), 0);
-                    
+
                     ctx.stroke();
                     ctx.closePath();
                     ctx.restore();
@@ -941,12 +953,12 @@ var VisualProperty = function () {
                     ctx.setLineDash([7, 7]);
                     ctx.strokeStyle = widget_selected_stroke_color;
                     ctx.lineWidth = widget_selected_stroke_width;
-                    
+
                     ctx.arc(0, 0, this.width / 2 + 1, -Math.PI, 0);
                     ctx.lineTo(this.width / 2 + 1, this.width / 2 + 1);
                     ctx.lineTo(-(this.width / 2 + 1), this.width / 2 + 1);
                     ctx.lineTo(-(this.width / 2 + 1), 0);
-                    
+
                     ctx.stroke();
                     ctx.closePath();
                     ctx.restore();

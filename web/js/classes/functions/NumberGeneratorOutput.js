@@ -1,6 +1,10 @@
 var NumberGeneratorOutput = fabric.util.createClass(fabric.Path, {
     initialize: function (path, options) {
         options || (options = {});
+        
+        options.fill = options.fill || rgb(2, 128, 204);
+        options.stroke = options.stroke || darkenrgb(2, 128, 204);
+        
         this.callSuper('initialize', path, options);
         this.set('strokeWidth', options.strokeWidth || 2);
         this.set('lockMovementX', options.lockMovementX || false);
@@ -10,8 +14,7 @@ var NumberGeneratorOutput = fabric.util.createClass(fabric.Path, {
         this.set('hasRotatingPoint', options.hasRotatingPoint || false);
         this.set('hasBorders', options.hasBorders || false);
         this.set('hasControls', options.hasControls || false);
-        this.set('fill', options.fill || rgb(2, 128, 204));
-        this.set('stroke', options.stroke || darkenrgb(2, 128, 204));
+        
         this.set('inConnectors', new Array());
         this.set('outConnectors', new Array());
         this.set('isNumberGeneratorOutput', true);
@@ -192,7 +195,7 @@ var NumberGeneratorOutput = fabric.util.createClass(fabric.Path, {
                 theOutputPoint.lockMovementY = true;
                 blink(theOutputPoint, true, 0.45);
 
-                var newConnector = new Connector({value: theOutputPoint.value, source: theOutputPoint, x2: theOutputPoint.left, y2: theOutputPoint.top, arrowColor: theOutputPoint.colorForStroke, filledArrow: true, strokeWidth: 1});
+                var newConnector = new Connector({value: theOutputPoint.value, source: theOutputPoint, x2: theOutputPoint.left, y2: theOutputPoint.top, arrowColor: theOutputPoint.stroke, filledArrow: true, strokeWidth: 1});
 
                 theOutputPoint.outConnectors.push(newConnector);
                 canvas.add(newConnector);
