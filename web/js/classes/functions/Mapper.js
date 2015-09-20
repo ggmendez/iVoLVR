@@ -1111,8 +1111,8 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
         }
         
-        drawRectAt(firstVisualValue.getCenterPoint(), 'green');
-        drawRectAt(secondVisualValue.getCenterPoint(), 'red');
+//        drawRectAt(firstVisualValue.getCenterPoint(), 'green');
+//        drawRectAt(secondVisualValue.getCenterPoint(), 'red');
         
         
 

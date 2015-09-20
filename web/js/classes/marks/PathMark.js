@@ -139,7 +139,7 @@ PathMark = fabric.util.createClass(fabric.Path, {
         this.applyUnselectedStyle = function () {
         };
 
-        var XYValues = extractXYValues(this, true);
+        var XYValues = extractXYValues(this, true, options.doNotSimplify);
 
 //        if (LOG) {
         console.log("XYValues:");

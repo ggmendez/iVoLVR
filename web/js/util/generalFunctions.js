@@ -4148,6 +4148,7 @@ function buildObjectFromConnectedPoints() {
             markAsSelected: false,
             animateAtBirth: true,
             thePath: path,
+            doNotSimplify: true
         };
         var pathMarkPrototype = addMarkToCanvas(PATH_MARK, options);
 
@@ -4161,17 +4162,13 @@ function buildObjectFromConnectedPoints() {
         canvas.lines.forEach(function (line) {
             group.addWithUpdate(line);
         });
-        
+
 //        canvas.add(group);
 //        group.setCoords();
 
         var center = group.getCenterPoint();
         var width = group.getWidth();
         var height = group.getHeight();
-
-//        group.setPositionByOrigin(center, 'center', 'center');
-
-        drawRectAt(center, 'red');
 
         // **************************************************
         // Adding this as a function instead of a mark
@@ -6578,7 +6575,7 @@ function updatePathCoords(path) {
     };
 }
 
-function extractXYValues(fabricPath, useAlternativeExtraction) {
+function extractXYValues(fabricPath, useAlternativeExtraction, doNotSimplify) {
 
     var points = fabricPath.path;
 //    console.log("points:");
@@ -6589,10 +6586,16 @@ function extractXYValues(fabricPath, useAlternativeExtraction) {
 //    console.log("polyline:");
 //    console.log(polyline);
 
-    // simplifying the user-trced polyline
-    var tolerance = 0.5;
-    var highQuality = true;
-    var simplifiedPolyline = simplify(polyline, tolerance, highQuality);
+    var simplifiedPolyline = polyline;
+
+    if (!doNotSimplify) {
+        // simplifying the user-trced polyline
+        var tolerance = 0.5;
+        var highQuality = true;
+        simplifiedPolyline = simplify(polyline, tolerance, highQuality);
+    }
+
+
 
 //    console.log("simplifiedPolyline:");
 //    console.log(simplifiedPolyline);
@@ -7602,13 +7605,19 @@ function addVisualElementFromHTML(parsedHTML, canvasCoords, addToCanvas) {
             if (theText) {
 
 //                var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isOperator', 'isFunctionInput', 'isAggregator', 'isMark', 'isPlayer', 'isDataType', 'isVerticalCollection', 'isMapperInput', 'isMapperOutput', 'isFunctionValuesCollection']);
-                var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isMark']);
+                var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isMark', 'isVerticalCollection']);
 
                 if (targetObject) {
 
                     var value = createBestValueFromText(theText);
 
-                    if (targetObject.isVisualProperty) {
+                    if (targetObject.isVerticalCollection) {
+
+                        var newVisualValue = CreateDataTypeFromValue(value);
+                        addVisualVariableToCollection(newVisualValue, targetObject, null, true, null);
+
+
+                    } else if (targetObject.isVisualProperty) {
 
                         blink(targetObject, false);
                         targetObject.setValue(value, true, true);
