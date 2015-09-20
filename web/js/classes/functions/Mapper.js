@@ -1,5 +1,22 @@
 var Mapper = fabric.util.createClass(fabric.Rect, {
     isMapper: true,
+    isClonable: true,
+    applySelectedStyle: function () {
+        console.log("Mapper applySelectedStyle");
+        var theMapper = this;
+        theMapper.isSelected = true;
+        theMapper.stroke = widget_selected_stroke_color;
+        theMapper.strokeWidth = widget_selected_stroke_width;
+        theMapper.strokeDashArray = widget_selected_stroke_dash_array;
+    },
+    applyUnselectedStyle: function () {
+        console.log("Mapper apply NO SelectedStyle");
+        var theMapper = this;
+        theMapper.isSelected = false;
+        theMapper.stroke = this.colorForStroke;
+        theMapper.strokeWidth = this.originalStrokeWidth;
+        theMapper.strokeDashArray = [];
+    },
     setXmlIDs: function (from) {
 
         var theMapper = this;
@@ -16,6 +33,28 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         from = outCollection.setXmlIDs(from++);
 
         return from;
+    },
+    clone: function () {
+
+        var mapperXmlNode = this.toXML();
+
+//        var x = $(document).width() / 2;
+//        var y = $(document).height() / 2;
+//        var viewportLeft = canvas.viewportTransform[4];
+//        var viewportTop = canvas.viewportTransform[5];
+//        var xCanvas = (x - viewportLeft - $('#theCanvas').offset().left) / canvas.getZoom();
+//        var yCanvas = (y - viewportTop - $('#theCanvas').offset().top) / canvas.getZoom();
+//        var canvasActualCenter = new fabric.Point(xCanvas, yCanvas);
+
+        var canvasActualCenter = getActualCanvasCenter();
+
+        var options = createMapperOptionsFromXMLNode(mapperXmlNode);
+        options.left = canvasActualCenter.x;
+        options.top = canvasActualCenter.y;
+        options.shouldExpand = false;
+        options.animateAtBirth = true;
+        var theMapper = addMapper(options);
+
     },
     toXML: function () {
 
@@ -103,7 +142,10 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         options.height = options.height || 100;
         options.fill = options.fill || rgb(204, 204, 204);
         options.stroke = options.stroke || rgb(45, 45, 45);
+        options.colorForStroke = options.stroke;
+
         options.strokeWidth = 3;
+        options.originalStrokeWidth = options.strokeWidth;
 
         options.lockScalingX = true;
         options.lockScalingY = true;
@@ -168,12 +210,6 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         // This following two lines are executed so that, after bringing everything to the front, the collections' in and out connectors are also brought to the front
         theMapper.inCollection.positionConnectors();
         theMapper.outCollection.positionConnectors();
-    },
-    applySelectedStyle: function () {
-        this.selected = true;
-    },
-    applyUnselectedStyle: function () {
-        this.selected = false;
     },
     updateInputPointMovementPermit: function () {
         var theMapper = this;
@@ -905,9 +941,9 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
         var theMapper = this;
 
         console.log("********************************************************************************************************************");
-         console.log("********************************************************************************************************************");
-         console.log("%cEvaluating A NUMBER this single value:", "background: " + theMapper.fill);
-         console.log(value);
+        console.log("********************************************************************************************************************");
+        console.log("%cEvaluating A NUMBER this single value:", "background: " + theMapper.fill);
+        console.log(value);
 
         var inCollection = theMapper.getInCollection();
         var valuesArray = inCollection.getValues();
@@ -1056,7 +1092,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
         var firstVisualValue = null;
         var secondVisualValue = null;
-        
+
         console.log("***************** closestElementPosition: " + closestElementPosition);
 
         // checking for bounday cases
@@ -1088,14 +1124,14 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 
             secondLowestValue = null;
             secondLowestPosition = null;
-            
+
             if (value.moment.valueOf() > closestValue.moment.valueOf()) {
                 secondVisualValue = theMapper.getInCollection().getVisualValueAt(closestElementPosition + 1);
             } else {
                 secondVisualValue = theMapper.getInCollection().getVisualValueAt(closestElementPosition - 1);
             }
-            
-            
+
+
 //            if (beforeValue.moment.valueOf() < afterValue.moment.valueOf()) {
 //                secondLowestValue = beforeValue;
 //                secondLowestPosition = closestElementPosition - 1;
@@ -1110,11 +1146,11 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
 //            secondVisualValue = theMapper.getInCollection().getVisualValueAt(secondLowestPosition);
 
         }
-        
+
 //        drawRectAt(firstVisualValue.getCenterPoint(), 'green');
 //        drawRectAt(secondVisualValue.getCenterPoint(), 'red');
-        
-        
+
+
 
 //        console.log("%c beforeValue: ", "beforeValue: " + theMapper.fill);
 //        console.log(beforeValue);
@@ -1843,7 +1879,6 @@ function createMapperOptionsFromXMLNode(mapperXmlNode) {
 function createMapperFromXMLNode(mapperXmlNode) {
 
     var options = createMapperOptionsFromXMLNode(mapperXmlNode);
-
     var theMapper = addMapper(options);
 
     console.log("theMapper:");

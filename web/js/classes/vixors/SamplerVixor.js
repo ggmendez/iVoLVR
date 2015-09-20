@@ -1332,7 +1332,7 @@ function buildAndAddSamplerColor(options) {
 
     var objects = [offsetPath, userPath];
 
-    var parentObject = options.parentObject || null;
+    var parentObject = options.parentObject || null;        
 
     var samplerOptions = {
         originX: 'center',
@@ -1635,6 +1635,7 @@ function createSampleVixorFromPath(drawnPath, fromStraightLine) {
 
     // computing the sampling positions over the simplified path
     var samplingDistance = 25;
+//    var samplingDistance = 16;
     var samplingPoints = samplePolyline(simplifiedPolyline, samplingDistance);
     var totalLength = computePolylineLength(simplifiedPolyline);
     var trajectory = computePolylineTrajectory(simplifiedPolyline);

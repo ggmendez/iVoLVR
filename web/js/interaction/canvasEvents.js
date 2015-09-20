@@ -217,7 +217,7 @@ function canvasPathCreated(options) {
                 canvas.add(line);
                 canvas.lines.push(line);
 
-                var duration = 100;
+                var duration = 350;
 
                 // growing the last line
                 line.animate('x2', last.x, {

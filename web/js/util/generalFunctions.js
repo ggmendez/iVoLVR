@@ -1563,8 +1563,9 @@ function deleteObject() {
             alertify.confirm("Are you sure you want to remove the selected object?", function (e) {
                 if (e) {
                     obj.remove(true);
-                    canvas.renderAll();
-                    alertify.log("Object removed", "", 3000);
+                    trashSound.play();
+//                    canvas.renderAll();
+//                    alertify.log("Object removed", "", 3000);
                 }
             });
 
@@ -1672,35 +1673,47 @@ function duplicateObject() {
                 return;
             }
 
-            var copy = null;
-            if (activeObject.type === "importedImage") {
-                var imageData = activeObject.getSrc();
-                importImageToCanvas({imageData: imageData});
-                return;
-            } else if (activeObject.clone) {
-                copy = activeObject.clone();
+            if (activeObject.isMapper) {
+
+                activeObject.clone();
+
             } else {
-                copy = fabric.util.object.clone(activeObject);
+
+                var copy = null;
+                if (activeObject.type === "importedImage") {
+                    var imageData = activeObject.getSrc();
+                    importImageToCanvas({imageData: imageData});
+                    return;
+                } else if (activeObject.clone) {
+                    copy = activeObject.clone();
+                } else {
+                    copy = fabric.util.object.clone(activeObject);
+                }
+
+                console.log(copy);
+
+                canvas.add(copy);
+                var canvasActualCenter = getActualCanvasCenter();
+                copy.setPositionByOrigin(canvasActualCenter, 'center', 'center');
+                copy.setCoords();
+
+
+                if (copy.isMark) {
+                    copy.animateBirth();
+                }
+
+                if (copy.positionElements()) {
+                    copy.positionElements();
+                }
+
+                canvas.setActiveObject(copy);
+                canvas.renderAll();
+
+
             }
 
 
 
-            canvas.add(copy);
-            var canvasActualCenter = getActualCanvasCenter();
-            copy.setPositionByOrigin(canvasActualCenter, 'center', 'center');
-            copy.setCoords();
-
-
-            if (copy.isMark) {
-                copy.animateBirth();
-            }
-
-            if (copy.positionElements()) {
-                copy.positionElements();
-            }
-
-            canvas.setActiveObject(copy);
-            canvas.renderAll();
 
         } else {
             alertify.error("No objects selected");
@@ -2649,9 +2662,39 @@ function importImageToCanvas(options) {
         };
 
         canvas.add(imgInstance);
-        imgInstance.setCoords();
-        imgInstance.applySelectedStyle();
-        canvas.setActiveObject(imgInstance);
+
+        imgInstance.scaleX = 0;
+        imgInstance.scaleY = 0;
+        imgInstance.opacity = 0;        
+        
+        var duration = 500;
+        var easing = fabric.util.ease['easeOutBack'];
+
+        // growing the last line
+        imgInstance.animate('scaleX', 1, {
+            duration: duration,
+            easing: easing
+        });
+        imgInstance.animate('opacity', 1, {
+            duration: duration
+        });
+        imgInstance.animate('scaleY', 1, {
+            duration: duration,
+            easing: easing,
+            onChange: function () {
+                canvas.renderAll();
+            },
+            onComplete: function () {
+                imgInstance.setCoords();
+                imgInstance.applySelectedStyle();
+                canvas.setActiveObject(imgInstance);
+                canvas.renderAll();
+            },
+        });
+
+
+
+
 
         // Once the image has been added to the canvas, the extractor associated to id are added:
         var extractors = options.extractorsOptions;
@@ -4140,13 +4183,13 @@ function buildObjectFromConnectedPoints() {
     path = path.substring(0, path.length - 2);
 
     if (canvas.isPathMarkDrawingMode) {
+        
         var options = {
             fill: rgb(0, 153, 255),
             stroke: darkenrgb(0, 153, 255),
             label: '',
             angle: 0,
             markAsSelected: false,
-            animateAtBirth: true,
             thePath: path,
             doNotSimplify: true
         };
@@ -5919,11 +5962,21 @@ function getPathLineIntersection(polyline, line) {
 }
 
 function getActualCanvasCenter() {
-    var canvasCenter = canvas.getCenter();
-    var panningX = canvas.viewportTransform[4];
-    var panningY = canvas.viewportTransform[5];
-    var actualCanvasCenter = {x: canvasCenter.left - panningX, y: canvasCenter.top - panningY};
-    return actualCanvasCenter;
+//    var canvasCenter = canvas.getCenter();
+//    var panningX = canvas.viewportTransform[4];
+//    var panningY = canvas.viewportTransform[5];
+//    var actualCanvasCenter = {x: canvasCenter.left - panningX, y: canvasCenter.top - panningY};
+//    return actualCanvasCenter;
+
+    var x = $(document).width() / 2;
+    var y = $(document).height() / 2;
+    var viewportLeft = canvas.viewportTransform[4];
+    var viewportTop = canvas.viewportTransform[5];
+    var xCanvas = (x - viewportLeft - $('#theCanvas').offset().left) / canvas.getZoom();
+    var yCanvas = (y - viewportTop - $('#theCanvas').offset().top) / canvas.getZoom();
+    var canvasActualCenter = new fabric.Point(xCanvas, yCanvas);
+    return canvasActualCenter;
+
 }
 
 function printDateAndTime(aMoment, background, foreground) {
@@ -7248,12 +7301,12 @@ function guessMostSpecificType(theText) {
     var valueForOptions = null;
     var originalString = theText;
 
-    if (theText.includes('%') || theText.includes('$') || theText.includes('€') || theText.includes('£') || theText.includes('₤')) {
+    if (theText.includes('%') || theText.includes('$') || theText.includes('â‚¬') || theText.includes('Â£') || theText.includes('â‚¤')) {
         theText = theText.replace(/%/g, '').trim();
         theText = theText.replace(/$/g, '').trim();
-        theText = theText.replace(/€/g, '').trim();
-        theText = theText.replace(/£/g, '').trim();
-        theText = theText.replace(/₤/g, '').trim();
+        theText = theText.replace(/â‚¬/g, '').trim();
+        theText = theText.replace(/Â£/g, '').trim();
+        theText = theText.replace(/â‚¤/g, '').trim();
         // there is a chanche that this string is a number
 
         if ($.isNumeric(theText)) {

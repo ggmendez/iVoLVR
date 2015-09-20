@@ -219,7 +219,7 @@ var Connector = fabric.util.createClass(fabric.Line, {
         });
 
     },
-    contract: function (toDestination, doNotRemoveOnComplete, doNotRefreshCanvas) {
+    contract: function (toDestination, doNotRemoveOnComplete, doNotRefreshCanvas, easing) {
 
         var theConnector = this;
         var endX = theConnector.source.left;
@@ -227,9 +227,8 @@ var Connector = fabric.util.createClass(fabric.Line, {
         var xProp = 'x2';
         var yProp = 'y2';
 
-        var easing = fabric.util.ease['easeOutElastic'];
-//        var duration = 750;
-        var duration = 2000;
+        var duration = easing ? 650 : 2000;
+        easing = easing || fabric.util.ease['easeOutElastic'];
 
         if (toDestination) {
             endX = theConnector.destination.left;

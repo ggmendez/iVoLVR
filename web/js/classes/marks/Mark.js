@@ -1567,8 +1567,6 @@ var Mark = function () {
             theMark.visualProperties.forEach(function (visualProperty) {
                 if (visualProperty.canvas) {
                     bringToFront(visualProperty);
-
-
                     visualProperty.inConnectors.forEach(function (inConnection) {
                         bringToFront(inConnection);
                     });
@@ -1578,9 +1576,9 @@ var Mark = function () {
 
                 }
             });
-            if (theMark.iText) {
-                bringToFront(theMark.iText);
-            }
+        }
+        if (theMark.iText) {
+            bringToFront(theMark.iText);
         }
         bringToFront(theMark);
     };

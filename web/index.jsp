@@ -1596,6 +1596,7 @@
 
             var bubbleSound = new Audio("audio/bubble.wav"); // buffers automatically when created
             var popSound = new Audio("audio/pop.wav"); // buffers automatically when created
+            var trashSound = new Audio("audio/trash.wav"); // buffers automatically when created
             
 
         </script>

@@ -116,25 +116,27 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
     },
     applySelectedStyle: function () {
         this.selected = true;
-        this.inConnectors.forEach(function (inConnector) {
-            inConnector.applySelectedStyle();
-            inConnector.source.applySelectedStyle();
-        });
-        this.outConnectors.forEach(function (outConnector) {
-            outConnector.applySelectedStyle();
-            if (outConnector.destination) {
-                outConnector.destination.applySelectedStyle();
-            }            
-        });
+//        this.inConnectors.forEach(function (inConnector) {
+//            inConnector.applySelectedStyle();
+//            if (inConnector.source && inConnector.source.applySelectedStyle) {
+//                inConnector.source.applySelectedStyle();
+//            }            
+//        });
+//        this.outConnectors.forEach(function (outConnector) {
+//            outConnector.applySelectedStyle();
+//            if (outConnector.destination && outConnector.destination.applySelectedStyle) {
+//                outConnector.destination.applySelectedStyle();
+//            }            
+//        });
     },
     applyUnselectedStyle: function () {
         this.selected = false;
-        this.inConnectors.forEach(function (inConnector) {
-            inConnector.applyUnselectedStyle();
-        });
-        this.outConnectors.forEach(function (outConnector) {
-            outConnector.applyUnselectedStyle();
-        });
+//        this.inConnectors.forEach(function (inConnector) {
+//            inConnector.applyUnselectedStyle();
+//        });
+//        this.outConnectors.forEach(function (outConnector) {
+//            outConnector.applyUnselectedStyle();
+//        });
     },
     addTypeIcon: function (iconName, blinkingFactor, doNotBlinkCollection) {
 
@@ -984,6 +986,8 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
                 var theVisualValue = this;
                 var event = options.e;
                 var canvasCoords = getCanvasCoordinates(event);
+                
+                updateConnectorsPositions(theVisualValue);
 
                 if (theVisualValue.connecting) {
 
@@ -1599,6 +1603,8 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
 
     },
     addVisualValue: function (visualValue) {
+        
+        popSound.play();
 
         var theCollection = this;
         var theMapper = theCollection.mapper;

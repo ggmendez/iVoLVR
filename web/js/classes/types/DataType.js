@@ -17,6 +17,19 @@ var DataType = function () {
     this.set('scaleX', 1.2);
     this.set('scaleY', 1.2);
 
+    this.remove = function () {
+        var theDataType = this;
+        theDataType.inConnectors.forEach(function (inConnection) {
+            inConnection.contract(false, false, true, fabric.util.ease['easeOutCubic']);
+        });
+        theDataType.outConnectors.forEach(function (outConnection) {
+            outConnection.contract(true, false, true, fabric.util.ease['easeOutCubic']);
+        });
+        
+        hideWithAnimation(theDataType, true);
+        
+    };
+
     this.setXmlIDs = function (from) {
         var theVisualValue = this;
         theVisualValue.xmlID = from++;
@@ -200,11 +213,9 @@ var DataType = function () {
                 var theDataType = this;
                 theDataType.expand();
             },
-                        
             'scaling': function (options) {
                 console.log("Scaling datatype");
             },
-            
             'moving': function (options) {
                 var theDataType = this;
                 if (theDataType.lockMovementX && theDataType.lockMovementY) {
@@ -405,7 +416,7 @@ var DataType = function () {
                                 var theCollection = targetObject;
 
                                 addVisualVariableToCollection(theDataType, theCollection, null, true, null);
-                                
+
 //                                addVisualVariableToCollection(theVisualVariable, theCollection);
 
                                 if (theCollection.isCompressed) {
@@ -608,9 +619,6 @@ var DataType = function () {
 
 
             },
-            
-            
-            
 //            'inValueUpdated': function (options) {
 //
 //                var theDataType = this;
@@ -707,7 +715,7 @@ function CreateDataType(options) {
 }
 
 
-function CreateDataTypeFromValue(value) {   
+function CreateDataTypeFromValue(value) {
 
     if (value.isNumericData) {
 
@@ -799,8 +807,8 @@ function createDefaultVisualValueByTypeProposition(dataTypeProposition, x, y) {
 
 
 function addVisualVariableToCollection(visualValue, collection, connector, useTheGivenVisualValue, canvasCoords) {
-    
-    
+
+
 
     var value = visualValue.value;
 
@@ -820,7 +828,7 @@ function addVisualVariableToCollection(visualValue, collection, connector, useTh
             newVisualValue.top = canvasCoords.y;
             newVisualValue.left = canvasCoords.x;
         }
-        
+
         console.log("newVisualValue:");
         console.log(newVisualValue);
 
