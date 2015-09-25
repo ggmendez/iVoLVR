@@ -1,7 +1,87 @@
 SVGPathGroupMark = fabric.util.createClass(fabric.PathGroup, {
     isSVGPathGroupMark: true,
+    
+    drawBorders: function (ctx) {
+
+        if (!this.hasBorders || this.group) {
+            return this;
+        }
+
+        var padding = this.padding,
+                padding2 = padding * 2,
+                vpt = this.getViewportTransform();
+
+        ctx.save();
+
+        ctx.globalAlpha = this.isMoving ? this.borderOpacityWhenMoving : 1;
+
+        ctx.strokeStyle = widget_selected_stroke_color;
+        ctx.lineWidth = widget_selected_stroke_width;
+        ctx.setLineDash(widget_selected_stroke_dash_array);
+
+
+        var scaleX = 1 / this._constrainScale(this.scaleX),
+                scaleY = 1 / this._constrainScale(this.scaleY);
+
+
+
+        var w = this.getWidth(),
+                h = this.getHeight(),
+                strokeWidth = this.strokeWidth,
+                capped = this.strokeLineCap === 'round' || this.strokeLineCap === 'square',
+                vLine = this.type === 'line' && this.width === 0,
+                hLine = this.type === 'line' && this.height === 0,
+                sLine = vLine || hLine,
+                strokeW = (capped && hLine) || !sLine,
+                strokeH = (capped && vLine) || !sLine;
+
+        if (vLine) {
+            w = strokeWidth / scaleX;
+        }
+        else if (hLine) {
+            h = strokeWidth / scaleY;
+        }
+        if (strokeW) {
+            w += strokeWidth / scaleX;
+        }
+        if (strokeH) {
+            h += strokeWidth / scaleY;
+        }
+        var wh = fabric.util.transformPoint(new fabric.Point(w, h), vpt, true),
+                width = wh.x,
+                height = wh.y;
+        if (this.group) {
+            width = width * this.group.scaleX;
+            height = height * this.group.scaleY;
+        }
+
+        ctx.strokeRect(
+                ~~(-(width / 2) - padding) - 0.5, // offset needed to make lines look sharper
+                ~~(-(height / 2) - padding) - 0.5,
+                ~~(width + padding2) + 1, // double offset needed to make lines look sharper
+                ~~(height + padding2) + 1
+                );
+
+        if (this.hasRotatingPoint && this.isControlVisible('mtr') && !this.get('lockRotation') && this.hasControls) {
+
+            var rotateHeight = (-height - (padding * 2)) / 2;
+
+            ctx.beginPath();
+            ctx.moveTo(0, rotateHeight);
+            ctx.lineTo(0, rotateHeight - this.rotatingPointOffset);
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        ctx.restore();
+        return this;
+
+    },
+    
     initialize: function (elements, options) {
         options || (options = {});
+        
+        options.hasBorders = true;
 
         options.fill = options.fill || options.visualPropertyFill;
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');

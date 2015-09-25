@@ -4,6 +4,8 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
     initialize: function (path, options) {
 
         options || (options = {});
+        
+        
 
         options.fill = options.fill || ((options.values && options.values.fill) ? options.values.fill.color.toRgb() : '');
         options.label = options.label || ((options.values && options.values.label) ? options.values.label.string : '');
@@ -13,6 +15,9 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
             options.values = {};
         }
         options.values.shape = createShapeValue(FILLEDPATH_MARK, path);
+        
+        console.log("*********************************");
+        console.log(options.values.shape);
 
         this.callSuper('initialize', path, options);
 
@@ -23,10 +28,12 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         this.set('colorForStroke', options.colorForStroke || this.stroke);
 
         this.createVariables();
+        
+        
 
         this.createIText();
 
-//        this.set('shape', {shape: FILLEDPATH_MARK, path: this});
+        this.set('shape', {shape: FILLEDPATH_MARK, path: this});
 
         this.createRectBackground();
 
@@ -49,10 +56,12 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         var widthValue = null;
         var heightValue = null;
         var angleValue = null;
+        var areaValue = null;
 
         if (options.values) {
             widthValue = options.values.width || createNumericValue(this.the_width || this.width, null, null, 'pixels');
             heightValue = options.values.height || createNumericValue(this.the_height || this.height, null, null, 'pixels');
+            angleValue = options.values.angle || createNumericValue(-this.angle, null, null, 'degrees');
             angleValue = options.values.angle || createNumericValue(-this.angle, null, null, 'degrees');
         } else {
             widthValue = createNumericValue(this.the_width || this.width, null, null, 'pixels');
@@ -63,6 +72,7 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         this.specificProperties.push({attribute: "width", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: widthValue});
         this.specificProperties.push({attribute: "height", readable: true, writable: true, types: ['number'], updatesTo: ['area'], dataTypeProposition: 'isNumericData', value: heightValue});
         this.specificProperties.push({attribute: "angle", readable: true, writable: true, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: angleValue});
+        this.specificProperties.push({attribute: "area", readable: true, writable: false, types: ['number'], updatesTo: [], dataTypeProposition: 'isNumericData', value: areaValue});
 
         this.createVisualProperties();
         this.createPositionProperties(options.values);
@@ -72,6 +82,20 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
         this.associateLabelEvents();
 
         this.setCoreVisualPropertiesValues(options.values);
+        
+        
+        var result = fabricPathToSVGPolygon(this, 500);
+        var polygon = result.SVGPolygon;
+        var area = computePolygonArea(polygon);
+        var areaVisualProperty = this.getVisualPropertyByAttributeName('area');
+        areaVisualProperty.value = createNumericValue(area);
+        
+        
+        var shapeVisualProperty = this.getVisualPropertyByAttributeName('shape');
+        
+        
+        console.log("yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");
+        console.log(shapeVisualProperty.value);
 
         this.applyXmlIDs(options.xmlIDs);
 
@@ -286,8 +310,10 @@ SVGPathMark = fabric.util.createClass(fabric.Path, {
             options.ry = (theMark.the_height || theMark.height) / 2;
 
         } else if (newShapeType === CIRCULAR_MARK) {
-
-            options.radius = ((theMark.the_width || theMark.width) + (theMark.the_height || theMark.height)) / 4;
+        
+//            options.radius = ((theMark.the_width || theMark.width) + (theMark.the_height || theMark.height)) / 4;
+            
+            options.area = theMark.getVisualPropertyByAttributeName('area').value.number;
 
         } else if (newShapeType === FATFONT_MARK) {
 

@@ -1113,7 +1113,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
             onCompleteFunction = function () {
                 inputPoint.left = endValue2;
                 inputPoint.rangeProportion = null;
-            }
+            };
             animateProperty(inputPoint, 'left', startValue2, endValue2, easing, duration, true, onCompleteFunction);
 
 
@@ -1303,11 +1303,19 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
                     var maxX = getArrayMax(theFunction.scaledX);
 
                     var unscaledValue = changeRange(intersection.x, minX, maxX, theFunction.minX.value.number, theFunction.maxX.value.number);
+                    
+                    
+                    console.log("unscaledValue:");
+                    console.log(unscaledValue);
+                    
+                    
                     var inPrefix = '';
                     var outPrefix = theFunction.inputPoint.value.outPrefix || '';
                     var units = theFunction.inputPoint.value.units || '';
-                    var value = createNumericValue(unscaledValue, inPrefix, outPrefix, units);
-                    ;
+//                    var value = createNumericValue(unscaledValue, inPrefix, outPrefix, units);
+
+                    var value = createNumericValue(unscaledValue);
+                    
                     var inputPoint = theFunction.inputPoint;
                     inputPoint.value = value;
                     var i;

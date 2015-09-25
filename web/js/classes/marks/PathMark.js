@@ -15,6 +15,8 @@ PathMark = fabric.util.createClass(fabric.Path, {
         }
         options.values.fill = createColorValue(new fabric.Color(options.fill));
         options.values.shape = createShapeValue(PATH_MARK, path);
+        
+        
 
 
         this.callSuper('initialize', path, options);

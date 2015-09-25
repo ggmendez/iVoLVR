@@ -182,7 +182,15 @@ function Value(options) {
                 decimalPositions = 0;
             }
 
-            var theString = this.number.toFixed(decimalPositions) + " " + (this.outPrefix || "") + (this.units || "");
+//            var theString = this.number.toFixed(decimalPositions) + " " + (this.outPrefix || "") + (this.units || "");
+
+            var tmp = "";
+            if (this.outPrefix) {
+                tmp = this.outPrefix.substring(0, this.outPrefix.indexOf(' '));
+                tmp = tmp.trim();
+            }
+
+            var theString = this.number.toFixed(decimalPositions) + " " + tmp + (this.units || "");
 
             return theString.trim();
 

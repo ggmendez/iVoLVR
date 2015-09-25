@@ -552,9 +552,9 @@ var VerticalCollection = fabric.util.createClass(fabric.Rect, {
                     onChange: function () {
                         updateConnectorsPositions(visualValue);
                     },
-                    onComplete: function () {
-                        visualValue.remove(); // after all the animations are over, the value is removed from the canvas
-                    },
+//                    onComplete: function () {
+//                        visualValue.remove(); // after all the animations are over, the value is removed from the canvas
+//                    },
                 });
             });
         }

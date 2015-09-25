@@ -1424,7 +1424,8 @@ var Locator = fabric.util.createClass(fabric.Circle, {
                 if (LOG)
                     console.log("Mouse UP over an locator ");
 
-                if (theLocator.moving || theLocator.scaling) {
+                if (theLocator.lockMovementX && theLocator.lockMovementY) {
+//                if (theLocator.moving || theLocator.scaling) {
 
                     var theEvent = option['e'];
                     var canvasCoords = getCanvasCoordinates(theEvent);

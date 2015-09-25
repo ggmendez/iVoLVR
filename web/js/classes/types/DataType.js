@@ -25,9 +25,9 @@ var DataType = function () {
         theDataType.outConnectors.forEach(function (outConnection) {
             outConnection.contract(true, false, true, fabric.util.ease['easeOutCubic']);
         });
-        
+
         hideWithAnimation(theDataType, true);
-        
+
     };
 
     this.setXmlIDs = function (from) {
@@ -471,7 +471,50 @@ var DataType = function () {
                                     blink(theVisualProperty, true, 0.65);
 
                                     setTimeout(function () {
-                                        theVisualProperty.setValue(value, true, true);
+
+                                        var convertedValue = value;
+
+                                        if (!value[theVisualProperty.dataTypeProposition]) {
+
+                                            convertedValue = value.convert(theVisualProperty.dataTypeProposition);
+
+                                        }
+
+                                        if (convertedValue) {
+                                            popSound.play();
+
+
+                                            if ((theVisualProperty.attribute === "x" || theVisualProperty.attribute === "y") && theVisualProperty.mark && theVisualProperty.mark.parentObject && theVisualProperty.mark.parentObject.isLocator) {
+
+                                                
+                                                theVisualProperty.mark.parentObject.positionChild(theVisualProperty.attribute, convertedValue, theVisualProperty.mark, true);
+
+                                            } else {
+                                                
+                                                theVisualProperty.setValue(convertedValue, true, true);
+
+//                                                theVisualProperty.parentObject.setProperty(theVisualProperty.attribute, convertedValue, newInConnection.source, shouldAnimate);
+
+                                            }
+
+
+                                            theVisualProperty.outConnectors.forEach(function (outConnector) {
+                                                outConnector.setValue(convertedValue, false, true);
+                                            });
+
+
+
+
+
+
+                                        } else {
+                                            alertify.error("Types not compatible", "", 2000);
+                                            return;
+                                        }
+
+
+
+
                                     }, 350);
 
                                 }

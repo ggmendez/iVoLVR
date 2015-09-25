@@ -46,6 +46,10 @@ var TextualVixor = fabric.util.createClass(fabric.Rect, {
         options.isTextRecognizer = true;
         options.trueColor = 'rgba(255, 255, 255, 0)';
         options.fillColor = 'rgba(' + 255 + ',  ' + 255 + ', ' + 255 + ', ' + widget_fill_opacity + ')';
+        
+        // for CHI
+    //        options.lockMovementX = true;
+    //        options.lockMovementY = true;
 
         options || (options = {});
 
@@ -497,7 +501,7 @@ var TextualVixor = fabric.util.createClass(fabric.Rect, {
                                     theVixor.text = replaceAll(mode, '.', '');
                                     
                                     console.log("theVixor.text:");
-                                    console.log(theVixor.text);
+                                    console.log("%c" + theVixor.text, "font-size: 40px;");
 
 
 

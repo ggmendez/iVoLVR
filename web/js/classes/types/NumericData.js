@@ -172,13 +172,35 @@ var NumericData = fabric.util.createClass(fabric.Path, {
 });
 DataType.call(NumericData.prototype);
 
+//function getMultiplicationFactor(aPrefix) {
+//    if (!aPrefix || aPrefix == 'none' || aPrefix === '') {
+//        return 1;
+//    } else {
+//        for (var i = 0; i < metricPrefixes.length; i++) {
+//            var item = metricPrefixes[i];
+//            if (item.prefix === aPrefix) {
+//                return item.factor;
+//            }
+//        }
+//    }
+//}
 function getMultiplicationFactor(aPrefix) {
-    if (!aPrefix || aPrefix == 'none' || aPrefix === '') {
+    
+//    console.log("Looking for: " + aPrefix);
+    
+    if (!aPrefix || aPrefix === 'none' || aPrefix === '') {
         return 1;
     } else {
         for (var i = 0; i < metricPrefixes.length; i++) {
             var item = metricPrefixes[i];
-            if (item.prefix === aPrefix) {
+            
+            var tmp = item.prefix + ' (&#215; 10' + getSuperscriptString(item.exponent) + ')';
+//            console.log("tmp: " + tmp);
+             
+            
+            
+//            if (tmp === aPrefix) {
+            if (item.prefix !== '' && aPrefix.includes(item.prefix)) {
                 return item.factor;
             }
         }
@@ -291,6 +313,10 @@ function createNumericValue(unscaledValue, inPrefix, outPrefix, units) {
 
     var inMultiplicationFactor = getMultiplicationFactor(inPrefix);
     var outMultiplicationFactor = getMultiplicationFactor(outPrefix);
+    
+//    console.log("inMultiplicationFactor: " + inMultiplicationFactor);
+//    console.log("outMultiplicationFactor: " + outMultiplicationFactor);
+    
     var scaledValue = generateScaledValue(theUnscaledValue, inMultiplicationFactor, outMultiplicationFactor);
 
     return new Value({isNumericData: true, number: scaledValue, unscaledValue: unscaledValue, inPrefix: inPrefix, outPrefix: outPrefix, units: units, inMultiplicationFactor: inMultiplicationFactor, outMultiplicationFactor: outMultiplicationFactor});
@@ -363,8 +389,16 @@ function showNumericValue(holderElement, allowEdition) {
 
 
         var unitsChanged = holderElement.value.units !== selectedUnits;
+        
+        console.log("currentUnscaledValue: " + currentUnscaledValue);
+        console.log("selectedInPrefix: " + selectedInPrefix);
+        console.log("selectedOutPrefix: " + selectedOutPrefix);
+        console.log("selectedUnits: " + selectedUnits);        
 
         var numberValue = createNumericValue(currentUnscaledValue, selectedInPrefix, selectedOutPrefix, selectedUnits);
+        
+        console.log("numberValue: ");
+        console.log(numberValue);
 
 
 

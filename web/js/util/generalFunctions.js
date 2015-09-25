@@ -1321,8 +1321,11 @@ function showWebPage(url) {
 //    var defaultURL = 'http://www.st-andrews.ac.uk';
 //    var defaultURL = 'https://en.wikipedia.org/wiki/List_of_countries_by_oil_production';
 //    var defaultURL = 'http://www.w3schools.com/html/html_tables.asp';
-    var defaultURL = 'http://localhost:8080/iVoLVR/BrestPerugia.html';
+//    var defaultURL = 'http://localhost:8080/iVoLVR/BrestPerugia.html';
 //    var defaultURL = './PaperMemorability.html';
+//    var defaultURL = 'https://en.wikipedia.org/wiki/List_of_countries_by_oil_consumption';
+//    var defaultURL = 'http://www.leancrew.com/all-this/2011/11/i-hate-stacked-area-charts';
+    var defaultURL = 'http://www.google.com';
 
 
     url = url || defaultURL;
@@ -1356,7 +1359,7 @@ function showWebPage(url) {
     var elementTop = $("#openWebPageButton").position().top + $("#openWebPageButton").height();
     var idealHeight = viewportHeight - elementTop - 150;
 
-    var webPageDisplayer = $('<iframe />', {id: 'webPageDisplayer', style: 'resize:both; overflow:auto; margin-top: 8px; min-width:600px; min-height: 900px; max-height:' + idealHeight + 'px; background-color: #fff; border-color: #000; border-style: solid; border-width: 1px;'});
+    var webPageDisplayer = $('<iframe />', {id: 'webPageDisplayer', style: 'resize:both; overflow:auto; margin-top: 8px; min-width:630px; min-height: 900px; max-height:' + idealHeight + 'px; background-color: #fff; border-color: #000; border-style: solid; border-width: 1px;'});
 
 
 
@@ -2665,8 +2668,8 @@ function importImageToCanvas(options) {
 
         imgInstance.scaleX = 0;
         imgInstance.scaleY = 0;
-        imgInstance.opacity = 0;        
-        
+        imgInstance.opacity = 0;
+
         var duration = 500;
         var easing = fabric.util.ease['easeOutBack'];
 
@@ -4183,7 +4186,7 @@ function buildObjectFromConnectedPoints() {
     path = path.substring(0, path.length - 2);
 
     if (canvas.isPathMarkDrawingMode) {
-        
+
         var options = {
             fill: rgb(0, 153, 255),
             stroke: darkenrgb(0, 153, 255),
@@ -4712,7 +4715,7 @@ function modeButtonClicked(button) {
 
 function restorePan1FingerBehaviour() {
 
-    console.log("restorePan1FingerBehaviour !!!!");
+//    console.log("restorePan1FingerBehaviour !!!!");
 
     if (canvas.currentPan1FingerendOperation === PANNING_OPERATION) {
         applyActiveMenuButtonStyle($("#panningModeButton"));
@@ -5780,19 +5783,19 @@ function processScribbleFromPath(drawnPath) {
             height: 10
         });
 
-        console.log("BEFORE");
-        console.log("rect.left: " + rect.left);
-        console.log("rect.top: " + rect.top);
+//        console.log("BEFORE");
+//        console.log("rect.left: " + rect.left);
+//        console.log("rect.top: " + rect.top);
 
         computeUntransformedProperties(rect, parentObject);
         repositionWidget(parentObject, rect);
 
-        console.log("AFTER");
-        console.log("rect.left: " + rect.left);
-        console.log("rect.top: " + rect.top);
-
-        console.log("%c rect.untransformedX: " + rect.untransformedX, "background: rgb(20,79,132); color: white;");
-        console.log("%c rect.untransformedY: " + rect.untransformedY, "background: rgb(20,79,132); color: white;");
+//        console.log("AFTER");
+//        console.log("rect.left: " + rect.left);
+//        console.log("rect.top: " + rect.top);
+//
+//        console.log("%c rect.untransformedX: " + rect.untransformedX, "background: rgb(20,79,132); color: white;");
+//        console.log("%c rect.untransformedY: " + rect.untransformedY, "background: rgb(20,79,132); color: white;");
 
         untransformedPoints.push({x: rect.untransformedX, y: rect.untransformedY});
 
@@ -5815,15 +5818,15 @@ function processScribbleFromPath(drawnPath) {
 
                 var textResponse = request.responseText;
 
-                console.log("%c" + "textResponse:", "background: rgb(47,136,127); color: white;");
-                console.log(textResponse);
+//                console.log("%c" + "textResponse:", "background: rgb(47,136,127); color: white;");
+//                console.log(textResponse);
 
                 if (textResponse.trim().length > 0) {
 
                     var response = JSON.parse(textResponse);
 
-                    console.log("%c" + "response", "background: rgb(47,136,127); color: white;");
-                    console.log(response);
+//                    console.log("%c" + "response", "background: rgb(47,136,127); color: white;");
+//                    console.log(response);
 
                     if (response) {
 
@@ -5835,8 +5838,8 @@ function processScribbleFromPath(drawnPath) {
 
                             setTimeout(function () {
 
-                                console.log("%c" + "findingObject:", "background: rgb(47,136,127); color: white;");
-                                console.log(findingObject);
+//                                console.log("%c" + "findingObject:", "background: rgb(47,136,127); color: white;");
+//                                console.log(findingObject);
 
 
 
@@ -5931,11 +5934,11 @@ function processScribbleFromPath(drawnPath) {
     var imageForTextRecognition = parentObject.id;
 
 
-    console.log("%c" + "samplingPoints:", "background: rgb(47,136,127); color: white;");
-    console.log(samplingPoints);
-
-    console.log("%c" + "untransformedPoints:", "background: rgb(47,136,127); color: white;");
-    console.log(untransformedPoints);
+//    console.log("%c" + "samplingPoints:", "background: rgb(47,136,127); color: white;");
+//    console.log(samplingPoints);
+//
+//    console.log("%c" + "untransformedPoints:", "background: rgb(47,136,127); color: white;");
+//    console.log(untransformedPoints);
 
 //    request.send("samplingPoints=" + JSON.stringify(untransformedPoints) + "&imageForTextRecognition=" + imageForTextRecognition);  // sending the data to the server
     request.send("isSingleRegion=" + canvas.makeSingleRegion + "&samplingPoints=" + JSON.stringify(untransformedPoints) + "&imageForTextRecognition=" + imageForTextRecognition);  // sending the data to the server
@@ -6071,6 +6074,8 @@ function getDateFormats() {
     if (!dateFormats) {
         dateFormats = new Array();
 
+        dateFormats.push('MMM Do');
+        
         dateFormats.push('DD.MMM.YYYY');
         dateFormats.push('DD.MMM.YYYY / HH:mm');
 
@@ -7085,8 +7090,10 @@ function createArrayNode(values, name) {
     var arrayNode = createXMLElement(name || "value");
     addAttributeWithValue(arrayNode, "type", "array");
     values.forEach(function (value) {
-        var valueNode = value.toXML();
-        arrayNode.append(valueNode);
+        if (value && typeof value !== 'undefined') {
+            var valueNode = value.toXML();
+            arrayNode.append(valueNode);
+        }
     });
     return arrayNode;
 }
@@ -8187,7 +8194,8 @@ function canvasDropFunction(ev, ui) {
                 markAsSelected: false,
                 animateAtBirth: true
             };
-            addMarkToCanvas(FATFONT_MARK, options3);
+            +
+                    addMarkToCanvas(FATFONT_MARK, options3);
 
         } else if (id == "ellipsePrototype") {
 
