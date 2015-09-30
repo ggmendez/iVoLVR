@@ -261,7 +261,7 @@ var DataType = function () {
                     if (theDataType.lockMovementX && theDataType.lockMovementY) {
 
 
-                        var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isOperator', 'isFunctionInput', 'isAggregator', 'isDataType', 'isMapperInput', 'isVerticalCollection', 'isMark', 'isNumericFunctionInput']);
+                        var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isOperator', 'isFunctionInput', 'isAggregator', 'isDataType', 'isMapperInput', 'isVerticalCollection', 'isMark', 'isNumericFunctionInput', 'isRangeLimit']);
 
                         var connector = getLastElementOfArray(theDataType.outConnectors);
 
@@ -307,14 +307,11 @@ var DataType = function () {
 
                                     addVisualVariableToCollection(theDataType, targetObject, connector);
 
-
-                                } else if (targetObject.isVisualProperty || targetObject.isFunctionInput || targetObject.isDataType || targetObject.isMapperInput || targetObject.isNumericFunctionInput) {
+                                } else if (targetObject.isRangeLimit || targetObject.isVisualProperty || targetObject.isFunctionInput || targetObject.isDataType || targetObject.isMapperInput || targetObject.isNumericFunctionInput) {
 
                                     connector.setDestination(targetObject, true);
 
                                     setTimeout(function () {
-//                                        connector.source.bringToFront();
-//                                        connector.destination.bringToFront();
                                         bringToFront(connector.source);
                                         bringToFront(connector.destination);
                                     }, 50);

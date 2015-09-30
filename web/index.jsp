@@ -20,6 +20,7 @@
         <link rel="stylesheet" type="text/css" href="./css/values.css" />        
         <link rel="stylesheet" type="text/css" href="./css/marks.css" />    
         <link rel="stylesheet" type="text/css" href="./css/generators.css" />    
+        <link rel="stylesheet" type="text/css" href="./css/rangeGenerator.css" />    
 
         <link rel="stylesheet" type="text/css" href="./css/fonts/fontawesome/css/font-awesome.css" media="all" />
         <link rel="stylesheet" type="text/css" href="./css/fonts/font-awesome-4.4.0/css/font-awesome.css" media="all" />
@@ -106,7 +107,13 @@
         <script type="text/javascript" src="./js/classes/functions/MapperInput.js"></script>
         <script type="text/javascript" src="./js/classes/functions/MapperOutput.js"></script>
         <script type="text/javascript" src="./js/classes/functions/NumberGenerator.js"></script>
+        
         <script type="text/javascript" src="./js/classes/functions/DateGenerator.js"></script>
+        
+        <script type="text/javascript" src="./js/classes/rangeGenerators/Range.js"></script>
+        <script type="text/javascript" src="./js/classes/rangeGenerators/RangeLimit.js"></script>
+        <script type="text/javascript" src="./js/classes/rangeGenerators/RangeOutput.js"></script>
+        
         <script type="text/javascript" src="./js/classes/functions/NumberGeneratorOutput.js"></script>
         <script type="text/javascript" src="./js/classes/functions/NumericFunction.js"></script>
         <script type="text/javascript" src="./js/classes/functions/NumericFunctionInput.js"></script>
@@ -394,6 +401,8 @@
                         <li id="isStringData" draggable="true" class="dragElement circularBorder" style="margin-right: 1px; margin-bottom: 5px;"><a><i class="value-string" style="font-size: 25px;"></i></a></li>
                         <li id="isNumericData" draggable="true" class="dragElement circularBorder" style="margin-right: 1px; margin-bottom: 5px;"><a><i class="value-number" style="font-size: 25px;"></i></a></li>
 
+                        <li id="rangeGenerator" draggable="true" class="dragElement circularBorder" style="margin-right: 10px; margin-bottom: 0px;"><a style="padding-top: 6px; padding-left: 10px; padding-bottom: 0px;"><i class="range-generator" style="font-size: 24px;"></i></a></li> 
+                        
                         <li id="dateGenerator" draggable="true" class="dragElement circularBorder" style="margin-right: 10px; margin-bottom: 0px;"><a style="padding-top: 6px; padding-left: 10px; padding-bottom: 0px;"><i class="fa fa-adn" style="font-size: 24px;"></i></a></li> 
                         <li id="numberGenerator" draggable="true" class="dragElement circularBorder" style="margin-right: 10px; margin-bottom: 0px;"><a style="padding-top: 6px; padding-left: 10px; padding-bottom: 0px;"><i class="generator-number" style="font-size: 24px;"></i></a></li> 
                         <li id="isDurationData" draggable="true" class="dragElement circularBorder" style="margin-right: 1px; margin-bottom: 0px;"><a><i class="value-duration" style="font-size: 25px;"> </i> </a></li>
@@ -831,6 +840,13 @@
                     return $("<div style='z-index: 100;'><li><i class='fa fa-adn'></i></li></div>");
                 }
             });
+            $("#rangeGenerator").draggable({
+                cursorAt: {top: 18.5, left: 28},
+                cursor: 'none',
+                helper: function (event) {
+                    return $("<div style='z-index: 100;'><li><i class='range-generator'></i></li></div>");
+                }
+            });
             $("#squarePrototype").draggable({
                 cursorAt: {top: 18.5, left: 60},
                 cursor: 'none',
@@ -1016,7 +1032,7 @@
                 }
             });
             $("#theCanvas").droppable({
-                accept: "#addition-operator, #subtraction-operator, #multiplication-operator, #division-operator, #xFunction, #emptyFunction, #x2Function, #x3Function, #sinXFunction, #cosXFunction, #logXFunction, #sqrtXFunction, #playerWidget, #locatorWidget, #mapperWidget, #collectionGetterWidget, #collectionAttributeSelectorWidget, #verticalCollection, #collectionGenerator, #numberGenerator, #dateGenerator, #rectPrototype, #squarePrototype, #pathMarkPrototype, #circlePrototype, #fatFontPrototype, #ellipsePrototype, #isColorData, #isStringData, #isNumericData, #collectionValue, #isDurationData, #isDateAndTimeData, #isShapeData",
+                accept: "#addition-operator, #subtraction-operator, #multiplication-operator, #division-operator, #xFunction, #emptyFunction, #x2Function, #x3Function, #sinXFunction, #cosXFunction, #logXFunction, #sqrtXFunction, #playerWidget, #locatorWidget, #mapperWidget, #collectionGetterWidget, #collectionAttributeSelectorWidget, #verticalCollection, #collectionGenerator, #numberGenerator, #rangeGenerator, #dateGenerator, #rectPrototype, #squarePrototype, #pathMarkPrototype, #circlePrototype, #fatFontPrototype, #ellipsePrototype, #isColorData, #isStringData, #isNumericData, #collectionValue, #isDurationData, #isDateAndTimeData, #isShapeData",
                 drop: canvasDropFunction
             });
 

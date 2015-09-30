@@ -1321,11 +1321,11 @@ function showWebPage(url) {
 //    var defaultURL = 'http://www.st-andrews.ac.uk';
 //    var defaultURL = 'https://en.wikipedia.org/wiki/List_of_countries_by_oil_production';
 //    var defaultURL = 'http://www.w3schools.com/html/html_tables.asp';
-//    var defaultURL = 'http://localhost:8080/iVoLVR/BrestPerugia.html';
+    var defaultURL = 'http://localhost:8080/iVoLVR/BrestPerugia.html';
 //    var defaultURL = './PaperMemorability.html';
 //    var defaultURL = 'https://en.wikipedia.org/wiki/List_of_countries_by_oil_consumption';
 //    var defaultURL = 'http://www.leancrew.com/all-this/2011/11/i-hate-stacked-area-charts';
-    var defaultURL = 'http://www.google.com';
+//    var defaultURL = 'http://www.google.com';
 
 
     url = url || defaultURL;
@@ -8115,6 +8115,10 @@ function canvasDropFunction(ev, ui) {
         } else if (id === "numberGenerator") {
 
             addNumberGenerator({left: x, top: y});
+            
+        } else if (id === "rangeGenerator") {
+
+            addRange({left: x, top: y});
 
         } else if (id === "dateGenerator") {
 
