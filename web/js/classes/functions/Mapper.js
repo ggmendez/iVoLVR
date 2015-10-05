@@ -1673,7 +1673,7 @@ var Mapper = fabric.util.createClass(fabric.Rect, {
                     // An interpolated value will be generated for each 5 vertical pixels
 
 
-                    var samplingDistance = 5; // TODO: Seems like, when interpolating numbers, it is better to have a samplingDistance of 2. A conditional statement would work better here.
+                    var samplingDistance = 5;
 
 
                     var steps = Math.round((toVisualValue.top - fromVisualValue.top) / samplingDistance);

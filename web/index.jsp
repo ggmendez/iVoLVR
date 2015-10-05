@@ -107,13 +107,13 @@
         <script type="text/javascript" src="./js/classes/functions/MapperInput.js"></script>
         <script type="text/javascript" src="./js/classes/functions/MapperOutput.js"></script>
         <script type="text/javascript" src="./js/classes/functions/NumberGenerator.js"></script>
-        
+
         <script type="text/javascript" src="./js/classes/functions/DateGenerator.js"></script>
-        
+
         <script type="text/javascript" src="./js/classes/rangeGenerators/Range.js"></script>
         <script type="text/javascript" src="./js/classes/rangeGenerators/RangeLimit.js"></script>
         <script type="text/javascript" src="./js/classes/rangeGenerators/RangeOutput.js"></script>
-        
+
         <script type="text/javascript" src="./js/classes/functions/NumberGeneratorOutput.js"></script>
         <script type="text/javascript" src="./js/classes/functions/NumericFunction.js"></script>
         <script type="text/javascript" src="./js/classes/functions/NumericFunctionInput.js"></script>
@@ -133,15 +133,15 @@
         <script type="text/javascript" src="./js/jquery.drag.resize.js"></script>
 
         <script type="text/javascript" src="./js/toPathTransformations.js"></script>
-        
+
         <script type="text/javascript" src="./js/LevenshteinDistance/lib/levenshtein.js"></script>
 
         <% new OpenCVLoader();%>
 
     </head>
 
-    <body onresize="adjustCanvasDimensions();" onload="noBack();" onpageshow="if (event.persisted) noBack();" onunload="">
-        <!--<body oncontextmenu="return false;" onresize="adjustCanvasDimensions();" onload="noBack();" onpageshow="if (event.persisted) noBack();" onunload="">-->
+    <!--<body onresize="adjustCanvasDimensions();" onload="noBack();" onpageshow="if (event.persisted) noBack();" onunload="">-->
+        <body oncontextmenu="return false;" onresize="adjustCanvasDimensions();" onload="noBack();" onpageshow="if (event.persisted) noBack();" onunload="">
 
         <!--------------------->
         <!-- HORIZONTAL MENU -->
@@ -402,9 +402,10 @@
                         <li id="isNumericData" draggable="true" class="dragElement circularBorder" style="margin-right: 1px; margin-bottom: 5px;"><a><i class="value-number" style="font-size: 25px;"></i></a></li>
 
                         <li id="rangeGenerator" draggable="true" class="dragElement circularBorder" style="margin-right: 10px; margin-bottom: 0px;"><a style="padding-top: 6px; padding-left: 10px; padding-bottom: 0px;"><i class="range-generator" style="font-size: 24px;"></i></a></li> 
-                        
-                        <li id="dateGenerator" draggable="true" class="dragElement circularBorder" style="margin-right: 10px; margin-bottom: 0px;"><a style="padding-top: 6px; padding-left: 10px; padding-bottom: 0px;"><i class="fa fa-adn" style="font-size: 24px;"></i></a></li> 
-                        <li id="numberGenerator" draggable="true" class="dragElement circularBorder" style="margin-right: 10px; margin-bottom: 0px;"><a style="padding-top: 6px; padding-left: 10px; padding-bottom: 0px;"><i class="generator-number" style="font-size: 24px;"></i></a></li> 
+
+                        <!--                        <li id="dateGenerator" draggable="true" class="dragElement circularBorder" style="margin-right: 10px; margin-bottom: 0px;"><a style="padding-top: 6px; padding-left: 10px; padding-bottom: 0px;"><i class="fa fa-adn" style="font-size: 24px;"></i></a></li> 
+                                                <li id="numberGenerator" draggable="true" class="dragElement circularBorder" style="margin-right: 10px; margin-bottom: 0px;"><a style="padding-top: 6px; padding-left: 10px; padding-bottom: 0px;"><i class="generator-number" style="font-size: 24px;"></i></a></li> -->
+
                         <li id="isDurationData" draggable="true" class="dragElement circularBorder" style="margin-right: 1px; margin-bottom: 0px;"><a><i class="value-duration" style="font-size: 25px;"> </i> </a></li>
                         <li id="isDateAndTimeData" draggable="true" class="dragElement circularBorder" style="margin-right: 1px; margin-bottom: 0px;"><a><i class="value-dateAndTime" style="font-size: 25px;"></i></i></a></li>
 
@@ -434,9 +435,9 @@
                     <h6 id="draggableWidgetsListH6" onclick="togglePanelVisibility('#draggableWidgetsList', false);" style="cursor: pointer;" class="nonSelection sectionHeader"><span class="fa fa-angle-down" style="margin-right: 5px;"></span>Collections</h6>
                     <ul id="draggableWidgetsList" class="horizontalButtomsRow">
 
-<!--                        <li id="collectionGetterWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-angellist"></i></a></li>
-                                                <li id="collectionAttributeSelectorWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-archive"></i></a></li>-->
-                        
+                        <!--                        <li id="collectionGetterWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-angellist"></i></a></li>
+                                                                        <li id="collectionAttributeSelectorWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-archive"></i></a></li>-->
+
                         <!--                        <li id="collectionGetterWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-angellist"></i></a></li>
                                                 <li id="collectionAttributeSelectorWidget" draggable="true" class="dragElement boxDivider" style="margin-right: 5px;"><a><i class="fa fa-archive"></i></a></li>-->
 
@@ -566,7 +567,7 @@
             var canvasContainerElement = document.querySelector("#canvasContainer");
             var manager = new Hammer.Manager(canvasContainerElement);
 //            manager.add(new Hammer.Tap({event: 'doubletap', taps: 2, threshold: 500, interval: 1000, time: 600, posThreshold: 75}));            
-            manager.add(new Hammer.Tap({event: 'doubletap', taps: 2, threshold: 75, interval: 400, time: 600, posThreshold: 25}));            
+            manager.add(new Hammer.Tap({event: 'doubletap', taps: 2, threshold: 75, interval: 400, time: 600, posThreshold: 25}));
             manager.add(new Hammer.Press({event: 'press', time: 450}));
             var pan1Finger = new Hammer.Pan({event: 'pan1Finger', pointers: 1});
             manager.add(pan1Finger);
@@ -689,11 +690,11 @@
                         var crossedConnectors = getConnectorsCrossedByLine(line);
                         if (LOG)
                             console.log(crossedConnectors.length + " connectors crossed!");
-                        
+
                         var totalConnectors = crossedConnectors.length;
                         var i = 0;
-                        
-                        crossedConnectors.forEach(function (object) {                            
+
+                        crossedConnectors.forEach(function (object) {
                             var refreshCanvas = i === (totalConnectors - 1);
                             var connector = object.connector;
                             var splitPoint = object.splitPoint;
@@ -1286,15 +1287,15 @@
                  console.log(text);*/
 
                 if (e.dataTransfer.types) {
-                    
+
                     console.log("e.dataTransfer.types:");
                     console.log(e.dataTransfer.types);
-                    
+
                     var totalTypes = e.dataTransfer.types.length;
-                    for (var i=0; i<totalTypes; i++) {
+                    for (var i = 0; i < totalTypes; i++) {
                         var type = e.dataTransfer.types[i];
-                        
-                        
+
+
                         var contentType = type;
                         var dataString = e.dataTransfer.getData(type);
 
@@ -1308,11 +1309,11 @@
                             console.log("***" + dataString, 'red', 'white');
 
                             var found = addVisualElementFromHTML(parsedHTML, canvasCoords, true);
-                            
+
                             if (found) {
                                 break;
                             }
-                            
+
 //                            break;
 
 
@@ -1322,7 +1323,7 @@
                             var url = dataString;
 
                             showWebPage(url);
-                            
+
 //                            break;
 
 //                        } else if (contentType === "text/plain") {
@@ -1393,10 +1394,10 @@
                             break;
 
                         }
-                        
-                        
+
+
                     }
-                    
+
 //                    e.dataTransfer.types.forEach(function (type) {
 //                        
 //                        
@@ -1499,9 +1500,9 @@
 //
 //
 //                    });
-                    
-                    
-                    
+
+
+
                 } else {
                     console.log(e.dataTransfer.getData('Text'));
                 }
@@ -1614,10 +1615,15 @@
             var popSound = new Audio("audio/pop.wav"); // buffers automatically when created
             var trashSound = new Audio("audio/trash.wav"); // buffers automatically when created
             
+            /*addRange({left: 800, top: 500});
+            var visualValue = createDefaultVisualValueByTypeProposition('isNumericData', 1300, 600);
+            canvas.add(visualValue);
+            visualValue.animateBirth(false, null, null, false);*/
+
 
         </script>
-        
-        
+
+
 
 
 

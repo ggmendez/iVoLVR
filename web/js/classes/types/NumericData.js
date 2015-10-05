@@ -400,8 +400,6 @@ function showNumericValue(holderElement, allowEdition) {
         console.log("numberValue: ");
         console.log(numberValue);
 
-
-
         // The incoming connection(s) of this element are only removed if the ABSOLUTE VALUE of this numeric value has changed (1000 meters are the same thing than 1kilometers)
         if (!numberValue.equals(holderElement.value)) {
             if (holderElement.inConnectors.length > 0) {
@@ -429,7 +427,7 @@ function showNumericValue(holderElement, allowEdition) {
         var refreshCanvas = false;
         var shouldAnimate = true;
 
-        if (holderElement.isVisualProperty) {
+        if (holderElement.isVisualProperty || holderElement.isRangeLimit) {
 
             holderElement.setValue(numberValue, refreshCanvas, shouldAnimate);
 

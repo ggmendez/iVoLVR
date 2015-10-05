@@ -30,7 +30,7 @@ var RangeOutput = fabric.util.createClass(fabric.Path, {
     },
     setValue: function (numericValue, refreshCanvas, shouldAnimate) {
         
-        console.log("%c RangeOutput setValue function. shouldAnimate: " + shouldAnimate + ", refreshCanvas: " + refreshCanvas, "background: #4B0082; color: white;");
+//        console.log("%c RangeOutput setValue function. shouldAnimate: " + shouldAnimate + ", refreshCanvas: " + refreshCanvas, "background: #4B0082; color: white;");
 
         var theOutputPoint = this;
         theOutputPoint.value = numericValue;

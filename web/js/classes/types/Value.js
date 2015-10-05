@@ -202,6 +202,7 @@ function Value(options) {
             return this.duration.as(this.outputUnits).toFixed(2) + ' ' + this.outputUnits;
         } else if (this.isDateAndTimeData) {
             return this.moment.format('DD/MMM/YYYY, HH:mm:ss');
+//            return this.moment.format('DD/MMM/YYYY') + "\n" + this.moment.format('HH:mm:ss');
         } else if (this.isColorData) {
             return this.color.toRgb();
         } else if (this.isShapeData) {
@@ -247,9 +248,11 @@ function Value(options) {
         } else if (this.isStringData) {
             
             if (newDataTypeProposition === 'isNumericData') {
-
-                return createNumericValue(Number(this.string));
-
+                var number = Number(this.string);
+                if (!isNaN(number)) {
+                    return createNumericValue();
+                }
+                return null;
             }
             
         } else if (this.isNumericData) {

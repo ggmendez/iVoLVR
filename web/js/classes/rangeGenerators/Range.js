@@ -51,7 +51,7 @@ var Range = fabric.util.createClass(fabric.Rect, {
 
         options || (options = {});
 
-        this.defaultHeight = 120;
+        this.defaultHeight = 115;
         this.defaultWidth = 500;
         this.smallIndent = 40;
         this.largeIndent = 0;
@@ -261,16 +261,16 @@ var Range = fabric.util.createClass(fabric.Rect, {
     },
     updateOtherLimit: function (limitName) {
 
-        var range = this;
-        var currentLimit = range[limitName];
+        var theRange = this;
+        var currentLimit = theRange[limitName];
         var currentType = getIconNameByDataTypeProposition(currentLimit.value.getTypeProposition());
 
         var otherLimitName = limitName === "lowerLimit" ? "upperLimit" : "lowerLimit";
-        var otherLimit = range[otherLimitName];
+        var otherLimit = theRange[otherLimitName];
         var otherValue = otherLimit.value;
         var otherType = otherValue ? getIconNameByDataTypeProposition(otherValue.getTypeProposition()) : null;
 
-        console.log("otherType: " + otherType);
+//        console.log("otherType: " + otherType);
 
         if (!otherValue || otherType !== currentType) {
             otherLimit.removeTypeIcon();
@@ -282,6 +282,26 @@ var Range = fabric.util.createClass(fabric.Rect, {
                 outConnector.contract();
             });
         }
+
+        if (theRange.lowerLimit.value && theRange.upperLimit.value) {
+
+            if (theRange.lowerLimit.value.getTypeProposition() === theRange.upperLimit.value.getTypeProposition()) {
+
+
+
+                theRange.outputPoint.animate('opacity', 1, {
+                    duration: 400
+                });
+
+                theRange.computeOutput();
+
+
+
+            }
+
+        }
+
+
 
 
     },
@@ -353,11 +373,12 @@ var Range = fabric.util.createClass(fabric.Rect, {
             },
         });
     },
+    computeOuputNumber: function () {
+
+    },
     computeOutput: function (xCoordinate, shouldAnimate) {
 
-        return;
-
-        console.log("%c computeOutput function NUMBERGENERATOR class. shouldAnimate: " + shouldAnimate, "background: #7FFFD4; color: #000000;");
+//        console.log("%c computeOutput function NUMBERGENERATOR class. shouldAnimate: " + shouldAnimate, "background: #7FFFD4; color: #000000;");
 
         var theRange = this;
         var theOutputPoint = theRange.outputPoint;
@@ -366,15 +387,57 @@ var Range = fabric.util.createClass(fabric.Rect, {
             xCoordinate = theOutputPoint.left;
         }
 
-        var oldMin = theRange.lowerLimit.getCenterPoint().x;
-        var oldMax = theRange.upperLimit.getCenterPoint().x;
-        var newMin = theRange.lowerLimit.value.number;
-        var newMax = theRange.upperLimit.value.number;
-        var output = changeRange(xCoordinate, oldMin, oldMax, newMin, newMax);
+        var lowerValue = theRange.lowerLimit.value;
+        var upperValue = theRange.upperLimit.value;
+
+        if (lowerValue === null || typeof lowerValue === 'undefined' || upperValue === null || typeof upperValue === 'undefined') {
+            return;
+        }
 
         var refreshCanvas = false;
+        var oldMin = theRange.lowerLimit.getCenterPoint().x;
+        var oldMax = theRange.upperLimit.getCenterPoint().x;
+        var outputValue = null;
 
-        theRange.outputPoint.setValue(createNumericValue(output), refreshCanvas, shouldAnimate);
+        if (lowerValue.isNumericData) {
+
+            var newMin = lowerValue.number;
+            var newMax = upperValue.number;
+            var output = changeRange(xCoordinate, oldMin, oldMax, newMin, newMax);
+            outputValue = createNumericValue(output);
+
+        } else if (lowerValue.isColorData) {
+
+            var samplingDistance = 25;
+            var steps = Math.round((oldMax - oldMin) / samplingDistance);
+            var interpolatedValues = lowerValue.interpolateTo(upperValue, steps);
+            if (interpolatedValues) {
+                var outputPos = Math.round((xCoordinate - oldMin) / samplingDistance);
+                if (outputPos < 0) {
+                    outputPos = 0;
+                } else if (outputPos >= interpolatedValues.length) {
+                    outputPos = interpolatedValues.length - 1;
+                }
+                outputValue = interpolatedValues[outputPos];
+            }
+
+        } else if (lowerValue.isDurationData) {
+            
+            var newMin = lowerValue.duration.valueOf();
+            var newMax = upperValue.duration.valueOf();
+            var output = changeRange(xCoordinate, oldMin, oldMax, newMin, newMax);
+            outputValue = createDurationValue(moment.duration(output));
+            
+        } else if (lowerValue.isDateAndTimeData) {
+
+            var newMin = lowerValue.moment.valueOf();
+            var newMax = upperValue.moment.valueOf();
+            var output = changeRange(xCoordinate, oldMin, oldMax, newMin, newMax);
+            outputValue = createDateAndTimeValue(moment(output));
+
+        }
+
+        theRange.outputPoint.setValue(outputValue, refreshCanvas, shouldAnimate);
     },
     addLimits: function (values, xmlIDs) {
 
@@ -409,7 +472,7 @@ var Range = fabric.util.createClass(fabric.Rect, {
             evented: true,
             selectable: true,
             angle: 270,
-            opacity: 1, // The output point is not visible at the bigining. It will appear when the outCollection has values
+            opacity: 0, // The output point is not visible at the bigining. It will appear when the outCollection has values
             generator: theGenerator,
             value: outputValue,
             xmlID: xmlIDs ? xmlIDs['output'] : null,
@@ -527,15 +590,48 @@ var Range = fabric.util.createClass(fabric.Rect, {
         ctx.moveTo(x1 - 1, y1);
         ctx.lineTo(x2, y1);
 
-        // x left tick mark
+        // left tick mark
         ctx.moveTo(x1, y1);
         ctx.lineTo(x1, y1 + theGenerator.tickMarkLength);
 
-        // x right tick mark
+
+        ctx.save();
+
+        ctx.fillStyle = "black";
+        ctx.font = '12px Helvetica';
+        ctx.textAlign = "center";
+
+        if (!this.lowerLimit.value) {
+            ctx.fillText("[", x1, y1 + 74);
+        }
+
+
+        // right tick mark
         ctx.moveTo(x2 - 1, y1);
         ctx.lineTo(x2 - 1, y1 + theGenerator.tickMarkLength);
 
+
+        if (!this.upperLimit.value) {
+            ctx.fillText("]", x2 - 1, y1 + 74);
+        }
+
+        ctx.restore();
+
         ctx.stroke();
+
+        // background of the play button
+        ctx.save();
+        ctx.fillStyle = 'rgba(255,255,255,255)';
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 36, 19, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
+
+
+
+
+
+
         ctx.closePath();
         ctx.restore();
 

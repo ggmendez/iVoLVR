@@ -149,7 +149,7 @@ var DataType = function () {
             ctx.save();
             ctx.beginPath();
             ctx.strokeStyle = this.fill;
-            ctx.lineWidth = widget_selected_stroke_width - 1;
+            ctx.lineWidth = widget_selected_stroke_width;
             ctx.arc(0, 0, this.width / 2 - widget_selected_stroke_width / 2 + 1, 0, 2 * Math.PI);
             ctx.stroke();
             ctx.closePath();
@@ -159,7 +159,7 @@ var DataType = function () {
             ctx.beginPath();
             ctx.strokeStyle = 'white';
             ctx.lineWidth = widget_selected_stroke_width / 2;
-            ctx.arc(0, 0, this.width / 2 + widget_selected_stroke_width / 4, 0, 2 * Math.PI);
+            ctx.arc(0, 0, this.width / 2 + widget_selected_stroke_width / 3, 0, 2 * Math.PI);
             ctx.stroke();
             ctx.closePath();
             ctx.restore();
@@ -169,7 +169,7 @@ var DataType = function () {
             ctx.setLineDash(widget_selected_stroke_dash_array);
             ctx.strokeStyle = widget_selected_stroke_color;
             ctx.lineWidth = widget_selected_stroke_width;
-            ctx.arc(0, 0, this.width / 2, 0, 2 * Math.PI);
+            ctx.arc(0, 0, this.width / 2 + 1, 0, 2 * Math.PI);
             ctx.stroke();
             ctx.closePath();
             ctx.restore();
@@ -183,13 +183,17 @@ var DataType = function () {
         if (true) {
 
             if (!this.collection) {
+                var string = '';
+                if (this.value) {
+                    string = this.value.getDisplayableString(this.optionsToDisplay);
+                }
                 ctx.save();
                 ctx.beginPath();
                 ctx.font = '16px Helvetica';
                 ctx.fillStyle = 'black';
                 ctx.textAlign = "center";
                 ctx.moveTo(0, 0);
-                ctx.fillText(this.value.getDisplayableString(this.optionsToDisplay), 0, this.height / 2 + 20);
+                ctx.fillText(string, 0, this.height / 2 + 20);
                 ctx.closePath();
                 ctx.restore();
             }
@@ -483,11 +487,11 @@ var DataType = function () {
 
                                             if ((theVisualProperty.attribute === "x" || theVisualProperty.attribute === "y") && theVisualProperty.mark && theVisualProperty.mark.parentObject && theVisualProperty.mark.parentObject.isLocator) {
 
-                                                
+
                                                 theVisualProperty.mark.parentObject.positionChild(theVisualProperty.attribute, convertedValue, theVisualProperty.mark, true);
 
                                             } else {
-                                                
+
                                                 theVisualProperty.setValue(convertedValue, true, true);
 
 //                                                theVisualProperty.parentObject.setProperty(theVisualProperty.attribute, convertedValue, newInConnection.source, shouldAnimate);
@@ -572,87 +576,92 @@ var DataType = function () {
             'outConnectionRemoved': standarOutConnectionRemovedHandler,
             'newInConnection': function (options) {
 
-                console.log("%cnewInConnection function DATATYPE class. options:", "background: #DAA520; color: black;");
-                console.log(options);
+                if (this.isRangeLimit) {
+                    this.newInConnection(options);
 
-                var theDataType = this;
+                } else {
 
-                var newInConnection = options.newInConnection;
-                var shouldAnimate = options.shouldAnimate;
-                var doNotBlink = options.doNotBlink;
+                    console.log("%cnewInConnection function DATATYPE class. options:", "background: #DAA520; color: black;");
+                    console.log(options);
 
-                var targetAttribute = newInConnection.destination.attribute;
-                var incommingValue = newInConnection.value;
+                    var theDataType = this;
 
-                if (!incommingValue[theDataType.dataTypeProposition]) {
+                    var newInConnection = options.newInConnection;
+                    var shouldAnimate = options.shouldAnimate;
+                    var doNotBlink = options.doNotBlink;
 
-                    var convertedValue = incommingValue.convert(theDataType.dataTypeProposition);
-                    if (convertedValue) {
-                        incommingValue = convertedValue;
-                    } else {
-                        alertify.error("Values types not compatible", "", 2000);
-                        newInConnection.contract();
-                        return;
-                    }
-                }
+                    var targetAttribute = newInConnection.destination.attribute;
+                    var incommingValue = newInConnection.value;
 
+                    if (!incommingValue[theDataType.dataTypeProposition]) {
 
-
-                if (this.setValue(incommingValue, doNotBlink)) {
-
-                    if (LOG)
-                        console.log("5555555555555555555555555555555555555");
-
-                    if (theDataType.inConnectors.length > 0) {
-                        var connector = theDataType.inConnectors.pop();
-                        connector.contract();
+                        var convertedValue = incommingValue.convert(theDataType.dataTypeProposition);
+                        if (convertedValue) {
+                            incommingValue = convertedValue;
+                        } else {
+                            alertify.error("Values types not compatible", "", 2000);
+                            newInConnection.contract();
+                            return;
+                        }
                     }
 
-                    theDataType.inConnectors.push(newInConnection);
 
-                    if (!doNotBlink) {
-                        blink(theDataType, true, 0.45);
-                    }
+
+                    if (this.setValue(incommingValue, doNotBlink)) {
+
+                        if (LOG)
+                            console.log("5555555555555555555555555555555555555");
+
+                        if (theDataType.inConnectors.length > 0) {
+                            var connector = theDataType.inConnectors.pop();
+                            connector.contract();
+                        }
+
+                        theDataType.inConnectors.push(newInConnection);
+
+                        if (!doNotBlink) {
+                            blink(theDataType, true, 0.45);
+                        }
 
 //                    theDataType.outConnectors.forEach(function (outConnector) {
 //                        outConnector.setValue(incommingValue, false, shouldAnimate);
 //                    });
 
-                    // Every time a value is set here, we also have to update the values of the outgoing connections
-                    theDataType.outConnectors.forEach(function (outConnector) {
+                        // Every time a value is set here, we also have to update the values of the outgoing connections
+                        theDataType.outConnectors.forEach(function (outConnector) {
+
+                            if (LOG)
+                                console.log("The value that will be communicated to the connectors' destinations:");
+                            if (LOG)
+                                console.log(theDataType.value);
+
+                            outConnector.setValue(theDataType.value.clone(), false, shouldAnimate);
+                        });
 
                         if (LOG)
-                            console.log("The value that will be communicated to the connectors' destinations:");
-                        if (LOG)
-                            console.log(theDataType.value);
+                            console.log("-----------------------------------------------------------------------");
 
-                        outConnector.setValue(theDataType.value.clone(), false, shouldAnimate);
-                    });
+                        if (theDataType.collection) {
+                            var options = {
+                                visualValue: theDataType
+                            };
+                            theDataType.collection.trigger('valueChanged', options);
+                        }
 
-                    if (LOG)
-                        console.log("-----------------------------------------------------------------------");
 
-                    if (theDataType.collection) {
-                        var options = {
-                            visualValue: theDataType
-                        };
-                        theDataType.collection.trigger('valueChanged', options);
+
+
+                    } else {
+
+                        alertify.error("Error when trying to set the new value!", "", 2000);
+                        newInConnection.contract();
+                        return;
+
                     }
 
 
 
-
-                } else {
-
-                    alertify.error("Error when trying to set the new value!", "", 2000);
-                    newInConnection.contract();
-                    return;
-
                 }
-
-
-
-
 
 
 

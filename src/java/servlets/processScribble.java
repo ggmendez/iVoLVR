@@ -118,8 +118,7 @@ public class processScribble extends HttpServlet {
             Imgproc.drawContours(image, arrayList, 0, newVal, -1);
 
             Imgproc.resize(mask, mask, image.size());
-            
-            
+                        
             Scalar meanColor = Core.mean(original, mask);
 
 //            Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\the_convexHull.png", image);

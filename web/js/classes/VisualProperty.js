@@ -415,7 +415,7 @@ var VisualProperty = function () {
                 var coordX = canvasCoords.x;
                 var coordY = canvasCoords.y;
 
-                var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isOperator', 'isFunctionInput', 'isAggregator', 'isMark', 'isPlayer', 'isDataType', 'isVerticalCollection', 'isMapperInput', 'isMapperOutput', 'isFunctionValuesCollection']);
+                var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isRangeLimit', 'isOperator', 'isFunctionInput', 'isAggregator', 'isMark', 'isPlayer', 'isDataType', 'isVerticalCollection', 'isMapperInput', 'isMapperOutput', 'isFunctionValuesCollection']);
 
                 if (LOG)
                     console.log(targetObject);
@@ -426,7 +426,7 @@ var VisualProperty = function () {
 
                     if (targetObject !== this) {
 
-                        if (targetObject.isOperator || targetObject.isVisualProperty || targetObject.isFunctionInput || targetObject.isDataType || targetObject.isFunctionValuesCollection || targetObject.isMapperInput || targetObject.isMapperOutput) {
+                        if (targetObject.isRangeLimit || targetObject.isOperator || targetObject.isVisualProperty || targetObject.isFunctionInput || targetObject.isDataType || targetObject.isFunctionValuesCollection || targetObject.isMapperInput || targetObject.isMapperOutput) {
 
                             var connector = getLastElementOfArray(this.outConnectors);
 

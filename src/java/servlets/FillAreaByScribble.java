@@ -86,7 +86,7 @@ public class FillAreaByScribble extends HttpServlet {
                 Mat seedImage = original.clone();
                 Core.circle(seedImage, point, 9, new Scalar(0, 0, 255), -1);
                 Core.putText(userPointsImage, "" + k, new Point(point.x + 5, point.y + 5), 3, 0.5, new Scalar(0, 0, 0));
-                ImageUtils.saveImage(seedImage, "mask_" + k + "_seed" + imageForTextRecognition + ".png", request);
+//                ImageUtils.saveImage(seedImage, "mask_" + k + "_seed" + imageForTextRecognition + ".png", request);
 
                 if (!makeSingleRegion) {
                     Mat element = new Mat(3, 3, CvType.CV_8U, new Scalar(1));
@@ -94,7 +94,7 @@ public class FillAreaByScribble extends HttpServlet {
                     Imgproc.resize(mask, mask, original.size());
                 }
 
-                ImageUtils.saveImage(mask, "mask_" + k + "" + imageForTextRecognition + ".png", request);
+//                ImageUtils.saveImage(mask, "mask_" + k + "" + imageForTextRecognition + ".png", request);
 
                 Mat dilatedMask = new Mat();
 
@@ -103,7 +103,7 @@ public class FillAreaByScribble extends HttpServlet {
                 Imgproc.morphologyEx(mask, dilatedMask, Imgproc.MORPH_DILATE, element, new Point(-1, -1), 1);
                 Imgproc.resize(dilatedMask, dilatedMask, original.size());
 
-                ImageUtils.saveImage(dilatedMask, "mask_" + k + "_dilated" + imageForTextRecognition + ".png", request);
+//                ImageUtils.saveImage(dilatedMask, "mask_" + k + "_dilated" + imageForTextRecognition + ".png", request);
 
                 maskRegions.add(mask);
 
@@ -116,8 +116,8 @@ public class FillAreaByScribble extends HttpServlet {
                     filterPoints(userPoints, mask);
                 }
 
-                System.out.println("Total points after filtering:");
-                System.out.println(userPoints.size());
+//                System.out.println("Total points after filtering:");
+//                System.out.println(userPoints.size());
 
                 if (!makeSingleRegion) {
                     mask = Mat.zeros(original.rows() + 2, original.cols() + 2, CvType.CV_8UC1);
@@ -153,15 +153,15 @@ public class FillAreaByScribble extends HttpServlet {
                 }
                 path += "Z";
 
-                System.out.println("path:");
-                System.out.println(path);
+//                System.out.println("path:");
+//                System.out.println(path);
 
                 Rect computedSearchWindow = Imgproc.boundingRect(biggestContour);
                 Point massCenter = computedSearchWindow.tl();
 
                 Scalar meanColor = Core.mean(original, mask);
                 
-                ImageUtils.saveImage(mask, "single_mask_" + imageForTextRecognition + ".png", request);
+//                ImageUtils.saveImage(mask, "single_mask_" + imageForTextRecognition + ".png", request);
 
                 FindingResponse findingResponse = new FindingResponse(path, meanColor, massCenter, -1, contourArea);
                 findingResponses.add(findingResponse);
@@ -197,7 +197,7 @@ public class FillAreaByScribble extends HttpServlet {
                         Rect computedSearchWindow = Imgproc.boundingRect(biggestContour);
                         Point massCenter = computedSearchWindow.tl();
 
-                        System.out.println("Contour area: " + contourArea);
+//                        System.out.println("Contour area: " + contourArea);
 
                         Mat contoursImage = userPointsImage.clone();
                         Imgproc.drawContours(contoursImage, contours, 0, newVal, 1);
@@ -207,7 +207,7 @@ public class FillAreaByScribble extends HttpServlet {
                         FindingResponse findingResponse = new FindingResponse(path, meanColor, massCenter, -1, contourArea);
                         findingResponses.add(findingResponse);
 
-                        ImageUtils.saveImage(contoursImage, "mask_" + j + "_contourned" + imageForTextRecognition + ".png", request);
+//                        ImageUtils.saveImage(contoursImage, "mask_" + j + "_contourned" + imageForTextRecognition + ".png", request);
 
                     }
 
@@ -230,7 +230,7 @@ public class FillAreaByScribble extends HttpServlet {
             int row = (int) point.y;
             double[] value = mask.get(row, col);
             if (value[0] != 0) {
-                System.out.println("Removing");
+//                System.out.println("Removing");
                 points.remove(point);
                 i--;
                 removals++;

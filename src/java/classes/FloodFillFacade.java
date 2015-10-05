@@ -205,7 +205,7 @@ public class FloodFillFacade {
 //        Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\image_after_flood_" + cont + ".png", image);
 //        Highgui.imwrite("C:\\Users\\Gonzalo\\Documents\\NetBeansProjects\\iVoLVR\\uploads\\mask_" + cont + ".png", mask);
 
-        System.out.println("area: " + area);
+//        System.out.println("area: " + area);
 
         cont++;
 

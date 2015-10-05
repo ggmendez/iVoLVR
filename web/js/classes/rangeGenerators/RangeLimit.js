@@ -28,51 +28,51 @@ var RangeLimit = fabric.util.createClass(fabric.Circle, {
         this.setCoords();
         this.associateEvents();
     },
-    applySelectedStyle: function (selectConnectors) {
-
-        this.selected = true;
-        this.stroke = widget_selected_stroke_color;
-        this.strokeDashArray = widget_selected_stroke_dash_array;
-        this.strokeWidth = widget_selected_stroke_width;
-
-        if (selectConnectors) {
-            this.inConnectors.forEach(function (inConnector) {
-                inConnector.opacity = 1;
-                if (!inConnector.source.isOperator) {
-                    inConnector.applySelectedStyle(true, false);
-                } else {
-                    inConnector.source.applySelectedStyle(false);
-                    inConnector.applySelectedStyle(false, false);
-                }
-            });
-            this.outConnectors.forEach(function (outConnector) {
-                outConnector.opacity = 1;
-                if (!outConnector.source.isOperator) {
-                    outConnector.applySelectedStyle(false, true);
-                } else {
-                    outConnector.destination.applySelectedStyle(false);
-                    outConnector.applySelectedStyle(false, false);
-                }
-            });
-        }
-    },
-    applyUnselectedStyle: function (unselectConnectors) {
-        this.selected = false;
-        this.stroke = this.colorForStroke;
-        this.strokeDashArray = [];
-        this.strokeWidth = this.originalStrokeWidth;
-        if (unselectConnectors) {
-            this.inConnectors.forEach(function (inConnector) {
-                inConnector.opacity = canvas.connectorsHidden ? 0 : 1;
-                inConnector.applyUnselectedStyle(false, false);
-            });
-            this.outConnectors.forEach(function (outConnector) {
-                outConnector.opacity = canvas.connectorsHidden ? 0 : 1;
-                outConnector.applyUnselectedStyle(false, false);
-            });
-        }
-
-    },
+//    applySelectedStyle: function (selectConnectors) {
+//
+//        this.selected = true;
+//        this.stroke = widget_selected_stroke_color;
+//        this.strokeDashArray = widget_selected_stroke_dash_array;
+//        this.strokeWidth = widget_selected_stroke_width;
+//
+//        if (selectConnectors) {
+//            this.inConnectors.forEach(function (inConnector) {
+//                inConnector.opacity = 1;
+//                if (!inConnector.source.isOperator) {
+//                    inConnector.applySelectedStyle(true, false);
+//                } else {
+//                    inConnector.source.applySelectedStyle(false);
+//                    inConnector.applySelectedStyle(false, false);
+//                }
+//            });
+//            this.outConnectors.forEach(function (outConnector) {
+//                outConnector.opacity = 1;
+//                if (!outConnector.source.isOperator) {
+//                    outConnector.applySelectedStyle(false, true);
+//                } else {
+//                    outConnector.destination.applySelectedStyle(false);
+//                    outConnector.applySelectedStyle(false, false);
+//                }
+//            });
+//        }
+//    },
+//    applyUnselectedStyle: function (unselectConnectors) {
+//        this.selected = false;
+//        this.stroke = this.colorForStroke;
+//        this.strokeDashArray = [];
+//        this.strokeWidth = this.originalStrokeWidth;
+//        if (unselectConnectors) {
+//            this.inConnectors.forEach(function (inConnector) {
+//                inConnector.opacity = canvas.connectorsHidden ? 0 : 1;
+//                inConnector.applyUnselectedStyle(false, false);
+//            });
+//            this.outConnectors.forEach(function (outConnector) {
+//                outConnector.opacity = canvas.connectorsHidden ? 0 : 1;
+//                outConnector.applyUnselectedStyle(false, false);
+//            });
+//        }
+//
+//    },
     removeTypeIcon: function () {
         var theLimit = this;
         if (theLimit.typeIcon && theLimit.typeIcon.canvas) {
@@ -142,6 +142,8 @@ var RangeLimit = fabric.util.createClass(fabric.Circle, {
             canvas.renderAll();
         }
 
+        theLimit.range.updateOtherLimit(theLimit.limitName);
+
         var i;
         for (i = 0; i < theLimit.outConnectors.length; i++) {
             theLimit.outConnectors[i].setValue(theLimit.value, false, shouldAnimate);
@@ -149,15 +151,32 @@ var RangeLimit = fabric.util.createClass(fabric.Circle, {
 
         return true;
 
-
-
-
+    },
+    expand: function () {
+        var theLimit = this;
+        var value = theLimit.value;
+        if (value) {
+            if (value.isNumericData) {
+                showNumericValue(theLimit, true);
+            } else if (value.isColorData) {
+                showColorChooser(theLimit);
+            } else if (value.isDateAndTimeData) {
+                showDateAndTimeValue(theLimit, true);
+            } else if (value.isDurationData) {
+                showDurationValue(theLimit, true);
+            }
+        }
     },
     associateEvents: function () {
 
-        var theOutputPoint = this;
+        var theLimit = this;
 
-        theOutputPoint.on({
+        theLimit.on({
+            'doubleTap': function (options) {
+                if (theLimit.value) {
+                    theLimit.expand();
+                }
+            },
             'moving': function (options) {
 
                 var theLimit = this;
@@ -224,132 +243,142 @@ var RangeLimit = fabric.util.createClass(fabric.Circle, {
                 }
 
             },
-            'mouseup': function (options) {
-
-                var theOutputPoint = this;
-
-                if (theOutputPoint.connecting) {
-
-                    var event = options.e;
-                    var canvasCoords = getCanvasCoordinates(event);
-                    var coordX = canvasCoords.x;
-                    var coordY = canvasCoords.y;
-
-                    var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isOperator', 'isFunctionInput', 'isAggregator', 'isDataType', 'isMapperInput', 'isVerticalCollection', 'isMark', 'isNumericFunctionInput']);
-                    var lastAddedConnector = getLastElementOfArray(theOutputPoint.outConnectors);
-
-                    if (targetObject) {
-
-                        if (targetObject !== this) {
-
-                            if (targetObject.isVisualProperty || targetObject.isFunctionInput || targetObject.isDataType || targetObject.isMapperInput || targetObject.isNumericFunctionInput || targetObject.isOperator) {
-
-                                lastAddedConnector.setDestination(targetObject, true);
-
-                            } else {
-
-                                if (lastAddedConnector) {
-                                    lastAddedConnector.contract();
-                                }
-
-                            }
-
-                        } else {
-                            var connector = theOutputPoint.outConnectors.pop();
-                            if (connector) {
-                                connector.contract();
-                            }
-                        }
-
-                    } else {
-
-                        var dataType = CreateDataTypeFromValue(lastAddedConnector.value);
-                        dataType.top = coordY;
-                        dataType.left = coordX;
-
-                        lastAddedConnector.setDestination(dataType, true);
-
-                        canvas.add(dataType);
-                        dataType.animateBirth(false, null, null, false);
-
-                        setTimeout(function () {
-//                            theOutputPoint.bringToFront();
-//                            dataType.bringToFront();
-                            bringToFront(theOutputPoint);
-                            bringToFront(dataType);
-                        }, 50);
-
-                    }
-
-                    theOutputPoint.connecting = false;
-
-                }
-
-                theOutputPoint.lockMovementX = false;
-                theOutputPoint.lockMovementY = true;
-
-            },
-            'pressed': function (options) {
-
-                var theOutputPoint = this;
-
-                theOutputPoint.connecting = true;
-
-                theOutputPoint.lockMovementX = true;
-                theOutputPoint.lockMovementY = true;
-                blink(theOutputPoint, true, 0.45);
-
-                var newConnector = new Connector({value: theOutputPoint.value, source: theOutputPoint, x2: theOutputPoint.left, y2: theOutputPoint.top, arrowColor: theOutputPoint.stroke, filledArrow: true, strokeWidth: 1});
-
-                theOutputPoint.outConnectors.push(newConnector);
-                canvas.add(newConnector);
-
-            },
+//            'mouseup': function (options) {
+//
+//                var theOutputPoint = this;
+//
+//                if (theOutputPoint.connecting) {
+//
+//                    var event = options.e;
+//                    var canvasCoords = getCanvasCoordinates(event);
+//                    var coordX = canvasCoords.x;
+//                    var coordY = canvasCoords.y;
+//
+//                    var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isOperator', 'isFunctionInput', 'isAggregator', 'isDataType', 'isMapperInput', 'isVerticalCollection', 'isMark', 'isNumericFunctionInput']);
+//                    var lastAddedConnector = getLastElementOfArray(theOutputPoint.outConnectors);
+//
+//                    if (targetObject) {
+//
+//                        if (targetObject !== this) {
+//
+//                            if (targetObject.isVisualProperty || targetObject.isFunctionInput || targetObject.isDataType || targetObject.isMapperInput || targetObject.isNumericFunctionInput || targetObject.isOperator) {
+//
+//                                lastAddedConnector.setDestination(targetObject, true);
+//
+//                            } else {
+//
+//                                if (lastAddedConnector) {
+//                                    lastAddedConnector.contract();
+//                                }
+//
+//                            }
+//
+//                        } else {
+//                            var connector = theOutputPoint.outConnectors.pop();
+//                            if (connector) {
+//                                connector.contract();
+//                            }
+//                        }
+//
+//                    } else {
+//
+//                        var dataType = CreateDataTypeFromValue(lastAddedConnector.value);
+//                        dataType.top = coordY;
+//                        dataType.left = coordX;
+//
+//                        lastAddedConnector.setDestination(dataType, true);
+//
+//                        canvas.add(dataType);
+//                        dataType.animateBirth(false, null, null, false);
+//
+//                        setTimeout(function () {
+////                            theOutputPoint.bringToFront();
+////                            dataType.bringToFront();
+//                            bringToFront(theOutputPoint);
+//                            bringToFront(dataType);
+//                        }, 50);
+//
+//                    }
+//
+//                    theOutputPoint.connecting = false;
+//
+//                }
+//
+//                theOutputPoint.lockMovementX = false;
+//                theOutputPoint.lockMovementY = true;
+//
+//            },
+//            'pressed': function (options) {
+//
+//                var theOutputPoint = this;
+//
+//                theOutputPoint.connecting = true;
+//
+//                theOutputPoint.lockMovementX = true;
+//                theOutputPoint.lockMovementY = true;
+//                blink(theOutputPoint, true, 0.45);
+//
+//                var newConnector = new Connector({value: theOutputPoint.value, source: theOutputPoint, x2: theOutputPoint.left, y2: theOutputPoint.top, arrowColor: theOutputPoint.stroke, filledArrow: true, strokeWidth: 1});
+//
+//                theOutputPoint.outConnectors.push(newConnector);
+//                canvas.add(newConnector);
+//
+//            },
             'outConnectionRemoved': standarOutConnectionRemovedHandler,
             'inConnectionRemoved': standarInConnectionRemovedHandler,
-            'newInConnection': function (options) {
+        });
 
-                var theLimit = this;
-                var limitName = theLimit.limitName;
-                var theRange = theLimit.range;
+    },
+    newInConnection: function (options) {
 
-                var newInConnection = options.newInConnection;
-                var shouldAnimate = options.shouldAnimate;
-                var doNotBlink = options.doNotBlink;
-                var incommingValue = newInConnection.value;
+        var theLimit = this;
+        var limitName = theLimit.limitName;
+        var theRange = theLimit.range;
 
-
-
-
-                var currentValue = theLimit.value;
-                var wasEmpty = theLimit.value && typeof theLimit.value !== 'undefined' && theLimit.value !== null;
+        var newInConnection = options.newInConnection;
+        var shouldAnimate = options.shouldAnimate;
+        var doNotBlink = options.doNotBlink;
+        var incommingValue = newInConnection.value;
 
 
+        if (incommingValue.isStringData || incommingValue.isShapeData) {
+            newInConnection.contract();
+            alertify.error("Type not supported for ranges", "", 2000);
+            setTimeout(function () {
+                theLimit.range.positionElements();
+            }, 75);
+            return;
+        } else {
 
-                if (theLimit.setValue(incommingValue, doNotBlink)) {
+            var currentValue = theLimit.value;
+            var wasEmpty = theLimit.value && typeof theLimit.value !== 'undefined' && theLimit.value !== null;
 
-                    var changingType = true;
-                    if (currentValue) {
-                        changingType = currentValue.getTypeProposition() !== incommingValue.getTypeProposition();
-                    }
 
-                    if (theLimit.inConnectors.length > 0) {
-                        var connector = theLimit.inConnectors.pop();
-                        connector.contract();
-                    }
 
-                    theLimit.inConnectors.push(newInConnection);
+            if (theLimit.setValue(incommingValue, doNotBlink)) {
 
-                    if (wasEmpty || changingType) {
-                        setTimeout(function () {
-                            theLimit.removeTypeIcon();
-                            var iconName = getIconNameByDataTypeProposition(incommingValue.getTypeProposition());
-                            theLimit.range.updateOutputColor(iconName);
-                            theLimit.addTypeIcon(iconName, 0.45, doNotBlink);
-                        }, 75);
-                    }
+                var changingType = true;
+                if (currentValue) {
+                    changingType = currentValue.getTypeProposition() !== incommingValue.getTypeProposition();
+                }
 
-                    theLimit.range.updateOtherLimit(theLimit.limitName);
+                if (theLimit.inConnectors.length > 0) {
+                    var connector = theLimit.inConnectors.pop();
+                    connector.contract();
+                }
+
+                theLimit.inConnectors.push(newInConnection);
+
+                if (wasEmpty || changingType) {
+                    setTimeout(function () {
+                        theLimit.removeTypeIcon();
+                        var iconName = getIconNameByDataTypeProposition(incommingValue.getTypeProposition());
+                        theLimit.range.updateOutputColor(iconName);
+                        theLimit.addTypeIcon(iconName, 0.45, doNotBlink);
+                    }, 75);
+                }
+
+
 
 
 
@@ -360,32 +389,29 @@ var RangeLimit = fabric.util.createClass(fabric.Circle, {
 //                        outConnector.setValue(incommingValue, false, shouldAnimate);
 //                    });
 
-                    // Every time a value is set here, we also have to update the values of the outgoing connections
-                    theLimit.outConnectors.forEach(function (outConnector) {
+                // Every time a value is set here, we also have to update the values of the outgoing connections
+                theLimit.outConnectors.forEach(function (outConnector) {
 
-                        if (LOG)
-                            console.log("The value that will be communicated to the connectors' destinations:");
-                        if (LOG)
-                            console.log(theLimit.value);
-
-                        outConnector.setValue(theLimit.value.clone(), false, shouldAnimate);
-                    });
+                    if (LOG) {
+                        console.log("The value that will be communicated to the connectors' destinations:");
+                        console.log(theLimit.value);
+                    }
 
 
-
+                    outConnector.setValue(theLimit.value.clone(), false, shouldAnimate);
+                });
 
 
 
-                } else {
+            } else {
 
-                    alertify.error("Error when trying to set the new value!", "", 2000);
-                    newInConnection.contract();
-                    return;
+                alertify.error("Error when trying to set the new value!", "", 2000);
+                newInConnection.contract();
+                return;
 
-                }
+            }
 
-            },
-        });
+        }
 
     },
 //    _render: function (ctx) {
@@ -399,3 +425,5 @@ var RangeLimit = fabric.util.createClass(fabric.Circle, {
 //        this.callSuper('_render', ctx);
 //    },
 });
+
+DataType.call(RangeLimit.prototype);

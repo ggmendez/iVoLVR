@@ -1359,7 +1359,8 @@ function showWebPage(url) {
     var elementTop = $("#openWebPageButton").position().top + $("#openWebPageButton").height();
     var idealHeight = viewportHeight - elementTop - 150;
 
-    var webPageDisplayer = $('<iframe />', {id: 'webPageDisplayer', style: 'resize:both; overflow:auto; margin-top: 8px; min-width:630px; min-height: 900px; max-height:' + idealHeight + 'px; background-color: #fff; border-color: #000; border-style: solid; border-width: 1px;'});
+//    var webPageDisplayer = $('<iframe />', {id: 'webPageDisplayer', style: 'resize:both; overflow:auto; margin-top: 8px; min-width:630px; min-height: 900px; max-height:' + idealHeight + 'px; background-color: #fff; border-color: #000; border-style: solid; border-width: 1px;'});
+    var webPageDisplayer = $('<iframe />', {id: 'webPageDisplayer', style: 'resize:both; overflow:auto; margin-top: 8px; min-width:630px; min-height: 500px; max-height:' + idealHeight + 'px; background-color: #fff; border-color: #000; border-style: solid; border-width: 1px;'});
 
 
 
@@ -2556,6 +2557,8 @@ function importImageToCanvas(options) {
 
         var d = new Date();
         var df = d.getMonth() + '_' + d.getDate() + '_' + d.getYear() + '_' + (d.getHours() + 1) + '_' + d.getMinutes() + '_' + d.getSeconds() + '_' + d.getMilliseconds();
+        
+        var df = df + "___" + Math.floor((Math.random() * 100) + 1);
 
         imgInstance.id = options.id || df;
 
@@ -8385,3 +8388,5 @@ function scaleCoordiates(object, coordinates, coordinate, max) {
 
     return scaledCoordinates;
 }
+
+
