@@ -329,6 +329,48 @@ var RangeLimit = fabric.util.createClass(fabric.Circle, {
         });
 
     },
+    updateTypeIcon: function (incommingValue, newInConnection, doNotBlink, shouldAnimate) {
+
+        var theLimit = this;
+        var currentValue = theLimit.value;
+        var wasEmpty = theLimit.value && typeof theLimit.value !== 'undefined' && theLimit.value !== null;
+
+        var changingType = true;
+        if (currentValue) {
+            changingType = currentValue.getTypeProposition() !== incommingValue.getTypeProposition();
+        }
+
+        if (theLimit.inConnectors.length > 0) {
+            var connector = theLimit.inConnectors.pop();
+            connector.contract();
+        }
+
+        if (newInConnection) {
+            theLimit.inConnectors.push(newInConnection);
+        }
+
+        if (wasEmpty || changingType) {
+            setTimeout(function () {
+                theLimit.removeTypeIcon();
+                var iconName = getIconNameByDataTypeProposition(incommingValue.getTypeProposition());
+                theLimit.range.updateOutputColor(iconName);
+                theLimit.addTypeIcon(iconName, 0.45, doNotBlink);
+            }, 75);
+        }
+
+        // Every time a value is set here, we also have to update the values of the outgoing connections
+        theLimit.outConnectors.forEach(function (outConnector) {
+
+            if (LOG) {
+                console.log("The value that will be communicated to the connectors' destinations:");
+                console.log(theLimit.value);
+            }
+
+
+            outConnector.setValue(theLimit.value.clone(), false, shouldAnimate);
+        });
+
+    },
     newInConnection: function (options) {
 
         var theLimit = this;
@@ -350,58 +392,10 @@ var RangeLimit = fabric.util.createClass(fabric.Circle, {
             return;
         } else {
 
-            var currentValue = theLimit.value;
-            var wasEmpty = theLimit.value && typeof theLimit.value !== 'undefined' && theLimit.value !== null;
-
-
 
             if (theLimit.setValue(incommingValue, doNotBlink)) {
 
-                var changingType = true;
-                if (currentValue) {
-                    changingType = currentValue.getTypeProposition() !== incommingValue.getTypeProposition();
-                }
-
-                if (theLimit.inConnectors.length > 0) {
-                    var connector = theLimit.inConnectors.pop();
-                    connector.contract();
-                }
-
-                theLimit.inConnectors.push(newInConnection);
-
-                if (wasEmpty || changingType) {
-                    setTimeout(function () {
-                        theLimit.removeTypeIcon();
-                        var iconName = getIconNameByDataTypeProposition(incommingValue.getTypeProposition());
-                        theLimit.range.updateOutputColor(iconName);
-                        theLimit.addTypeIcon(iconName, 0.45, doNotBlink);
-                    }, 75);
-                }
-
-
-
-
-
-
-
-
-//                    theLimit.outConnectors.forEach(function (outConnector) {
-//                        outConnector.setValue(incommingValue, false, shouldAnimate);
-//                    });
-
-                // Every time a value is set here, we also have to update the values of the outgoing connections
-                theLimit.outConnectors.forEach(function (outConnector) {
-
-                    if (LOG) {
-                        console.log("The value that will be communicated to the connectors' destinations:");
-                        console.log(theLimit.value);
-                    }
-
-
-                    outConnector.setValue(theLimit.value.clone(), false, shouldAnimate);
-                });
-
-
+                theLimit.updateTypeIcon(incommingValue, newInConnection, doNotBlink, shouldAnimate);
 
             } else {
 

@@ -263,11 +263,19 @@ var Range = fabric.util.createClass(fabric.Rect, {
 
         var theRange = this;
         var currentLimit = theRange[limitName];
-        var currentType = getIconNameByDataTypeProposition(currentLimit.value.getTypeProposition());
+        var currentValue = currentLimit.value;
+        var currentTypeProposition = currentValue.getTypeProposition();
+        var currentType = getIconNameByDataTypeProposition(currentTypeProposition);
 
         var otherLimitName = limitName === "lowerLimit" ? "upperLimit" : "lowerLimit";
         var otherLimit = theRange[otherLimitName];
         var otherValue = otherLimit.value;
+        
+        if (!otherValue) {
+            otherLimit.value = createDefaultValueByTypeProposition(currentTypeProposition);
+        }
+        
+        
         var otherType = otherValue ? getIconNameByDataTypeProposition(otherValue.getTypeProposition()) : null;
 
 //        console.log("otherType: " + otherType);
@@ -282,12 +290,13 @@ var Range = fabric.util.createClass(fabric.Rect, {
                 outConnector.contract();
             });
         }
+        
+        
+        
 
         if (theRange.lowerLimit.value && theRange.upperLimit.value) {
 
             if (theRange.lowerLimit.value.getTypeProposition() === theRange.upperLimit.value.getTypeProposition()) {
-
-
 
                 theRange.outputPoint.animate('opacity', 1, {
                     duration: 400

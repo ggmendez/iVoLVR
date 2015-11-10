@@ -292,7 +292,7 @@ var NumericFunction = fabric.util.createClass(fabric.Rect, {
         theFunction.set(limitName, numericVisualValue);
         theFunction.topElements.push(numericVisualValue);
 
-        numericVisualValue.off('mouseup');
+//        numericVisualValue.off('mouseup');
         numericVisualValue.off('mousedown');
         numericVisualValue.off('moving');
 

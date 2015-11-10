@@ -10,6 +10,10 @@
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+
         <link rel="stylesheet" type="text/css" href="./css/main.css" />
         <link rel="stylesheet" type="text/css" href="./css/kickstart.css" media="all" />
         <link rel="stylesheet" type="text/css" href="./style.css" media="all" />
@@ -141,7 +145,7 @@
     </head>
 
     <!--<body onresize="adjustCanvasDimensions();" onload="noBack();" onpageshow="if (event.persisted) noBack();" onunload="">-->
-        <body oncontextmenu="return false;" onresize="adjustCanvasDimensions();" onload="noBack();" onpageshow="if (event.persisted) noBack();" onunload="">
+    <body oncontextmenu="return false;" onresize="adjustCanvasDimensions();" onload="noBack();" onpageshow="if (event.persisted) noBack();" onunload="">
 
         <!--------------------->
         <!-- HORIZONTAL MENU -->
@@ -730,8 +734,15 @@
                 }
             });
             manager.on("pinchmove", function (ev) {
-                //                if (LOG) console.log("%cpinchmove", "background: aqua");
-                //                if (LOG) console.log(ev);
+
+
+                console.log("%cpinchmove", "background: aqua");
+
+                console.log(ev);
+
+
+
+
                 if (!canvas.getActiveObject() && !canvas.getActiveGroup()) {
                     var center = new fabric.Point(ev.center.x, ev.center.y);
                     canvas.zoomToPoint(center, canvas.zoomBeforePanning * ev.scale);
@@ -1614,11 +1625,20 @@
             var bubbleSound = new Audio("audio/bubble.wav"); // buffers automatically when created
             var popSound = new Audio("audio/pop.wav"); // buffers automatically when created
             var trashSound = new Audio("audio/trash.wav"); // buffers automatically when created
-            
+
             /*addRange({left: 800, top: 500});
-            var visualValue = createDefaultVisualValueByTypeProposition('isNumericData', 1300, 600);
-            canvas.add(visualValue);
-            visualValue.animateBirth(false, null, null, false);*/
+             var visualValue = createDefaultVisualValueByTypeProposition('isNumericData', 1300, 600);
+             canvas.add(visualValue);
+             visualValue.animateBirth(false, null, null, false);*/
+
+
+
+
+
+
+
+
+
 
 
         </script>

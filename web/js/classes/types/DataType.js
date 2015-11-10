@@ -408,11 +408,20 @@ var DataType = function () {
 
                         var canvasCoords = getCanvasCoordinates(theEvent);
 
-                        var targetObject = findPotentialDestination(canvasCoords, ['isVerticalCollection', 'isVisualProperty']);
+                        var targetObject = findPotentialDestination(canvasCoords, ['isRangeLimit', 'isVerticalCollection', 'isVisualProperty']);
 
                         if (targetObject) {
 
-                            if (targetObject.isVerticalCollection) {
+                            if (targetObject.isRangeLimit) {
+
+                                var incommingValue = theDataType.value;
+
+                                hideWithAnimation(theDataType, false);
+                                blink(targetObject, true, 0.65);
+                                targetObject.setValue(incommingValue, false, false);
+                                targetObject.updateTypeIcon(incommingValue, null, true, false);
+                                                                
+                            } else if (targetObject.isVerticalCollection) {
 
                                 var theCollection = targetObject;
 

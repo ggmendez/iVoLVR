@@ -1359,8 +1359,8 @@ function showWebPage(url) {
     var elementTop = $("#openWebPageButton").position().top + $("#openWebPageButton").height();
     var idealHeight = viewportHeight - elementTop - 150;
 
-//    var webPageDisplayer = $('<iframe />', {id: 'webPageDisplayer', style: 'resize:both; overflow:auto; margin-top: 8px; min-width:630px; min-height: 900px; max-height:' + idealHeight + 'px; background-color: #fff; border-color: #000; border-style: solid; border-width: 1px;'});
-    var webPageDisplayer = $('<iframe />', {id: 'webPageDisplayer', style: 'resize:both; overflow:auto; margin-top: 8px; min-width:630px; min-height: 500px; max-height:' + idealHeight + 'px; background-color: #fff; border-color: #000; border-style: solid; border-width: 1px;'});
+    var webPageDisplayer = $('<iframe />', {id: 'webPageDisplayer', style: 'resize:both; overflow:auto; margin-top: 8px; min-width:630px; min-height: 900px; max-height:' + idealHeight + 'px; background-color: #fff; border-color: #000; border-style: solid; border-width: 1px;'});
+//    var webPageDisplayer = $('<iframe />', {id: 'webPageDisplayer', style: 'resize:both; overflow:auto; margin-top: 8px; min-width:630px; min-height: 500px; max-height:' + idealHeight + 'px; background-color: #fff; border-color: #000; border-style: solid; border-width: 1px;'});
 
 
 
@@ -1628,10 +1628,10 @@ function duplicateObject() {
                 var canvasActualCenter = getActualCanvasCenter();
                 clonedGroup.setPositionByOrigin(canvasActualCenter, 'center', 'center');
 
+//                drawRectAt(canvasActualCenter);
 
 
-
-                // ungrouping the CLONED group is here
+//                // ungrouping the CLONED group is here
                 var items = clonedGroup._objects;
                 clonedGroup._restoreObjectsState();
 
@@ -6430,6 +6430,10 @@ function updateConnectorsPositions(object) {
     }
 
     if (object.inConnectors) {
+        
+//        console.log("object.inConnectors:");
+//        console.log(object.inConnectors);
+        
         object.inConnectors.forEach(function (inConnector) {
             if (!inConnector.group) {
                 inConnector.set({'x2': connectionPoint.x, 'y2': connectionPoint.y});

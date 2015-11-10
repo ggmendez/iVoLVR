@@ -77,26 +77,21 @@ var NumericFunctionOutput = fabric.util.createClass(fabric.Path, {
                 var coordY = canvasCoords.y;
 
 
-                var targetObject = findPotentialDestination(canvasCoords, ['isVisualProperty', 'isOperator', 'isFunctionInput', 'isAggregator', 'isPlayer', 'isMapperInput', 'isDataType', 'isNumericFunctionInput', 'isFunctionValuesCollection']);
+                var targetObject = findPotentialDestination(canvasCoords, ['isNumericFunctionOutput', 'isVisualProperty', 'isOperator', 'isAggregator', 'isPlayer', 'isMapperInput', 'isDataType', 'isNumericFunctionInput', 'isFunctionValuesCollection']);
+                
+                
 
-                if (targetObject) {
+                if (targetObject) {                                        
 
                     if (targetObject !== theNumericFunctionOutput) {
-
-
-                        if (targetObject.isPlayer) {
-
-                            connector.setDestination(targetObject, true);
-
-                        } else if (targetObject.isOperator || targetObject.isVisualProperty || targetObject.isFunctionInput || targetObject.isDataType || targetObject.isVerticalCollection || targetObject.isMapperInput || targetObject.isNumericFunctionOutput || targetObject.isNumericFunctionInput || targetObject.isFunctionValuesCollection) {
+                        
+                        if (targetObject.isOperator || targetObject.isVisualProperty || targetObject.isFunctionInput || targetObject.isDataType || targetObject.isVerticalCollection || targetObject.isMapperInput || targetObject.isNumericFunctionOutput || targetObject.isNumericFunctionInput || targetObject.isFunctionValuesCollection) {
 
                             connector.setDestination(targetObject, true);
 
                             if (!targetObject.isVerticalCollection) {
 
                                 setTimeout(function () {
-//                                    connector.source.bringToFront();
-//                                    connector.destination.bringToFront();
                                     bringToFront(connector.source);
                                     bringToFront(connector.destination);
                                 }, 50);
@@ -114,11 +109,11 @@ var NumericFunctionOutput = fabric.util.createClass(fabric.Path, {
                             }
                         }
 
-                    } else {
+                    } else {                                                
 
                         connector = theNumericFunctionOutput.outConnectors.pop();
                         if (connector) {
-                            connector.contract();
+                            connector.remove();
                         }
 
                     }

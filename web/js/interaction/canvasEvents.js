@@ -1336,11 +1336,28 @@ function closePotentiallyOpenMenus() {
 }
 
 function canvasMouseDown(option) {
+    
+    
+    
+    
 
 //    if (LOG)
     console.log("canvasMouseDown");
+    
+    
+      
+    
 
     var event = option.e;
+    
+    console.log(event);
+    
+    if(event.penSupport){ // is your browser have a pen or pen event support?
+        console.log('pen pressure : ' + event.pen.pressure);
+        console.log('pen tilt : ' + ['x : ', event.pen.tiltX, 'y : ', event.pen.tiltY].join(','));
+    }
+    
+    
     event.preventDefault();
 
     closePotentiallyOpenMenus();
